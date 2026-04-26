@@ -8,6 +8,11 @@
     <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
 
     <style>
+        #book {
+            width: 100%;
+            max-width: 900px;
+        }
+
         body {
             margin: 0;
             background: #0f172a;
@@ -177,7 +182,8 @@
         function initFlipbook() {
             const book = document.getElementById("book");
 
-            // Guardar página actual antes de reiniciar
+            const mobile = isMobile();
+
             if (pageFlip) {
                 currentPage = pageFlip.getCurrentPageIndex();
                 book.innerHTML = "";
@@ -185,46 +191,27 @@
             }
 
             pageFlip = new St.PageFlip(book, {
-                width: isMobile() ? 350 : 450,
-                height: isMobile() ? 500 : 650,
-                size: "stretch",
-                minWidth: 300,
-                maxWidth: 1000,
-                minHeight: 400,
-                maxHeight: 800,
+                width: mobile ? window.innerWidth * 0.9 : 450,
+                height: mobile ? window.innerHeight * 0.8 : 650,
+                size: "fixed",
                 showCover: true,
-                usePortrait: true, // 🔥 clave para móvil 1 página
+                usePortrait: mobile, // 🔥 FORZADO
                 mobileScrollSupport: false
             });
 
             const pages = paginas.map((_, i) => createPage(i));
-
             pageFlip.loadFromHTML(pages);
             pageFlip.update();
 
-            // Restaurar página
             setTimeout(() => {
                 pageFlip.turnToPage(currentPage);
 
-                // cargar páginas cercanas
                 for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
                     if (i >= 0 && i < paginas.length) {
                         loadPage(i);
                     }
                 }
             }, 300);
-
-            // Evento flip
-            pageFlip.on("flip", (e) => {
-                const current = e.data;
-                currentPage = current;
-
-                for (let i = current - buffer; i <= current + buffer; i++) {
-                    if (i >= 0 && i < paginas.length) {
-                        loadPage(i);
-                    }
-                }
-            });
         }
 
         // Controles
