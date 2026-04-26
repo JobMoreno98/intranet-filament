@@ -13,8 +13,9 @@ func processImage(task ProcessingTask) {
 	source := strings.ReplaceAll(task.Path, "\\", "/")
 
 	// Estructura: public/items/slug-coleccion/id-recurso/id-archivo/
-	outputDir := filepath.Join("../storage", "app", "private",
-		task.ColeccionSlug,
+	// Cambia esto en tu procesador de Go:
+	basePath := "/var/www/html/bpej/storage/app/private"
+	outputDir := filepath.Join(basePath, task.ColeccionSlug,
 		fmt.Sprintf("%d", task.RecursoID),
 		fmt.Sprintf("%d", task.ArchivoID))
 
