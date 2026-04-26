@@ -21,21 +21,24 @@ class RecursosInfolist
                             ->schema([
                                 ImageEntry::make('assets_procesados.thumb')
                                     ->label('Vista Previa')
-                                    // IMPORTANTE: No usamos ->disk() aquí porque no queremos que Laravel 
-                                    // intente buscar la ruta directamente. Queremos que el navegador pida la URL firmada.
-                                    ->imageUrl(fn($record) => URL::temporarySignedRoute(
+                                    // Inyectamos la URL firmada como el estado del componente
+                                    ->state(fn($record) => URL::temporarySignedRoute(
                                         'media.stream',
                                         now()->addMinutes(60),
-                                        ['archivo_id' => $record->id, 'tipo' => 'thumb'] // Enviamos el parámetro 'tipo'
+                                        [
+                                            'archivo_id' => $record->id,
+                                            'tipo' => 'thumb' // Asegúrate de que tu ruta acepte este parámetro
+                                        ]
                                     ))
                                     ->width(300)
                                     ->height(200)
-                                    ->openUrlInNewTab()
+                                    // El método url() define a dónde va el usuario al hacer CLIC
                                     ->url(fn($record) => URL::temporarySignedRoute(
                                         'media.stream',
                                         now()->addMinutes(60),
-                                        ['archivo_id' => $record->id, 'tipo' => 'main'] // Al hacer clic, ver la grande
-                                    )),
+                                        ['archivo_id' => $record->id, 'tipo' => 'main']
+                                    ))
+                                    ->openUrlInNewTab(),
                                 // Si no se ha procesado, mostramos un placeholder
                                 //->defaultImageUrl(url('/images/placeholder-processing.png')),
 
