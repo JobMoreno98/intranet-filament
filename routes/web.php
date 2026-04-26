@@ -44,5 +44,5 @@ Route::get('/media/stream/{archivo_id}', function ($archivo_id) {
         ->header('X-Content-Type-Options', 'nosniff');
 })->name('media.stream')->middleware('auth');
 
-Route::get('/visor/{id}', [RecursosController::class, 'ver'])->middleware('auth');
+Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');
 Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl'])->middleware('auth');
