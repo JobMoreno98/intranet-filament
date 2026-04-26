@@ -124,30 +124,28 @@
             <button class="btn" onclick="nextPage()">➡</button>
         </div>
     </div>
-
     <script>
         const paginas = @json($paginas);
 
-        const book = document.getElementById("book");
-
-        const pageFlip = new St.PageFlip(book, {
-            width: 450,
-            height: 650,
-            showCover: true,
-            mobileScrollSupport: false
-        });
-
+        let pageFlip;
         let loadedPages = {};
         let buffer = 2;
+        let currentPage = 0;
 
-        // Crear páginas vacías
+        // Detectar móvil
+        function isMobile() {
+            return window.innerWidth < 768;
+        }
+
+        // Crear página vacía
         function createPage(index) {
             const div = document.createElement("div");
             div.classList.add("page");
 
             const img = document.createElement("img");
-            div.appendChild(img);
+            img.setAttribute("data-index", index);
 
+            div.appendChild(img);
             return div;
         }
 
@@ -158,7 +156,7 @@
             return data.url;
         }
 
-        // Lazy load
+        // Cargar imagen bajo demanda
         async function loadPage(index) {
             if (loadedPages[index] || !paginas[index]) return;
 
@@ -175,38 +173,87 @@
             loadedPages[index] = true;
         }
 
-        // Inicializar
-        const initialPages = paginas.map((_, i) => createPage(i));
-        pageFlip.loadFromHTML(initialPages);
+        // Inicializar flipbook
+        function initFlipbook() {
+            const book = document.getElementById("book");
 
-        // Primeras páginas
-        for (let i = 0; i < 3; i++) {
-            loadPage(i);
-        }
-
-        // Evento flip
-        pageFlip.on("flip", (e) => {
-            const current = e.data;
-
-            for (let i = current - buffer; i <= current + buffer; i++) {
-                if (i >= 0 && i < paginas.length) {
-                    loadPage(i);
-                }
+            // Guardar página actual antes de reiniciar
+            if (pageFlip) {
+                currentPage = pageFlip.getCurrentPageIndex();
+                book.innerHTML = "";
+                loadedPages = {};
             }
-        });
+
+            pageFlip = new St.PageFlip(book, {
+                width: isMobile() ? 350 : 450,
+                height: isMobile() ? 500 : 650,
+                size: "stretch",
+                minWidth: 300,
+                maxWidth: 1000,
+                minHeight: 400,
+                maxHeight: 800,
+                showCover: true,
+                usePortrait: true, // 🔥 clave para móvil 1 página
+                mobileScrollSupport: false
+            });
+
+            const pages = paginas.map((_, i) => createPage(i));
+
+            pageFlip.loadFromHTML(pages);
+            pageFlip.update();
+
+            // Restaurar página
+            setTimeout(() => {
+                pageFlip.turnToPage(currentPage);
+
+                // cargar páginas cercanas
+                for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
+                    if (i >= 0 && i < paginas.length) {
+                        loadPage(i);
+                    }
+                }
+            }, 300);
+
+            // Evento flip
+            pageFlip.on("flip", (e) => {
+                const current = e.data;
+                currentPage = current;
+
+                for (let i = current - buffer; i <= current + buffer; i++) {
+                    if (i >= 0 && i < paginas.length) {
+                        loadPage(i);
+                    }
+                }
+            });
+        }
 
         // Controles
         function nextPage() {
-            pageFlip.flipNext();
+            if (pageFlip) pageFlip.flipNext();
         }
 
         function prevPage() {
-            pageFlip.flipPrev();
+            if (pageFlip) pageFlip.flipPrev();
         }
+
+        // Detectar cambio de modo (responsive)
+        let currentMode = isMobile();
+
+        window.addEventListener("resize", () => {
+            const newMode = isMobile();
+
+            if (newMode !== currentMode) {
+                currentMode = newMode;
+                initFlipbook();
+            }
+        });
 
         // Seguridad básica
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('dragstart', e => e.preventDefault());
+
+        // Inicializar
+        initFlipbook();
     </script>
 
 </body>
