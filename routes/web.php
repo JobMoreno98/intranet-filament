@@ -15,23 +15,30 @@ require __DIR__ . '/settings.php';
 
 
 Route::get('/media/stream/{archivo_id}', function ($archivo_id) {
-    // 1. Validar la firma (Seguridad)
-    //dd($archivo_id);
+    // 1. Validar la firma
     if (!request()->hasValidSignature()) {
-        abort(403);
+        abort(403, 'Firma inválida o expirada');
     }
 
     $archivo = RecursosArchivos::findOrFail($archivo_id);
-    $path = $archivo->assets_procesados['main']; // ej: "coleccion/1/1/main.webp"
 
-    // 2. Construir la ruta que Nginx entiende
-    // Debe coincidir con el nombre del 'location' definido en Nginx
+    // Obtenemos el path del JSON (ej: archivo-general/1/1/main.webp)
+    $path = $archivo->assets_procesados['main'] ?? null;
+
+    if (!$path) {
+        abort(404, 'No hay versión procesada para este archivo');
+    }
+
+    // 2. Construir la ruta para Nginx
+    // IMPORTANTE: Nginx espera una ruta relativa al bloque 'location'
     $nginxPath = '/protegido/' . $path;
 
     // 3. Responder a Nginx
+    // Usamos binary file response o noContent, pero X-Accel-Redirect es la clave
     return response()->noContent()
         ->header('X-Accel-Redirect', $nginxPath)
-        ->header('Content-Type', 'image/webp'); // O detectar el mime dinámicamente
+        ->header('Content-Type', 'image/webp')
+        ->header('Content-Disposition', 'inline; filename="' . basename($path) . '"');
 })->name('media.stream')->middleware('auth');
 
 
