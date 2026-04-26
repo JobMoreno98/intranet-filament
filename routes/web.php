@@ -38,7 +38,10 @@ Route::get('/media/stream/{archivo_id}', function ($archivo_id) {
     return response()->noContent()
         ->header('X-Accel-Redirect', $nginxPath)
         ->header('Content-Type', 'image/webp')
-        ->header('Content-Disposition', 'inline; filename="' . basename($path) . '"');
+        // 'inline' le dice al navegador que la muestre, NO que la descargue
+        ->header('Content-Disposition', 'inline')
+        // Seguridad extra para evitar que olfateen el tipo de archivo
+        ->header('X-Content-Type-Options', 'nosniff');
 })->name('media.stream')->middleware('auth');
 
 
