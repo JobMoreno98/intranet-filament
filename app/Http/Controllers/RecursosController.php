@@ -21,7 +21,7 @@ class RecursosController extends Controller
             ];
         })->values();
 
-        return view('visor', compact('paginas'));
+        return view('visor', compact('recurso', 'paginas'));
     }
 
     // Endpoint para generar URLs firmadas dinámicamente (lazy loading)
