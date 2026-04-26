@@ -162,12 +162,16 @@
         async function loadPage(index) {
             if (loadedPages[index] || !paginas[index]) return;
 
-            const page = book.children[index];
-            const img = page.querySelector("img");
+            const page = pageFlip.getPage(index);
+            if (!page) return;
+
+            const element = page.element;
+            const img = element.querySelector("img");
 
             const url = await getSignedUrl(paginas[index].id);
 
             img.src = url;
+
             loadedPages[index] = true;
         }
 
