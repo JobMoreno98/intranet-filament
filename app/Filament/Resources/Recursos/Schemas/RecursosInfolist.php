@@ -19,18 +19,25 @@ class RecursosInfolist
                     ->schema([
                         RepeatableEntry::make('archivos') // Relación con la tabla hija
                             ->schema([
-                                ImageEntry::make('assets_procesados.thumb') // Accedemos al JSON
+                                ImageEntry::make('assets_procesados.thumb')
                                     ->label('Vista Previa')
-                                    ->disk('private') // Donde Go guarda los WebP
+                                    // IMPORTANTE: No usamos ->disk() aquí porque no queremos que Laravel 
+                                    // intente buscar la ruta directamente. Queremos que el navegador pida la URL firmada.
+                                    ->imageUrl(fn($record) => URL::temporarySignedRoute(
+                                        'media.stream',
+                                        now()->addMinutes(60),
+                                        ['archivo_id' => $record->id, 'tipo' => 'thumb'] // Enviamos el parámetro 'tipo'
+                                    ))
                                     ->width(300)
                                     ->height(200)
+                                    ->openUrlInNewTab()
                                     ->url(fn($record) => URL::temporarySignedRoute(
                                         'media.stream',
                                         now()->addMinutes(60),
-                                        ['archivo_id' => $record->id]
-                                    ))->openUrlInNewTab(),
-                                    // Si no se ha procesado, mostramos un placeholder
-                                    //->defaultImageUrl(url('/images/placeholder-processing.png')),
+                                        ['archivo_id' => $record->id, 'tipo' => 'main'] // Al hacer clic, ver la grande
+                                    )),
+                                // Si no se ha procesado, mostramos un placeholder
+                                //->defaultImageUrl(url('/images/placeholder-processing.png')),
 
                                 TextEntry::make('nombre_archivo_original')
                                     ->label('Nombre')
