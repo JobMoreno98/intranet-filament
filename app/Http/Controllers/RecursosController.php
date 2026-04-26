@@ -15,7 +15,7 @@ class RecursosController extends Controller
         $recurso = Recursos::with('archivos')->findOrFail($id);
 
         // Solo mandamos IDs, NO URLs (más seguro)
-        $paginas = $recurso->archivos->map(function ($archivo) {
+        $paginasCargadas = $recurso->archivos->map(function ($archivo) {
             return [
                 'id' => $archivo->id,
                 'url' => URL::temporarySignedRoute('media.stream', now()->addMinutes(60), [
@@ -24,7 +24,7 @@ class RecursosController extends Controller
                 ]),
             ];
         });
-        return view('visor', compact('recurso', 'paginas'));
+        return view('visor', compact('recurso', 'paginasCargadas'));
     }
 
     // Endpoint para generar URLs firmadas dinámicamente (lazy loading)
