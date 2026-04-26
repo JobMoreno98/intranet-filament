@@ -1,15 +1,3 @@
-<div id="galeria">
-    @foreach ($recurso->archivos as $archivo)
-    @php
-    $urlFirmada = URL::temporarySignedRoute('media.stream', now()->addMinutes(60), [
-    'archivo_id' => $archivo->id,
-    ]);
-    @endphp
-    <img data-original="{{ $urlFirmada }}" src="{{ $urlFirmada }}" alt="{{ $archivo->nombre_archivo_original }}"
-        class="img-thumbnail" style="width: 150px; cursor: zoom-in;">
-    @endforeach
-</div>
-
 <script>
     // Inicializar el visor
     const viewer = new Viewer(document.getElementById('galeria'), {
@@ -73,80 +61,63 @@
 
 <body>
 
-    <div id="book"></div>
+    <div class="container-flip">
+        <div id="book" class="mx-auto">
+            @foreach ($paginasCargadas as $p)
+                <div class="page" data-density="hard">
+                    <img src="{{ $p['url'] }}" alt="Página" loading="lazy">
+                </div>
+            @endforeach
+        </div>
+    </div>
 
     <script>
-        const paginas = @json($paginas);
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookElement = document.getElementById("book");
 
-        const book = document.getElementById("book");
+            const pageFlip = new St.PageFlip(bookElement, {
+                width: 550, // Dimensiones ajustadas a tus WebP
+                height: 800,
+                size: "stretch",
+                minWidth: 315,
+                maxWidth: 1000,
+                minHeight: 420,
+                maxHeight: 1350,
+                maxShadowOpacity: 0.5,
+                showCover: true,
+                mobileScrollSupport: false
+            });
 
-        const pageFlip = new St.PageFlip(book, {
-            width: 400,
-            height: 600,
-            showCover: true,
-            mobileScrollSupport: false
+            // Cargar desde el HTML existente
+            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+
+            // Bloqueo de seguridad solicitado
+            bookElement.addEventListener('contextmenu', e => e.preventDefault());
         });
-
-        let loadedPages = {};
-        let buffer = 2;
-
-        // Crear página vacía
-        function createPage(index) {
-            const div = document.createElement("div");
-            div.classList.add("page");
-
-            const img = document.createElement("img");
-            img.setAttribute("data-index", index);
-
-            div.appendChild(img);
-            return div;
-        }
-
-        // Obtener URL firmada dinámicamente
-        async function getSignedUrl(id) {
-            const res = await fetch(`/media/url/${id}`);
-            const data = await res.json();
-            return data.url;
-        }
-
-        // Cargar imagen bajo demanda
-        async function loadPage(index) {
-            if (loadedPages[index] || !paginas[index]) return;
-
-            const page = book.children[index];
-            const img = page.querySelector("img");
-
-            const url = await getSignedUrl(paginas[index].id);
-
-            img.src = url;
-
-            loadedPages[index] = true;
-        }
-
-        // Inicializar placeholders
-        const initialPages = paginas.map((_, i) => createPage(i));
-        pageFlip.loadFromHTML(initialPages);
-
-        // Cargar primeras páginas
-        for (let i = 0; i < 3; i++) {
-            loadPage(i);
-        }
-
-        // Lazy loading al cambiar página
-        pageFlip.on("flip", (e) => {
-            const current = e.data;
-
-            for (let i = current - buffer; i <= current + buffer; i++) {
-                if (i >= 0 && i < paginas.length) {
-                    loadPage(i);
-                }
-            }
-        });
-
-        // Bloqueos básicos
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('dragstart', e => e.preventDefault());
     </script>
+
+    <style>
+        .container-flip {
+            display: flex;
+            justify-content: center;
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .page {
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .page img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+    </style>
 
 </body>
 

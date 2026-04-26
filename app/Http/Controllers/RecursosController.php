@@ -17,10 +17,13 @@ class RecursosController extends Controller
         // Solo mandamos IDs, NO URLs (más seguro)
         $paginas = $recurso->archivos->map(function ($archivo) {
             return [
-                'id' => $archivo->id
+                'id' => $archivo->id,
+                'url' => URL::temporarySignedRoute('media.stream', now()->addMinutes(60), [
+                    'archivo_id' => $archivo->id,
+                    'tipo' => 'main' // Usamos la imagen grande para el libro
+                ]),
             ];
-        })->values();
-
+        });
         return view('visor', compact('recurso', 'paginas'));
     }
 
