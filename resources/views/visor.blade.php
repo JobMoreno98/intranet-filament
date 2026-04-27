@@ -35,26 +35,29 @@
             color: #94a3b8;
         }
 
-        .viewer-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 20px;
+        #book {
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            /* Limita el ancho en monitores grandes */
+            height: 80vh;
+            /* Altura relativa a la pantalla */
         }
 
-        /* Contenedor del libro */
-        #book {
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            background: #000;
+        .viewer-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #0f172a;
+            height: 100%;
         }
 
         .page {
-            background: #111;
-            width: 100%;
-            height: 100%;
+            background: #000;
         }
+
+
 
         .page img {
             width: 100%;
@@ -84,11 +87,6 @@
 
         .btn:hover {
             background: #334155;
-        }
-
-        #book {
-            margin: 0 auto;
-            display: block;
         }
 
         @media (max-width: 768px) {
@@ -123,18 +121,13 @@
             <button class="btn" onclick="nextPage()">➡</button>
         </div>
     </div>
-
     <script>
-        function isMobile() {
-            return window.innerWidth <= 768 || window.innerHeight < window.innerWidth;
-        }
         const paginas = @json($paginas);
         let pageFlip;
         let loadedPages = {};
         const buffer = 2;
         let currentPage = 0;
 
-        
         function createPage(index) {
             const div = document.createElement("div");
             div.classList.add("page");
@@ -150,15 +143,12 @@
                 const data = await res.json();
                 return data.url;
             } catch (e) {
-                console.error("Error obteniendo URL:", e);
                 return null;
             }
         }
 
         async function loadPage(index) {
             if (loadedPages[index] || !paginas[index]) return;
-
-            // Buscamos el contenedor de la página por su posición en el DOM
             const allPages = document.querySelectorAll(".page");
             const pageDiv = allPages[index];
             if (!pageDiv) return;
@@ -173,46 +163,33 @@
 
         function initFlipbook() {
             const bookContainer = document.getElementById("book");
-            const mobile = isMobile();
 
             if (pageFlip) {
                 currentPage = pageFlip.getCurrentPageIndex();
                 pageFlip.destroy();
             }
             bookContainer.innerHTML = "";
+            loadedPages = {};
 
-            // CONFIGURACIÓN DINÁMICA
-            let settings = {
-                width: 450, // Ancho base de una página
-                height: 650, // Alto base
-                size: "fixed",
-                showCover: true,
+            // CONFIGURACIÓN PARA PÁGINA ÚNICA SIEMPRE
+            pageFlip = new St.PageFlip(bookContainer, {
+                width: 550, // Ancho de la página
+                height: 750, // Alto de la página
+                size: "stretch", // Se adapta al contenedor
+                showCover: false, // En página única suele verse mejor sin cover
+                usePortrait: true, // 🔥 FUERZA UNA SOLA PÁGINA
+                mode: "portrait", // 🔥 MODO RETRATO SIEMPRE
                 startPage: currentPage,
                 mobileScrollSupport: false,
-                maxShadowOpacity: 0.3,
-            };
-
-            if (mobile) {
-                // En móvil forzamos dimensiones que obliguen a 1 página
-                settings.width = window.innerWidth;
-                settings.height = window.innerHeight * 0.8;
-                settings.size = "stretch";
-                settings.usePortrait = true; // Forzar modo retrato
-                settings.mode = "portrait"; // Algunos builds de la librería requieren 'mode'
-            } else {
-                settings.width = 450;
-                settings.height = 650;
-                settings.size = "fixed";
-                settings.usePortrait = false;
-                settings.mode = "landscape";
-            }
-
-            pageFlip = new St.PageFlip(bookContainer, settings);
+                drawShadow: true,
+                maxShadowOpacity: 0.2,
+                clickEventForward: false
+            });
 
             const htmlPages = paginas.map((_, i) => createPage(i));
             pageFlip.loadFromHTML(htmlPages);
 
-            // Cargar páginas adyacentes al iniciar
+            // Carga inicial de páginas
             for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
                 if (i >= 0) loadPage(i);
             }
@@ -233,15 +210,11 @@
             pageFlip.flipPrev();
         }
 
-        let resizeTimeout;
         window.addEventListener("resize", () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(initFlipbook, 300);
+            // En modo 'stretch' y 'portrait', la librería maneja 
+            // mejor el resize sin necesidad de destruir todo el tiempo.
+            pageFlip.update();
         });
-
-        // Seguridad
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('dragstart', e => e.preventDefault());
 
         initFlipbook();
     </script>
