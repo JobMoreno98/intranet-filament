@@ -1,224 +1,112 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
-    <title>{{ $titulo }}</title>
-
-    <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor BPEJ - {{ $recurso->titulo }}</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        body {
-            margin: 0;
-            background: #0f172a;
-            color: #e5e7eb;
-            font-family: system-ui;
-        }
-
-        /* CONTENEDOR */
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 10px;
-        }
-
-        /* HEADER CONTROLES */
-        .controls-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #020617;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .btn {
-            background: #1e293b;
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: #334155;
-        }
-
-        /* LIBRO */
-        .flip-book {
-            width: 100%;
-            height: 650px;
-            margin: auto;
-        }
-
-        /* PÁGINA */
-        .page {
-            background: #111;
-            color: white;
-        }
-
-        .page-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        /* HEADER PÁGINA */
-        .page-header {
-            padding: 10px;
-            font-size: 14px;
-            background: #020617;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        /* IMAGEN */
-        .page-image {
-            flex: 1;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-
-        /* FOOTER */
-        .page-footer {
-            padding: 6px;
-            text-align: center;
-            font-size: 12px;
-            background: #020617;
-            border-top: 1px solid #1e293b;
-        }
-
-        /* PORTADA */
-        .page-cover {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            background: #020617;
-        }
-
-        /* MOBILE */
-        @media (max-width: 768px) {
-            .flip-book {
-                height: 70vh;
-            }
-        }
-
-        .scroll-viewer {
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .scroll-page {
-            width: 100%;
-            background: black;
-        }
-
-        .scroll-page img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-
-            user-select: none;
-            pointer-events: none;
-        }
+        .pswp { --pswp-bg: #020617; } /* Fondo azul muy oscuro */
+        body { background-color: #020617; }
+        .canvas-container { height: calc(100vh - 80px); }
     </style>
 </head>
+<body class="overflow-hidden">
 
-<body>
+    <header class="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/50 backdrop-blur-md">
+        <div>
+            <h1 class="text-slate-100 font-bold text-sm truncate max-w-xs md:max-w-xl">{{ $recurso->titulo }}</h1>
+            <p class="text-slate-400 text-xs uppercase tracking-widest">{{ $recurso->autor }}</p>
+        </div>
+        
+        <div class="flex items-center gap-3 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+            <input type="number" id="goto-page" value="1" min="1" max="{{ count($paginas) }}"
+                   class="w-12 bg-transparent text-center text-slate-100 font-bold outline-none focus:text-indigo-400">
+            <span class="text-slate-500 text-xs font-medium">/ {{ count($paginas) }}</span>
+        </div>
+    </header>
 
-    <div class="container">
+    <main id="visor-container" class="canvas-container relative flex items-center justify-center">
+        <div id="gallery-trigger" class="hidden">
+            @foreach($paginas as $p)
+                <a href="{{ $p['url'] }}" data-pswp-width="{{ $p['w'] }}" data-pswp-height="{{ $p['h'] }}" target="_blank">
+                    <img src="{{ $p['url'] }}" alt="Página" />
+                </a>
+            @endforeach
+        </div>
+        <div class="text-slate-500 animate-pulse text-sm">Iniciando visor de alta resolución...</div>
+    </main>
 
-        <!-- CONTROLES -->
-        <div class="controls-bar">
-            <div>
-                <button class="btn" onclick="prevPage()">⬅</button>
-                <span>
-                    <span id="page-current">1</span> /
-                    <span id="page-total">{{ count($paginas) }}</span>
-                </span>
-                <button class="btn" onclick="nextPage()">➡</button>
-            </div>
-
-            <div>
-                <strong>{{ $titulo }}</strong> — {{ $autor }}
-            </div>
+    <footer class="h-16 border-t border-slate-800 flex items-center justify-center gap-8 bg-slate-900/80">
+        <button id="prev-btn" class="text-slate-300 hover:text-white transition-colors p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        
+        <div class="h-1 w-32 bg-slate-800 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
         </div>
 
-        <!-- LIBRO -->
-        <div id="book" class="flip-book"></div>
+        <button id="next-btn" class="text-slate-300 hover:text-white transition-colors p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+    </footer>
 
-        <div id="scroll-viewer" class="scroll-viewer"></div>
+    <script type="module">
+        import PhotoSwipeLightbox from 'https://unpkg.com/photoswipe@5.4.3/dist/photoswipe-lightbox.esm.js';
+        import PhotoSwipe from 'https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.esm.js';
 
-    </div>
-    <script>
-        const paginas = @json($paginas);
+        const options = {
+            gallery: '#gallery-trigger',
+            children: 'a',
+            pswpModule: PhotoSwipe,
+            // Configuraciones de Interfaz
+            padding: { top: 20, bottom: 20, left: 20, right: 20 },
+            initialZoomLevel: 'fit',
+            secondaryZoomLevel: 2,
+            maxZoomLevel: 4,
+            bgOpacity: 1,
+            // Desactivar lo que no queremos
+            zoom: true,
+            close: false,
+            counter: false,
+            arrowPrev: false,
+            arrowNext: false,
+        };
 
-        function initScrollMode() {
-            const container = document.getElementById("scroll-viewer");
-            container.innerHTML = "";
+        const lightbox = new PhotoSwipeLightbox(options);
+        
+        // Inicialización
+        lightbox.init();
 
-            paginas.forEach((p, index) => {
-                const div = document.createElement("div");
-                div.classList.add("scroll-page");
+        // Esperar a que el DOM cargue para abrir automáticamente
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                lightbox.loadAndOpen(0); // Abre la primera página automáticamente
+            }, 500);
+        });
 
-                const img = document.createElement("img");
-                img.dataset.index = index;
+        // Sincronización con controles externos
+        lightbox.on('change', () => {
+            const curr = lightbox.pswp.currIndex;
+            const total = {{ count($paginas) }};
+            document.getElementById('goto-page').value = curr + 1;
+            document.getElementById('progress-bar').style.width = ((curr + 1) / total * 100) + '%';
+        });
 
-                div.appendChild(img);
-                container.appendChild(div);
-            });
+        // Botones de navegación
+        document.getElementById('prev-btn').onclick = () => lightbox.pswp.prev();
+        document.getElementById('next-btn').onclick = () => lightbox.pswp.next();
 
-            const images = document.querySelectorAll(".scroll-page img");
+        // Salto de página
+        document.getElementById('goto-page').onchange = (e) => {
+            lightbox.pswp.goTo(parseInt(e.target.value) - 1);
+        };
 
-            // 🔥 1. CARGA INICIAL (clave)
-            images.forEach((img, index) => {
-                if (index < 3) {
-                    loadImage(img, index);
-                }
-            });
-
-            // 🔥 2. INTERSECTION OBSERVER
-            const observer = new IntersectionObserver((entries, obs) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        const index = img.dataset.index;
-
-                        loadImage(img, index);
-                        obs.unobserve(img);
-                    }
-                });
-            }, {
-                rootMargin: "300px",
-                threshold: 0.01
-            });
-
-            images.forEach(img => observer.observe(img));
-        }
-
-        // 🔥 carga simple
-        async function loadImage(img, index) {
-            if (img.src) return;
-
-            try {
-                const res = await fetch(`/media/url/${paginas[index].id}`);
-                const data = await res.json();
-
-                img.src = data.url;
-            } catch (e) {
-                console.error("Error cargando imagen", index);
-            }
-        }
-
-        // iniciar
-        initScrollMode();
+        // Bloqueo de seguridad básica solicitado
+        document.addEventListener('contextmenu', e => e.preventDefault());
     </script>
-
 </body>
-
 </html>
