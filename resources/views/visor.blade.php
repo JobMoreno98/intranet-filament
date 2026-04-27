@@ -155,41 +155,39 @@
             const bookContainer = document.getElementById("book");
             const mobile = isMobile();
 
-            // Guardar progreso antes de destruir
             if (pageFlip) {
                 currentPage = pageFlip.getCurrentPageIndex();
                 pageFlip.destroy();
-                loadedPages = {};
             }
             bookContainer.innerHTML = "";
 
-            // Lógica de dimensiones:
-            // En modo libro (desktop), 'width' es el ancho de UNA página.
-            // La librería duplicará ese ancho automáticamente para el visor total.
-            let viewWidth, viewHeight;
-
-            if (mobile) {
-                viewWidth = window.innerWidth;
-                viewHeight = window.innerHeight * 0.7;
-            } else {
-                viewWidth = 450; // Ancho de una página (total 900px)
-                viewHeight = 650;
-            }
-
-            pageFlip = new St.PageFlip(bookContainer, {
-                width: viewWidth,
-                height: viewHeight,
-                size: mobile ? "stretch" : "fixed",
-                minWidth: 300,
-                maxWidth: 500,
-                minHeight: 400,
-                maxHeight: 700,
+            // CONFIGURACIÓN DINÁMICA
+            let settings = {
+                width: 450, // Ancho base de una página
+                height: 650, // Alto base
+                size: "fixed",
                 showCover: true,
-                usePortrait: mobile, // 🔥 MODO RETRATO: 1 página en móvil
                 startPage: currentPage,
                 mobileScrollSupport: false,
-                clickEventForward: false
-            });
+                maxShadowOpacity: 0.3,
+            };
+
+            if (mobile) {
+                // En móvil forzamos dimensiones que obliguen a 1 página
+                settings.width = window.innerWidth;
+                settings.height = window.innerHeight * 0.8;
+                settings.size = "stretch";
+                settings.usePortrait = true; // Forzar modo retrato
+                settings.mode = "portrait"; // Algunos builds de la librería requieren 'mode'
+            } else {
+                settings.width = 450;
+                settings.height = 650;
+                settings.size = "fixed";
+                settings.usePortrait = false;
+                settings.mode = "landscape";
+            }
+
+            pageFlip = new St.PageFlip(bookContainer, settings);
 
             const htmlPages = paginas.map((_, i) => createPage(i));
             pageFlip.loadFromHTML(htmlPages);
