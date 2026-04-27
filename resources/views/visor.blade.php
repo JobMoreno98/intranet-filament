@@ -1,232 +1,240 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <title>{{ $titulo }}</title>
+<meta charset="UTF-8">
+<title>{{ $titulo }}</title>
 
-    <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
+<script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
 
-    <style>
-        body {
-            margin: 0;
-            background: #0f172a;
-            color: #e5e7eb;
-            font-family: system-ui, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+<style>
+body {
+    margin: 0;
+    background: #0f172a;
+    color: #e5e7eb;
+    font-family: system-ui, sans-serif;
 
-        /* HEADER */
-        .header {
-            padding: 12px 20px;
-            background: #020617;
-            border-bottom: 1px solid #1e293b;
-        }
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
 
-        .title {
-            font-size: 16px;
-            font-weight: 600;
-        }
+/* HEADER */
+.header {
+    padding: 12px 20px;
+    background: #020617;
+    border-bottom: 1px solid #1e293b;
+}
 
-        .author {
-            font-size: 13px;
-            color: #94a3b8;
-        }
+.title {
+    font-size: 16px;
+    font-weight: 600;
+}
 
-        /* CONTENEDOR */
-        .viewer-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
+.author {
+    font-size: 13px;
+    color: #94a3b8;
+}
 
-        /* LIBRO */
-        #book {
-            width: 100%;
-            max-width: 900px;
-            margin: auto;
-        }
+/* CONTENEDOR PRINCIPAL */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
 
-        .page {
-            background: black;
-        }
+/* VISOR */
+.viewer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .page img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            user-select: none;
-            pointer-events: none;
-        }
+#book {
+    width: 100%;
+    max-width: 900px;
+}
 
-        /* BOTONES */
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
+/* PÁGINAS */
+.page {
+    background: black;
+}
 
-        .btn {
-            background: #1e293b;
-            border: none;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+.page img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
+}
 
-        .btn:hover {
-            background: #334155;
-        }
-    </style>
+/* CONTROLES (SIN ABSOLUTE) */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    background: #020617;
+    border-top: 1px solid #1e293b;
+}
+
+.btn {
+    background: #1e293b;
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #334155;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    #book {
+        max-width: 100%;
+    }
+}
+</style>
 </head>
 
 <body>
 
-    <div class="header">
-        <div class="title">{{ $titulo }}</div>
-        <div class="author">{{ $autor }}</div>
-    </div>
+<div class="header">
+    <div class="title">{{ $titulo }}</div>
+    <div class="author">{{ $autor }}</div>
+</div>
 
-    <div class="viewer-container">
+<div class="main">
+
+    <div class="viewer">
         <div id="book"></div>
-
-        <div class="controls">
-            <button class="btn" onclick="prevPage()">⬅</button>
-            <button class="btn" onclick="nextPage()">➡</button>
-        </div>
     </div>
 
-    <script>
-        const paginas = @json($paginas);
+    <div class="controls">
+        <button class="btn" onclick="prevPage()">⬅ Anterior</button>
+        <button class="btn" onclick="nextPage()">Siguiente ➡</button>
+    </div>
 
-        let pageFlip;
-        let loadedPages = {};
-        let buffer = 2;
-        let currentPage = 0;
+</div>
 
-        // detectar móvil
-        function isMobile() {
-            return window.matchMedia("(max-width: 768px)").matches;
-        }
+<script>
+const paginas = @json($paginas);
 
-        // crear página vacía
-        function createPage(index) {
-            const div = document.createElement("div");
-            div.classList.add("page");
+let pageFlip;
+let loadedPages = {};
+let buffer = 2;
+let currentPage = 0;
 
-            const img = document.createElement("img");
-            div.appendChild(img);
+function isMobile() {
+    return window.matchMedia("(max-width: 1250px)").matches;
+}
 
-            return div;
-        }
+function createPage(index) {
+    const div = document.createElement("div");
+    div.classList.add("page");
 
-        // obtener URL firmada
-        async function getSignedUrl(id) {
-            const res = await fetch(`/media/url/${id}`);
-            const data = await res.json();
-            return data.url;
-        }
+    const img = document.createElement("img");
+    div.appendChild(img);
 
-        // cargar imagen correctamente (sin bug de páginas negras)
-        async function loadPage(index) {
-            if (loadedPages[index] || !paginas[index]) return;
+    return div;
+}
 
-            const pages = document.querySelectorAll("#book .page");
-            const page = pages[index];
+async function getSignedUrl(id) {
+    const res = await fetch(`/media/url/${id}`);
+    const data = await res.json();
+    return data.url;
+}
 
-            if (!page) return;
+async function loadPage(index) {
+    if (loadedPages[index] || !paginas[index]) return;
 
-            const img = page.querySelector("img");
-            if (!img || img.src) return;
+    const pages = document.querySelectorAll("#book .page");
+    const page = pages[index];
 
-            const url = await getSignedUrl(paginas[index].id);
-            img.src = url;
+    if (!page) return;
 
-            loadedPages[index] = true;
-        }
+    const img = page.querySelector("img");
+    if (!img || img.src) return;
 
-        // inicializar visor
-        function initFlipbook() {
-            const book = document.getElementById("book");
-            const mobile = isMobile();
+    const url = await getSignedUrl(paginas[index].id);
+    img.src = url;
 
-            if (pageFlip) {
-                currentPage = pageFlip.getCurrentPageIndex();
-                book.innerHTML = "";
-                loadedPages = {};
+    loadedPages[index] = true;
+}
+
+function initFlipbook() {
+    const book = document.getElementById("book");
+    const mobile = isMobile();
+
+    if (pageFlip) {
+        currentPage = pageFlip.getCurrentPageIndex();
+        book.innerHTML = "";
+        loadedPages = {};
+    }
+
+    const width = mobile ? window.innerWidth * 0.95 : 900;
+    const height = mobile ? window.innerHeight * 0.65 : 650;
+
+    pageFlip = new St.PageFlip(book, {
+        width: width,
+        height: height,
+        size: "fixed",
+        showCover: true,
+        usePortrait: mobile,
+        mobileScrollSupport: false
+    });
+
+    const pages = paginas.map((_, i) => createPage(i));
+    pageFlip.loadFromHTML(pages);
+
+    setTimeout(() => {
+        pageFlip.update();
+        pageFlip.turnToPage(currentPage);
+
+        for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
+            if (i >= 0 && i < paginas.length) {
+                loadPage(i);
             }
-
-            const width = mobile ? window.innerWidth * 0.95 : 900;
-            const height = mobile ? window.innerHeight * 0.75 : 650;
-
-            pageFlip = new St.PageFlip(book, {
-                width: width,
-                height: height,
-                size: "fixed",
-                showCover: true,
-                usePortrait: mobile,
-                mobileScrollSupport: false,
-                maxShadowOpacity: 0.3
-            });
-
-            const pages = paginas.map((_, i) => createPage(i));
-            pageFlip.loadFromHTML(pages);
-
-            setTimeout(() => {
-                pageFlip.update();
-                pageFlip.turnToPage(currentPage);
-
-                for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
-                    if (i >= 0 && i < paginas.length) {
-                        loadPage(i);
-                    }
-                }
-            }, 300);
-
-            pageFlip.on("flip", (e) => {
-                currentPage = e.data;
-
-                for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
-                    if (i >= 0 && i < paginas.length) {
-                        loadPage(i);
-                    }
-                }
-            });
         }
+    }, 300);
 
-        // controles
-        function nextPage() {
-            pageFlip.flipNext();
+    pageFlip.on("flip", (e) => {
+        currentPage = e.data;
+
+        for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
+            if (i >= 0 && i < paginas.length) {
+                loadPage(i);
+            }
         }
+    });
+}
 
-        function prevPage() {
-            pageFlip.flipPrev();
-        }
+function nextPage() {
+    pageFlip.flipNext();
+}
 
-        // resize inteligente
-        let resizeTimeout;
+function prevPage() {
+    pageFlip.flipPrev();
+}
 
-        window.addEventListener("resize", () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                initFlipbook();
-            }, 300);
-        });
+let resizeTimeout;
 
-        // bloquear acciones básicas
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('dragstart', e => e.preventDefault());
-
-        // iniciar
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
         initFlipbook();
-    </script>
+    }, 300);
+});
+
+// seguridad básica
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+
+initFlipbook();
+</script>
 
 </body>
-
 </html>
