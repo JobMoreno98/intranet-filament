@@ -4,15 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $titulo }}</title>
-
     <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
-
     <style>
-        #book {
-            width: 100%;
-            max-width: 900px;
-        }
-
         body {
             margin: 0;
             background: #0f172a;
@@ -21,21 +14,15 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
+            /* Evita scroll innecesario */
         }
 
-        /* HEADER */
         .header {
             padding: 12px 20px;
             background: #020617;
             border-bottom: 1px solid #1e293b;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header .info {
-            display: flex;
-            flex-direction: column;
+            flex-shrink: 0;
         }
 
         .title {
@@ -48,26 +35,25 @@
             color: #94a3b8;
         }
 
-        /* CONTENEDOR */
         .viewer-container {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+            padding: 20px;
         }
 
-        /* LIBRO */
+        /* Contenedor del libro */
         #book {
-            width: 900px;
-            height: 650px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            border-radius: 10px;
-            overflow: hidden;
+            background: #000;
         }
 
         .page {
-            background: #000;
+            background: #111;
+            width: 100%;
+            height: 100%;
         }
 
         .page img {
@@ -78,54 +64,37 @@
             pointer-events: none;
         }
 
-        /* CONTROLES */
         .controls {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             display: flex;
-            gap: 10px;
+            gap: 20px;
+            z-index: 10;
         }
 
         .btn {
-            background: #1e293b;
-            border: none;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
             color: white;
-            padding: 10px 14px;
-            border-radius: 8px;
+            padding: 12px 18px;
+            border-radius: 50%;
             cursor: pointer;
-            transition: 0.2s;
+            backdrop-filter: blur(4px);
         }
 
         .btn:hover {
             background: #334155;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            #book {
-                height: 80%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            #book {
-                width: 100% !important;
-            }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
     <div class="header">
-        <div class="info">
-            <div class="title">{{ $titulo }}</div>
-            <div class="author">{{ $autor }}</div>
-        </div>
+        <div class="title">{{ $titulo }}</div>
+        <div class="author">{{ $autor }}</div>
     </div>
 
-    <!-- VISOR -->
     <div class="viewer-container">
         <div id="book"></div>
 
@@ -134,116 +103,110 @@
             <button class="btn" onclick="nextPage()">➡</button>
         </div>
     </div>
+
     <script>
         const paginas = @json($paginas);
-
         let pageFlip;
         let loadedPages = {};
-        let buffer = 2;
+        const buffer = 2;
         let currentPage = 0;
 
-        // detectar móvil REAL
         function isMobile() {
-            return window.matchMedia("(max-width: 768px)").matches;
+            return window.innerWidth <= 768;
         }
 
-        // crear página
         function createPage(index) {
             const div = document.createElement("div");
             div.classList.add("page");
-
             const img = document.createElement("img");
             img.setAttribute("data-index", index);
-
             div.appendChild(img);
             return div;
         }
 
-        // obtener URL firmada
         async function getSignedUrl(id) {
-            const res = await fetch(`/media/url/${id}`);
-            const data = await res.json();
-            return data.url;
+            try {
+                const res = await fetch(`/media/url/${id}`);
+                const data = await res.json();
+                return data.url;
+            } catch (e) {
+                console.error("Error obteniendo URL:", e);
+                return null;
+            }
         }
 
-        // 🔥 FIX: cargar imagen correctamente (sin getPage)
         async function loadPage(index) {
             if (loadedPages[index] || !paginas[index]) return;
 
-            const pages = document.querySelectorAll("#book .page");
-            const page = pages[index];
+            // Buscamos el contenedor de la página por su posición en el DOM
+            const allPages = document.querySelectorAll(".page");
+            const pageDiv = allPages[index];
+            if (!pageDiv) return;
 
-            if (!page) return;
-
-            const img = page.querySelector("img");
-
-            if (!img || img.src) return;
-
+            const img = pageDiv.querySelector("img");
             const url = await getSignedUrl(paginas[index].id);
-            img.src = url;
-
-            loadedPages[index] = true;
+            if (url) {
+                img.src = url;
+                loadedPages[index] = true;
+            }
         }
 
-        // inicializar flipbook
         function initFlipbook() {
-            const book = document.getElementById("book");
+            const bookContainer = document.getElementById("book");
             const mobile = isMobile();
 
+            // Guardar progreso antes de destruir
             if (pageFlip) {
                 currentPage = pageFlip.getCurrentPageIndex();
-                book.innerHTML = "";
+                pageFlip.destroy();
                 loadedPages = {};
             }
+            bookContainer.innerHTML = "";
 
-            // 🔥 clave: controlar tamaño correctamente
-            const width = mobile ? window.innerWidth * 0.95 : 900;
-            const height = mobile ? window.innerHeight * 0.75 : 650;
+            // Lógica de dimensiones:
+            // En modo libro (desktop), 'width' es el ancho de UNA página.
+            // La librería duplicará ese ancho automáticamente para el visor total.
+            let viewWidth, viewHeight;
 
-            pageFlip = new St.PageFlip(book, {
-                width: width,
-                height: height,
+            if (mobile) {
+                viewWidth = window.innerWidth;
+                viewHeight = window.innerHeight * 0.7;
+            } else {
+                viewWidth = 450; // Ancho de una página (total 900px)
+                viewHeight = 650;
+            }
 
-                size: "fixed",
+            pageFlip = new St.PageFlip(bookContainer, {
+                width: viewWidth,
+                height: viewHeight,
+                size: mobile ? "stretch" : "fixed",
+                minWidth: 300,
+                maxWidth: 500,
+                minHeight: 400,
+                maxHeight: 700,
                 showCover: true,
-
-                usePortrait: mobile, // solo móvil = 1 página
+                usePortrait: mobile, // 🔥 MODO RETRATO: 1 página en móvil
+                startPage: currentPage,
                 mobileScrollSupport: false,
-
-                maxShadowOpacity: 0.3
+                clickEventForward: false
             });
 
-            const pages = paginas.map((_, i) => createPage(i));
+            const htmlPages = paginas.map((_, i) => createPage(i));
+            pageFlip.loadFromHTML(htmlPages);
 
-            pageFlip.loadFromHTML(pages);
+            // Cargar páginas adyacentes al iniciar
+            for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
+                if (i >= 0) loadPage(i);
+            }
 
-            // 🔥 IMPORTANTE
-            setTimeout(() => {
-                pageFlip.update();
-
-                pageFlip.turnToPage(currentPage);
-
-                // cargar iniciales
-                for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
-                    if (i >= 0 && i < paginas.length) {
-                        loadPage(i);
-                    }
-                }
-            }, 300);
-
-            // evento flip
             pageFlip.on("flip", (e) => {
-                currentPage = e.data;
-
-                for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
-                    if (i >= 0 && i < paginas.length) {
-                        loadPage(i);
-                    }
+                const index = e.data;
+                for (let i = index - buffer; i <= index + buffer; i++) {
+                    if (i >= 0) loadPage(i);
                 }
             });
         }
 
-        // controles
         function nextPage() {
             pageFlip.flipNext();
         }
@@ -252,25 +215,18 @@
             pageFlip.flipPrev();
         }
 
-        // resize inteligente
         let resizeTimeout;
-
         window.addEventListener("resize", () => {
             clearTimeout(resizeTimeout);
-
-            resizeTimeout = setTimeout(() => {
-                initFlipbook();
-            }, 300);
+            resizeTimeout = setTimeout(initFlipbook, 300);
         });
 
-        // seguridad básica
+        // Seguridad
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('dragstart', e => e.preventDefault());
 
-        // iniciar
         initFlipbook();
     </script>
-
 </body>
 
 </html>
