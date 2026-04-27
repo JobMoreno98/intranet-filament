@@ -101,29 +101,31 @@ class RecursosForm
                 Section::make('Archivos del Recurso')
                     ->schema([
                         // 1. REPEATER para gestionar lo existente
-                        Repeater::make('archivos')->visible(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\EditRecord)
+                        Repeater::make('archivos')->visible(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\EditRecord)
                             ->relationship('archivos') // Este SÍ usa la relación para MOSTRAR
                             ->schema([
-                                FileUpload::make('path_original')
+                                FileUpload::make('path_original')->previewable()
                                     ->disabled() // No permitimos editar el archivo desde aquí
                                     ->disk('private'),
-                                TextInput::make('nombre_archivo_original')
-                                    ->label('Nombre'),
                                 TextInput::make('status')->readOnly() // O un TextInput readonly
                             ])
+                            ->grid(4) // <--- ESTA ES LA CLAVE: 3 columnas de tarjetas
                             ->orderable('orden')
-                            ->columns(2)
-                            ->addActionLabel('Añadir uno por uno')
-                            ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? null),
+                            ->collapsible() // Permite colapsar para ahorrar espacio
+                            ->cloneable()
+                            ->addActionLabel('Añadir archivo individual')
+                            ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? 'Sin nombre'),
 
                         // 2. CAMPO CIEGO para subidas masivas nuevas
                         FileUpload::make('archivos_bulk')
                             ->label('Subida Masiva')
                             ->multiple()
-                            ->disk('private')
+                            ->disk('private')->extraAttributes([
+                                'style' => '--file-upload-grid-column-width: 180px;', // Define el ancho de cada miniatura
+                            ])
                             ->directory(fn($get) => 'coleccion_' . $get('coleccion_id'))
                             ->live() // Mantiene el estado vivo en Livewire
-                            ->dehydrated(false)
+                            ->dehydrated(false)->panelLayout('grid')->reorderable()
                             ->helperText('Usa este campo solo para añadir archivos nuevos en lote.'),
                     ])->columnSpanFull()
             ]);
