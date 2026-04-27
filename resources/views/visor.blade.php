@@ -1,240 +1,290 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<title>{{ $titulo }}</title>
+    <meta charset="UTF-8">
+    <title>{{ $titulo }}</title>
 
-<script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
+    <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
 
-<style>
-body {
-    margin: 0;
-    background: #0f172a;
-    color: #e5e7eb;
-    font-family: system-ui, sans-serif;
+    <style>
+        body {
+            margin: 0;
+            background: #0f172a;
+            color: #e5e7eb;
+            font-family: system-ui;
+        }
 
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
+        /* CONTENEDOR */
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 10px;
+        }
 
-/* HEADER */
-.header {
-    padding: 12px 20px;
-    background: #020617;
-    border-bottom: 1px solid #1e293b;
-}
+        /* HEADER CONTROLES */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #020617;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
 
-.title {
-    font-size: 16px;
-    font-weight: 600;
-}
+        .btn {
+            background: #1e293b;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-.author {
-    font-size: 13px;
-    color: #94a3b8;
-}
+        .btn:hover {
+            background: #334155;
+        }
 
-/* CONTENEDOR PRINCIPAL */
-.main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
+        /* LIBRO */
+        .flip-book {
+            width: 100%;
+            height: 650px;
+            margin: auto;
+        }
 
-/* VISOR */
-.viewer {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        /* PÁGINA */
+        .page {
+            background: #111;
+            color: white;
+        }
 
-#book {
-    width: 100%;
-    max-width: 900px;
-}
+        .page-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
 
-/* PÁGINAS */
-.page {
-    background: black;
-}
+        /* HEADER PÁGINA */
+        .page-header {
+            padding: 10px;
+            font-size: 14px;
+            background: #020617;
+            border-bottom: 1px solid #1e293b;
+        }
 
-.page img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    user-select: none;
-    pointer-events: none;
-}
+        /* IMAGEN */
+        .page-image {
+            flex: 1;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
 
-/* CONTROLES (SIN ABSOLUTE) */
-.controls {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    padding: 12px;
-    background: #020617;
-    border-top: 1px solid #1e293b;
-}
+        /* FOOTER */
+        .page-footer {
+            padding: 6px;
+            text-align: center;
+            font-size: 12px;
+            background: #020617;
+            border-top: 1px solid #1e293b;
+        }
 
-.btn {
-    background: #1e293b;
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-}
+        /* PORTADA */
+        .page-cover {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            background: #020617;
+        }
 
-.btn:hover {
-    background: #334155;
-}
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .flip-book {
+                height: 70vh;
+            }
+        }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    #book {
-        max-width: 100%;
-    }
-}
-</style>
+        .scroll-viewer {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .scroll-page {
+            width: 100%;
+            background: black;
+        }
+
+        .scroll-page img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+
+            user-select: none;
+            pointer-events: none;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="header">
-    <div class="title">{{ $titulo }}</div>
-    <div class="author">{{ $autor }}</div>
-</div>
+    <div class="container">
 
-<div class="main">
+        <!-- CONTROLES -->
+        <div class="controls-bar">
+            <div>
+                <button class="btn" onclick="prevPage()">⬅</button>
+                <span>
+                    <span id="page-current">1</span> /
+                    <span id="page-total">{{ count($paginas) }}</span>
+                </span>
+                <button class="btn" onclick="nextPage()">➡</button>
+            </div>
 
-    <div class="viewer">
-        <div id="book"></div>
+            <div>
+                <strong>{{ $titulo }}</strong> — {{ $autor }}
+            </div>
+        </div>
+
+        <!-- LIBRO -->
+        <div id="book" class="flip-book"></div>
+
+        <div id="scroll-viewer" class="scroll-viewer"></div>
+
     </div>
 
-    <div class="controls">
-        <button class="btn" onclick="prevPage()">⬅ Anterior</button>
-        <button class="btn" onclick="nextPage()">Siguiente ➡</button>
-    </div>
+    <script>
+        const paginas = @json($paginas);
 
-</div>
+        function isMobile() {
+            return window.matchMedia("(max-width: 768px)").matches;
+        }
 
-<script>
-const paginas = @json($paginas);
+        /* =========================
+           📱 MODO SCROLL (MÓVIL)
+        ========================= */
 
-let pageFlip;
-let loadedPages = {};
-let buffer = 2;
-let currentPage = 0;
+        function initScrollMode() {
+            const container = document.getElementById("scroll-viewer");
+            const book = document.getElementById("book");
 
-function isMobile() {
-    return window.matchMedia("(max-width: 1250px)").matches;
-}
+            book.style.display = "none";
+            container.style.display = "flex";
 
-function createPage(index) {
-    const div = document.createElement("div");
-    div.classList.add("page");
+            container.innerHTML = "";
 
-    const img = document.createElement("img");
-    div.appendChild(img);
+            paginas.forEach((p, index) => {
+                const div = document.createElement("div");
+                div.classList.add("scroll-page");
 
-    return div;
-}
+                const img = document.createElement("img");
+                img.dataset.index = index;
 
-async function getSignedUrl(id) {
-    const res = await fetch(`/media/url/${id}`);
-    const data = await res.json();
-    return data.url;
-}
+                div.appendChild(img);
+                container.appendChild(div);
+            });
 
-async function loadPage(index) {
-    if (loadedPages[index] || !paginas[index]) return;
+            // lazy loading con IntersectionObserver
+            const observer = new IntersectionObserver(async (entries) => {
+                for (let entry of entries) {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const index = img.dataset.index;
 
-    const pages = document.querySelectorAll("#book .page");
-    const page = pages[index];
+                        if (!img.src) {
+                            const res = await fetch(`/media/url/${paginas[index].id}`);
+                            const data = await res.json();
+                            img.src = data.url;
+                        }
+                    }
+                }
+            }, {
+                rootMargin: "200px"
+            });
 
-    if (!page) return;
+            document.querySelectorAll(".scroll-page img").forEach(img => {
+                observer.observe(img);
+            });
+        }
 
-    const img = page.querySelector("img");
-    if (!img || img.src) return;
+        /* =========================
+           🖥️ MODO FLIPBOOK
+        ========================= */
 
-    const url = await getSignedUrl(paginas[index].id);
-    img.src = url;
+        let pageFlip;
 
-    loadedPages[index] = true;
-}
+        function initFlipMode() {
+            const book = document.getElementById("book");
+            const container = document.getElementById("scroll-viewer");
 
-function initFlipbook() {
-    const book = document.getElementById("book");
-    const mobile = isMobile();
+            container.style.display = "none";
+            book.style.display = "block";
 
-    if (pageFlip) {
-        currentPage = pageFlip.getCurrentPageIndex();
-        book.innerHTML = "";
-        loadedPages = {};
-    }
+            pageFlip = new St.PageFlip(book, {
+                width: 450,
+                height: 650,
+                showCover: true,
+                usePortrait: false
+            });
 
-    const width = mobile ? window.innerWidth * 0.95 : 900;
-    const height = mobile ? window.innerHeight * 0.65 : 650;
+            const pages = paginas.map((_, i) => {
+                const div = document.createElement("div");
+                div.classList.add("page");
 
-    pageFlip = new St.PageFlip(book, {
-        width: width,
-        height: height,
-        size: "fixed",
-        showCover: true,
-        usePortrait: mobile,
-        mobileScrollSupport: false
-    });
+                const img = document.createElement("img");
+                img.style.width = "100%";
+                img.style.height = "100%";
 
-    const pages = paginas.map((_, i) => createPage(i));
-    pageFlip.loadFromHTML(pages);
+                div.appendChild(img);
+                return div;
+            });
 
-    setTimeout(() => {
-        pageFlip.update();
-        pageFlip.turnToPage(currentPage);
+            pageFlip.loadFromHTML(pages);
 
-        for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
-            if (i >= 0 && i < paginas.length) {
-                loadPage(i);
+            setTimeout(() => {
+                pageFlip.update();
+            }, 300);
+
+            pageFlip.on("flip", async (e) => {
+                const index = e.data;
+
+                const page = document.querySelectorAll("#book .page")[index];
+                const img = page.querySelector("img");
+
+                if (!img.src) {
+                    const res = await fetch(`/media/url/${paginas[index].id}`);
+                    const data = await res.json();
+                    img.src = data.url;
+                }
+            });
+        }
+
+        /* =========================
+           🚀 INIT
+        ========================= */
+
+        function initViewer() {
+            if (isMobile()) {
+                initScrollMode();
+            } else {
+                initFlipMode();
             }
         }
-    }, 300);
 
-    pageFlip.on("flip", (e) => {
-        currentPage = e.data;
+        window.addEventListener("resize", () => {
+            initViewer();
+        });
 
-        for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
-            if (i >= 0 && i < paginas.length) {
-                loadPage(i);
-            }
-        }
-    });
-}
+        // seguridad básica
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('dragstart', e => e.preventDefault());
 
-function nextPage() {
-    pageFlip.flipNext();
-}
-
-function prevPage() {
-    pageFlip.flipPrev();
-}
-
-let resizeTimeout;
-
-window.addEventListener("resize", () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        initFlipbook();
-    }, 300);
-});
-
-// seguridad básica
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('dragstart', e => e.preventDefault());
-
-initFlipbook();
-</script>
+        initViewer();
+    </script>
 
 </body>
+
 </html>
