@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>{{ $titulo }}</title>
@@ -15,7 +14,6 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            /* Evita scroll innecesario */
         }
 
         .header {
@@ -25,39 +23,37 @@
             flex-shrink: 0;
         }
 
-        .title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .author {
-            font-size: 13px;
-            color: #94a3b8;
-        }
-
-        #book {
-            margin: 0 auto;
-            width: 100%;
-            max-width: 600px;
-            /* Limita el ancho en monitores grandes */
-            height: 80vh;
-            /* Altura relativa a la pantalla */
-        }
+        .title { font-size: 16px; font-weight: 600; }
+        .author { font-size: 13px; color: #94a3b8; }
 
         .viewer-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: #0f172a;
+            padding: 10px;
+        }
+
+        /* Bloqueo estricto de dimensiones para evitar el modo 'spread' */
+        #book-container {
+            width: 550px;
+            height: 750px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
+            background: #000;
+            overflow: hidden;
+        }
+
+        #book {
+            width: 100%;
             height: 100%;
         }
 
         .page {
             background: #000;
+            width: 100%;
+            height: 100%;
         }
-
-
 
         .page img {
             width: 100%;
@@ -67,80 +63,53 @@
             pointer-events: none;
         }
 
-        .controls {
-            position: absolute;
-            bottom: 30px;
-            display: flex;
-            gap: 20px;
-            z-index: 10;
-        }
-
-        .btn {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid #334155;
-            color: white;
-            padding: 12px 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-        }
-
-        .btn:hover {
-            background: #334155;
-        }
-
-        .viewer-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #0f172a;
-            padding: 10px;
-        }
-
-        #book-container {
-            /* Este contenedor limita físicamente a la librería */
-            width: 550px;
-            height: 750px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
-        }
-
-        @media (max-width: 600px) {
-            #book-container {
-                width: 95vw;
-                height: 70vh;
-            }
-        }
-
-        /* Controles de navegación */
         .nav-controls {
             margin-top: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
             background: #1e293b;
-            padding: 10px 20px;
+            padding: 10px 25px;
             border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .page-input {
-            width: 50px;
+            width: 60px;
             background: #0f172a;
             border: 1px solid #334155;
             color: white;
             text-align: center;
-            border-radius: 4px;
-            padding: 4px;
+            border-radius: 6px;
+            padding: 5px;
+            font-size: 14px;
+            outline: none;
         }
 
-        .total-pages {
-            color: #94a3b8;
-            font-size: 14px;
+        .page-input:focus { border-color: #6366f1; }
+
+        .total-pages { color: #94a3b8; font-size: 14px; }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+        @media (max-width: 600px) {
+            #book-container {
+                width: 95vw;
+                height: 75vh;
+            }
         }
     </style>
 </head>
-
 <body>
 
     <div class="header">
@@ -164,6 +133,7 @@
             <button class="btn" onclick="nextPage()">➡</button>
         </div>
     </div>
+
     <script>
         const paginas = @json($paginas);
         let pageFlip;
@@ -173,8 +143,7 @@
 
         function initFlipbook() {
             const bookElement = document.getElementById("book");
-            const container = document.getElementById("book-container");
-
+            
             totalSpan.innerText = paginas.length;
             pageInput.max = paginas.length;
 
@@ -182,11 +151,12 @@
                 width: 550,
                 height: 750,
                 size: "stretch",
-                displayMode: "portrait", // Fuerza modo retrato
-                clickEventForward: false,
-                usePortrait: true, // Obliga a una sola página
-                showCover: false,
-                flippingTime: 800
+                displayMode: "portrait", // Obliga a renderizar solo una hoja
+                usePortrait: true,       // Desactiva el modo libro (doble hoja)
+                showCover: false,        // En modo retrato no necesitamos portada
+                flippingTime: 600,
+                mobileScrollSupport: false,
+                clickEventForward: false
             });
 
             const htmlPages = paginas.map((_, i) => {
@@ -198,27 +168,34 @@
 
             pageFlip.loadFromHTML(htmlPages);
 
-            // Evento al cambiar de página
+            // Evento al terminar la animación de cambio
             pageFlip.on('flip', (e) => {
                 const currentIndex = e.data;
-                pageInput.value = currentIndex + 1; // El input muestra 1-based index
+                pageInput.value = currentIndex + 1;
                 loadAround(currentIndex);
             });
 
-            // Evento para saltar a página desde el input
-            pageInput.addEventListener('change', () => {
+            // Saltar a página al cambiar valor o presionar Enter
+            const jumpToPage = () => {
                 let val = parseInt(pageInput.value) - 1;
-                if (val >= 0 && val < paginas.length) {
+                if (!isNaN(val) && val >= 0 && val < paginas.length) {
                     pageFlip.turnToPage(val);
                 } else {
                     pageInput.value = pageFlip.getCurrentPageIndex() + 1;
                 }
+            };
+
+            pageInput.addEventListener('change', jumpToPage);
+            pageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') jumpToPage();
             });
 
+            // Carga inicial
             loadAround(0);
         }
 
         async function loadAround(index) {
+            // Cargamos la actual, 2 anteriores y 2 siguientes
             for (let i = index - 2; i <= index + 2; i++) {
                 if (i >= 0 && i < paginas.length && !loadedPages[i]) {
                     const url = await getSignedUrl(paginas[i].id);
@@ -232,22 +209,23 @@
         }
 
         async function getSignedUrl(id) {
-            const res = await fetch(`/media/url/${id}`);
-            const data = await res.json();
-            return data.url;
+            try {
+                const res = await fetch(`/media/url/${id}`);
+                const data = await res.json();
+                return data.url;
+            } catch (error) {
+                console.error("Error recuperando URL firmada", error);
+            }
         }
 
-        function nextPage() {
-            pageFlip.flipNext();
-        }
+        function nextPage() { pageFlip.flipNext(); }
+        function prevPage() { pageFlip.flipPrev(); }
 
-        function prevPage() {
-            pageFlip.flipPrev();
-        }
-
-        // Inicialización
         document.addEventListener('DOMContentLoaded', initFlipbook);
+        
+        // Bloqueos de seguridad
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('dragstart', e => e.preventDefault());
     </script>
 </body>
-
 </html>
