@@ -85,6 +85,26 @@
         .btn:hover {
             background: #334155;
         }
+
+        #book {
+            margin: 0 auto;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            #book {
+                /* En móvil el contenedor debe ser el 100% para que usePortrait funcione */
+                width: 100vw !important;
+                height: 80vh !important;
+                box-shadow: none;
+                /* Quitamos sombras pesadas en móvil */
+            }
+
+            .viewer-container {
+                padding: 0;
+                /* Aprovechar todo el espacio en el celular */
+            }
+        }
     </style>
 </head>
 
@@ -105,16 +125,16 @@
     </div>
 
     <script>
+        function isMobile() {
+            return window.innerWidth <= 768 || window.innerHeight < window.innerWidth;
+        }
         const paginas = @json($paginas);
         let pageFlip;
         let loadedPages = {};
         const buffer = 2;
         let currentPage = 0;
 
-        function isMobile() {
-            return window.innerWidth <= 768;
-        }
-
+        
         function createPage(index) {
             const div = document.createElement("div");
             div.classList.add("page");
