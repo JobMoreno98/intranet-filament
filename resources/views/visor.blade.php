@@ -155,12 +155,8 @@
         <div id="scroll-viewer" class="scroll-viewer"></div>
 
     </div>
-
     <script>
         const paginas = @json($paginas);
-
-        // evitar múltiples cargas simultáneas
-        const loading = new Set();
 
         function initScrollMode() {
             const container = document.getElementById("scroll-viewer");
@@ -177,34 +173,37 @@
                 container.appendChild(div);
             });
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting) return;
+            const images = document.querySelectorAll(".scroll-page img");
 
-                    const img = entry.target;
-                    const index = img.dataset.index;
-
+            // 🔥 1. CARGA INICIAL (clave)
+            images.forEach((img, index) => {
+                if (index < 3) {
                     loadImage(img, index);
+                }
+            });
 
-                    // 🔥 MUY IMPORTANTE: dejar de observar después de cargar
-                    observer.unobserve(img);
+            // 🔥 2. INTERSECTION OBSERVER
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const index = img.dataset.index;
+
+                        loadImage(img, index);
+                        obs.unobserve(img);
+                    }
                 });
             }, {
-                root: null,
-                rootMargin: "400px",
+                rootMargin: "300px",
                 threshold: 0.01
             });
 
-            document.querySelectorAll(".scroll-page img").forEach(img => {
-                observer.observe(img);
-            });
+            images.forEach(img => observer.observe(img));
         }
 
-        // 🔥 carga segura
+        // 🔥 carga simple
         async function loadImage(img, index) {
-            if (img.src || loading.has(index)) return;
-
-            loading.add(index);
+            if (img.src) return;
 
             try {
                 const res = await fetch(`/media/url/${paginas[index].id}`);
@@ -213,15 +212,10 @@
                 img.src = data.url;
             } catch (e) {
                 console.error("Error cargando imagen", index);
-
-                // 🔁 reintento automático
-                setTimeout(() => loadImage(img, index), 1000);
-            } finally {
-                loading.delete(index);
             }
         }
 
-        // init
+        // iniciar
         initScrollMode();
     </script>
 
