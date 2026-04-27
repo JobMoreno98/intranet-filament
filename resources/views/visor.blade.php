@@ -159,21 +159,11 @@
     <script>
         const paginas = @json($paginas);
 
-        function isMobile() {
-            return window.matchMedia("(max-width: 1250px)").matches;
-        }
-
-        /* =========================
-           📱 MODO SCROLL (MÓVIL)
-        ========================= */
+        // evitar múltiples cargas simultáneas
+        const loading = new Set();
 
         function initScrollMode() {
             const container = document.getElementById("scroll-viewer");
-            const book = document.getElementById("book");
-
-            book.style.display = "none";
-            container.style.display = "flex";
-
             container.innerHTML = "";
 
             paginas.forEach((p, index) => {
@@ -187,22 +177,22 @@
                 container.appendChild(div);
             });
 
-            // lazy loading con IntersectionObserver
-            const observer = new IntersectionObserver(async (entries) => {
-                for (let entry of entries) {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        const index = img.dataset.index;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
 
-                        if (!img.src) {
-                            const res = await fetch(`/media/url/${paginas[index].id}`);
-                            const data = await res.json();
-                            img.src = data.url;
-                        }
-                    }
-                }
+                    const img = entry.target;
+                    const index = img.dataset.index;
+
+                    loadImage(img, index);
+
+                    // 🔥 MUY IMPORTANTE: dejar de observar después de cargar
+                    observer.unobserve(img);
+                });
             }, {
-                rootMargin: "200px"
+                root: null,
+                rootMargin: "400px",
+                threshold: 0.01
             });
 
             document.querySelectorAll(".scroll-page img").forEach(img => {
@@ -210,79 +200,29 @@
             });
         }
 
-        /* =========================
-           🖥️ MODO FLIPBOOK
-        ========================= */
+        // 🔥 carga segura
+        async function loadImage(img, index) {
+            if (img.src || loading.has(index)) return;
 
-        let pageFlip;
+            loading.add(index);
 
-        function initFlipMode() {
-            const book = document.getElementById("book");
-            const container = document.getElementById("scroll-viewer");
+            try {
+                const res = await fetch(`/media/url/${paginas[index].id}`);
+                const data = await res.json();
 
-            container.style.display = "none";
-            book.style.display = "block";
+                img.src = data.url;
+            } catch (e) {
+                console.error("Error cargando imagen", index);
 
-            pageFlip = new St.PageFlip(book, {
-                width: 450,
-                height: 650,
-                showCover: true,
-                usePortrait: false
-            });
-
-            const pages = paginas.map((_, i) => {
-                const div = document.createElement("div");
-                div.classList.add("page");
-
-                const img = document.createElement("img");
-                img.style.width = "100%";
-                img.style.height = "100%";
-
-                div.appendChild(img);
-                return div;
-            });
-
-            pageFlip.loadFromHTML(pages);
-
-            setTimeout(() => {
-                pageFlip.update();
-            }, 300);
-
-            pageFlip.on("flip", async (e) => {
-                const index = e.data;
-
-                const page = document.querySelectorAll("#book .page")[index];
-                const img = page.querySelector("img");
-
-                if (!img.src) {
-                    const res = await fetch(`/media/url/${paginas[index].id}`);
-                    const data = await res.json();
-                    img.src = data.url;
-                }
-            });
-        }
-
-        /* =========================
-           🚀 INIT
-        ========================= */
-
-        function initViewer() {
-            if (isMobile()) {
-                initScrollMode();
-            } else {
-                initFlipMode();
+                // 🔁 reintento automático
+                setTimeout(() => loadImage(img, index), 1000);
+            } finally {
+                loading.delete(index);
             }
         }
 
-        window.addEventListener("resize", () => {
-            initViewer();
-        });
-
-        // seguridad básica
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('dragstart', e => e.preventDefault());
-
-        initViewer();
+        // init
+        initScrollMode();
     </script>
 
 </body>
