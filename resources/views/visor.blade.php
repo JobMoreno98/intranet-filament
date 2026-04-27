@@ -103,8 +103,13 @@
         /* RESPONSIVE */
         @media (max-width: 768px) {
             #book {
-                width: 100%;
                 height: 80%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #book {
+                width: 100% !important;
             }
         }
     </style>
