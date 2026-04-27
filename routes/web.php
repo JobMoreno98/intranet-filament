@@ -42,6 +42,7 @@ Route::get('/media/stream/{archivo_id}', function ($archivo_id) {
         ->header('Content-Disposition', 'inline')
         // Seguridad extra para evitar que olfateen el tipo de archivo
         ->header('X-Content-Type-Options', 'nosniff');
+        
 })->name('media.stream')->middleware('auth');
 
 Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');

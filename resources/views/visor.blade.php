@@ -4,172 +4,229 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $titulo }}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.js"></script>
+
+    <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
 
     <style>
         body {
             margin: 0;
-            background: #020617;
-            color: #f8fafc;
+            background: #0f172a;
+            color: #e5e7eb;
             font-family: system-ui, sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden;
         }
 
-        /* Contenedor principal del visor */
-        .viewer-wrapper {
-            flex: 1;
-            position: relative;
-            width: 100%;
+        /* HEADER */
+        .header {
+            padding: 12px 20px;
+            background: #020617;
+            border-bottom: 1px solid #1e293b;
         }
 
-        /* Ocultamos la lista original de imágenes */
-        #images-source {
-            display: none;
-        }
-
-        /* Estilización del panel de control inferior */
-        .custom-footer {
-            background: #0f172a;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            border-top: 1px solid #1e293b;
-            z-index: 1001;
-        }
-
-        .nav-btn {
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
+        .title {
+            font-size: 16px;
             font-weight: 600;
         }
 
-        .nav-btn:hover {
-            background: #334155;
+        .author {
+            font-size: 13px;
+            color: #94a3b8;
         }
 
-        .page-input-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .page-input {
-            width: 60px;
-            background: #020617;
-            border: 1px solid #475569;
-            color: #fff;
-            text-align: center;
-            border-radius: 4px;
-            padding: 5px;
-            font-weight: bold;
-        }
-
-        /* Forzar que el visor ocupe todo el espacio sin navbar */
+        /* CONTENEDOR */
         .viewer-container {
-            background-color: #000 !important;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* LIBRO */
+        #book {
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .page {
+            background: black;
+        }
+
+        .page img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* BOTONES */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: #1e293b;
+            border: none;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #334155;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="viewer-wrapper" id="viewer-parent">
-        <ul id="images-source">
-            @foreach ($paginas as $index => $p)
-                <li>
-                    <img data-id="{{ $p['id'] }}" src="" alt="Página {{ $index + 1 }}">
-                </li>
-            @endforeach
-        </ul>
+    <div class="header">
+        <div class="title">{{ $titulo }}</div>
+        <div class="author">{{ $autor }}</div>
     </div>
 
-    <div class="custom-footer">
-        <button class="nav-btn" onclick="viewer.prev()">⬅ Anterior</button>
+    <div class="viewer-container">
+        <div id="book"></div>
 
-        <div class="page-input-container">
-            <input type="number" id="pageNumber" class="page-input" value="1" min="1">
-            <span>de {{ count($paginas) }}</span>
+        <div class="controls">
+            <button class="btn" onclick="prevPage()">⬅</button>
+            <button class="btn" onclick="nextPage()">➡</button>
         </div>
-
-        <button class="nav-btn" onclick="viewer.next()">Siguiente ➡</button>
     </div>
 
     <script>
         const paginas = @json($paginas);
-        const source = document.getElementById('images-source');
-        const pageInput = document.getElementById('pageNumber');
-        let viewer;
 
-        async function fetchImageUrl(id) {
+        let pageFlip;
+        let loadedPages = {};
+        let buffer = 2;
+        let currentPage = 0;
+
+        // detectar móvil
+        function isMobile() {
+            return window.matchMedia("(max-width: 768px)").matches;
+        }
+
+        // crear página vacía
+        function createPage(index) {
+            const div = document.createElement("div");
+            div.classList.add("page");
+
+            const img = document.createElement("img");
+            div.appendChild(img);
+
+            return div;
+        }
+
+        // obtener URL firmada
+        async function getSignedUrl(id) {
             const res = await fetch(`/media/url/${id}`);
             const data = await res.json();
             return data.url;
         }
 
-        function init() {
-            viewer = new Viewer(source, {
-                inline: true,
-                container: '#viewer-parent',
-                navbar: false, // 🔥 DESACTIVADO: No más galería/miniaturas abajo
-                title: false,
-                toolbar: {
-                    zoomIn: 4,
-                    zoomOut: 4,
-                    oneToOne: 4,
-                    reset: 4,
-                    rotateLeft: 4,
-                    rotateRight: 4,
-                    flipHorizontal: 4,
-                    flipVertical: 4,
-                },
-                viewed(e) {
-                    const index = e.detail.index;
-                    pageInput.value = index + 1;
+        // cargar imagen correctamente (sin bug de páginas negras)
+        async function loadPage(index) {
+            if (loadedPages[index] || !paginas[index]) return;
 
-                    // Lazy Load: Cargar solo cuando se visualiza
-                    const img = e.detail.image;
-                    if (!img.src || img.src === window.location.href) {
-                        const id = img.getAttribute('data-id');
-                        fetchImageUrl(id).then(url => {
-                            img.src = url;
-                            viewer.update();
-                        });
+            const pages = document.querySelectorAll("#book .page");
+            const page = pages[index];
+
+            if (!page) return;
+
+            const img = page.querySelector("img");
+            if (!img || img.src) return;
+
+            const url = await getSignedUrl(paginas[index].id);
+            img.src = url;
+
+            loadedPages[index] = true;
+        }
+
+        // inicializar visor
+        function initFlipbook() {
+            const book = document.getElementById("book");
+            const mobile = isMobile();
+
+            if (pageFlip) {
+                currentPage = pageFlip.getCurrentPageIndex();
+                book.innerHTML = "";
+                loadedPages = {};
+            }
+
+            const width = mobile ? window.innerWidth * 0.95 : 900;
+            const height = mobile ? window.innerHeight * 0.75 : 650;
+
+            pageFlip = new St.PageFlip(book, {
+                width: width,
+                height: height,
+                size: "fixed",
+                showCover: true,
+                usePortrait: mobile,
+                mobileScrollSupport: false,
+                maxShadowOpacity: 0.3
+            });
+
+            const pages = paginas.map((_, i) => createPage(i));
+            pageFlip.loadFromHTML(pages);
+
+            setTimeout(() => {
+                pageFlip.update();
+                pageFlip.turnToPage(currentPage);
+
+                for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
+                    if (i >= 0 && i < paginas.length) {
+                        loadPage(i);
+                    }
+                }
+            }, 300);
+
+            pageFlip.on("flip", (e) => {
+                currentPage = e.data;
+
+                for (let i = currentPage - buffer; i <= currentPage + buffer; i++) {
+                    if (i >= 0 && i < paginas.length) {
+                        loadPage(i);
                     }
                 }
             });
-
-            // Navegación por input
-            pageInput.addEventListener('change', () => {
-                const val = parseInt(pageInput.value) - 1;
-                if (val >= 0 && val < paginas.length) {
-                    viewer.view(val);
-                }
-            });
-
-            // Soporte para teclas de flecha
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft') viewer.prev();
-                if (e.key === 'ArrowRight') viewer.next();
-            });
         }
 
-        // Protección de contenido
+        // controles
+        function nextPage() {
+            pageFlip.flipNext();
+        }
+
+        function prevPage() {
+            pageFlip.flipPrev();
+        }
+
+        // resize inteligente
+        let resizeTimeout;
+
+        window.addEventListener("resize", () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                initFlipbook();
+            }, 300);
+        });
+
+        // bloquear acciones básicas
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('dragstart', e => e.preventDefault());
 
-        window.onload = init;
+        // iniciar
+        initFlipbook();
     </script>
+
 </body>
 
 </html>
