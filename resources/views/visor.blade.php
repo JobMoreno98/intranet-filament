@@ -112,6 +112,10 @@
                 class="w-12 bg-transparent text-center text-slate-100 font-bold outline-none focus:text-indigo-400">
             <span class="text-slate-500 text-xs font-medium">/ {{ count($paginas) }}</span>
         </div>
+        <button id="reopen-btn"
+            class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-all transform hover:scale-105">
+            Continuar leyendo
+        </button>
     </header>
 
     <main id="visor-container" class="canvas-container relative flex items-center justify-center">
@@ -130,10 +134,7 @@
             <p class="text-lg">Lectura pausada</p>
             <p id="last-page-info" class="text-xs uppercase tracking-widest text-indigo-400">Página actual: 1</p>
         </div>
-        <button id="reopen-btn"
-            class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-all transform hover:scale-105">
-            Continuar leyendo
-        </button>
+
     </div>
 
     <footer class="h-16 border-t border-slate-800 flex items-center justify-center gap-8 bg-slate-900/80">
