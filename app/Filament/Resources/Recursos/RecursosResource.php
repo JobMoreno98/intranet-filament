@@ -24,7 +24,16 @@ class RecursosResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Recursos';
+    protected static ?string $recordTitleAttribute = 'Contenidos';
+    protected static ?string $title = 'Contenidos';
+    protected static ?string $navigationLabel = 'Contenidos';
+    protected static ?string $pluralModelLabel = 'Contenidos';
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenidos';
+    }
 
     public static function form(Schema $schema): Schema
     {

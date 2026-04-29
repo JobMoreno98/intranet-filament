@@ -31,6 +31,10 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Amber,
+            ])->navigationGroups([
+                'Contenidos',
+                'Administrativo',
+                'Seguridad',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -67,7 +71,13 @@ class AdminPanelProvider extends PanelProvider
                     ->resourceCheckboxListColumns([
                         'default' => 1,
                         'sm' => 2,
-                    ]),
+                    ])
+                    ->navigationLabel('Roles y permisos')                  // string|Closure|null
+                    ->navigationIcon('heroicon-o-lock-closed')         // string|Closure|null  
+                    ->activeNavigationIcon('heroicon-s-lock-closed')   // string|Closure|null
+                    ->navigationGroup('Seguridad')      
+                     ->navigationSort(2)               // string|Closure|null
+                    ->registerNavigation(true),
             ])
             ->authMiddleware([
                 Authenticate::class,

@@ -20,10 +20,18 @@ class ColeccionResource extends Resource
 {
     protected static ?string $model = Coleccion::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingLibrary;
 
-    protected static ?string $recordTitleAttribute = 'Coleccion';
+    protected static ?string $recordTitleAttribute = 'Colecciones';
+    protected static ?string $title = 'Colecciones';
+    protected static ?string $navigationLabel = 'Colecciones';
+    protected static ?string $pluralModelLabel = 'Colecciones';
+    protected static ?int $navigationSort = 1;
 
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenidos';
+    }
     public static function form(Schema $schema): Schema
     {
         return ColeccionForm::configure($schema);

@@ -21,7 +21,7 @@ class AdminResource extends Resource
 {
     protected static ?string $model = Admin::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::User;
 
     protected static ?string $recordTitleAttribute = 'Administradores';
     protected static ?string $title = 'Empleado';
@@ -31,7 +31,7 @@ class AdminResource extends Resource
     
     public static function getNavigationGroup(): ?string
     {
-        return 'Administrativo';
+        return 'Seguridad';
     }
 
     public static function form(Schema $schema): Schema
