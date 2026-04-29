@@ -17,8 +17,8 @@ class LargeDatasetSeeder extends Seeder
         // Desactivar el log de consultas para ahorrar memoria RAM
         DB::connection()->disableQueryLog();
 
-        $totalRecursos = 300000;
-        $batchSize = 1000; 
+        $totalRecursos = 100;
+        $batchSize = 5;
 
         $fondos = ['Acervo General', 'Manuscritos', 'Mapoteca', 'Fototeca', 'Archivo Histórico'];
         $autores = ['Juan Rulfo', 'Mariano Azuela', 'Agustín Yáñez', 'Anónimo', 'Gobierno de Jalisco'];
@@ -32,7 +32,7 @@ class LargeDatasetSeeder extends Seeder
                 $titulo = "Registro Histórico " . Str::random(8) . " - " . ($i * $batchSize + $j);
 
                 $recursosBatch[] = [
-                    'coleccion_id' => 1, // Asegúrate de que exista este ID en tu tabla colecciones
+                    'coleccion_id' => 1,
                     'fondo' => $fondos[array_rand($fondos)],
                     'claveFondo' => rand(100, 999),
                     'tipo_media' => 'imagen',
@@ -51,43 +51,42 @@ class LargeDatasetSeeder extends Seeder
                 ];
             }
 
-            // Insertar bloque de Recursos
             DB::table('recursos')->insert($recursosBatch);
 
-            // Obtener los IDs generados para crear los archivos relacionados
-            // (Asumimos IDs autoincrementales recientes)
             $lastIds = DB::table('recursos')
                 ->orderBy('id', 'desc')
                 ->limit($batchSize)
                 ->pluck('id');
 
-            $archivosBatch = [];
             foreach ($lastIds as $recursoId) {
-                // Creamos 2 archivos por cada recurso (Total 600k archivos)
-                for ($k = 1; $k <= 2; $k++) {
-                    $archivosBatch[] = [
-                        'recursos_id' => $recursoId,
-                        'nombre_archivo_original' => "página_{$k}.jpg",
-                        'path_original' => "acervo/recurso_{$recursoId}/archivo_{$k}.jpg",
-                        'status' => 'listo',
-                        'assets_procesados' => json_encode([
-                            'main' => "items/prueba/{$recursoId}/{$k}/main.webp",
-                            'thumb' => "items/prueba/{$recursoId}/{$k}/thumb.webp"
-                        ]),
-                        'orden' => $k,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                // Generamos 3000 archivos por recurso en bloques de 500
+                for ($chunkStart = 1; $chunkStart <= 3000; $chunkStart += 500) {
+                    $archivosBatch = [];
+
+                    for ($k = $chunkStart; $k < $chunkStart + 500 && $k <= 3000; $k++) {
+                        $archivosBatch[] = [
+                            'recursos_id' => $recursoId,
+                            'nombre_archivo_original' => "página_{$k}.jpg",
+                            'path_original' => "acervo/recurso_{$recursoId}/archivo_{$k}.jpg",
+                            'status' => 'listo',
+                            'assets_procesados' => json_encode([
+                                'main' => "items/prueba/{$recursoId}/{$k}/main.webp",
+                                'thumb' => "items/prueba/{$recursoId}/{$k}/thumb.webp"
+                            ]),
+                            'orden' => $k,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+
+                    DB::table('recursos_archivos')->insert($archivosBatch);
                 }
             }
-
-            // Insertar bloque de Archivos
-            DB::table('recursos_archivos')->insert($archivosBatch);
 
             $this->command->getOutput()->progressAdvance($batchSize);
         }
 
         $this->command->getOutput()->progressFinish();
-        $this->command->info("Seeder completado: 300k recursos y 600k archivos.");
+        $this->command->info("Seeder completado: {$totalRecursos} recursos y " . ($totalRecursos * 3000) . " archivos.");
     }
 }

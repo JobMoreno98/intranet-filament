@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 
 Route::view('/', 'welcome')->name('home');
 
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
@@ -38,9 +39,7 @@ Route::get('/media/stream/{archivo_id}', function ($archivo_id) {
     return response()->noContent()
         ->header('X-Accel-Redirect', $nginxPath)
         ->header('Content-Type', 'image/webp')
-        // 'inline' le dice al navegador que la muestre, NO que la descargue
         ->header('Content-Disposition', 'inline')
-        // Seguridad extra para evitar que olfateen el tipo de archivo
         ->header('X-Content-Type-Options', 'nosniff');
         
 })->name('media.stream')->middleware('auth');

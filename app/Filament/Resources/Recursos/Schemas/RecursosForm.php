@@ -104,15 +104,22 @@ class RecursosForm
                         Repeater::make('archivos')->visible(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\EditRecord)
                             ->relationship('archivos') // Este SÍ usa la relación para MOSTRAR
                             ->schema([
-                                FileUpload::make('path_original')->previewable()
-                                    ->disabled() // No permitimos editar el archivo desde aquí
-                                    ->disk('private'),
-                                TextInput::make('status')->readOnly() // O un TextInput readonly
+                                FileUpload::make('path_original')
+                                    ->image()
+                                    ->hiddenLabel() // Quita el texto "Path original" para ganar espacio
+                                    ->disk('private')
+                                    //->visibility('private')
+                                    ->disabled(),
+
+                                TextInput::make('status')
+                                    ->hiddenLabel()
+                                    ->extraAttributes(['class' => 'text-center font-bold'])
+                                    ->readOnly(),
                             ])
                             ->grid(4) // <--- ESTA ES LA CLAVE: 3 columnas de tarjetas
                             ->orderable('orden')
                             ->collapsible() // Permite colapsar para ahorrar espacio
-                            ->cloneable()
+                            
                             ->addActionLabel('Añadir archivo individual')
                             ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? 'Sin nombre'),
 
