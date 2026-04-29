@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -27,10 +28,11 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->path('admin')->authGuard('admin')->authPasswordBroker('admins')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#7c2422'),
             ])->navigationGroups([
                 'Contenidos',
                 'Administrativo',
@@ -57,6 +59,13 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])->plugins([
+                AuthUIEnhancerPlugin::make()
+                    ->mobileFormPanelPosition('bottom')
+                    ->formPanelPosition('right')
+                    ->formPanelWidth('40%')
+                    ->emptyPanelBackgroundColor(Color::hex('#7c2422'))
+                    ->emptyPanelBackgroundImageOpacity('70%')
+                    ->emptyPanelBackgroundImageUrl(asset('img/bpej.jpg')),
                 FilamentShieldPlugin::make()->gridColumns([
                     'default' => 1,
                     'sm' => 2,
@@ -75,10 +84,11 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel('Roles y permisos')                  // string|Closure|null
                     ->navigationIcon('heroicon-o-lock-closed')         // string|Closure|null  
                     ->activeNavigationIcon('heroicon-s-lock-closed')   // string|Closure|null
-                    ->navigationGroup('Seguridad')      
-                     ->navigationSort(2)               // string|Closure|null
+                    ->navigationGroup('Seguridad')
+                    ->navigationSort(2)               // string|Closure|null
                     ->registerNavigation(true),
-            ])
+
+            ])->viteTheme('resources/css/filament/admin/theme.css')
             ->authMiddleware([
                 Authenticate::class,
             ]);
