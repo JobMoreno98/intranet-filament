@@ -29,7 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->path('admin')->authGuard('admin')->authPasswordBroker('admins')
+            ->path('admin')
+            ->authGuard('admin')->homeUrl('/admin')->globalSearch(false)->profile(isSimple:false)
+            ->authPasswordBroker('admins')
             ->login()
             ->colors([
                 'primary' => Color::hex('#7c2422'),
