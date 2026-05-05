@@ -22,16 +22,19 @@ func init() {
 	}
 }
 func processTask(task ProcessingTask) {
-	// filepath.Ext devuelve ".pdf", ".jpg", etc.
-	ext := strings.ToLower(filepath.Ext(task.Path))
-	log.Printf("Detectado tipo  por extensión: %s", ext)
-	if ext == ".pdf" { // <--- Agregamos el punto
-		log.Printf("Detectado tipo PDF por extensión: %s", ext)
-		processPdf(task)
-	} else {
-		log.Printf("Detectado tipo Imagen por extensión: %s", ext)
-		processImage(task)
-	}
+    // 1. Limpiar la ruta de posibles espacios o saltos de línea
+    path := strings.TrimSpace(task.Path)
+    
+    // 2. Detectar si es PDF de forma más segura
+    isPDF := strings.HasSuffix(strings.ToLower(path), ".pdf")
+
+    log.Printf("DEBUG: Archivo: %s | ¿Es PDF?: %v", path, isPDF)
+
+    if isPDF {
+        processPdf(task)
+    } else {
+        processImage(task)
+    }
 }
 
 func processImage(task ProcessingTask) {
