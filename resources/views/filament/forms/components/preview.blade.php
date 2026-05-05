@@ -1,44 +1,31 @@
-<div class="flex justify-center bg-gray-950 rounded-lg overflow-hidden border border-gray-800" style="height: 200px; width: 100%;">
-    @php
-        // Obtenemos el registro completo del modelo RecursosArchivos
-        $record = $getRecord();
-        
-        // Generamos tu ruta firmada
-        $url = URL::temporarySignedRoute(
-            'media.stream', 
-            now()->addMinutes(60), 
-            ['archivo_id' => $getState(), 'tipo' => 'main']
-        );
+<div class="relative flex justify-center bg-slate-900 rounded-md overflow-hidden border border-slate-800"
+    style="aspect-ratio: 3/4; width: 100%; max-height: 250px;">
 
-        // Obtenemos la extensión desde el nombre original o el path
-        $extension = $record ? strtolower(pathinfo($record->nombre_archivo_original, PATHINFO_EXTENSION)) : null;
+    @php
+        $record = $getRecord();
+        $url = null;
+
+        if ($record) {
+            // Generamos la firma para la ruta de miniaturas
+            $url = URL::temporarySignedRoute('admin.media.thumbnail', now()->addMinutes(120), [
+                'archivo_id' => $record->id,
+            ]);
+        }
     @endphp
 
-    @if($record)
-        @if(in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif']))
-            <img src="{{ $url }}" class="h-full w-full object-contain" loading="lazy">
-        
-        @elseif($extension === 'pdf')
-            <div class="w-full h-full relative">
-                <iframe src="{{ $url }}#toolbar=0" class="w-full h-full border-none"></iframe>
-                {{-- Capa transparente para permitir el drag-and-drop del repeater sin que el iframe robe el foco --}}
-                <div class="absolute inset-0 z-10"></div>
-            </div>
+    @if ($url)
+        <img src="{{ $url }}" alt="Miniatura"
+            class="h-full w-full object-cover transition-opacity duration-300 hover:opacity-80" loading="lazy"
+            onerror="this.src='https://placehold.co/300x400/0f172a/64748b?text=Error+Vista+Previa'">
 
-        @elseif(in_array($extension, ['mp4', 'webm', 'ogv']))
-            <video class="w-full h-full" preload="metadata">
-                <source src="{{ $url }}" type="video/{{ $extension }}">
-            </video>
-
-        @else
-            <div class="flex flex-col items-center justify-center text-gray-500 w-full">
-                <x-heroicon-o-document-arrow-down class="w-12 h-12 mb-2 opacity-20"/>
-                <span class="text-[10px] uppercase font-bold tracking-tighter">{{ $extension ?: 'Archivo' }}</span>
-            </div>
-        @endif
+        {{-- Indicador de formato en la esquina --}}
+        <div
+            class="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/60 rounded text-[8px] font-bold text-slate-300 uppercase">
+            {{ pathinfo($record->nombre_archivo_original, PATHINFO_EXTENSION) }}
+        </div>
     @else
-        <div class="flex items-center justify-center text-gray-600 italic text-xs">
-            Cargando vista previa...
+        <div class="flex items-center justify-center h-full w-full">
+            <x-heroicon-m-photo class="w-8 h-8 text-slate-700 animate-pulse" />
         </div>
     @endif
 </div>
