@@ -131,52 +131,50 @@ func processPdf(task ProcessingTask) {
 
 		os.MkdirAll(pageDir, 0755)
 
-		mainPath := filepath.Join(pageDir, "main.webp")
+		outputBase := filepath.Join(pageDir, "main")
+
+		// Esta es la ruta real que creará pdftocairo: "pageDir/main.webp"
+		actualWebpPath := filepath.Join(pageDir, "main.webp")
 		thumbPath := filepath.Join(pageDir, "thumb.webp")
 
-		// 3. Extracción de página (PDF -> WebP limpio)
-		// Usamos filepath.Join(pageDir, "main") sin extensión porque -singlefile la añade o maneja internamente según el formato
+		// 1. Extraer página
+		// -singlefile asegura que no añada numeración como "main-1"
 		extractCmd := exec.Command("pdftocairo", "-webp", "-singlefile",
 			"-f", strconv.Itoa(i),
 			"-l", strconv.Itoa(i),
 			"-scale-to-x", "2000",
-			task.Path, filepath.Join(pageDir, "main"))
+			task.Path, outputBase) // <-- Sin extensión aquí
 
 		if err := extractCmd.Run(); err != nil {
 			log.Printf("Error extrayendo página %d: %v", i, err)
 			continue
 		}
 
-		// 4. Aplicar Marca de Agua sobre el WebP generado
-		// Aquí mainPath ya existe gracias a pdftocairo
+		// 2. Aplicar Marca de Agua (ahora usamos actualWebpPath que ya existe)
 		watermarkCmd := exec.Command("magick",
-			mainPath,
-			"-background", "none",
-			"-size", "150x", // <- El tamaño de la marca de agua
-			watermark,
+			actualWebpPath,
+			"-background", "none", "-resize", "150x", watermark, // Ajusta el tamaño aquí
 			"-gravity", "south-east",
 			"-geometry", "+50+50",
 			"-composite",
 			"-quality", "80",
-			mainPath) // Sobrescribimos el mainPath con la versión sellada
+			actualWebpPath)
 
-		if err := watermarkCmd.Run(); err != nil {
-			log.Printf("Error marca de agua página %d: %v", i, err)
-		}
+		watermarkCmd.Run()
 
-		// 5. Generar Thumbnail (desde la imagen ya sellada)
-		exec.Command("magick", mainPath,
+		// 3. Generar Thumbnail
+		exec.Command("magick", actualWebpPath,
 			"-thumbnail", "200x200^",
 			"-gravity", "center",
 			"-extent", "200x200",
 			"-quality", "70",
 			thumbPath).Run()
 
-		// 6. Guardado en DB
+		// 4. Guardado en DB (pasamos actualWebpPath que tiene el nombre correcto)
 		if i == 1 {
-			updateDatabase(task.ArchivoID, mainPath, thumbPath)
+			updateDatabase(task.ArchivoID, actualWebpPath, thumbPath)
 		} else {
-			createNewPageRecord(task, i, mainPath, thumbPath)
+			createNewPageRecord(task, i, actualWebpPath, thumbPath)
 		}
 	}
 	log.Printf("--- Finalizado PDF ID: %d ---", task.RecursoID)
