@@ -125,56 +125,67 @@ func processPdf(task ProcessingTask) {
 	}
 
 	for i := 1; i <= totalPages; i++ {
+		// 1. Definimos la carpeta de la página
 		pageDir := filepath.Join(basePath, task.ColeccionSlug,
 			strconv.Itoa(task.RecursoID),
 			fmt.Sprintf("p%d", i))
 
 		os.MkdirAll(pageDir, 0755)
 
-		outputBase := filepath.Join(pageDir, "main")
+		// 2. NOMBRE ÚNICO: En lugar de "main", usamos "page_1", "page_2", etc.
+		// Esto evita que pdftocairo se confunda con archivos previos
+		fileName := fmt.Sprintf("page_%d", i)
+		outputBase := filepath.Join(pageDir, fileName)
 
-		// Esta es la ruta real que creará pdftocairo: "pageDir/main.webp"
-		actualWebpPath := filepath.Join(pageDir, "main.webp")
+		// Rutas finales que usaremos en la DB y Magick
+		actualWebpPath := filepath.Join(pageDir, fileName+".webp")
+		finalMainPath := filepath.Join(pageDir, "main.webp") // El nombre que Laravel espera
 		thumbPath := filepath.Join(pageDir, "thumb.webp")
 
-		// 1. Extraer página
-		// -singlefile asegura que no añada numeración como "main-1"
+		// 3. Extraer página con pdftocairo
 		extractCmd := exec.Command("pdftocairo", "-webp", "-singlefile",
 			"-f", strconv.Itoa(i),
 			"-l", strconv.Itoa(i),
 			"-scale-to-x", "2000",
-			task.Path, outputBase) // <-- Sin extensión aquí
+			task.Path, outputBase)
 
 		if err := extractCmd.Run(); err != nil {
 			log.Printf("Error extrayendo página %d: %v", i, err)
 			continue
 		}
 
-		// 2. Aplicar Marca de Agua (ahora usamos actualWebpPath que ya existe)
+		// 4. RENOMBRAR a main.webp inmediatamente
+		// Esto asegura que el archivo esté disponible y "cerrado" por el sistema
+		err := os.Rename(actualWebpPath, finalMainPath)
+		if err != nil {
+			log.Printf("Error renombrando página %d: %v", i, err)
+			continue
+		}
+
+		// 5. Aplicar Marca de Agua sobre el archivo final
 		watermarkCmd := exec.Command("magick",
-			actualWebpPath,
-			"-background", "none", "-resize", "150x", watermark, // Ajusta el tamaño aquí
+			finalMainPath,
+			"-background", "none", "-resize", "300x", watermark,
 			"-gravity", "south-east",
 			"-geometry", "+50+50",
 			"-composite",
 			"-quality", "80",
-			actualWebpPath)
-
+			finalMainPath)
 		watermarkCmd.Run()
 
-		// 3. Generar Thumbnail
-		exec.Command("magick", actualWebpPath,
+		// 6. Generar Thumbnail
+		exec.Command("magick", finalMainPath,
 			"-thumbnail", "200x200^",
 			"-gravity", "center",
 			"-extent", "200x200",
 			"-quality", "70",
 			thumbPath).Run()
 
-		// 4. Guardado en DB (pasamos actualWebpPath que tiene el nombre correcto)
+		// 7. Guardado en DB
 		if i == 1 {
-			updateDatabase(task.ArchivoID, actualWebpPath, thumbPath)
+			updateDatabase(task.ArchivoID, finalMainPath, thumbPath)
 		} else {
-			createNewPageRecord(task, i, actualWebpPath, thumbPath)
+			createNewPageRecord(task, i, finalMainPath, thumbPath)
 		}
 	}
 	log.Printf("--- Finalizado PDF ID: %d ---", task.RecursoID)
