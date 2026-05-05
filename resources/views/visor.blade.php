@@ -189,6 +189,8 @@
             }
         }
 
+
+
         function initDesktop() {
 
             const lightbox = new PhotoSwipeLightbox({
@@ -197,9 +199,13 @@
                 pswpModule: PhotoSwipe,
                 loop: false,
                 showHideAnimationType: 'zoom',
-                closeOnVerticalDrag: true, 
+                closeOnVerticalDrag: true,
                 clickToCloseNonZoomable: true
             });
+
+            window.openVisor = (index = 0) => {
+                lightbox.loadAndOpen(index);
+            };
 
             lightbox.on('change', () => {
                 const index = lightbox.pswp.currIndex;
@@ -215,37 +221,18 @@
                 const {
                     content
                 } = e;
-                e.preventDefault();
-
                 const el = content.data.element;
 
-                try {
+                if (!el.dataset.loaded) {
                     const blobUrl = await getBlobUrl(el.dataset.id);
-
-                    // Crear imagen manual
-                    const img = document.createElement('img');
-                    img.src = blobUrl;
-                    img.style.width = '100%';
-                    img.style.height = 'auto';
-
-                    // Asignar al slide
-                    content.element = img;
-
-                } catch (err) {
-                    console.error("Error cargando imagen desktop", err);
+                    content.data.src = blobUrl;
+                    el.dataset.loaded = true;
                 }
             });
 
-            lightbox.on('close', () => {
-                document.querySelectorAll('#gallery-trigger a').forEach(a => {
-                    if (a.href?.startsWith('blob:')) {
-                        URL.revokeObjectURL(a.href);
-                        a.href = '';
-                    }
-                });
-            });
-
             lightbox.init();
+
+            // apertura inicial
             setTimeout(() => lightbox.loadAndOpen(0), 300);
         }
 
@@ -270,10 +257,15 @@
                 const index = parseInt(localStorage.getItem(STORAGE_KEY));
 
                 if (isMobile()) {
-                    const pages = document.querySelectorAll('.scroll-page');
-                    pages[index]?.scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                    const container = document.querySelector('main');
+                    const target = pages[index];
+
+                    if (container && target) {
+                        container.scrollTo({
+                            top: target.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
                 } else {
                     window.openVisor(index);
                 }
