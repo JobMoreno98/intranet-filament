@@ -63,7 +63,6 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
     function initScroll() {
         const container = document.getElementById("scroll-viewer");
         container.style.display = "flex";
-
         paginas.forEach((p, index) => {
             const div = document.createElement("div");
             div.classList.add("scroll-page");
@@ -82,20 +81,16 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return;
 
-                    const pages = document.querySelectorAll(".scroll-page");
                     const index = [...pages].indexOf(entry.target);
-
                     const currentIndex = index;
 
                     localStorage.setItem(STORAGE_KEY, index);
 
-                    const btn = document.getElementById("continue-btn");
-                    if (btn) btn.classList.remove("hidden");
-
+                    // liberar memoria
                     document.querySelectorAll("canvas").forEach((canvas) => {
                         const i = parseInt(canvas.dataset.index);
 
-                        if (i < currentIndex - 10 || i > currentIndex + 10) {
+                        if (i < currentIndex - 5 || i > currentIndex + 5) {
                             canvas.width = 0;
                             canvas.height = 0;
                             canvas.dataset.loaded = "";
@@ -103,12 +98,24 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                     });
                 });
             },
-            {
-                threshold: 0.5,
-            },
+            { threshold: 0.5 },
         );
 
         pages.forEach((p) => observerProgress.observe(p));
+        const observer = new IntersectionObserver(
+            async (entries, obs) => {
+                for (let entry of entries) {
+                    if (!entry.isIntersecting) continue;
+
+                    const canvas = entry.target;
+                    const index = canvas.dataset.index;
+
+                    await drawImage(canvas, index);
+                    obs.unobserve(canvas);
+                }
+            },
+            { rootMargin: "300px" },
+        );
 
         document.querySelectorAll("canvas").forEach((c) => observer.observe(c));
 
