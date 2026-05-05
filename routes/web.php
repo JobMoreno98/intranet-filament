@@ -20,7 +20,7 @@ require __DIR__ . '/settings.php';
 
 Route::get('/media/stream', function (Request $request) {
 
-    $archivo = \App\Models\RecursosArchivos::findOrFail($request->archivo_id);
+    $archivo = RecursosArchivos::findOrFail($request->archivo_id);
 
     $path = $archivo->assets_procesados['main'] ?? null;
 
@@ -33,9 +33,8 @@ Route::get('/media/stream', function (Request $request) {
         ->header('Content-Type', 'image/webp')
         ->header('Content-Disposition', 'inline')
         ->header('X-Content-Type-Options', 'nosniff');
-
 })->name('media.stream')
-  ->middleware(['auth', 'secure.media', 'throttle:media']);
+    ->middleware(['auth', 'secure.media', 'throttle:media']);
 
 Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');
 Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl'])->middleware('auth');
