@@ -21,20 +21,26 @@ func init() {
 		basePath = "/var/www/html/bpej/storage/app/private"
 	}
 }
+
 func processTask(task ProcessingTask) {
-    // 1. Limpiar la ruta de posibles espacios o saltos de línea
     path := strings.TrimSpace(task.Path)
+    ext := strings.ToLower(filepath.Ext(path))
     
-    // 2. Detectar si es PDF de forma más segura
-    isPDF := strings.HasSuffix(strings.ToLower(path), ".pdf")
+    // LOG DE EMERGENCIA: Vamos a ver exactamente qué llega de Redis
+    log.Printf("------------------------------------------------")
+    log.Printf("RECIBIDO: ID=%d | PATH=%s", task.ArchivoID, path)
+    log.Printf("EXTENSIÓN DETECTADA: '%s'", ext)
+    log.Printf("TIPO EN JSON: '%s'", task.Tipo)
 
-    log.Printf("DEBUG: Archivo: %s | ¿Es PDF?: %v", path, isPDF)
-
-    if isPDF {
+    // Forzamos la detección tanto por extensión como por el campo "tipo"
+    if ext == ".pdf" || strings.ToLower(task.Tipo) == "pdf" {
+        log.Printf(">>> EJECUTANDO RUTINA DE PDF <<<")
         processPdf(task)
     } else {
+        log.Printf(">>> EJECUTANDO RUTINA DE IMAGEN <<<")
         processImage(task)
     }
+    log.Printf("------------------------------------------------")
 }
 
 func processImage(task ProcessingTask) {
