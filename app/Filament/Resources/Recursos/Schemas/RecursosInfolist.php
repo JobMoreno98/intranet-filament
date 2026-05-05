@@ -23,12 +23,9 @@ class RecursosInfolist
                                     ->label('Vista Previa')
                                     // Inyectamos la URL firmada como el estado del componente
                                     ->state(fn($record) => URL::temporarySignedRoute(
-                                        'media.stream',
-                                        now()->addMinutes(60),
-                                        [
-                                            'archivo_id' => $record->id,
-                                            'tipo' => 'thumb' // Asegúrate de que tu ruta acepte este parámetro
-                                        ]
+                                        'admin.media.thumbnail', // La nueva ruta que creamos
+                                        now()->addMinutes(120),
+                                        ['archivo_id' => $record->id]
                                     ))
                                     ->width(300)
                                     ->height(200)
