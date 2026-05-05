@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/redis/go-redis/v9"
 	"log"
-
 )
 
 func main() {
@@ -32,7 +31,7 @@ func main() {
 		go func(t ProcessingTask) {
 			sem <- struct{}{}        // Ocupa un lugar
 			defer func() { <-sem }() // Libera el lugar al terminar
-			processImage(t)
+			processTask(t)
 		}(task)
 	}
 }
