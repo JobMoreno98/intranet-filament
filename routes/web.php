@@ -28,11 +28,11 @@ Route::get('/media/stream', function (Request $request) {
         abort(404, 'No hay versión procesada para este archivo');
     }
 
-    return response()->noContent()
-        ->header('X-Accel-Redirect', '/protegido/' . $path)
-        ->header('Content-Type', 'image/webp')
-        ->header('Content-Disposition', 'inline')
-        ->header('X-Content-Type-Options', 'nosniff');
+return response('', 200)
+    ->header('X-Accel-Redirect', '/protegido/' . $path)
+    ->header('Content-Type', 'image/webp')
+    ->header('Content-Disposition', 'inline')
+    ->header('X-Content-Type-Options', 'nosniff');
 })->name('media.stream')
     ->middleware(['auth', 'secure.media', 'throttle:media']);
 
