@@ -1,10 +1,9 @@
 // resources/js/visor.js
 
-import PhotoSwipeLightbox from 'photoswipe/lightbox';
-import PhotoSwipe from 'photoswipe';
+import PhotoSwipeLightbox from "photoswipe/lightbox";
+import PhotoSwipe from "photoswipe";
 
 export function initVisor({ paginas, recursoId, nombreUser }) {
-
     let lightbox = null;
 
     const STORAGE_KEY = `visor_last_page_${recursoId}`;
@@ -78,32 +77,54 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
         const pages = document.querySelectorAll(".scroll-page");
 
-        const observerProgress = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
+        const observerProgress = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const index = [...pages].indexOf(entry.target);
+
+                        localStorage.setItem(STORAGE_KEY, index);
+
+                        const btn = document.getElementById("continue-btn");
+                        if (btn) btn.classList.remove("hidden");
+                    }
+                });
+            },
+            { threshold: 0.5 },
+        );
+
+        pages.forEach((p) => observerProgress.observe(p));
+
+        const observerProgress = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+
+                    const pages = document.querySelectorAll(".scroll-page");
                     const index = [...pages].indexOf(entry.target);
+
+                    const currentIndex = index;
 
                     localStorage.setItem(STORAGE_KEY, index);
 
                     const btn = document.getElementById("continue-btn");
                     if (btn) btn.classList.remove("hidden");
-                }
-            });
-        }, { threshold: 0.5 });
 
-        pages.forEach((p) => observerProgress.observe(p));
+                    document.querySelectorAll("canvas").forEach((canvas) => {
+                        const i = parseInt(canvas.dataset.index);
 
-        const observer = new IntersectionObserver(async (entries, obs) => {
-            for (let entry of entries) {
-                if (!entry.isIntersecting) continue;
-
-                const canvas = entry.target;
-                const index = canvas.dataset.index;
-
-                await drawImage(canvas, index);
-                obs.unobserve(canvas);
-            }
-        }, { rootMargin: "300px" });
+                        if (i < currentIndex - 10 || i > currentIndex + 10) {
+                            canvas.width = 0;
+                            canvas.height = 0;
+                            canvas.dataset.loaded = "";
+                        }
+                    });
+                });
+            },
+            {
+                threshold: 0.5,
+            },
+        );
 
         document.querySelectorAll("canvas").forEach((c) => observer.observe(c));
 
@@ -113,7 +134,6 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
     }
 
     function initDesktop() {
-
         lightbox = new PhotoSwipeLightbox({
             gallery: "#gallery-trigger",
             children: "a",
@@ -124,9 +144,20 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         lightbox.on("change", () => {
             const index = lightbox.pswp?.currIndex ?? 0;
             localStorage.setItem(STORAGE_KEY, index);
-
             const btn = document.getElementById("continue-btn");
             if (btn) btn.classList.remove("hidden");
+
+            const anchors = document.querySelectorAll("#gallery-trigger a");
+
+            [index - 1, index + 1].forEach((i) => {
+                const el = anchors[i];
+
+                if (el && !el.dataset.preloaded) {
+                    getBlobUrl(el.dataset.id).then(() => {
+                        el.dataset.preloaded = "true";
+                    });
+                }
+            });
         });
 
         lightbox.on("contentLoad", async (e) => {
@@ -141,10 +172,18 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
             img.onload = () => {
                 content.element = img;
-                lightbox.pswp?.updateSize(true);
+
+                requestAnimationFrame(() => {
+                    lightbox.pswp?.updateSize(true);
+                });
             };
 
             img.src = blobUrl;
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "PrintScreen") {
+                navigator.clipboard.writeText("");
+            }
         });
 
         lightbox.init();
