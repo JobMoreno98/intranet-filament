@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -104,22 +105,27 @@ class RecursosForm
                         Repeater::make('archivos')->visible(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\EditRecord)
                             ->relationship('archivos') // Este SÍ usa la relación para MOSTRAR
                             ->schema([
+                                ViewField::make('id') // Pasamos el ID para generar la ruta firmada
+                                    ->label('Vista Previa')
+                                    ->view('filament.forms.components.preview')
+                                    ->columnSpanFull(),
+                                /*
                                 FileUpload::make('path_original')
                                     ->image()
                                     ->hiddenLabel()
                                     ->disk('private')
                                     //->visibility('private')
                                     ->disabled(),
-
+*/
                                 TextInput::make('status')
                                     ->hiddenLabel()
                                     ->extraAttributes(['class' => 'text-center font-bold'])
                                     ->readOnly(),
                             ])
-                            ->grid(4) 
+                            ->grid(4)
                             ->orderable('orden')
                             ->collapsible() // Permite colapsar para ahorrar espacio
-                            
+                            ->collapsed()
                             ->addActionLabel('Añadir archivo individual')
                             ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? 'Sin nombre'),
 
