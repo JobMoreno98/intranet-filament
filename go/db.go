@@ -8,6 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"path/filepath"
 	"strings"
+	"fmt"
 )
 
 func updateDatabase(itemID int, mainRaw string, thumbRaw string) {
@@ -15,8 +16,7 @@ func updateDatabase(itemID int, mainRaw string, thumbRaw string) {
 	// filepath.ToSlash es más robusto para rutas de sistema
 
 	main := cleanPathForLaravel(mainRaw)
-    thumb := cleanPathForLaravel(thumbRaw)
-
+	thumb := cleanPathForLaravel(thumbRaw)
 
 	// 2. LIMPIEZA DE RUTA PARA LARAVEL
 	// Go ve: ../storage/app/public/items/coleccion/1/1/main.webp
@@ -71,4 +71,88 @@ func cleanPathForLaravel(rawPath string) string {
 		return path[idx+len(searchStr):]
 	}
 	return path
+}
+
+func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden int) {
+	// 1. Limpieza de rutas usando tu función existente
+	main := cleanPathForLaravel(mainRaw)
+	thumb := cleanPathForLaravel(thumbRaw)
+
+	// 2. Preparar el JSON de assets
+	assetsMap := map[string]string{
+		"main":  main,
+		"thumb": thumb,
+	}
+
+	assetsJSON, err := json.Marshal(assetsMap)
+	if err != nil {
+		log.Printf("Error serializando JSON para página %d: %v", orden, err)
+		return
+	}
+
+	// 3. Conexión (usando tu DSN actual)
+	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/intranet-bpej?parseTime=true"
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Printf("Error conectando a DB: %v", err)
+		return
+	}
+	defer db.Close()
+
+	// 4. Inserción de la nueva página
+	// Nota: 'nombre_archivo_original' lo seteamos como la página para que sea descriptivo
+	query := `
+        INSERT INTO recursos_archivos 
+        (recurso_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
+        VALUES (?, ?, ?, ?, 'listo', NOW(), NOW())
+    `
+	nombrePagina := fmt.Sprintf("Página %d", orden)
+
+	_, err = db.Exec(query, recursoID, nombrePagina, string(assetsJSON), orden)
+
+	if err != nil {
+		log.Printf("Error insertando página %d del recurso %d: %v", orden, recursoID, err)
+	} else {
+		log.Printf("Página %d insertada correctamente para recurso %d", orden, recursoID)
+	}
+}
+func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumbRaw string) {
+    // 1. Limpieza de rutas (usando tu función existente)
+    main := cleanPathForLaravel(mainRaw)
+    thumb := cleanPathForLaravel(thumbRaw)
+
+    // 2. Preparar el JSON de assets
+    assetsMap := map[string]string{
+        "main":  main,
+        "thumb": thumb,
+    }
+    assetsJSON, err := json.Marshal(assetsMap)
+    if err != nil {
+        log.Printf("Error serializando JSON para página %d: %v", pageNum, err)
+        return
+    }
+
+    // 3. Conexión local (Exactamente igual a tu updateDatabase)
+    dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/intranet-bpej?parseTime=true"
+    db, err := sql.Open("mysql", dsn)
+    if err != nil {
+        log.Printf("Error abriendo DB: %v", err)
+        return
+    }
+    defer db.Close()
+
+    // 4. Inserción
+    // Usamos 'recursos_archivos' (ajusta si el typo 'archvios' sigue ahí)
+    query := `INSERT INTO recursos_archivos 
+              (recurso_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
+              VALUES (?, ?, ?, ?, 'listo', NOW(), NOW())`
+    
+    nombre := fmt.Sprintf("Página %d", pageNum)
+    _, err = db.Exec(query, task.RecursoID, nombre, string(assetsJSON), pageNum)
+
+    if err != nil {
+        log.Printf("Error insertando página %d: %v", pageNum, err)
+    } else {
+        log.Printf("Página %d del recurso %d insertada correctamente", pageNum, task.RecursoID)
+    }
 }
