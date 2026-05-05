@@ -218,19 +218,22 @@
                 } = e;
                 const el = content.data.element;
 
-                if (!el?.dataset.loaded) {
-                    try {
-                        const blobUrl = await getBlobUrl(el.dataset.id);
-                        content.data.src = blobUrl;
+                // ❌ evitar carga por defecto
+                e.preventDefault();
 
-                        if (content.element) {
-                            content.element.src = blobUrl;
-                        }
+                try {
+                    const blobUrl = await getBlobUrl(el.dataset.id);
 
-                        el.dataset.loaded = 'true';
-                    } catch (err) {
-                        console.error('Error cargando imagen desktop', err);
-                    }
+                    // 🔥 crear imagen manualmente
+                    const img = document.createElement('img');
+                    img.src = blobUrl;
+                    img.style.width = '100%';
+
+                    // 🔥 asignar elemento directamente
+                    content.element = img;
+
+                } catch (err) {
+                    console.error('Error cargando imagen desktop', err);
                 }
             });
 
