@@ -48,7 +48,7 @@
         .pswp__pager-container {
             position: absolute;
             left: 50%;
-            bottom: 25px;
+            margin-top: 15px;
             transform: translateX(-50%);
             background: rgba(15, 23, 42, 0.85);
             padding: 6px 15px;
@@ -101,33 +101,58 @@
 <body class="overflow-hidden">
 
     <header
-        class="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/50 backdrop-blur-md">
-        <div>
-            <h1 class="text-slate-100 font-bold text-sm truncate max-w-xs md:max-w-xl">{{ $recurso->titulo }}</h1>
-            <p class="text-slate-400 text-xs uppercase tracking-widest">{{ $recurso->autor }}</p>
+        class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md px-6 py-3
+           grid grid-cols-1 gap-3
+           md:grid-cols-3 md:items-center md:h-16">
+
+        <!-- Título -->
+        <div class="min-w-0 text-center">
+            <h1 class="text-slate-100 font-bold text-sm truncate">
+                {{ $recurso->titulo }}
+            </h1>
+            <p class="text-slate-400 text-xs uppercase tracking-widest">
+                {{ $recurso->autor }}
+            </p>
         </div>
 
-        <div class="flex items-center gap-3 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
-            <input type="number" id="goto-page" value="1" min="1" max="{{ count($paginas) }}"
-                class="w-12 bg-transparent text-center text-slate-100 font-bold outline-none focus:text-indigo-400">
-            <span class="text-slate-500 text-xs font-medium">/ {{ count($paginas) }}</span>
+        <!-- Contenedor móvil: paginador + botón -->
+        <div class="grid grid-cols-2 items-center gap-3 md:contents">
+
+            <div
+                class=" text-center flex items-center gap-3 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700
+                    justify-center">
+                <input type="number" id="goto-page" value="1" min="1" max="{{ count($paginas) }}"
+                    class="w-12 bg-transparent text-center text-slate-100 font-bold outline-none focus:text-indigo-400">
+                <span class="text-slate-500 text-xs font-medium">
+                    / {{ count($paginas) }}
+                </span>
+            </div>
+
+            <!-- Botón -->
+            <div class="flex justify-end md:justify-end">
+                <button id="reopen-btn"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white 
+           px-4 py-1.5 text-sm
+           md:px-6 md:py-2 md:text-base
+           rounded-full font-bold shadow-lg transition-all transform hover:scale-105">
+                    Continuar leyendo
+                </button>
+            </div>
+
         </div>
-        <button id="reopen-btn"
-            class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-all transform hover:scale-105">
-            Continuar leyendo
-        </button>
     </header>
 
     <main id="visor-container" class="canvas-container relative flex items-center justify-center">
         <div id="gallery-trigger" class="hidden">
             <div id="gallery-trigger" class="hidden">
                 @foreach ($paginas as $p)
-                    <a data-url="{{ $p['url'] }}" data-pswp-width="{{ $p['w'] }}"
-                        data-pswp-height="{{ $p['h'] }}">
+                    <a data-id="{{ $p['id'] }}" data-url="{{ $p['url'] }}"
+                        data-pswp-width="{{ $p['w'] }}" data-pswp-height="{{ $p['h'] }}">
                         <img alt="Página" />
                     </a>
                 @endforeach
             </div>
+
         </div>
         <div class="text-slate-500 animate-pulse text-sm">Iniciando visor de alta resolución...</div>
     </main>
@@ -269,29 +294,48 @@
 
         document.addEventListener('contextmenu', e => e.preventDefault());
 
+        async function cargarBlobUrl(anchor) {
+            const realUrl = anchor.getAttribute('data-url');
+
+            // Pedimos la imagen protegida
+            const res = await fetch(realUrl, {
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error('No se pudo cargar la imagen');
+
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Asignamos el blob URL temporal
+            anchor.href = blobUrl;
+            anchor.querySelector('img').src = blobUrl;
+
+            return blobUrl;
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             const anchors = document.querySelectorAll('#gallery-trigger a');
 
             for (const a of anchors) {
-                const realUrl = a.getAttribute('data-url');
-
-                // Pedimos la imagen al backend (Laravel valida firma y auth)
-                const res = await fetch(realUrl, {
-                    credentials: 'include'
-                });
-                const blob = await res.blob();
-
-                // Creamos un blob URL temporal
-                const blobUrl = URL.createObjectURL(blob);
-
-                // Asignamos el blob URL al <a> y al <img>
-                a.href = blobUrl;
-                a.querySelector('img').src = blobUrl;
+                try {
+                    await cargarBlobUrl(a);
+                } catch (e) {
+                    console.error(e);
+                }
             }
 
-            // Inicializamos PhotoSwipe después de que todas las imágenes tengan blob URLs
+            // Inicializar PhotoSwipe después de que todas tengan blob URLs
             setTimeout(() => window.openVisor(0), 500);
         });
+        async function renovarUrl(id, anchor) {
+            const res = await fetch(`/media/url/${id}`, {
+                credentials: 'include'
+            });
+            const data = await res.json();
+
+            anchor.setAttribute('data-url', data.url);
+            return cargarBlobUrl(anchor);
+        }
     </script>
 </body>
 
