@@ -99,94 +99,83 @@ func extractPages(info string) int {
 }
 
 func processPdf(task ProcessingTask) {
-	//log.Printf("--- Iniciando PDF: %s ---", task.Path)
+	log.Printf("--- Iniciando PDF: %s ---", task.Path)
 	watermark := "/var/www/html/bpej/public/img/logo.svg"
 
-	// 1. Validar si el archivo existe
+	// 1. Validaciones iniciales
 	if _, err := os.Stat(task.Path); os.IsNotExist(err) {
-		log.Printf("ERROR: El archivo PDF no existe en la ruta: %s", task.Path)
+		log.Printf("ERROR: Archivo no encontrado: %s", task.Path)
 		return
 	}
 
-	// 2. Obtener páginas
 	cmdInfo := exec.Command("pdfinfo", task.Path)
-	out, err := cmdInfo.CombinedOutput()
-	if err != nil {
-		log.Printf("ERROR en pdfinfo: %v | Salida: %s", err, string(out))
-		return
-	}
-
+	out, _ := cmdInfo.Output()
 	totalPages := extractPages(string(out))
-	log.Printf("Páginas detectadas: %d", totalPages)
 
 	if totalPages == 0 {
-		log.Printf("ERROR: No se detectaron páginas.")
 		return
 	}
 
 	for i := 1; i <= totalPages; i++ {
-		// 1. Definimos la carpeta de la página
+		// Carpeta única por página
 		pageDir := filepath.Join(basePath, task.ColeccionSlug,
 			strconv.Itoa(task.RecursoID),
 			fmt.Sprintf("p%d", i))
 
 		os.MkdirAll(pageDir, 0755)
 
-		// 2. NOMBRE ÚNICO: En lugar de "main", usamos "page_1", "page_2", etc.
-		// Esto evita que pdftocairo se confunda con archivos previos
-		fileName := fmt.Sprintf("page_%d", i)
-		outputBase := filepath.Join(pageDir, fileName)
+		// Nombre temporal único para evitar colisiones de buffer
+		tempName := fmt.Sprintf("temp_page_%d", i)
+		outputBase := filepath.Join(pageDir, tempName)
+		actualWebp := outputBase + ".webp"
 
-		// Rutas finales que usaremos en la DB y Magick
-		actualWebpPath := filepath.Join(pageDir, fileName+".webp")
-		finalMainPath := filepath.Join(pageDir, "main.webp") // El nombre que Laravel espera
+		finalMain := filepath.Join(pageDir, "main.webp")
 		thumbPath := filepath.Join(pageDir, "thumb.webp")
 
-		// 3. Extraer página con pdftocairo
-		extractCmd := exec.Command("pdftocairo", "-webp", "-singlefile",
+		// 2. Extraer página (ORDEN DE ARGUMENTOS CRÍTICO)
+		// Ponemos los flags de página ANTES del formato y la escala
+		extractCmd := exec.Command("pdftocairo",
 			"-f", strconv.Itoa(i),
 			"-l", strconv.Itoa(i),
+			"-webp",
+			"-singlefile",
 			"-scale-to-x", "2000",
-			task.Path, outputBase)
+			task.Path,
+			outputBase)
 
 		if err := extractCmd.Run(); err != nil {
-			log.Printf("Error extrayendo página %d: %v", i, err)
+			log.Printf("Error pág %d: %v", i, err)
 			continue
 		}
 
-		// 4. RENOMBRAR a main.webp inmediatamente
-		// Esto asegura que el archivo esté disponible y "cerrado" por el sistema
-		err := os.Rename(actualWebpPath, finalMainPath)
-		if err != nil {
-			log.Printf("Error renombrando página %d: %v", i, err)
+		// 3. Pequeña pausa para asegurar que el SO soltó el archivo (100ms)
+		// Especialmente útil si el storage es vía red (NFS/SMB)
+		time.Sleep(100 * time.Millisecond)
+
+		// 4. Renombrar a main.webp (Esto confirma que el archivo es único)
+		if err := os.Rename(actualWebp, finalMain); err != nil {
+			log.Printf("Error rename pág %d: %v", i, err)
 			continue
 		}
 
-		// 5. Aplicar Marca de Agua sobre el archivo final
-		watermarkCmd := exec.Command("magick",
-			finalMainPath,
-			"-background", "none", "-resize", "300x", watermark,
-			"-gravity", "south-east",
-			"-geometry", "+50+50",
-			"-composite",
-			"-quality", "80",
-			finalMainPath)
-		watermarkCmd.Run()
+		// 5. Marca de Agua con ajuste de tamaño (SVG)
+		exec.Command("magick", finalMain,
+			"-background", "none", "-resize", "350x", watermark,
+			"-gravity", "south-east", "-geometry", "+50+50",
+			"-composite", finalMain).Run()
 
-		// 6. Generar Thumbnail
-		exec.Command("magick", finalMainPath,
-			"-thumbnail", "200x200^",
-			"-gravity", "center",
-			"-extent", "200x200",
-			"-quality", "70",
+		// 6. Thumbnail
+		exec.Command("magick", finalMain,
+			"-thumbnail", "200x200^", "-gravity", "center",
+			"-extent", "200x200", "-quality", "70",
 			thumbPath).Run()
 
-		// 7. Guardado en DB
+		// 7. Base de Datos
 		if i == 1 {
-			updateDatabase(task.ArchivoID, finalMainPath, thumbPath)
+			updateDatabase(task.ArchivoID, finalMain, thumbPath)
 		} else {
-			createNewPageRecord(task, i, finalMainPath, thumbPath)
+			createNewPageRecord(task, i, finalMain, thumbPath)
 		}
 	}
-	log.Printf("--- Finalizado PDF ID: %d ---", task.RecursoID)
+	log.Printf("Finalizado: %s (%d páginas)", task.Path, totalPages)
 }
