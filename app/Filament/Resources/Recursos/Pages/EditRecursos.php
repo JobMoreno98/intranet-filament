@@ -37,7 +37,7 @@ class EditRecursos extends EditRecord
         if (empty($archivosParaProcesar)) {
             return;
         }
-
+        $cantiad =  $record->archivos()->count() + 1;
         // 2. Procesamos cada archivo nuevo
         foreach (array_values($archivosParaProcesar) as $index => $rutaTemporal) {
 
@@ -51,7 +51,7 @@ class EditRecursos extends EditRecord
 
             // 2. Definimos la estructura: coleccion/id_recurso/id_archivo/
             $extension = pathinfo($rutaTemporal, PATHINFO_EXTENSION);
-            $nombreLimpio = Str::slug($record->titulo) . "_".$index. ".{$extension}";
+            $nombreLimpio = Str::slug($record->titulo) . "_" . $cantiad . ".{$extension}";
             // RUTA FINAL: coleccion-slug/15/105/titulo.jpg
             $rutaFinal = "{$record->sub_coleccion->slug}/{$record->id}/{$nuevoArchivo->id}/{$nombreLimpio}";
 
@@ -66,6 +66,7 @@ class EditRecursos extends EditRecord
                     'nombre_archivo_original' => $nombreLimpio
                 ]);
             }
+            $cantiad = $cantiad + 1;
 
             // 5. Mandamos a Go
             $this->enviarAGo($nuevoArchivo, $record);
