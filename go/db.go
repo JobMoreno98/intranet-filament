@@ -5,10 +5,10 @@ import (
 	"log"
 
 	"encoding/json"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"path/filepath"
 	"strings"
-	"fmt"
 )
 
 func updateDatabase(itemID int, mainRaw string, thumbRaw string) {
@@ -45,10 +45,9 @@ func updateDatabase(itemID int, mainRaw string, thumbRaw string) {
 
 	// 4. Conexión y Update
 	// Asegúrate de que el nombre de la DB sea 'intranet-bpej' o 'intranet_bpej' (revisa el guion)
-	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
-	db, err := sql.Open("mysql", dsn)
+	db, err := getDB()
 	if err != nil {
-		log.Printf("Error abriendo DB: %v", err)
+		log.Printf("Error conectando: %v", err)
 		return
 	}
 	defer db.Close()
@@ -91,10 +90,9 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 	}
 
 	// 3. Conexión (usando tu DSN actual)
-	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
-	db, err := sql.Open("mysql", dsn)
+	db, err := getDB()
 	if err != nil {
-		log.Printf("Error conectando a DB: %v", err)
+		log.Printf("Error conectando: %v", err)
 		return
 	}
 	defer db.Close()
@@ -117,42 +115,47 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 	}
 }
 func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumbRaw string) {
-    // 1. Limpieza de rutas (usando tu función existente)
-    main := cleanPathForLaravel(mainRaw)
-    thumb := cleanPathForLaravel(thumbRaw)
+	// 1. Limpieza de rutas (usando tu función existente)
+	main := cleanPathForLaravel(mainRaw)
+	thumb := cleanPathForLaravel(thumbRaw)
 
-    // 2. Preparar el JSON de assets
-    assetsMap := map[string]string{
-        "main":  main,
-        "thumb": thumb,
-    }
-    assetsJSON, err := json.Marshal(assetsMap)
-    if err != nil {
-        log.Printf("Error serializando JSON para página %d: %v", pageNum, err)
-        return
-    }
+	// 2. Preparar el JSON de assets
+	assetsMap := map[string]string{
+		"main":  main,
+		"thumb": thumb,
+	}
+	assetsJSON, err := json.Marshal(assetsMap)
+	if err != nil {
+		log.Printf("Error serializando JSON para página %d: %v", pageNum, err)
+		return
+	}
 
-    // 3. Conexión local (Exactamente igual a tu updateDatabase)
-    dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
-    db, err := sql.Open("mysql", dsn)
-    if err != nil {
-        log.Printf("Error abriendo DB: %v", err)
-        return
-    }
-    defer db.Close()
+	// 3. Conexión local (Exactamente igual a tu updateDatabase)
+	db, err := getDB()
+	if err != nil {
+		log.Printf("Error conectando: %v", err)
+		return
+	}
+	defer db.Close()
 
-    // 4. Inserción
-    // Usamos 'recursos_archivos' (ajusta si el typo 'archvios' sigue ahí)
-    query := `INSERT INTO recursos_archivos 
+	// 4. Inserción
+	// Usamos 'recursos_archivos' (ajusta si el typo 'archvios' sigue ahí)
+	query := `INSERT INTO recursos_archivos 
               (recurso_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
               VALUES (?, ?, ?, ?, 'listo', NOW(), NOW())`
-    
-    nombre := fmt.Sprintf("Página %d", pageNum)
-    _, err = db.Exec(query, task.RecursoID, nombre, string(assetsJSON), pageNum)
 
-    if err != nil {
-        log.Printf("Error insertando página %d: %v", pageNum, err)
-    } else {
-        log.Printf("Página %d del recurso %d insertada correctamente", pageNum, task.RecursoID)
-    }
+	nombre := fmt.Sprintf("Página %d", pageNum)
+	_, err = db.Exec(query, task.RecursoID, nombre, string(assetsJSON), pageNum)
+
+	if err != nil {
+		log.Printf("Error insertando página %d: %v", pageNum, err)
+	} else {
+		log.Printf("Página %d del recurso %d insertada correctamente", pageNum, task.RecursoID)
+	}
+}
+
+func getDB() (*sql.DB, error) {
+	// Centraliza aquí tus credenciales y nombre de DB
+	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
+	return sql.Open("mysql", dsn)
 }
