@@ -4,7 +4,7 @@ use App\Http\Controllers\RecursosController;
 use App\Models\RecursosArchivos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
+use Filament\Facades\Filament;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -62,7 +62,7 @@ Route::get('/admin/media/load', function (Request $request) {
         ->header('X-Accel-Redirect', '/protegido/' . $path)
         ->header('Content-Type', $mime)
         ->header('X-Content-Type-Options', 'nosniff');
-})->name('admin.media.load');
+})->name('admin.media.load')->middleware(Filament::getPanel('admin')->getAuthMiddleware());
 
 Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');
 Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl'])->middleware('auth');

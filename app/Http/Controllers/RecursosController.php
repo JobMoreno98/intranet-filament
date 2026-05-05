@@ -24,7 +24,6 @@ class RecursosController extends Controller
                 'url' => URL::temporarySignedRoute('media.stream', now()->addMinutes(60), [
                     'archivo_id' => $archivo->id,
                 ]),
-                // Opcional: si tienes dimensiones guardadas, PhotoSwipe las usa para el placeholder
                 'w' => 1200,
                 'h' => 1600
             ];

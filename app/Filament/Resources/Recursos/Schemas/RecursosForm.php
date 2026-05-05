@@ -39,11 +39,12 @@ class RecursosForm
 
                         TextInput::make('fondo')
                             ->required()
-                            ->label('Fondo/Sección'),
+                            ->label('Fondo'),
 
                         TextInput::make('claveFondo')
                             ->required()
-                            ->unique(ignoreRecord: true)->integer()
+                            //->unique(ignoreRecord: true)
+                            ->integer()
                             ->label('Clave Fondo'),
 
                         Select::make('tipo_media')
@@ -51,7 +52,7 @@ class RecursosForm
                                 'pdf' => 'Documento PDF',
                                 'video' => 'Archivo de Video',
                                 'audio' => 'Grabación de Audio',
-                                'imagen' => 'Imagen / Mapa',
+                                'imagen' => 'Imagen',
                             ])->required(),
                     ])->columnSpanFull(),
 
