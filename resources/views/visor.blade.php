@@ -43,7 +43,7 @@
 
 <body class="overflow-hidden">
 
-    <header class="border-b border-slate-800 bg-slate-900 px-4 py-3 text-center">
+    <header class="border-b border-slate-800 bg-slate-900 px-4 py-3 text-center sticky top-0 z-10">
         <h1 class="text-white text-sm font-bold">{{ $recurso->titulo }}</h1>
         <p class="text-slate-400 text-xs">{{ $recurso->autor }}</p>
 
@@ -257,15 +257,10 @@
                 const index = parseInt(localStorage.getItem(STORAGE_KEY));
 
                 if (isMobile()) {
-                    const container = document.querySelector('main');
-                    const target = pages[index];
-
-                    if (container && target) {
-                        container.scrollTo({
-                            top: target.offsetTop,
-                            behavior: 'smooth'
-                        });
-                    }
+                    container.scrollTo({
+                        top: target.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
                 } else {
                     window.openVisor(index);
                 }
