@@ -30,7 +30,7 @@
             width: 100%;
             height: auto;
         }
-        
+
         #gallery-trigger {
             display: none;
         }
@@ -71,6 +71,7 @@
 
     <script>
         const paginas = @json($paginas);
+        const nombre_user = "{{ auth()->user()->email ?? 'usuario' }}";
     </script>
     <script type="module" src="{{ asset('js/visor.js') }}"></script>
 

@@ -104,11 +104,10 @@ async function drawImage(canvas, index) {
 
             ctx.drawImage(img, 0, 0);
 
-            /* Watermark opcional
-                    ctx.font = "20px Arial";
-                    ctx.fillStyle = "rgba(255,255,255,0.2)";
-                    ctx.fillText("{{ auth()->user()->email ?? 'usuario' }}", 20, 40);
-                    */
+            /* Watermark opcional*/
+            ctx.font = "20px Arial";
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            ctx.fillText(nombre_user, 20, 40);
 
             URL.revokeObjectURL(blobUrl);
             canvas.dataset.loaded = true;
