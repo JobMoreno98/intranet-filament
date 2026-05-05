@@ -106,7 +106,7 @@ class RecursosForm
                             ->schema([
                                 FileUpload::make('path_original')
                                     ->image()
-                                    ->hiddenLabel() // Quita el texto "Path original" para ganar espacio
+                                    ->hiddenLabel()
                                     ->disk('private')
                                     //->visibility('private')
                                     ->disabled(),
@@ -116,7 +116,7 @@ class RecursosForm
                                     ->extraAttributes(['class' => 'text-center font-bold'])
                                     ->readOnly(),
                             ])
-                            ->grid(4) // <--- ESTA ES LA CLAVE: 3 columnas de tarjetas
+                            ->grid(4) 
                             ->orderable('orden')
                             ->collapsible() // Permite colapsar para ahorrar espacio
                             

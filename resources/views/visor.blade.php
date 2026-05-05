@@ -271,7 +271,7 @@
 
                     if (container && target) {
                         container.scrollTo({
-                            top: target.offsetTop,
+                            top: target.offsetTop - 20,
                             behavior: 'smooth'
                         });
                     }
