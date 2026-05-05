@@ -40,10 +40,9 @@ class RecursosInfolist
                                 //->defaultImageUrl(url('/images/placeholder-processing.png')),
 
                                 TextEntry::make('nombre_archivo_original')
-                                    ->label('Nombre')
-                                    ->limit(20),
+                                    ->label('Nombre'),
 
-                                TextEntry::make('status')
+                                TextEntry::make('status')->label('Estatus')
                                     ->badge()
                                     ->color(fn(string $state): string => match ($state) {
                                         'listo' => 'success',
@@ -52,7 +51,7 @@ class RecursosInfolist
                                         default => 'gray',
                                     }),
                             ])
-                            ->grid(3) // Esto crea la apariencia de galería (4 columnas)
+                            ->grid(4) // Esto crea la apariencia de galería (4 columnas)
                             ->columnSpanFull(),
                     ])->columnSpanFull(),
             ]);
