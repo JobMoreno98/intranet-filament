@@ -36,27 +36,33 @@ Route::get('/media/stream', function (Request $request) {
 })->name('media.stream')
     ->middleware(['auth', 'secure.media', 'throttle:media']);
 
-Route::get('/admin/media/thumbnail', function (Request $request) {
-    // Solo permitimos el acceso si es administrador autenticado
+Route::get('/admin/media/load', function (Request $request) {
+    // Verificación de Admin
     if (!auth()->guard('admin')->check() && !auth()->user() instanceof \App\Models\Admin) {
         abort(403, 'Acceso exclusivo para administradores.');
     }
 
     $archivo = RecursosArchivos::findOrFail($request->archivo_id);
 
-    // Prioridad: 1. Miniatura (thumb), 2. Principal (main), 3. Original
-    $path = $archivo->assets_procesados['thumb']
+    // Obtenemos la versión solicitada (por defecto 'thumb')
+    $version = $request->query('version', 'thumb');
+
+    // Buscamos la versión específica, si no existe, caemos en cascada
+    $path = $archivo->assets_procesados[$version]
         ?? $archivo->assets_procesados['main']
         ?? $archivo->path_original;
 
     if (!$path) abort(404);
 
-    // Entregamos vía Nginx para máxima velocidad
+    // Mime type dinámico (opcional, pero útil si cargamos PDFs u originales)
+    $mime = str_ends_with($path, '.webp') ? 'image/webp' : 'image/jpeg';
+    if (str_ends_with($path, '.pdf')) $mime = 'application/pdf';
+
     return response('', 200)
         ->header('X-Accel-Redirect', '/protegido/' . $path)
-        ->header('Content-Type', 'image/webp')
+        ->header('Content-Type', $mime)
         ->header('X-Content-Type-Options', 'nosniff');
-})->name('admin.media.thumbnail');
+})->name('admin.media.load');
 
 Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');
 Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl'])->middleware('auth');

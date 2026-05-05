@@ -9,7 +9,8 @@
             // Detectar el ID del administrador actual
             $adminId = auth()->guard('admin')->id() ?? auth()->id();
 
-            $url = URL::temporarySignedRoute('admin.media.thumbnail', now()->addMinutes(120), [
+            $url = URL::temporarySignedRoute('admin.media.load', now()->addMinutes(120), [
+                'version' => 'thumb',
                 'archivo_id' => $record->id,
                 'admin_id' => $adminId, // Pasamos esto si tu middleware lo requiere
             ]);

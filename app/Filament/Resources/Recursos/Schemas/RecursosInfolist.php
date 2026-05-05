@@ -23,17 +23,17 @@ class RecursosInfolist
                                     ->label('Vista Previa')
                                     // Inyectamos la URL firmada como el estado del componente
                                     ->state(fn($record) => URL::temporarySignedRoute(
-                                        'admin.media.thumbnail', // La nueva ruta que creamos
+                                        'admin.media.load', // La nueva ruta que creamos
                                         now()->addMinutes(120),
-                                        ['archivo_id' => $record->id]
+                                        ['archivo_id' => $record->id, 'version' => 'thumb']
                                     ))
                                     ->width(300)
                                     ->height(200)
                                     // El método url() define a dónde va el usuario al hacer CLIC
                                     ->url(fn($record) => URL::temporarySignedRoute(
-                                        'admin.media.thumbnail', // La nueva ruta que creamos
+                                        'admin.media.load', // La nueva ruta que creamos
                                         now()->addMinutes(120),
-                                        ['archivo_id' => $record->id]
+                                        ['archivo_id' => $record->id, 'version' => 'main']
                                     ))
                                     ->openUrlInNewTab(),
                                 // Si no se ha procesado, mostramos un placeholder
