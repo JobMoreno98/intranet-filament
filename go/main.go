@@ -16,6 +16,7 @@ func main() {
 	sem := make(chan struct{}, 3)
 
 	log.Println("Worker iniciado. Esperando imágenes...")
+	log.Println("Se actualizo el binario")
 
 	for {
 		// BLPop espera hasta que Laravel mande algo
