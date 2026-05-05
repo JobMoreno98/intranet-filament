@@ -45,7 +45,7 @@ func updateDatabase(itemID int, mainRaw string, thumbRaw string) {
 
 	// 4. Conexión y Update
 	// Asegúrate de que el nombre de la DB sea 'intranet-bpej' o 'intranet_bpej' (revisa el guion)
-	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/intranet-bpej?parseTime=true"
+	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Printf("Error abriendo DB: %v", err)
@@ -91,7 +91,7 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 	}
 
 	// 3. Conexión (usando tu DSN actual)
-	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/intranet-bpej?parseTime=true"
+	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Printf("Error conectando a DB: %v", err)
@@ -133,7 +133,7 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
     }
 
     // 3. Conexión local (Exactamente igual a tu updateDatabase)
-    dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/intranet-bpej?parseTime=true"
+    dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
     db, err := sql.Open("mysql", dsn)
     if err != nil {
         log.Printf("Error abriendo DB: %v", err)
