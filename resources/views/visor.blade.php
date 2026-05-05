@@ -218,22 +218,38 @@
                 } = e;
                 const el = content.data.element;
 
-                // ❌ evitar carga por defecto
                 e.preventDefault();
 
                 try {
                     const blobUrl = await getBlobUrl(el.dataset.id);
 
-                    // 🔥 crear imagen manualmente
                     const img = document.createElement('img');
-                    img.src = blobUrl;
-                    img.style.width = '100%';
 
-                    // 🔥 asignar elemento directamente
-                    content.element = img;
+                    img.onload = () => {
+                        // 🔥 ahora sí está lista
+                        content.element = img;
+
+                        // 🔥 fuerza recalculo
+                        if (content.instance) {
+                            content.instance.updateSize(true);
+                        }
+                    };
+
+                    img.src = blobUrl;
 
                 } catch (err) {
                     console.error('Error cargando imagen desktop', err);
+                }
+            });
+            lightbox.on('change', async () => {
+                const index = lightbox.pswp.currIndex;
+
+                const next = document.querySelectorAll('#gallery-trigger a')[index + 1];
+
+                if (next && !next.dataset.preloaded) {
+                    getBlobUrl(next.dataset.id).then(() => {
+                        next.dataset.preloaded = 'true';
+                    });
                 }
             });
 
