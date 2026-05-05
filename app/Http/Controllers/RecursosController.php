@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Recursos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 
 class RecursosController extends Controller
 {
@@ -29,15 +32,18 @@ class RecursosController extends Controller
         return view('visor', compact('paginas', 'recurso'));
     }
 
-    // Endpoint para generar URLs firmadas dinámicamente (lazy loading)
     public function signedUrl($id)
     {
+        $payload = [
+            'a' => $id,
+            'u' => auth()->id(),
+            'e' => now()->timestamp + 300
+        ];
+
+        $token = encrypt(json_encode($payload));
+
         return response()->json([
-            'url' => URL::temporarySignedRoute(
-                'media.stream',
-                now()->addMinutes(5),
-                ['archivo_id' => $id]
-            )
+            'url' => route('media.stream', ['token' => $token])
         ]);
     }
 }

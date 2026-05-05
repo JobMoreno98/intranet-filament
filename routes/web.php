@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RecursosController;
 use App\Models\RecursosArchivos;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,33 +18,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__ . '/settings.php';
 
 
-Route::get('/media/stream/{archivo_id}', function ($archivo_id) {
-    // 1. Validar la firma
-    if (!request()->hasValidSignature()) {
-        abort(403, 'Firma inválida o expirada');
-    }
+Route::get('/media/stream', function (Request $request) {
 
-    $archivo = RecursosArchivos::findOrFail($archivo_id);
+    $archivo = \App\Models\RecursosArchivos::findOrFail($request->archivo_id);
 
-    // Obtenemos el path del JSON (ej: archivo-general/1/1/main.webp)
     $path = $archivo->assets_procesados['main'] ?? null;
 
     if (!$path) {
         abort(404, 'No hay versión procesada para este archivo');
     }
 
-    // 2. Construir la ruta para Nginx
-    // IMPORTANTE: Nginx espera una ruta relativa al bloque 'location'
-    $nginxPath = '/protegido/' . $path;
-
-    // 3. Responder a Nginx
-    // Usamos binary file response o noContent, pero X-Accel-Redirect es la clave
     return response()->noContent()
-        ->header('X-Accel-Redirect', $nginxPath)
+        ->header('X-Accel-Redirect', '/protegido/' . $path)
         ->header('Content-Type', 'image/webp')
         ->header('Content-Disposition', 'inline')
         ->header('X-Content-Type-Options', 'nosniff');
-})->name('media.stream')->middleware('auth');
+
+})->name('media.stream')
+  ->middleware(['auth', 'secure.media', 'throttle:media']);
 
 Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');
 Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl'])->middleware('auth');
