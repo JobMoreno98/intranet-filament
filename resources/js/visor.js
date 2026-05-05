@@ -111,7 +111,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                     const index = canvas.dataset.index;
 
                     await drawImage(canvas, index);
-                    obs.unobserve(canvas);
+                    //obs.unobserve(canvas);
                 }
             },
             { rootMargin: "300px" },
