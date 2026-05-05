@@ -254,15 +254,25 @@
             }
 
             btn.onclick = () => {
-                const index = parseInt(localStorage.getItem(STORAGE_KEY));
+                const index = parseInt(localStorage.getItem(STORAGE_KEY) || 0);
 
                 if (isMobile()) {
-                    container.scrollTo({
-                        top: target.offsetTop - 20,
-                        behavior: 'smooth'
-                    });
+
+                    const pages = document.querySelectorAll('.scroll-page');
+                    const container = document.querySelector('main'); 
+                    const target = pages[index];
+
+                    if (container && target) {
+                        container.scrollTo({
+                            top: target.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+
                 } else {
-                    window.openVisor(index);
+                    if (lightbox) {
+                        lightbox.loadAndOpen(index);
+                    }
                 }
             };
         }
