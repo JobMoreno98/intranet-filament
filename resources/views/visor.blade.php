@@ -195,7 +195,10 @@
                 gallery: '#gallery-trigger',
                 children: 'a',
                 pswpModule: PhotoSwipe,
-                loop: false
+                loop: false,
+                showHideAnimationType: 'zoom',
+                closeOnVerticalDrag: true, 
+                clickToCloseNonZoomable: true
             });
 
             lightbox.on('change', () => {
