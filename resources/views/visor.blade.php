@@ -55,7 +55,7 @@
         </div>
     </header>
 
-    <main class="h-[calc(100vh-60px)] overflow-auto">
+    <main class="h-[calc(100dvh-120px)] overflow-auto">
 
         <!-- Scroll mode -->
         <div id="scroll-viewer"></div>
