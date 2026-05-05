@@ -54,6 +54,7 @@ func processImage(task ProcessingTask) {
 	cmd := exec.Command("magick",
 		source,
 		"-background", "none",
+		"-resize", "150",
 		watermark,
 		"-gravity", "south-east",
 		"-geometry", "+50+50",
@@ -150,7 +151,9 @@ func processPdf(task ProcessingTask) {
 		// Aquí mainPath ya existe gracias a pdftocairo
 		watermarkCmd := exec.Command("magick",
 			mainPath,
-			"-background", "none", watermark,
+			"-background", "none",
+			"-resize", "150", // <- El tamaño de la marca de agua
+			watermark,
 			"-gravity", "south-east",
 			"-geometry", "+50+50",
 			"-composite",
