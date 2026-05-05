@@ -22,10 +22,9 @@ func init() {
 	}
 }
 func processTask(task ProcessingTask) {
-	// Detectamos si es PDF por extensión o por el campo Tipo
 	ext := strings.ToLower(filepath.Ext(task.Path))
 
-	if ext == ".pdf" {
+	if ext == "pdf" {
 		processPdf(task)
 	} else {
 		processImage(task)
