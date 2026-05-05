@@ -38,14 +38,16 @@ Route::get('/media/stream', function (Request $request) {
 
 Route::get('/admin/media/thumbnail', function (Request $request) {
     // Solo permitimos el acceso si es administrador autenticado
-    if (!auth()->user()?->hasRole('admin')) { abort(403); }
+    if (!auth()->guard('admin')->check() && !auth()->user() instanceof \App\Models\Admin) {
+        abort(403, 'Acceso exclusivo para administradores.');
+    }
 
     $archivo = RecursosArchivos::findOrFail($request->archivo_id);
 
     // Prioridad: 1. Miniatura (thumb), 2. Principal (main), 3. Original
-    $path = $archivo->assets_procesados['thumb'] 
-            ?? $archivo->assets_procesados['main'] 
-            ?? $archivo->path_original;
+    $path = $archivo->assets_procesados['thumb']
+        ?? $archivo->assets_procesados['main']
+        ?? $archivo->path_original;
 
     if (!$path) abort(404);
 
