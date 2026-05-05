@@ -193,7 +193,7 @@
 
         function initDesktop() {
 
-            const lightbox = new PhotoSwipeLightbox({
+            lightbox = new PhotoSwipeLightbox({
                 gallery: '#gallery-trigger',
                 children: 'a',
                 pswpModule: PhotoSwipe,
@@ -203,18 +203,12 @@
                 clickToCloseNonZoomable: true
             });
 
-            window.openVisor = (index = 0) => {
-                lightbox.loadAndOpen(index);
-            };
-
             lightbox.on('change', () => {
                 const index = lightbox.pswp.currIndex;
                 localStorage.setItem(STORAGE_KEY, index);
 
                 const btn = document.getElementById('continue-btn');
-                if (btn && btn.classList.contains('hidden')) {
-                    btn.classList.remove('hidden');
-                }
+                if (btn) btn.classList.remove('hidden');
             });
 
             lightbox.on('contentLoad', async (e) => {
@@ -224,18 +218,25 @@
                 const el = content.data.element;
 
                 if (!el.dataset.loaded) {
-                    const blobUrl = await getBlobUrl(el.dataset.id);
-                    content.data.src = blobUrl;
-                    el.dataset.loaded = true;
+                    try {
+                        const blobUrl = await getBlobUrl(el.dataset.id);
+
+                        content.data.src = blobUrl;
+
+                        if (content.element) {
+                            content.element.src = blobUrl;
+                        }
+
+                        el.dataset.loaded = true;
+
+                    } catch (err) {
+                        console.error("Error cargando imagen", err);
+                    }
                 }
             });
 
             lightbox.init();
-
-            // apertura inicial
-            setTimeout(() => lightbox.loadAndOpen(0), 300);
         }
-
         if (isMobile()) {
             initScroll();
         } else {
@@ -259,7 +260,7 @@
                 if (isMobile()) {
 
                     const pages = document.querySelectorAll('.scroll-page');
-                    const container = document.querySelector('main'); 
+                    const container = document.querySelector('main');
                     const target = pages[index];
 
                     if (container && target) {
@@ -270,9 +271,13 @@
                     }
 
                 } else {
+
                     if (lightbox) {
                         lightbox.loadAndOpen(index);
+                    } else {
+                        console.warn("Lightbox no inicializado aún");
                     }
+
                 }
             };
         }
