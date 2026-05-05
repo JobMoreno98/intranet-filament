@@ -5,7 +5,9 @@ use App\Models\RecursosArchivos;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -41,7 +43,6 @@ Route::get('/media/stream/{archivo_id}', function ($archivo_id) {
         ->header('Content-Type', 'image/webp')
         ->header('Content-Disposition', 'inline')
         ->header('X-Content-Type-Options', 'nosniff');
-        
 })->name('media.stream')->middleware('auth');
 
 Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');
