@@ -36,7 +36,7 @@ class RecursosInfolist
                                     ->url(fn($record) => URL::temporarySignedRoute(
                                         'media.stream',
                                         now()->addMinutes(60),
-                                        ['archivo_id' => $record->id, 'tipo' => 'main']
+                                        ['archivo_id' => $record->id, 'tipo' => 'thumb']
                                     ))
                                     ->openUrlInNewTab(),
                                 // Si no se ha procesado, mostramos un placeholder
