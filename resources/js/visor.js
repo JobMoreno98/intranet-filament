@@ -80,24 +80,6 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         const observerProgress = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        const index = [...pages].indexOf(entry.target);
-
-                        localStorage.setItem(STORAGE_KEY, index);
-
-                        const btn = document.getElementById("continue-btn");
-                        if (btn) btn.classList.remove("hidden");
-                    }
-                });
-            },
-            { threshold: 0.5 },
-        );
-
-        pages.forEach((p) => observerProgress.observe(p));
-
-        const observerProgress = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
                     if (!entry.isIntersecting) return;
 
                     const pages = document.querySelectorAll(".scroll-page");
@@ -125,6 +107,8 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                 threshold: 0.5,
             },
         );
+
+        pages.forEach((p) => observerProgress.observe(p));
 
         document.querySelectorAll("canvas").forEach((c) => observer.observe(c));
 
