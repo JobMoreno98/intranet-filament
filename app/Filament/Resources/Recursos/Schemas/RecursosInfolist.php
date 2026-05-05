@@ -34,9 +34,9 @@ class RecursosInfolist
                                     ->height(200)
                                     // El método url() define a dónde va el usuario al hacer CLIC
                                     ->url(fn($record) => URL::temporarySignedRoute(
-                                        'media.stream',
-                                        now()->addMinutes(60),
-                                        ['archivo_id' => $record->id, 'tipo' => 'thumb']
+                                        'admin.media.thumbnail', // La nueva ruta que creamos
+                                        now()->addMinutes(120),
+                                        ['archivo_id' => $record->id]
                                     ))
                                     ->openUrlInNewTab(),
                                 // Si no se ha procesado, mostramos un placeholder
