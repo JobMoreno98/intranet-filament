@@ -62,9 +62,13 @@
 
         <!-- Desktop mode -->
         <div id="gallery-trigger">
-            @foreach ($paginas as $p)
-                <a data-id="{{ $p['id'] }}"></a>
-            @endforeach
+            <div id="gallery-trigger">
+                @foreach ($paginas as $p)
+                    <a data-id="{{ $p['id'] }}" data-pswp-width="{{ $p['w'] }}"
+                        data-pswp-height="{{ $p['h'] }}">
+                    </a>
+                @endforeach
+            </div>
         </div>
 
     </main>
@@ -205,13 +209,24 @@
             });
 
             lightbox.on('contentLoad', async (e) => {
-                const { content } = e;
+                const {
+                    content
+                } = e;
                 const el = content.data.element;
 
                 if (!el.dataset.loaded) {
-                    const blobUrl = await getBlobUrl(el.dataset.id);
-                    content.data.src = blobUrl;
-                    el.dataset.loaded = true;
+
+                    try {
+                        const blobUrl = await getBlobUrl(el.dataset.id);
+                        content.data.src = blobUrl;
+                        if (content.element) {
+                            content.element.src = blobUrl;
+                        }
+                        el.dataset.loaded = true;
+
+                    } catch (err) {
+                        console.error("Error cargando imagen desktop", err);
+                    }
                 }
             });
 
@@ -250,7 +265,9 @@
 
                 if (isMobile()) {
                     const pages = document.querySelectorAll('.scroll-page');
-                    pages[index]?.scrollIntoView({ behavior: 'smooth' });
+                    pages[index]?.scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 } else {
                     window.openVisor(index);
                 }
