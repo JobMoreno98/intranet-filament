@@ -212,21 +212,24 @@
                 const {
                     content
                 } = e;
+                e.preventDefault();
+
                 const el = content.data.element;
 
-                if (!el.dataset.loaded) {
+                try {
+                    const blobUrl = await getBlobUrl(el.dataset.id);
 
-                    try {
-                        const blobUrl = await getBlobUrl(el.dataset.id);
-                        content.data.src = blobUrl;
-                        if (content.element) {
-                            content.element.src = blobUrl;
-                        }
-                        el.dataset.loaded = true;
+                    // Crear imagen manual
+                    const img = document.createElement('img');
+                    img.src = blobUrl;
+                    img.style.width = '100%';
+                    img.style.height = 'auto';
 
-                    } catch (err) {
-                        console.error("Error cargando imagen desktop", err);
-                    }
+                    // Asignar al slide
+                    content.element = img;
+
+                } catch (err) {
+                    console.error("Error cargando imagen desktop", err);
                 }
             });
 
