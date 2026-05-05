@@ -1,5 +1,4 @@
-import PhotoSwipeLightbox from "https://unpkg.com/photoswipe@5.4.3/dist/photoswipe-lightbox.esm.js";
-import PhotoSwipe from "https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.esm.js";
+
 
 let lightbox = null;
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,12 @@
 
     <link rel="stylesheet" href="https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.css">
     <script src="https://cdn.tailwindcss.com"></script>
-
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
             background: #020617;
         }
+
         #scroll-viewer {
             display: none;
             flex-direction: column;
@@ -70,10 +72,14 @@
     </main>
 
     <script>
-        const paginas = @json($paginas);
-        const nombre_user = "{{ auth()->user()->email ?? 'usuario' }}";
+        document.addEventListener('DOMContentLoaded', () => {
+            window.initVisor({
+                paginas: @json($paginas),
+                recursoId: {{ $recurso->id }},
+                nombreUser: "{{ auth()->user()->email ?? 'usuario' }}"
+            });
+        });
     </script>
-    <script type="module" src="{{ asset('js/visor.js') }}"></script>
 
 </body>
 
