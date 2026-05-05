@@ -15,7 +15,7 @@
             background: #020617;
         }
 
-        /* 📱 SCROLL VIEWER */
+        /* Scroll viewer */
         #scroll-viewer {
             display: none;
             flex-direction: column;
@@ -34,7 +34,7 @@
             height: auto;
         }
 
-        /* 🖥️ DESKTOP */
+        /* Desktop gallery */
         #gallery-trigger {
             display: none;
         }
@@ -46,6 +46,7 @@
     <header class="border-b border-slate-800 bg-slate-900 px-4 py-3 text-center">
         <h1 class="text-white text-sm font-bold">{{ $recurso->titulo }}</h1>
         <p class="text-slate-400 text-xs">{{ $recurso->autor }}</p>
+
         <div class="flex justify-center mt-2">
             <button id="continue-btn"
                 class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 text-sm rounded-full font-bold">
@@ -56,10 +57,10 @@
 
     <main class="h-[calc(100vh-60px)] overflow-auto">
 
-        <!-- 📱 SCROLL -->
+        <!-- Scroll mode -->
         <div id="scroll-viewer"></div>
 
-        <!-- 🖥️ DESKTOP -->
+        <!-- Desktop mode -->
         <div id="gallery-trigger">
             @foreach ($paginas as $p)
                 <a data-id="{{ $p['id'] }}"></a>
@@ -75,22 +76,11 @@
         const paginas = @json($paginas);
         const STORAGE_KEY = "visor_last_page_{{ $recurso->id }}";
 
-        /* =========================
-           📱 DETECTAR MODO
-        ========================= */
         function isMobile() {
             return window.matchMedia("(max-width: 768px)").matches;
         }
 
-        /* =========================
-           🔐 FETCH PROTEGIDO
-        ========================= */
         async function getBlobUrl(id) {
-
-            // 🔥 Este endpoint puede incluir watermark en el futuro
-            // Ejemplo:
-            // /media/url/${id}?watermark=1
-
             const res = await fetch(`/media/url/${id}`, {
                 credentials: 'include'
             });
@@ -105,25 +95,8 @@
             return URL.createObjectURL(blob);
         }
 
-        /* =========================
-           📱 SCROLL + CANVAS
-        ========================= */
-
         function initScroll() {
-            const pages = document.querySelectorAll('.scroll-page');
 
-            const observerProgress = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const index = [...pages].indexOf(entry.target);
-                        localStorage.setItem(STORAGE_KEY, index);
-                    }
-                });
-            }, {
-                threshold: 0.6
-            });
-
-            pages.forEach(p => observerProgress.observe(p));
             const container = document.getElementById('scroll-viewer');
             container.style.display = 'flex';
 
@@ -138,6 +111,27 @@
                 container.appendChild(div);
             });
 
+            const pages = document.querySelectorAll('.scroll-page');
+
+            const observerProgress = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const index = [...pages].indexOf(entry.target);
+
+                        localStorage.setItem(STORAGE_KEY, index);
+
+                        const btn = document.getElementById('continue-btn');
+                        if (btn && btn.classList.contains('hidden')) {
+                            btn.classList.remove('hidden');
+                        }
+                    }
+                });
+            }, {
+                threshold: 0.5
+            });
+
+            pages.forEach(p => observerProgress.observe(p));
+
             const observer = new IntersectionObserver(async (entries, obs) => {
                 for (let entry of entries) {
                     if (!entry.isIntersecting) continue;
@@ -146,7 +140,6 @@
                     const index = canvas.dataset.index;
 
                     await drawImage(canvas, index);
-
                     obs.unobserve(canvas);
                 }
             }, {
@@ -155,7 +148,6 @@
 
             document.querySelectorAll('canvas').forEach(c => observer.observe(c));
 
-            // carga inicial
             document.querySelectorAll('canvas').forEach((c, i) => {
                 if (i < 2) drawImage(c, i);
             });
@@ -178,15 +170,10 @@
 
                     ctx.drawImage(img, 0, 0);
 
-                    /* =========================
-                       💧 WATERMARK (OPCIONAL)
-                       =========================
-
-                    // 👉 Activa esto cuando quieras watermark en frontend
+                    /* Watermark opcional
                     ctx.font = "20px Arial";
                     ctx.fillStyle = "rgba(255,255,255,0.2)";
                     ctx.fillText("{{ auth()->user()->email ?? 'usuario' }}", 20, 40);
-
                     */
 
                     URL.revokeObjectURL(blobUrl);
@@ -198,15 +185,8 @@
             }
         }
 
-        /* =========================
-           🖥️ PHOTOSWIPE
-        ========================= */
-
         function initDesktop() {
-            lightbox.on('change', () => {
-                const index = lightbox.pswp.currIndex;
-                localStorage.setItem(STORAGE_KEY, index);
-            });
+
             const lightbox = new PhotoSwipeLightbox({
                 gallery: '#gallery-trigger',
                 children: 'a',
@@ -214,22 +194,27 @@
                 loop: false
             });
 
-            // 🔥 carga bajo demanda
+            lightbox.on('change', () => {
+                const index = lightbox.pswp.currIndex;
+                localStorage.setItem(STORAGE_KEY, index);
+
+                const btn = document.getElementById('continue-btn');
+                if (btn && btn.classList.contains('hidden')) {
+                    btn.classList.remove('hidden');
+                }
+            });
+
             lightbox.on('contentLoad', async (e) => {
-                const {
-                    content
-                } = e;
+                const { content } = e;
                 const el = content.data.element;
 
                 if (!el.dataset.loaded) {
                     const blobUrl = await getBlobUrl(el.dataset.id);
-
                     content.data.src = blobUrl;
                     el.dataset.loaded = true;
                 }
             });
 
-            // 🧹 limpiar memoria
             lightbox.on('close', () => {
                 document.querySelectorAll('#gallery-trigger a').forEach(a => {
                     if (a.href?.startsWith('blob:')) {
@@ -243,18 +228,12 @@
             setTimeout(() => lightbox.loadAndOpen(0), 300);
         }
 
-        /* =========================
-           🚀 INIT
-        ========================= */
         if (isMobile()) {
             initScroll();
         } else {
             initDesktop();
         }
 
-        /* =========================
-           🔐 SEGURIDAD BÁSICA
-        ========================= */
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('dragstart', e => e.preventDefault());
 
@@ -267,20 +246,17 @@
             }
 
             btn.onclick = () => {
-                const index = parseInt(saved);
+                const index = parseInt(localStorage.getItem(STORAGE_KEY));
 
                 if (isMobile()) {
                     const pages = document.querySelectorAll('.scroll-page');
-                    if (pages[index]) {
-                        pages[index].scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
+                    pages[index]?.scrollIntoView({ behavior: 'smooth' });
                 } else {
                     window.openVisor(index);
                 }
             };
         }
+
         window.addEventListener('DOMContentLoaded', () => {
             initContinueButton();
         });
