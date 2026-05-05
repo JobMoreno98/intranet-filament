@@ -120,12 +120,14 @@
 
     <main id="visor-container" class="canvas-container relative flex items-center justify-center">
         <div id="gallery-trigger" class="hidden">
-            @foreach ($paginas as $p)
-                <a href="{{ $p['url'] }}" data-pswp-width="{{ $p['w'] }}"
-                    data-pswp-height="{{ $p['h'] }}" target="_blank">
-                    <img src="{{ $p['url'] }}" alt="Página" />
-                </a>
-            @endforeach
+            <div id="gallery-trigger" class="hidden">
+                @foreach ($paginas as $p)
+                    <a data-url="{{ $p['url'] }}" data-pswp-width="{{ $p['w'] }}"
+                        data-pswp-height="{{ $p['h'] }}">
+                        <img alt="Página" />
+                    </a>
+                @endforeach
+            </div>
         </div>
         <div class="text-slate-500 animate-pulse text-sm">Iniciando visor de alta resolución...</div>
     </main>
@@ -266,6 +268,30 @@
         });
 
         document.addEventListener('contextmenu', e => e.preventDefault());
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const anchors = document.querySelectorAll('#gallery-trigger a');
+
+            for (const a of anchors) {
+                const realUrl = a.getAttribute('data-url');
+
+                // Pedimos la imagen al backend (Laravel valida firma y auth)
+                const res = await fetch(realUrl, {
+                    credentials: 'include'
+                });
+                const blob = await res.blob();
+
+                // Creamos un blob URL temporal
+                const blobUrl = URL.createObjectURL(blob);
+
+                // Asignamos el blob URL al <a> y al <img>
+                a.href = blobUrl;
+                a.querySelector('img').src = blobUrl;
+            }
+
+            // Inicializamos PhotoSwipe después de que todas las imágenes tengan blob URLs
+            setTimeout(() => window.openVisor(0), 500);
+        });
     </script>
 </body>
 
