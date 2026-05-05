@@ -6,9 +6,12 @@
         $url = null;
 
         if ($record) {
-            // Generamos la firma para la ruta de miniaturas
+            // Detectar el ID del administrador actual
+            $adminId = auth()->guard('admin')->id() ?? auth()->id();
+
             $url = URL::temporarySignedRoute('admin.media.thumbnail', now()->addMinutes(120), [
                 'archivo_id' => $record->id,
+                'admin_id' => $adminId, // Pasamos esto si tu middleware lo requiere
             ]);
         }
     @endphp

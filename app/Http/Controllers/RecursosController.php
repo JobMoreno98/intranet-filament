@@ -51,8 +51,8 @@ class RecursosController extends Controller
     public function preview(Request $request)
     {
         // Validar que sea admin (opcional pero recomendado)
-        if (!auth()->user()->hasRole('admin')) {
-            abort(403);
+        if (!auth()->guard('admin')->check() && !auth()->user() instanceof \App\Models\Admin) {
+            abort(403, 'Acceso exclusivo para administradores.');
         }
 
         $archivo = RecursosArchivos::findOrFail($request->archivo_id);
