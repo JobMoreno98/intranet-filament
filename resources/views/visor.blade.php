@@ -76,7 +76,7 @@
     <script type="module">
         import PhotoSwipeLightbox from 'https://unpkg.com/photoswipe@5.4.3/dist/photoswipe-lightbox.esm.js';
         import PhotoSwipe from 'https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.esm.js';
-
+        let lightbox = null;
         const paginas = @json($paginas);
         const STORAGE_KEY = "visor_last_page_{{ $recurso->id }}";
 
@@ -203,8 +203,9 @@
                 clickToCloseNonZoomable: true
             });
 
+            // Eventos DESPUÉS de crear la instancia
             lightbox.on('change', () => {
-                const index = lightbox.pswp.currIndex;
+                const index = lightbox.pswp?.currIndex ?? 0;
                 localStorage.setItem(STORAGE_KEY, index);
 
                 const btn = document.getElementById('continue-btn');
@@ -217,20 +218,18 @@
                 } = e;
                 const el = content.data.element;
 
-                if (!el.dataset.loaded) {
+                if (!el?.dataset.loaded) {
                     try {
                         const blobUrl = await getBlobUrl(el.dataset.id);
-
                         content.data.src = blobUrl;
 
                         if (content.element) {
                             content.element.src = blobUrl;
                         }
 
-                        el.dataset.loaded = true;
-
+                        el.dataset.loaded = 'true';
                     } catch (err) {
-                        console.error("Error cargando imagen", err);
+                        console.error('Error cargando imagen desktop', err);
                     }
                 }
             });
@@ -248,9 +247,8 @@
 
         function initContinueButton() {
             const btn = document.getElementById('continue-btn');
-            const saved = localStorage.getItem(STORAGE_KEY);
 
-            if (saved !== null) {
+            if (localStorage.getItem(STORAGE_KEY) !== null) {
                 btn.classList.remove('hidden');
             }
 
@@ -258,7 +256,6 @@
                 const index = parseInt(localStorage.getItem(STORAGE_KEY) || 0);
 
                 if (isMobile()) {
-
                     const pages = document.querySelectorAll('.scroll-page');
                     const container = document.querySelector('main');
                     const target = pages[index];
@@ -269,15 +266,12 @@
                             behavior: 'smooth'
                         });
                     }
-
                 } else {
-
-                    if (lightbox) {
-                        lightbox.loadAndOpen(index);
-                    } else {
-                        console.warn("Lightbox no inicializado aún");
+                    if (!lightbox) {
+                        console.warn('Lightbox no inicializado aún');
+                        return;
                     }
-
+                    lightbox.loadAndOpen(index);
                 }
             };
         }
