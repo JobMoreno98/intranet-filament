@@ -46,7 +46,7 @@ class EditRecursos extends EditRecord
                 'path_original' => $rutaTemporal, // Temporal
                 'nombre_archivo_original' => basename($rutaTemporal),
                 'status' => 'en_cola',
-                'orden' => $index,
+                'orden' => $cantiad,
             ]);
 
             // 2. Definimos la estructura: coleccion/id_recurso/id_archivo/
