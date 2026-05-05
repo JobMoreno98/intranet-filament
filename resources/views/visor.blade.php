@@ -235,6 +235,12 @@
             });
 
             lightbox.init();
+            const saved = localStorage.getItem(STORAGE_KEY);
+            const startIndex = saved ? parseInt(saved) : 0;
+
+            setTimeout(() => {
+                lightbox.loadAndOpen(startIndex);
+            }, 300);
         }
         if (isMobile()) {
             initScroll();
