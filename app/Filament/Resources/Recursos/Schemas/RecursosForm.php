@@ -22,9 +22,9 @@ class RecursosForm
                 Section::make('Información Base')
                     ->columns(3)
                     ->schema([
-                        Select::make('coleccion_id')
+                        Select::make('sub_colection_id')
                             ->label('Colección (Plantilla)')
-                            ->relationship('coleccion', 'nombre')
+                            ->relationship('sub_coleccion', 'name')
                             ->reactive() // Fundamental para la magia
                             ->required()
                             ->afterStateUpdated(fn($set) => $set('metadata', [])),
@@ -60,10 +60,10 @@ class RecursosForm
                     ->schema([
                         Group::make()
                             ->schema(function ($get) {
-                                $coleccionId = $get('coleccion_id');
+                                $coleccionId = $get('sub_colection_id');
                                 if (!$coleccionId) return [];
 
-                                $coleccion = \App\Models\Coleccion::find($coleccionId);
+                                $coleccion = \App\Models\SubColeccion::find($coleccionId);
                                 if (!$coleccion || !$coleccion->esquema) return [];
 
                                 $camposDinamicos = [];
@@ -130,7 +130,7 @@ class RecursosForm
                             ->disk('private')->extraAttributes([
                                 'style' => '--file-upload-grid-column-width: 180px;', // Define el ancho de cada miniatura
                             ])
-                            ->directory(fn($get) => 'coleccion_' . $get('coleccion_id'))
+                            ->directory(fn($get) => 'sub_colection_' . $get('sub_colection_id'))
                             ->live() // Mantiene el estado vivo en Livewire
                             ->dehydrated(false)->panelLayout('grid')->reorderable()
                             ->helperText('Usa este campo solo para añadir archivos nuevos en lote.'),

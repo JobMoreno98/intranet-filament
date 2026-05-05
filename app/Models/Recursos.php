@@ -18,12 +18,9 @@ class Recursos extends Model
 
     ];
 
-
-
-    public function coleccion(): BelongsTo
+    public function sub_coleccion(): BelongsTo
     {
-        // Un ítem pertenece a una colección
-        return $this->belongsTo(Coleccion::class, 'coleccion_id');
+        return $this->belongsTo(SubColeccion::class, 'sub_colection_id');
     }
 
     public function archivos()

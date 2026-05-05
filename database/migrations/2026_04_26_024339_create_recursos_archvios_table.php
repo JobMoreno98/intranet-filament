@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -29,7 +28,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('recursos_id'); // Índice de clave foránea
-            $table->index('status');     // Para filtros de "Pendientes/Listos"
+            $table->index('status'); // Para filtros de "Pendientes/Listos"
             $table->index(['recursos_id', 'orden']);
         });
     }

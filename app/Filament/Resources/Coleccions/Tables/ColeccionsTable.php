@@ -17,8 +17,8 @@ class ColeccionsTable
             ->columns([
                 TextColumn::make('nombre')
                     ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
+                TextColumn::make('sub_colecciones.name')
+                    ->badge()->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

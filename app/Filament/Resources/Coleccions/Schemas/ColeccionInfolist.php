@@ -12,7 +12,7 @@ class ColeccionInfolist
         return $schema
             ->components([
                 TextEntry::make('nombre'),
-                TextEntry::make('slug'),
+                TextEntry::make('sub_colecciones.name'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

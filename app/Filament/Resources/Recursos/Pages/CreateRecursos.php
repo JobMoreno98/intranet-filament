@@ -36,7 +36,7 @@ class CreateRecursos extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         return DB::transaction(function () use ($data) {
-            
+
             $record = static::getModel()::create($data);
 
             foreach (array_values($this->archivosParaProcesar) as $index => $rutaTemporal) {
@@ -52,7 +52,8 @@ class CreateRecursos extends CreateRecord
                 $nombreLimpio = Str::slug($record->titulo) . ".{$extension}";
 
                 // RUTA FINAL: coleccion-slug/15/105/titulo.jpg
-                $rutaFinal = "{$record->coleccion->slug}/{$record->id}/{$nuevoArchivo->id}/{$nombreLimpio}";
+                dd($record);
+                $rutaFinal = "{$record->sub_coleccion->slug}/{$record->id}/{$nuevoArchivo->id}/{$nombreLimpio}";
 
                 // 3. Movemos el archivo a su nueva casa
                 if (Storage::disk('private')->exists($rutaTemporal)) {
@@ -80,7 +81,7 @@ class CreateRecursos extends CreateRecord
             'archivo_id'     => $archivo->id,
             'recurso_id'     => $recurso->id,
             'path'           => storage_path('app/private/' . $archivo->path_original),
-            'coleccion_slug' => $recurso->coleccion->slug,
+            'coleccion_slug' => $recurso->sub_coleccion->slug,
             'tipo'           => $recurso->tipo_media ?? 'imagen',
         ];
 

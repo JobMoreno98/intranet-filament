@@ -35,5 +35,6 @@ class administradores extends Seeder
         ]);
         
         $user->assignRole('super_admin');
+        $user->update();
     }
 }

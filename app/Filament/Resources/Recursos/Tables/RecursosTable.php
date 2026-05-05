@@ -18,7 +18,7 @@ class RecursosTable
     {
         return $table
             ->columns([
-                TextColumn::make('coleccion.nombre'),
+                TextColumn::make('sub_coleccion.name'),
                 TextColumn::make('titulo'),
                 TextColumn::make('claveFondo')
             ])

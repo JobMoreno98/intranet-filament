@@ -65,7 +65,7 @@ class LargeDatasetSeeder extends Seeder
 
                     for ($k = $chunkStart; $k < $chunkStart + 500 && $k <= 3000; $k++) {
                         $archivosBatch[] = [
-                            'recursos_id' => $recursoId,
+                            'recurso_id' => $recursoId,
                             'nombre_archivo_original' => "página_{$k}.jpg",
                             'path_original' => "acervo/recurso_{$recursoId}/archivo_{$k}.jpg",
                             'status' => 'listo',

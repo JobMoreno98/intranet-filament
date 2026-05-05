@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,7 +15,7 @@ return new class extends Migration
 
             // 1. Relación con la "Plantilla" (Colección)
             // Usamos foreignId para que MySQL optimice la unión de tablas
-            $table->foreignId('coleccion_id')->constrained('coleccions')->cascadeOnDelete();
+            $table->foreignId('sub_colection_id')->constrained('sub_coleccions')->cascadeOnDelete();
 
             $table->string('fondo')->index();
             $table->integer('claveFondo')->unique();
@@ -38,7 +37,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('coleccion_id');
+            $table->index('sub_colection_id');
             $table->fulltext('titulo');
             $table->index('claveFondo');
         });

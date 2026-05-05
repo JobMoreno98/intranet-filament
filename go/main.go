@@ -19,7 +19,7 @@ func main() {
 
 	for {
 		// BLPop espera hasta que Laravel mande algo
-		result, err := rdb.BLPop(ctx, 0, "laravel-database-cola_procesamiento").Result()
+		result, err := rdb.BLPop(ctx, 0, "bpej_cola_procesamiento").Result()
 		if err != nil {
 			continue
 		}

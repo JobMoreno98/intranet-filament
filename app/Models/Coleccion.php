@@ -12,8 +12,9 @@ class Coleccion extends Model
         'esquema' => 'array',
     ];
 
-    public function items(): HasMany
+
+    public function sub_colecciones(): HasMany
     {
-        return $this->hasMany(Recursos::class);
+        return $this->hasMany(SubColeccion::class);
     }
 }
