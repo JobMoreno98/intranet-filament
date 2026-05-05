@@ -22,11 +22,14 @@ func init() {
 	}
 }
 func processTask(task ProcessingTask) {
+	// filepath.Ext devuelve ".pdf", ".jpg", etc.
 	ext := strings.ToLower(filepath.Ext(task.Path))
-
-	if ext == "pdf" {
+	log.Printf("Detectado tipo  por extensión: %s", ext)
+	if ext == ".pdf" { // <--- Agregamos el punto
+		log.Printf("Detectado tipo PDF por extensión: %s", ext)
 		processPdf(task)
 	} else {
+		log.Printf("Detectado tipo Imagen por extensión: %s", ext)
 		processImage(task)
 	}
 }
