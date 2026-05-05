@@ -49,7 +49,7 @@ class CreateRecursos extends CreateRecord
 
                 // 2. Definimos la estructura: coleccion/id_recurso/id_archivo/
                 $extension = pathinfo($rutaTemporal, PATHINFO_EXTENSION);
-                $nombreLimpio = Str::slug($record->titulo) . ".{$extension}";
+                $nombreLimpio = Str::slug($record->titulo) . "_".$index. ".{$extension}";
 
                 // RUTA FINAL: coleccion-slug/15/105/titulo.jpg
                 
