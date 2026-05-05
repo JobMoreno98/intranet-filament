@@ -33,10 +33,15 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
         });
-        RateLimiter::for('media', function (Request $request) {
-            return Limit::perMinute(60)->by(
-                optional($request->user())->id ?: $request->ip()
-            );
+        RateLimiter::for('media', function ($request) {
+
+            $key = optional($request->user())->id ?: $request->ip();
+
+            if ($request->boolean('preload')) {
+                return Limit::perMinute(500)->by($key);
+            }
+
+            return Limit::perMinute(200)->by($key);
         });
     }
 
