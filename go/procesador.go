@@ -44,58 +44,86 @@ func processImage(task ProcessingTask) {
 	thumbPath := filepath.Join(outputDir, "thumb.webp")
 	mainPath := filepath.Join(outputDir, "main.webp")
 
-	// Procesamiento de imagen individual
-	exec.Command("magick", source, "-quality", "80", mainPath).Run()
-	exec.Command("magick", source, "-thumbnail", "200x200^", "-gravity", "center", "-extent", "200x200", thumbPath).Run()
+	// Ruta al logo SVG
+	watermark := "/var/www/html/bpej/public/img/logo.svg"
 
-	// Actualizamos el registro que Laravel ya creó
+	// COMANDO CORREGIDO:
+	// 1. Cargamos la fuente
+	// 2. Cargamos el watermark con su configuración de fondo
+	// 3. Aplicamos la gravedad y geometría antes del composite
+	cmd := exec.Command("magick",
+		source,
+		"-background", "none",
+		watermark,
+		"-gravity", "south-east",
+		"-geometry", "+50+50",
+		"-composite",
+		"-quality", "80",
+		mainPath)
+
+	if err := cmd.Run(); err != nil {
+		log.Printf("Error al procesar marca de agua en ID %d: %v", task.ArchivoID, err)
+		// Fallback: Si falla el logo (ej. librsvg no instalada), generamos imagen limpia
+		exec.Command("magick", source, "-quality", "80", mainPath).Run()
+	}
+
+	// Generar Miniatura (Thumbnail)
+	// Nota: Aquí usamos 'source' para que la miniatura no tenga marca de agua y sea más clara
+	exec.Command("magick", source,
+		"-thumbnail", "200x200^",
+		"-gravity", "center",
+		"-extent", "200x200",
+		"-quality", "70",
+		thumbPath).Run()
+
+	// Actualizamos la DB
 	updateDatabase(task.ArchivoID, mainPath, thumbPath)
 }
 
 func extractPages(info string) int {
-    lines := strings.Split(info, "\n")
-    for _, line := range lines {
-        if strings.Contains(line, "Pages:") {
-            // Limpia la línea para quedarse solo con el número
-            fields := strings.Fields(line)
-            if len(fields) >= 2 {
-                p, err := strconv.Atoi(fields[1])
-                if err == nil {
-                    return p
-                }
-            }
-        }
-    }
-    return 0
+	lines := strings.Split(info, "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "Pages:") {
+			// Limpia la línea para quedarse solo con el número
+			fields := strings.Fields(line)
+			if len(fields) >= 2 {
+				p, err := strconv.Atoi(fields[1])
+				if err == nil {
+					return p
+				}
+			}
+		}
+	}
+	return 0
 }
 
 func processPdf(task ProcessingTask) {
-log.Printf("--- Iniciando PDF: %s ---", task.Path)
+	//log.Printf("--- Iniciando PDF: %s ---", task.Path)
+	watermark := "/var/www/html/bpej/public/img/logo.svg"
 
-    // 1. Validar si el archivo existe
-    if _, err := os.Stat(task.Path); os.IsNotExist(err) {
-        log.Printf("ERROR: El archivo PDF no existe en la ruta: %s", task.Path)
-        return
-    }
+	// 1. Validar si el archivo existe
+	if _, err := os.Stat(task.Path); os.IsNotExist(err) {
+		log.Printf("ERROR: El archivo PDF no existe en la ruta: %s", task.Path)
+		return
+	}
 
-    // 2. Obtener páginas con log de error
-    cmdInfo := exec.Command("pdfinfo", task.Path)
-    out, err := cmdInfo.CombinedOutput()
-    if err != nil {
-        log.Printf("ERROR en pdfinfo: %v | Salida: %s", err, string(out))
-        return
-    }
+	// 2. Obtener páginas
+	cmdInfo := exec.Command("pdfinfo", task.Path)
+	out, err := cmdInfo.CombinedOutput()
+	if err != nil {
+		log.Printf("ERROR en pdfinfo: %v | Salida: %s", err, string(out))
+		return
+	}
 
-    totalPages := extractPages(string(out))
-    log.Printf("Páginas detectadas: %d", totalPages)
+	totalPages := extractPages(string(out))
+	log.Printf("Páginas detectadas: %d", totalPages)
 
-    if totalPages == 0 {
-        log.Printf("ERROR: No se detectaron páginas. ¿El PDF está corrupto o protegido?")
-        return
-    }
+	if totalPages == 0 {
+		log.Printf("ERROR: No se detectaron páginas.")
+		return
+	}
 
 	for i := 1; i <= totalPages; i++ {
-		// Ahora basePath ya es conocido por la función
 		pageDir := filepath.Join(basePath, task.ColeccionSlug,
 			strconv.Itoa(task.RecursoID),
 			fmt.Sprintf("p%d", i))
@@ -105,15 +133,48 @@ log.Printf("--- Iniciando PDF: %s ---", task.Path)
 		mainPath := filepath.Join(pageDir, "main.webp")
 		thumbPath := filepath.Join(pageDir, "thumb.webp")
 
-		// Ejecución de comandos (pdftocairo y magick)
-		exec.Command("pdftocairo", "-webp", "-singlefile", "-f", strconv.Itoa(i), "-l", strconv.Itoa(i), "-scale-to-x", "2000", task.Path, filepath.Join(pageDir, "main")).Run()
-		exec.Command("magick", mainPath, "-thumbnail", "200x200^", "-gravity", "center", "-extent", "200x200", thumbPath).Run()
+		// 3. Extracción de página (PDF -> WebP limpio)
+		// Usamos filepath.Join(pageDir, "main") sin extensión porque -singlefile la añade o maneja internamente según el formato
+		extractCmd := exec.Command("pdftocairo", "-webp", "-singlefile",
+			"-f", strconv.Itoa(i),
+			"-l", strconv.Itoa(i),
+			"-scale-to-x", "2000",
+			task.Path, filepath.Join(pageDir, "main"))
 
-		// Guardado en DB
+		if err := extractCmd.Run(); err != nil {
+			log.Printf("Error extrayendo página %d: %v", i, err)
+			continue
+		}
+
+		// 4. Aplicar Marca de Agua sobre el WebP generado
+		// Aquí mainPath ya existe gracias a pdftocairo
+		watermarkCmd := exec.Command("magick",
+			mainPath,
+			"-background", "none", watermark,
+			"-gravity", "south-east",
+			"-geometry", "+50+50",
+			"-composite",
+			"-quality", "80",
+			mainPath) // Sobrescribimos el mainPath con la versión sellada
+
+		if err := watermarkCmd.Run(); err != nil {
+			log.Printf("Error marca de agua página %d: %v", i, err)
+		}
+
+		// 5. Generar Thumbnail (desde la imagen ya sellada)
+		exec.Command("magick", mainPath,
+			"-thumbnail", "200x200^",
+			"-gravity", "center",
+			"-extent", "200x200",
+			"-quality", "70",
+			thumbPath).Run()
+
+		// 6. Guardado en DB
 		if i == 1 {
 			updateDatabase(task.ArchivoID, mainPath, thumbPath)
 		} else {
 			createNewPageRecord(task, i, mainPath, thumbPath)
 		}
 	}
+	log.Printf("--- Finalizado PDF ID: %d ---", task.RecursoID)
 }
