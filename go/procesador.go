@@ -23,24 +23,24 @@ func init() {
 }
 
 func processTask(task ProcessingTask) {
-    path := strings.TrimSpace(task.Path)
-    ext := strings.ToLower(filepath.Ext(path))
-    
-    // LOG DE EMERGENCIA: Vamos a ver exactamente qué llega de Redis
-    log.Printf("------------------------------------------------")
-    log.Printf("RECIBIDO: ID=%d | PATH=%s", task.ArchivoID, path)
-    log.Printf("EXTENSIÓN DETECTADA: '%s'", ext)
-    log.Printf("TIPO EN JSON: '%s'", task.Tipo)
+	path := strings.TrimSpace(task.Path)
+	ext := strings.ToLower(filepath.Ext(path))
 
-    // Forzamos la detección tanto por extensión como por el campo "tipo"
-    if ext == ".pdf" || strings.ToLower(task.Tipo) == "pdf" {
-        log.Printf(">>> EJECUTANDO RUTINA DE PDF <<<")
-        processPdf(task)
-    } else {
-        log.Printf(">>> EJECUTANDO RUTINA DE IMAGEN <<<")
-        processImage(task)
-    }
-    log.Printf("------------------------------------------------")
+	// LOG DE EMERGENCIA: Vamos a ver exactamente qué llega de Redis
+	log.Printf("------------------------------------------------")
+	log.Printf("RECIBIDO: ID=%d | PATH=%s", task.ArchivoID, path)
+	log.Printf("EXTENSIÓN DETECTADA: '%s'", ext)
+	log.Printf("TIPO EN JSON: '%s'", task.Tipo)
+
+	// Forzamos la detección tanto por extensión como por el campo "tipo"
+	if ext == ".pdf" || strings.ToLower(task.Tipo) == "pdf" {
+		log.Printf(">>> EJECUTANDO RUTINA DE PDF <<<")
+		processPdf(task)
+	} else {
+		log.Printf(">>> EJECUTANDO RUTINA DE IMAGEN <<<")
+		processImage(task)
+	}
+	log.Printf("------------------------------------------------")
 }
 
 func processImage(task ProcessingTask) {
@@ -134,18 +134,20 @@ func processPdf(task ProcessingTask) {
 			strconv.Itoa(task.RecursoID),
 			fmt.Sprintf("p%d", i))
 
-		os.MkdirAll(pageDir, 0755)
+		// ¡CRÍTICO!: Asegurarnos de que la carpeta existe físicamente
+		err := os.MkdirAll(pageDir, 0755)
+		if err != nil {
+			log.Printf("Error creando carpeta %s: %v", pageDir, err)
+			continue
+		}
 
-		// Nombre temporal único para evitar colisiones de buffer
-		tempName := fmt.Sprintf("temp_page_%d", i)
-		outputBase := filepath.Join(pageDir, tempName)
+		// 2. Definir rutas de archivos
+		outputBase := filepath.Join(pageDir, "main") // Cairo añadirá .webp automáticamente
 		actualWebp := outputBase + ".webp"
-
-		finalMain := filepath.Join(pageDir, "main.webp")
 		thumbPath := filepath.Join(pageDir, "thumb.webp")
 
-		// 2. Extraer página (ORDEN DE ARGUMENTOS CRÍTICO)
-		// Ponemos los flags de página ANTES del formato y la escala
+		// 3. Ejecutar Cairo
+		// Añadimos logs para ver qué comando exacto se está ejecutando
 		extractCmd := exec.Command("pdftocairo",
 			"-f", strconv.Itoa(i),
 			"-l", strconv.Itoa(i),
@@ -155,38 +157,31 @@ func processPdf(task ProcessingTask) {
 			task.Path,
 			outputBase)
 
-		if err := extractCmd.Run(); err != nil {
-			log.Printf("Error pág %d: %v", i, err)
+		// Capturamos el error detallado si falla
+		if out, err := extractCmd.CombinedOutput(); err != nil {
+			log.Printf("Fallo Cairo pág %d: %v | Salida: %s", i, err, string(out))
 			continue
 		}
 
-		// 3. Pequeña pausa para asegurar que el SO soltó el archivo (100ms)
-		// Especialmente útil si el storage es vía red (NFS/SMB)
-		time.Sleep(100 * time.Millisecond)
-
-		// 4. Renombrar a main.webp (Esto confirma que el archivo es único)
-		if err := os.Rename(actualWebp, finalMain); err != nil {
-			log.Printf("Error rename pág %d: %v", i, err)
-			continue
-		}
-
-		// 5. Marca de Agua con ajuste de tamaño (SVG)
-		exec.Command("magick", finalMain,
+		// 4. Marca de agua (solo si Cairo tuvo éxito)
+		watermarkCmd := exec.Command("magick",
+			actualWebp,
 			"-background", "none", "-resize", "350x", watermark,
 			"-gravity", "south-east", "-geometry", "+50+50",
-			"-composite", finalMain).Run()
+			"-composite", actualWebp)
+		watermarkCmd.Run()
 
 		// 6. Thumbnail
-		exec.Command("magick", finalMain,
+		exec.Command("magick", outputBase,
 			"-thumbnail", "200x200^", "-gravity", "center",
 			"-extent", "200x200", "-quality", "70",
 			thumbPath).Run()
 
 		// 7. Base de Datos
 		if i == 1 {
-			updateDatabase(task.ArchivoID, finalMain, thumbPath)
+			updateDatabase(task.ArchivoID, outputBase, thumbPath)
 		} else {
-			createNewPageRecord(task, i, finalMain, thumbPath)
+			createNewPageRecord(task, i, outputBase, thumbPath)
 		}
 	}
 	log.Printf("Finalizado: %s (%d páginas)", task.Path, totalPages)
