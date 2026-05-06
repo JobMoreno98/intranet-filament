@@ -19,6 +19,8 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
         const data = await res.json();
 
+        return data.url;
+
         const imgRes = await fetch(data.url, {
             credentials: "include",
         });
