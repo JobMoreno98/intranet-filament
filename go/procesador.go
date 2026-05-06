@@ -25,15 +25,20 @@ func processTask(task ProcessingTask) {
 	path := strings.TrimSpace(task.Path)
 	ext := strings.ToLower(filepath.Ext(path))
 
-	// LOG DE EMERGENCIA: Vamos a ver exactamente qué llega de Redis
+	log.Printf("------------------------------------------------")
+	log.Printf("PROCESANDO: ID=%d | EXTENSIÓN: %s", task.ArchivoID, ext)
 
-	// Forzamos la detección tanto por extensión como por el campo "tipo"
-	if ext == ".pdf" || strings.ToLower(task.Tipo) == "pdf" {
+	// Solo entra a rutina de PDF si la extensión es .pdf
+	if ext == ".pdf" {
+		log.Printf(">>> RUTINA: PDF DETECTADO <<<")
 		processPdf(task)
-	} else {
-	
+	} else if ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".webp" {
+		log.Printf(">>> RUTINA: IMAGEN DETECTADA <<<")
 		processImage(task)
+	} else {
+		log.Printf("ERROR: Extensión '%s' no soportada para ID %d", ext, task.ArchivoID)
 	}
+	log.Printf("------------------------------------------------")
 }
 
 func processImage(task ProcessingTask) {
