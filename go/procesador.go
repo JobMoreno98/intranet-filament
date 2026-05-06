@@ -9,7 +9,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 )
 
 var basePath string
@@ -114,75 +113,75 @@ func processPdf(task ProcessingTask) {
 	log.Printf("--- Iniciando PDF: %s ---", task.Path)
 	watermark := "/var/www/html/bpej/public/img/logo.svg"
 
-	// 1. Validaciones iniciales
-	if _, err := os.Stat(task.Path); os.IsNotExist(err) {
-		log.Printf("ERROR: Archivo no encontrado: %s", task.Path)
-		return
-	}
-
+	// 1. Obtener total de páginas
 	cmdInfo := exec.Command("pdfinfo", task.Path)
-	out, _ := cmdInfo.Output()
-	totalPages := extractPages(string(out))
-
-	if totalPages == 0 {
+	out, err := cmdInfo.CombinedOutput()
+	if err != nil {
+		log.Printf("ERROR pdfinfo: %v", err)
 		return
 	}
+	totalPages := extractPages(string(out))
+	log.Printf("Páginas a procesar: %d", totalPages)
 
 	for i := 1; i <= totalPages; i++ {
-		// Carpeta única por página
 		pageDir := filepath.Join(basePath, task.ColeccionSlug,
 			strconv.Itoa(task.RecursoID),
 			fmt.Sprintf("p%d", i))
 
-		// ¡CRÍTICO!: Asegurarnos de que la carpeta existe físicamente
-		err := os.MkdirAll(pageDir, 0755)
-		if err != nil {
-			log.Printf("Error creando carpeta %s: %v", pageDir, err)
-			continue
-		}
+		os.MkdirAll(pageDir, 0755)
 
-		// 2. Definir rutas de archivos
-		outputBase := filepath.Join(pageDir, "main") // Cairo añadirá .webp automáticamente
-		actualWebp := outputBase + ".webp"
+		// Definición de rutas
+		tempPngBase := filepath.Join(pageDir, "temp_render")
+		actualPng := tempPngBase + ".png" // Cairo añade el .png
+		finalWebp := filepath.Join(pageDir, "main.webp")
 		thumbPath := filepath.Join(pageDir, "thumb.webp")
 
-		// 3. Ejecutar Cairo
-		// Añadimos logs para ver qué comando exacto se está ejecutando
+		// 2. Extraer a PNG (Formato compatible con Poppler 25.03+)
 		extractCmd := exec.Command("pdftocairo",
+			"-png",
+			"-singlefile",
 			"-f", strconv.Itoa(i),
 			"-l", strconv.Itoa(i),
-			"-webp",
-			"-singlefile",
 			"-scale-to-x", "2000",
 			task.Path,
-			outputBase)
+			tempPngBase)
 
-		// Capturamos el error detallado si falla
-		if out, err := extractCmd.CombinedOutput(); err != nil {
-			log.Printf("Fallo Cairo pág %d: %v | Salida: %s", i, err, string(out))
+		if err := extractCmd.Run(); err != nil {
+			log.Printf("Error Cairo pág %d: %v", i, err)
 			continue
 		}
 
-		// 4. Marca de agua (solo si Cairo tuvo éxito)
+		// 3. Magick: Marca de agua + Conversión a WebP
+		// Usamos el PNG como fuente y guardamos directamente en .webp
 		watermarkCmd := exec.Command("magick",
-			actualWebp,
+			actualPng,
 			"-background", "none", "-resize", "350x", watermark,
 			"-gravity", "south-east", "-geometry", "+50+50",
-			"-composite", actualWebp)
-		watermarkCmd.Run()
+			"-composite",
+			"-quality", "80",
+			finalWebp)
 
-		// 6. Thumbnail
-		exec.Command("magick", outputBase,
-			"-thumbnail", "200x200^", "-gravity", "center",
-			"-extent", "200x200", "-quality", "70",
+		if err := watermarkCmd.Run(); err != nil {
+			log.Printf("Error Magick pág %d: %v", i, err)
+		}
+
+		// 4. Generar Thumbnail (desde el WebP ya procesado)
+		exec.Command("magick", finalWebp,
+			"-thumbnail", "200x200^",
+			"-gravity", "center",
+			"-extent", "200x200",
+			"-quality", "70",
 			thumbPath).Run()
 
-		// 7. Base de Datos
+		// 5. Limpieza: Eliminar el PNG temporal para ahorrar espacio
+		os.Remove(actualPng)
+
+		// 6. Registro en Base de Datos
 		if i == 1 {
-			updateDatabase(task.ArchivoID, outputBase, thumbPath)
+			updateDatabase(task.ArchivoID, finalWebp, thumbPath)
 		} else {
-			createNewPageRecord(task, i, outputBase, thumbPath)
+			createNewPageRecord(task, i, finalWebp, thumbPath)
 		}
 	}
-	log.Printf("Finalizado: %s (%d páginas)", task.Path, totalPages)
+	log.Printf("--- Finalizado PDF: %d ---", task.RecursoID)
 }
