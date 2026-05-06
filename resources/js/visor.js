@@ -33,7 +33,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         if (canvas.dataset.loaded) return;
 
         try {
-            const blobUrl = await getBlobUrl(paginas[index].id);
+            const blobUrl = await getImageUrl(paginas[index].id);
 
             const img = new Image();
             img.src = blobUrl;
@@ -145,7 +145,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                 const el = anchors[i];
 
                 if (el && !el.dataset.preloaded) {
-                    getBlobUrl(el.dataset.id).then(() => {
+                    getImageUrl(el.dataset.id).then(() => {
                         el.dataset.preloaded = "true";
                     });
                 }
@@ -158,7 +158,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
             e.preventDefault();
 
-            const blobUrl = await getBlobUrl(el.dataset.id);
+            const blobUrl = await getImageUrl(el.dataset.id);
 
             const img = document.createElement("img");
 
