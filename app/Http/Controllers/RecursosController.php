@@ -35,15 +35,19 @@ class RecursosController extends Controller
     public function signedUrl($id)
     {
         $payload = [
-            'a' => $id,
+            'a' => $id, // ID del archivo
             'u' => auth()->id(),
-            'e' => now()->timestamp + 300
+            'e' => now()->timestamp + 300 // Expiración de 5 minutos
         ];
 
         $token = encrypt(json_encode($payload));
 
         return response()->json([
-            'url' => route('media.stream', ['token' => $token])
+            // Agregamos 'archivo_id' para que match con el findOrFail del stream
+            'url' => route('media.stream', [
+                'archivo_id' => $id,
+                'token' => $token
+            ])
         ]);
     }
 

@@ -22,17 +22,23 @@ class SecureMediaAccess
             throw new HttpException(403, 'Token inválido');
         }
 
-        // expiración
+        // 1. Verificación de expiración
         if (now()->timestamp > $data['e']) {
-            throw new HttpException(403, 'Expirado');
+            throw new HttpException(403, 'Token expirado');
         }
 
-        // usuario
+        // 2. Verificación de usuario (Dueño del token)
         if (!auth()->check() || $data['u'] !== auth()->id()) {
-            throw new HttpException(403, 'No autorizado');
+            throw new HttpException(403, 'Usuario no autorizado');
         }
 
-        // inyectar datos
+        // 3. Validación de integridad (Crucial sin Blobs)
+        // Si pasaste el archivo_id por la URL, verificamos que coincida con el del token.
+        if ($request->has('archivo_id') && $request->archivo_id != $data['a']) {
+            throw new HttpException(403, 'El token no corresponde a este archivo');
+        }
+
+        // 4. Inyectar/Sobrescribir el ID del token para el controlador
         $request->merge([
             'archivo_id' => $data['a']
         ]);

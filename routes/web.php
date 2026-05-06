@@ -19,19 +19,24 @@ require __DIR__ . '/settings.php';
 
 
 Route::get('/media/stream', function (Request $request) {
-
     $archivo = RecursosArchivos::findOrFail($request->archivo_id);
 
+    // Intentamos sacar la ruta del JSON de assets
     $path = $archivo->assets_procesados['main'] ?? null;
 
     if (!$path) {
         abort(404, 'No hay versión procesada para este archivo');
     }
 
+    // Identificar la extensión real para el Content-Type
+    $extension = pathinfo($path, PATHINFO_EXTENSION);
+    $mimeType = ($extension === 'webp') ? 'image/webp' : 'image/jpeg';
+
     return response('', 200)
         ->header('X-Accel-Redirect', '/protegido/' . $path)
-        ->header('Content-Type', 'image/webp')
-        ->header('Content-Disposition', 'inline')
+        ->header('Content-Type', $mimeType) // Dinámico según el archivo
+        ->header('Content-Disposition', 'inline') // Asegura que se vea en el navegador
+        ->header('Cache-Control', 'private, max-age=86400') // Permite caché local para no saturar el servidor
         ->header('X-Content-Type-Options', 'nosniff');
 })->name('media.stream')
     ->middleware(['auth', 'secure.media', 'throttle:media']);
