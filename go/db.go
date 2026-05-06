@@ -115,23 +115,18 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 	}
 }
 func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumbRaw string) {
-	// 1. Limpieza de rutas
 	main := cleanPathForLaravel(mainRaw)
 	thumb := cleanPathForLaravel(thumbRaw)
-	pathOriginal := cleanPathForLaravel(task.Path) // Limpiamos la ruta del PDF original
 
-	// 2. Preparar el JSON de assets
+	// Extraemos la ruta del PDF original para cumplir con la DB
+	pathOriginal := cleanPathForLaravel(task.Path)
+
 	assetsMap := map[string]string{
 		"main":  main,
 		"thumb": thumb,
 	}
-	assetsJSON, err := json.Marshal(assetsMap)
-	if err != nil {
-		log.Printf("Error serializando JSON para página %d: %v", pageNum, err)
-		return
-	}
+	assetsJSON, _ := json.Marshal(assetsMap)
 
-	// 3. Conexión local
 	db, err := getDB()
 	if err != nil {
 		log.Printf("Error conectando: %v", err)
@@ -139,21 +134,19 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 	}
 	defer db.Close()
 
-	// 4. Inserción con las columnas obligatorias
-	// Agregamos: path_original, path_webp (si existe) y path_thumbnail (si existe)
+	// Ajustamos la consulta para incluir ÚNICAMENTE path_original
+	// que es el que MySQL te está reclamando.
 	query := `INSERT INTO recursos_archivos 
-              (recursos_id, nombre_archivo_original, path_original, path_webp, path_thumbnail, assets_procesados, orden, status, created_at, updated_at) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, 'listo', NOW(), NOW())`
+              (recursos_id, nombre_archivo_original, path_original, assets_procesados, orden, status, created_at, updated_at) 
+              VALUES (?, ?, ?, ?, ?, 'listo', NOW(), NOW())`
 
 	nombre := fmt.Sprintf("Página %d", pageNum)
 
-	// Ejecutamos pasando todos los valores
+	// Ejecutamos con los 5 parámetros correspondientes a los 5 signos '?'
 	_, err = db.Exec(query,
 		task.RecursoID,
 		nombre,
-		pathOriginal, // Para el campo 'path_original'
-		main,         // Para el campo 'path_webp'
-		thumb,        // Para el campo 'path_thumbnail'
+		pathOriginal, // <--- Este es el valor que faltaba
 		string(assetsJSON),
 		pageNum,
 	)
@@ -161,10 +154,9 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 	if err != nil {
 		log.Printf("Error insertando página %d: %v", pageNum, err)
 	} else {
-		log.Printf("Página %d del recurso %d insertada correctamente con su original", pageNum, task.RecursoID)
+		log.Printf("Página %d del recurso %d insertada con path_original", pageNum, task.RecursoID)
 	}
 }
-
 func getDB() (*sql.DB, error) {
 	// Centraliza aquí tus credenciales y nombre de DB
 	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
