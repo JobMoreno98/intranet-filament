@@ -61,10 +61,10 @@ func processImage(task ProcessingTask) {
 	// 1. Cargamos la fuente
 	// 2. Cargamos el watermark con su configuración de fondo
 	// 3. Aplicamos la gravedad y geometría antes del composite
+	// En tu función processImage, cambia el comando de la marca de agua por esto:
 	cmd := exec.Command("magick",
 		source,
 		"-background", "none",
-		"-size", "150x",
 		watermark,
 		"-gravity", "south-east",
 		"-geometry", "+50+50",
@@ -72,10 +72,9 @@ func processImage(task ProcessingTask) {
 		"-quality", "80",
 		mainPath)
 
-	if err := cmd.Run(); err != nil {
-		log.Printf("Error al procesar marca de agua en ID %d: %v", task.ArchivoID, err)
-		// Fallback: Si falla el logo (ej. librsvg no instalada), generamos imagen limpia
-		exec.Command("magick", source, "-quality", "80", mainPath).Run()
+	// Captura el error detallado
+	if out, err := cmd.CombinedOutput(); err != nil {
+		log.Printf("ERROR REAL DE MAGICK en ID %d: %s", task.ArchivoID, string(out))
 	}
 
 	// Generar Miniatura (Thumbnail)
