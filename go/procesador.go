@@ -30,13 +30,14 @@ func processTask(task ProcessingTask) {
 	log.Printf("PROCESANDO: ID=%d | EXTENSIÓN: %s", task.ArchivoID, ext)
 
 	// Solo entra a rutina de PDF si la extensión es .pdf
-	if ext == ".pdf" {
+	switch ext {
+	case ".pdf", "pdf":
 		log.Printf(">>> RUTINA: PDF DETECTADO <<<")
 		processPdf(task)
-	} else if ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".webp" {
+	case ".jpg", ".jpeg", ".png", ".webp":
 		log.Printf(">>> RUTINA: IMAGEN DETECTADA <<<")
 		processImage(task)
-	} else {
+	default:
 		log.Printf("ERROR: Extensión '%s' no soportada para ID %d", ext, task.ArchivoID)
 	}
 	log.Printf("------------------------------------------------")
@@ -79,7 +80,7 @@ func processImage(task ProcessingTask) {
 	// 2. Cargamos el watermark con su configuración de fondo
 	// 3. Aplicamos la gravedad y geometría antes del composite
 	// En tu función processImage, cambia el comando de la marca de agua por esto:
-	cmd := exec.Command("magick", task.Path, watermark, "-gravity", "south-east", "-geometry", "+50+50", "-composite", mainPath)
+	cmd := exec.Command("magick", task.Path, "-background", "none", "-size", "150x", watermark, "-gravity", "south-east", "-geometry", "+50+50", "-composite", mainPath)
 
 	// Captura el error detallado
 	if out, err := cmd.CombinedOutput(); err != nil {
