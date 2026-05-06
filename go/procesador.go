@@ -26,20 +26,14 @@ func processTask(task ProcessingTask) {
 	ext := strings.ToLower(filepath.Ext(path))
 
 	// LOG DE EMERGENCIA: Vamos a ver exactamente qué llega de Redis
-	log.Printf("------------------------------------------------")
-	log.Printf("RECIBIDO: ID=%d | PATH=%s", task.ArchivoID, path)
-	log.Printf("EXTENSIÓN DETECTADA: '%s'", ext)
-	log.Printf("TIPO EN JSON: '%s'", task.Tipo)
 
 	// Forzamos la detección tanto por extensión como por el campo "tipo"
 	if ext == ".pdf" || strings.ToLower(task.Tipo) == "pdf" {
-		log.Printf(">>> EJECUTANDO RUTINA DE PDF <<<")
 		processPdf(task)
 	} else {
-		log.Printf(">>> EJECUTANDO RUTINA DE IMAGEN <<<")
+	
 		processImage(task)
 	}
-	log.Printf("------------------------------------------------")
 }
 
 func processImage(task ProcessingTask) {
@@ -142,7 +136,6 @@ func processPdf(task ProcessingTask) {
 			"-singlefile",
 			"-f", strconv.Itoa(i),
 			"-l", strconv.Itoa(i),
-			"-scale-to-x", "2000",
 			task.Path,
 			tempPngBase)
 
