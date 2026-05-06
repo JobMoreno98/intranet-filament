@@ -155,7 +155,7 @@ func processPdf(task ProcessingTask) {
 		// Usamos el PNG como fuente y guardamos directamente en .webp
 		watermarkCmd := exec.Command("magick",
 			actualPng,
-			"-background", "none", "-resize", "350x", watermark,
+			"-background", "none", "-size", "150x", watermark,
 			"-gravity", "south-east", "-geometry", "+50+50",
 			"-composite",
 			"-quality", "80",

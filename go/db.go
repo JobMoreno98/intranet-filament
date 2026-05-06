@@ -115,9 +115,10 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 	}
 }
 func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumbRaw string) {
-	// 1. Limpieza de rutas (usando tu función existente)
+	// 1. Limpieza de rutas
 	main := cleanPathForLaravel(mainRaw)
 	thumb := cleanPathForLaravel(thumbRaw)
+	pathOriginal := cleanPathForLaravel(task.Path) // Limpiamos la ruta del PDF original
 
 	// 2. Preparar el JSON de assets
 	assetsMap := map[string]string{
@@ -130,7 +131,7 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 		return
 	}
 
-	// 3. Conexión local (Exactamente igual a tu updateDatabase)
+	// 3. Conexión local
 	db, err := getDB()
 	if err != nil {
 		log.Printf("Error conectando: %v", err)
@@ -138,19 +139,29 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 	}
 	defer db.Close()
 
-	// 4. Inserción
-	// Usamos 'recursos_archivos' (ajusta si el typo 'archvios' sigue ahí)
+	// 4. Inserción con las columnas obligatorias
+	// Agregamos: path_original, path_webp (si existe) y path_thumbnail (si existe)
 	query := `INSERT INTO recursos_archivos 
-              (recursos_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
-              VALUES (?, ?, ?, ?, 'listo', NOW(), NOW())`
+              (recursos_id, nombre_archivo_original, path_original, path_webp, path_thumbnail, assets_procesados, orden, status, created_at, updated_at) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, 'listo', NOW(), NOW())`
 
 	nombre := fmt.Sprintf("Página %d", pageNum)
-	_, err = db.Exec(query, task.RecursoID, nombre, string(assetsJSON), pageNum)
+
+	// Ejecutamos pasando todos los valores
+	_, err = db.Exec(query,
+		task.RecursoID,
+		nombre,
+		pathOriginal, // Para el campo 'path_original'
+		main,         // Para el campo 'path_webp'
+		thumb,        // Para el campo 'path_thumbnail'
+		string(assetsJSON),
+		pageNum,
+	)
 
 	if err != nil {
 		log.Printf("Error insertando página %d: %v", pageNum, err)
 	} else {
-		log.Printf("Página %d del recurso %d insertada correctamente", pageNum, task.RecursoID)
+		log.Printf("Página %d del recurso %d insertada correctamente con su original", pageNum, task.RecursoID)
 	}
 }
 
