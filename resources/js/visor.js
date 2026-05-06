@@ -18,14 +18,13 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
             ? `/media/url/${id}?preload=1`
             : `/media/url/${id}`;
 
-        //return data.url;
-
-        const imgRes = await fetch(url, {
+        const res = await fetch(url, {
             credentials: "include",
         });
 
-        const blob = await imgRes.blob();
-        return URL.createObjectURL(blob);
+        const data = await res.json();
+        // Retornamos la URL directa de la API sin convertir a blob
+        return data.url;
     }
 
     // 👇 usa nombreUser en lugar de variable Blade
@@ -33,10 +32,10 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         if (canvas.dataset.loaded) return;
 
         try {
-            const blobUrl = await getImageUrl(paginas[index].id);
+            const imageUrl = await getImageUrl(paginas[index].id);
 
             const img = new Image();
-            img.src = blobUrl;
+            img.src = imageUrl;
 
             img.onload = () => {
                 const ctx = canvas.getContext("2d");
@@ -46,14 +45,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
                 ctx.drawImage(img, 0, 0);
 
-                // watermark opcional
-                /*
-                ctx.font = "20px Arial";
-                ctx.fillStyle = "rgba(255,255,255,0.2)";
-                ctx.fillText(nombreUser, 20, 40);
-                */
-
-                URL.revokeObjectURL(blobUrl);
+                // Ya no es necesario revokeObjectURL porque imageUrl es una URL normal
                 canvas.dataset.loaded = true;
             };
         } catch (e) {
@@ -145,7 +137,8 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                 const el = anchors[i];
 
                 if (el && !el.dataset.preloaded) {
-                    getImageUrl(el.dataset.id).then(() => {
+                    // Se usa el segundo parámetro true para activar el RateLimit de preload
+                    getImageUrl(el.dataset.id, true).then(() => {
                         el.dataset.preloaded = "true";
                     });
                 }
@@ -158,7 +151,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
             e.preventDefault();
 
-            const blobUrl = await getImageUrl(el.dataset.id);
+            const imageUrl = await getImageUrl(el.dataset.id);
 
             const img = document.createElement("img");
 
@@ -170,7 +163,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                 });
             };
 
-            img.src = blobUrl;
+            img.src = imageUrl;
         });
         document.addEventListener("keydown", (e) => {
             if (e.key === "PrintScreen") {
