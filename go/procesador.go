@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var basePath string
@@ -42,6 +43,22 @@ func processTask(task ProcessingTask) {
 }
 
 func processImage(task ProcessingTask) {
+
+	exists := false
+	for i := 0; i < 5; i++ {
+		if _, err := os.Stat(task.Path); err == nil {
+			exists = true
+			break
+		}
+		log.Printf("Archivo no listo para ID %d, reintentando en 500ms...", task.ArchivoID)
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	if !exists {
+		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", task.Path)
+		return
+	}
+
 	source := strings.ReplaceAll(task.Path, "\\", "/")
 
 	// Estructura: private/slug-coleccion/id-recurso/id-archivo/
@@ -62,15 +79,7 @@ func processImage(task ProcessingTask) {
 	// 2. Cargamos el watermark con su configuración de fondo
 	// 3. Aplicamos la gravedad y geometría antes del composite
 	// En tu función processImage, cambia el comando de la marca de agua por esto:
-	cmd := exec.Command("magick",
-		source,
-		"-background", "none",
-		watermark,
-		"-gravity", "south-east",
-		"-geometry", "+50+50",
-		"-composite",
-		"-quality", "80",
-		mainPath)
+	cmd := exec.Command("magick", task.Path, watermark, "-gravity", "south-east", "-geometry", "+50+50", "-composite", mainPath)
 
 	// Captura el error detallado
 	if out, err := cmd.CombinedOutput(); err != nil {
