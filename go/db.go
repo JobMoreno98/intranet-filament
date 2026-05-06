@@ -101,7 +101,7 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 	// Nota: 'nombre_archivo_original' lo seteamos como la página para que sea descriptivo
 	query := `
         INSERT INTO recursos_archivos 
-        (recurso_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
+        (recursos_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
         VALUES (?, ?, ?, ?, 'listo', NOW(), NOW())
     `
 	nombrePagina := fmt.Sprintf("Página %d", orden)
@@ -141,7 +141,7 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 	// 4. Inserción
 	// Usamos 'recursos_archivos' (ajusta si el typo 'archvios' sigue ahí)
 	query := `INSERT INTO recursos_archivos 
-              (recurso_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
+              (recursos_id, nombre_archivo_original, assets_procesados, orden, status, created_at, updated_at) 
               VALUES (?, ?, ?, ?, 'listo', NOW(), NOW())`
 
 	nombre := fmt.Sprintf("Página %d", pageNum)
