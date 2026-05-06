@@ -12,16 +12,15 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         return window.matchMedia("(max-width: 768px)").matches;
     }
 
-    async function getBlobUrl(id) {
-        const res = await fetch(`/media/url/${id}`, {
-            credentials: "include",
-        });
-
-        const data = await res.json();
+    async function getImageUrl(id, isPreload = false) {
+        // Construimos la URL con el query string si es preload
+        const url = isPreload
+            ? `/media/url/${id}?preload=1`
+            : `/media/url/${id}`;
 
         //return data.url;
 
-        const imgRes = await fetch(data.url, {
+        const imgRes = await fetch(url, {
             credentials: "include",
         });
 
