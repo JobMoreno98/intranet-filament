@@ -80,8 +80,18 @@ func processImage(task ProcessingTask) {
 	// 2. Cargamos el watermark con su configuración de fondo
 	// 3. Aplicamos la gravedad y geometría antes del composite
 	// En tu función processImage, cambia el comando de la marca de agua por esto:
-	cmd := exec.Command("magick", task.Path, "-background", "none", "-size", "150x", watermark, "-gravity", "south-east", "-geometry", "+50+50", "-composite", mainPath)
-
+	cmd := exec.Command("magick", task.Path,
+		"-resize", "2500x>", // Solo reduce si es más grande que 2500px
+		"-quality", "80",
+		"-define", "webp:lossless=false", // Aseguramos compresión con pérdida
+		"-background", "none",
+		"-size", "150x",
+		watermark,
+		"-gravity", "south-east",
+		"-geometry", "+50+50",
+		"-composite",
+		"webp:"+mainPath)
+		
 	// Captura el error detallado
 	if out, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("ERROR REAL DE MAGICK en ID %d: %s", task.ArchivoID, string(out))
