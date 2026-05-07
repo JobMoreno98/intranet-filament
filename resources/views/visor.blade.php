@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ $recurso->titulo }}</title>
+    <title>{{ $recurso['titulo'] ?? 'Sin título' }}</title>
 
     <link rel="stylesheet" href="https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,8 +42,8 @@
 <body class="overflow-hidden">
 
     <header class="border-b border-slate-800 bg-slate-900 px-4 py-3 text-center sticky top-0 z-10">
-        <h1 class="text-white text-sm font-bold">{{ $recurso->titulo }}</h1>
-        <p class="text-slate-400 text-xs">{{ $recurso->autor }}</p>
+        <h1 class="text-white text-sm font-bold">{{ $recurso['titulo'] ?? 'Sin título' }}</h1>
+        <p class="text-slate-400 text-xs">{{ $recurso['autor'] ?? 'Sin autor' }}</p>
 
         <div class="flex justify-center mt-2">
             <button id="continue-btn"
@@ -75,7 +75,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             window.initVisor({
                 paginas: @json($paginas),
-                recursoId: {{ $recurso->id }},
+                recursoId: {{ $recurso['id'] }},
                 nombreUser: "{{ auth()->user()->email ?? 'usuario' }}"
             });
         });
