@@ -7,9 +7,8 @@
 
     <title>{{ $recurso['titulo'] ?? 'Sin título' }}</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/photoswipe@5.4.3/dist/photoswipe.css">
-    <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         body {
             background: #020617;
