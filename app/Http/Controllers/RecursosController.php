@@ -6,9 +6,7 @@ use App\Models\Recursos;
 use App\Models\RecursosArchivos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Crypt;
 
 class RecursosController extends Controller
 {
@@ -16,7 +14,11 @@ class RecursosController extends Controller
 
     public function view($id)
     {
-        $recurso = Recursos::with('archivos')->findOrFail($id);
+        $recurso = Cache::remember("recurso_view_{$id}", 1800, function () use ($id) {
+            return Recursos::with(['archivos' => function ($q) {
+                $q->orderBy('orden'); // Importante para el visor
+            }])->findOrFail($id);
+        });
 
         $paginas = $recurso->archivos->map(function ($archivo) {
             return [
