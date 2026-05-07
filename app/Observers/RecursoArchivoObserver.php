@@ -3,69 +3,47 @@
 namespace App\Observers;
 
 use App\Models\RecursosArchivos;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class RecursoArchivoObserver
 {
-    /**
-     * Handle the RecursosArchivos "created" event.
-     */
-    public function created(RecursosArchivos $recursosArchivos): void
+
+
+    public function saved(RecursosArchivos $archivo)
     {
-        //
+        $this->clearCache($archivo);
     }
 
-    /**
-     * Handle the RecursosArchivos "updated" event.
-     */
-    public function updated(RecursosArchivos $recursosArchivos): void
+    public function deleted(RecursosArchivos $archivo)
     {
-        //
-    }
+        // 1. Limpiar Caché (Indispensable para que el visor se actualice)
+        $this->clearCache($archivo);
 
-    /**
-     * Handle the RecursosArchivos "deleted" event.
-     */
-    public function deleted(RecursosArchivos $recursosArchivos): void
-    {
-        // 1. Borrar el archivo original (carpeta private)
-        if ($recursosArchivos->path_original) {
-            Storage::disk('private')->delete($recursosArchivos->path_original);
+        // 2. Lógica de borrado de archivos físicos que ya tenías
+        $directorioPadre = dirname($archivo->path_original);
 
-            // Opcional: Borrar la carpeta del ID del archivo si quedó vacía
-            $directorioPadre = dirname($recursosArchivos->path_original);
+        if ($archivo->path_original) {
+            Storage::disk('private')->delete($archivo->path_original);
+
             if (count(Storage::disk('private')->files($directorioPadre)) === 0) {
                 Storage::disk('private')->deleteDirectory($directorioPadre);
             }
         }
 
-        // 2. Borrar los archivos procesados por Go (carpeta public)
-        // Estructura: items/slug/id_recurso/id_archivo/
-        //dd($recursosArchivos->path_original, $directorioPadre);
-
         if ($directorioPadre) {
-
-
             if (Storage::disk('public')->exists($directorioPadre)) {
-                // Borramos la carpeta completa con main.webp y thumb.webp
                 Storage::disk('public')->deleteDirectory($directorioPadre);
             }
         }
     }
-
-    /**
-     * Handle the RecursosArchivos "restored" event.
-     */
-    public function restored(RecursosArchivos $recursosArchivos): void
+    
+    private function clearCache(RecursosArchivos $archivo)
     {
-        //
-    }
+        // Borra la lista completa del visor
+        Cache::forget("recurso_view_data_{$archivo->recursos_id}");
 
-    /**
-     * Handle the RecursosArchivos "force deleted" event.
-     */
-    public function forceDeleted(RecursosArchivos $recursosArchivos): void
-    {
-        //
+        // Borra la metadata individual del stream
+        Cache::forget("archivo_metadata_{$archivo->id}");
     }
 }
