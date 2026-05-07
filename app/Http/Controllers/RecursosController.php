@@ -14,24 +14,35 @@ class RecursosController extends Controller
 
     public function view($id)
     {
-        $recurso = Cache::remember("recurso_view_{$id}", 1800, function () use ($id) {
-            return Recursos::with(['archivos' => function ($q) {
-                $q->orderBy('orden'); // Importante para el visor
+        // 1. Cacheamos solo el array de datos, no el modelo vivo
+        $recursoData = Cache::remember("recurso_view_data_{$id}", 1800, function () use ($id) {
+            $recurso = Recursos::with(['archivos' => function ($q) {
+                $q->orderBy('orden');
             }])->findOrFail($id);
+
+            // Convertimos a array para evitar problemas de serialización
+            return $recurso->toArray();
         });
 
-        $paginas = $recurso->archivos->map(function ($archivo) {
+        // 2. Como ahora $recursoData es un array, accedemos con corchetes []
+        $paginas = collect($recursoData['archivos'])->map(function ($archivo) {
             return [
-                'id' => $archivo->id,
+                'id' => $archivo['id'],
                 'url' => URL::temporarySignedRoute('media.stream', now()->addMinutes(60), [
-                    'archivo_id' => $archivo->id,
+                    'archivo_id' => $archivo['id'],
                 ]),
                 'w' => 1200,
                 'h' => 1600
             ];
         })->toArray();
 
-        return view('visor', compact('paginas', 'recurso'));
+        // 3. Pasamos los datos a la vista
+        // Nota: En la vista, ahora $recurso será un array, 
+        // asegúrate de usar $recurso['titulo'] en lugar de $recurso->titulo
+        return view('visor', [
+            'paginas' => $paginas,
+            'recurso' => $recursoData
+        ]);
     }
 
     public function signedUrl($id)
