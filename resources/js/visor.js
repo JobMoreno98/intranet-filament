@@ -123,62 +123,59 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
             children: "a",
             pswpModule: PhotoSwipe,
             loop: false,
+            // Limitamos la precarga nativa para que no compita con tu lógica
+            preload: [1, 1],
         });
 
+        // OPTIMIZACIÓN: Preload más ligero
         lightbox.on("change", () => {
             const index = lightbox.pswp?.currIndex ?? 0;
             localStorage.setItem(STORAGE_KEY, index);
-            const btn = document.getElementById("continue-btn");
-            if (btn) btn.classList.remove("hidden");
 
             const anchors = document.querySelectorAll("#gallery-trigger a");
-
-            [index - 1, index + 1].forEach((i) => {
+            [index + 1, index + 2].forEach((i) => {
+                // Solo predecimos hacia adelante
                 const el = anchors[i];
-
                 if (el && !el.dataset.preloaded) {
-                    // Se usa el segundo parámetro true para activar el RateLimit de preload
-                    getImageUrl(el.dataset.id, true).then(() => {
+                    const imgPreload = new Image();
+                    // Llamamos a la URL de preload pero dejamos que el navegador gestione el cache
+                    getImageUrl(el.dataset.id, true).then((url) => {
+                        imgPreload.src = url;
                         el.dataset.preloaded = "true";
                     });
                 }
             });
         });
 
-        lightbox.on("contentLoad", async (e) => {
+        // OPTIMIZACIÓN: Evitar el parpadeo y mejorar el LCP
+        lightbox.on("contentLoad", (e) => {
             const { content } = e;
             const el = content.data.element;
-
             e.preventDefault();
 
-            const imageUrl = await getImageUrl(el.dataset.id);
-
-            const img = document.createElement("img");
-
-            img.onload = () => {
-                content.element = img;
-
-                requestAnimationFrame(() => {
+            // Si ya tenemos la URL por un preload previo, Photoswipe la usará más rápido
+            getImageUrl(el.dataset.id).then((imageUrl) => {
+                const img = document.createElement("img");
+                img.src = imageUrl;
+                img.onload = () => {
+                    content.element = img;
                     lightbox.pswp?.updateSize(true);
-                });
-            };
-
-            img.src = imageUrl;
-        });
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "PrintScreen") {
-                navigator.clipboard.writeText("");
-            }
+                };
+            });
         });
 
         lightbox.init();
 
+        // Solo abrir automáticamente si el usuario no ha interactuado
         const saved = localStorage.getItem(STORAGE_KEY);
-        const startIndex = saved ? parseInt(saved) : 0;
-
-        setTimeout(() => {
-            lightbox.loadAndOpen(startIndex);
-        }, 300);
+        if (saved) {
+            setTimeout(() => {
+                // Usar delay para que el hilo principal termine de procesar el CSS de Tailwind
+                requestIdleCallback(() => {
+                    lightbox.loadAndOpen(parseInt(saved));
+                });
+            }, 500);
+        }
     }
 
     function initContinueButton() {
