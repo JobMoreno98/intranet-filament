@@ -59,13 +59,14 @@
 
         <!-- Desktop mode -->
         <div id="gallery-trigger">
-            @foreach ($paginas as $p)
-                <a data-id="{{ $p['id'] }}" data-pswp-width="{{ $p['w'] }}"
-                    data-pswp-height="{{ $p['h'] }}">
-                </a>
-            @endforeach
+            <div id="gallery-trigger">
+                @foreach ($paginas as $p)
+                    <a data-id="{{ $p['id'] }}" data-pswp-width="{{ $p['w'] }}"
+                        data-pswp-height="{{ $p['h'] }}">
+                    </a>
+                @endforeach
+            </div>
         </div>
-
 
     </main>
 
