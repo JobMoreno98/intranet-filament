@@ -73,7 +73,7 @@ func processImage(task ProcessingTask) {
 	mainPath := filepath.Join(outputDir, "main.webp")
 
 	// Ruta al logo SVG
-	watermark := "/var/www/html/bpej/public/img/logo.svg"
+	//watermark := "/var/www/html/bpej/public/img/logo.svg"
 
 	// COMANDO CORREGIDO:
 	// 1. Cargamos la fuente
