@@ -72,15 +72,18 @@
 
         <div class="flex h-full overflow-hidden bg-zinc-950">
             <!-- LADO IZQUIERDO: El Visor -->
-            <div id="visor-container" class="relative w-full h-screen">
-                <div id="viewer">
+            <div>
+                <div id="visor-container" class="relative h-screen">
+                    <div id="viewer">
 
-                    <canvas id="page-canvas"></canvas>
+                        <canvas id="page-canvas"></canvas>
 
+                    </div>
                 </div>
-            </div>
 
-            <!-- LADO DERECHO: Información del Libro -->
+
+            </div>
+            
             <div class="w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
                 <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
 

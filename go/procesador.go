@@ -97,12 +97,16 @@ func processImage(task ProcessingTask) {
 	       "-composite",
 	   )
 	*/
+binary := "magick"
 
+if _, err := exec.LookPath(binary); err != nil {
+    binary = "convert"
+}
 	// Argumento final: la ruta de destino (forzando formato webp)
 	args = append(args, "webp:"+mainPath)
 
 	// Ejecutamos el comando con los argumentos dinámicos
-	cmd := exec.Command("magick", args...)
+	cmd := exec.Command(binary, args...)
 
 	// Captura de errores
 	if out, err := cmd.CombinedOutput(); err != nil {
@@ -111,7 +115,7 @@ func processImage(task ProcessingTask) {
 
 	// Generar Miniatura (Thumbnail)
 	// Nota: Aquí usamos 'source' para que la miniatura no tenga marca de agua y sea más clara
-	exec.Command("magick", source,
+	exec.Command(binary, source,
 		"-thumbnail", "200x200^",
 		"-gravity", "center",
 		"-extent", "200x200",
@@ -179,10 +183,14 @@ func processPdf(task ProcessingTask) {
 			log.Printf("Error Cairo pág %d: %v", i, err)
 			continue
 		}
+binary := "magick"
 
+if _, err := exec.LookPath(binary); err != nil {
+    binary = "convert"
+}
 		// 3. Magick: Marca de agua + Conversión a WebP
 		// Usamos el PNG como fuente y guardamos directamente en .webp
-		watermarkCmd := exec.Command("magick",
+		watermarkCmd := exec.Command(binary,
 			actualPng,
 			"-background", "none", "-size", "150x", watermark,
 			"-gravity", "south-east", "-geometry", "+50+50",
@@ -195,7 +203,7 @@ func processPdf(task ProcessingTask) {
 		}
 
 		// 4. Generar Thumbnail (desde el WebP ya procesado)
-		exec.Command("magick", finalWebp,
+		exec.Command(binary, finalWebp,
 			"-thumbnail", "200x200^",
 			"-gravity", "center",
 			"-extent", "200x200",
