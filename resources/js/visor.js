@@ -17,64 +17,57 @@ export function initVisor({ paginas }) {
         preload: [0, 0],
     });
 
-    // Renderizar TODO usando canvas
     lightbox.on("contentLoad", (e) => {
-        e.preventDefault();
-
         const { content } = e;
 
         const page = paginas[content.index];
 
-        // Wrapper
-        const wrapper = document.createElement("div");
+        // dejamos que PhotoSwipe cargue normalmente
+        content.data.src = page.url;
+    });
 
-        wrapper.style.width = "100%";
-        wrapper.style.height = "100%";
-        wrapper.style.display = "flex";
-        wrapper.style.alignItems = "center";
-        wrapper.style.justifyContent = "center";
+    lightbox.on("contentAppend", (e) => {
+        const { content } = e;
 
-        // Canvas
+        // img original que crea PhotoSwipe
+        const img = content.element;
+
+        if (!(img instanceof HTMLImageElement)) {
+            return;
+        }
+
+        // ocultar imagen real
+        img.style.opacity = "0";
+        img.style.pointerEvents = "none";
+
+        // evitar duplicado
+        if (content.slide.container.querySelector("canvas")) {
+            return;
+        }
+
+        // canvas overlay
         const canvas = document.createElement("canvas");
-
-        canvas.style.maxWidth = "100%";
-        canvas.style.maxHeight = "100%";
-        canvas.style.objectFit = "contain";
-
-        wrapper.appendChild(canvas);
 
         const ctx = canvas.getContext("2d");
 
-        const img = new Image();
+        canvas.style.position = "absolute";
+        canvas.style.top = "50%";
+        canvas.style.left = "50%";
+        canvas.style.transform = "translate(-50%, -50%)";
 
-        img.decoding = "async";
+        canvas.style.maxWidth = "100%";
+        canvas.style.maxHeight = "100%";
+
+        canvas.style.objectFit = "contain";
 
         img.onload = () => {
-            // IMPORTANTE
             canvas.width = img.naturalWidth;
             canvas.height = img.naturalHeight;
 
             ctx.drawImage(img, 0, 0);
 
-            content.element = wrapper;
-
-            content.width = img.naturalWidth;
-            content.height = img.naturalHeight;
-
-            content.state = "loaded";
-
-            content.onLoaded();
-
-            lightbox.pswp?.updateSize(true);
+            content.slide.container.appendChild(canvas);
         };
-
-        img.onerror = (err) => {
-            console.error("Error imagen", err);
-
-            content.onError();
-        };
-
-        img.src = page.url;
     });
 
     // Liberar memoria

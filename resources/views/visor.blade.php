@@ -86,7 +86,7 @@
             <div id="visor-container" class="relative w-full h-screen">
                 <div id="gallery-trigger" style="display:none;">
                     @foreach ($paginas as $p)
-                        <a href="javascript:void(0)" data-pswp-width="{{ $p['w'] }}"
+                        <a href="{{ $p['url'] }}" data-pswp-width="{{ $p['w'] }}"
                             data-pswp-height="{{ $p['h'] }}"></a>
                     @endforeach
                 </div>
