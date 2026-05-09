@@ -60,6 +60,12 @@
             user-select: none;
             -webkit-user-select: none;
         }
+
+        .pswp__img canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
     </style>
 </head>
 

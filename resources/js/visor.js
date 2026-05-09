@@ -18,56 +18,64 @@ export function initVisor({ paginas }) {
     });
 
     // Renderizar TODO usando canvas
-    lightbox.on("contentLoad", async (e) => {
+    lightbox.on("contentLoad", (e) => {
         e.preventDefault();
 
         const { content } = e;
 
         const page = paginas[content.index];
 
-        // Canvas principal
+        // Wrapper compatible con PhotoSwipe
+        const wrapper = document.createElement("div");
+
+        wrapper.className = "pswp__img";
+
+        wrapper.style.width = "100%";
+        wrapper.style.height = "100%";
+        wrapper.style.display = "flex";
+        wrapper.style.alignItems = "center";
+        wrapper.style.justifyContent = "center";
+
+        // Canvas
         const canvas = document.createElement("canvas");
 
-        canvas.className = "pswp__img";
+        canvas.style.maxWidth = "100%";
+        canvas.style.maxHeight = "100%";
+        canvas.style.objectFit = "contain";
+
+        wrapper.appendChild(canvas);
 
         const ctx = canvas.getContext("2d");
 
-        try {
-            const img = new Image();
+        const img = new Image();
 
-            img.decoding = "async";
+        img.decoding = "async";
 
-            img.onload = () => {
-                // Dimensiones reales
-                canvas.width = img.width;
-                canvas.height = img.height;
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
 
-                // Dibujar imagen
-                ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img, 0, 0);
 
-                // Entregar canvas a PhotoSwipe
-                content.element = canvas;
+            content.element = wrapper;
 
-                content.width = img.width;
-                content.height = img.height;
+            content.width = img.width;
+            content.height = img.height;
 
-                content.onLoaded();
+            content.state = "loaded";
 
-                if (lightbox.pswp) {
-                    lightbox.pswp.updateSize(true);
-                }
-            };
+            content.onLoaded();
 
-            img.onerror = () => {
-                content.onError();
-            };
+            lightbox.pswp?.updateSize(true);
+        };
 
-            img.src = page.url;
+        img.onerror = () => {
+            console.error("Error cargando imagen");
 
-        } catch (err) {
-            console.error(err);
             content.onError();
-        }
+        };
+
+        img.src = page.url;
     });
 
     // Liberar memoria
