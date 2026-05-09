@@ -29,15 +29,38 @@
             position: relative;
             user-select: none;
         }
+
         canvas {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
-/*
+
+        .contenedor {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .contenedor canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+
+            transform: none !important;
+            transition: none !important;
+        }
+
+        #page-canvas {
+            transform: none !important;
+        }
+
+        /*
+
         canvas:active {
             cursor: grabbing;
-        }*/
+        }
+            */
     </style>
 </head>
 
@@ -62,16 +85,12 @@
 
         <div class="flex h-full overflow-hidden bg-zinc-950">
             <!-- LADO IZQUIERDO: El Visor -->
-            <div>
-                <div id="visor-container" class="relative h-screen">
-                    <div id="viewer">
-
-                        <canvas id="page-canvas"></canvas>
-
+            <div class="flex-1 h-full">
+                <div id="visor-container" class="relative w-full h-full">
+                    <div id="viewer" class="w-full h-full">
+                        <canvas id="page-canvas" class="w-full h-full block"></canvas>
                     </div>
                 </div>
-
-
             </div>
 
             <div class="w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
@@ -96,6 +115,17 @@
     </main>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            const canvas = document.querySelector("canvas");
+
+            function resizeCanvas() {
+                const parent = canvas.parentElement;
+
+                canvas.width = parent.clientWidth;
+                canvas.height = parent.clientHeight;
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
 
             window.initVisor({
 
