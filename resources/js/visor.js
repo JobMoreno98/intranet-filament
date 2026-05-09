@@ -169,8 +169,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
             localStorage.setItem(STORAGE_KEY, index);
 
-            const anchors =
-                document.querySelectorAll("#gallery-trigger a");
+            const anchors = document.querySelectorAll("#gallery-trigger a");
 
             [index + 1, index + 2].forEach((i) => {
                 const el = anchors[i];
@@ -188,7 +187,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                 imgPreload.src = paginas[i].url;
             });
         });
-
+        /*
         // Carga personalizada
         lightbox.on("contentLoad", (e) => {
             const { content } = e;
@@ -225,7 +224,7 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
                 content.onError();
             };
         });
-
+*/
         lightbox.init();
 
         // Restaurar lectura
@@ -250,13 +249,10 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         }
 
         btn.onclick = () => {
-            const index = parseInt(
-                localStorage.getItem(STORAGE_KEY) || 0,
-            );
+            const index = parseInt(localStorage.getItem(STORAGE_KEY) || 0);
 
             if (isMobile()) {
-                const pages =
-                    document.querySelectorAll(".scroll-page");
+                const pages = document.querySelectorAll(".scroll-page");
 
                 const container = document.querySelector("main");
 
@@ -275,13 +271,9 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
     }
 
     // Protección básica
-    document.addEventListener("contextmenu", (e) =>
-        e.preventDefault(),
-    );
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    document.addEventListener("dragstart", (e) =>
-        e.preventDefault(),
-    );
+    document.addEventListener("dragstart", (e) => e.preventDefault());
 
     // Inicialización
     if (isMobile()) {
