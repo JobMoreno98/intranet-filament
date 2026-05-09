@@ -71,6 +71,13 @@
         .pswp canvas.pswp__img {
             object-fit: contain;
         }
+
+        .pswp canvas.pswp__img {
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+            display: block;
+        }
     </style>
 </head>
 

@@ -32,38 +32,40 @@ export function initVisor({ paginas }) {
             return;
         }
 
-        // evitar doble canvas
-        if (img.dataset.canvasRendered) {
+        // evitar duplicados
+        if (content.slide.container.querySelector("canvas")) {
             return;
         }
 
         const renderCanvas = () => {
+            // slide destruido
+            if (!content.slide?.container) {
+                return;
+            }
+
             const canvas = document.createElement("canvas");
 
             const ctx = canvas.getContext("2d");
 
-            // tamaño REAL imagen
+            // tamaño real
             canvas.width = img.naturalWidth;
             canvas.height = img.naturalHeight;
 
-            // tamaño VISUAL igual al img de PhotoSwipe
-            canvas.style.width = img.style.width;
-            canvas.style.height = img.style.height;
+            // tamaño visual
+            canvas.style.width = img.style.width || "100%";
+            canvas.style.height = img.style.height || "100%";
 
-            canvas.style.maxWidth = "100%";
-            canvas.style.maxHeight = "100%";
+            canvas.style.objectFit = "contain";
 
             canvas.className = "pswp__img";
 
             ctx.drawImage(img, 0, 0);
 
-            // ocultar img real
+            // ocultar imagen real
             img.style.display = "none";
 
-            // insertar canvas exactamente donde estaba img
-            img.parentNode.insertBefore(canvas, img);
-
-            img.dataset.canvasRendered = "true";
+            // añadir al contenedor del slide
+            content.slide.container.appendChild(canvas);
         };
 
         if (img.complete && img.naturalWidth > 0) {
