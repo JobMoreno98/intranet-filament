@@ -12,6 +12,12 @@ class SecureMediaAccess
     {
         $token = $request->query('token');
 
+        $referer = $request->headers->get('referer');
+
+        if (!$referer || !str_contains($referer, config('app.url'))) {
+            abort(403);
+        }
+        
         if (!$token) {
             throw new HttpException(403, 'Token requerido');
         }

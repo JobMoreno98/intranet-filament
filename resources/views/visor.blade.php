@@ -55,6 +55,11 @@
         .pswp__button--close {
             display: none !important;
         }
+
+        #visor-container {
+            user-select: none;
+            -webkit-user-select: none;
+        }
     </style>
 </head>
 
@@ -80,13 +85,13 @@
         <div class="flex h-full overflow-hidden bg-zinc-950">
             <!-- LADO IZQUIERDO: El Visor -->
             <div class="relative flex-1 h-full border-r border-zinc-800" id="visor-container">
-                <!-- PhotoSwipe se renderizará aquí dentro -->
                 <div id="gallery-trigger" style="display:none;">
                     @foreach ($paginas as $p)
-                        <a href="{{ $p['url'] }}" data-id="{{ $p['id'] }}"
-                            data-pswp-width="{{ $p['w'] }}" data-pswp-height="{{ $p['h'] }}"></a>
+                        <a href="javascript:void(0)" data-pswp-width="{{ $p['w'] }}"
+                            data-pswp-height="{{ $p['h'] }}"></a>
                     @endforeach
                 </div>
+
             </div>
 
             <!-- LADO DERECHO: Información del Libro -->
@@ -112,6 +117,11 @@
     </main>
 
     <script>
+        document
+            .getElementById("visor-container")
+            ?.addEventListener("dragstart", (e) => {
+                e.preventDefault();
+            });
         document.addEventListener('DOMContentLoaded', () => {
             window.initVisor({
                 paginas: @json($paginas),
