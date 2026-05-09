@@ -104,7 +104,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
 
-            window.initCanvasViewer({
+            window.initVisor({
 
                 paginas: @json($paginas)
 
