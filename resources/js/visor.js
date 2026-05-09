@@ -1,111 +1,185 @@
-// resources/js/visor-canvas-desktop.js
+// resources/js/canvas-viewer.js
 
-import PhotoSwipeLightbox from "photoswipe/lightbox";
-import PhotoSwipe from "photoswipe";
+import Panzoom from "@panzoom/panzoom";
 
 export function initVisor({ paginas }) {
-    const container = document.querySelector("#visor-container");
 
-    if (!container) return;
+    const viewer = document.getElementById("viewer");
 
-    const lightbox = new PhotoSwipeLightbox({
-        appendToEl: container,
-        gallery: "#gallery-trigger",
-        children: "a",
-        pswpModule: PhotoSwipe,
-        loop: false,
-        preload: [0, 0],
-    });
+    const canvas = document.getElementById("page-canvas");
 
-    lightbox.on("uiRegister", () => {
-        lightbox.pswp.on("change", () => {
-            const currSlide = lightbox.pswp.currSlide;
+    const ctx = canvas.getContext("2d");
 
-            if (!currSlide) return;
+    let currentPage = 0;
 
-            const container = currSlide.container;
+    let currentBitmap = null;
 
-            if (!container) return;
+    // =========================
+    // RENDER
+    // =========================
 
-            const img = container.querySelector("img");
+    async function renderPage(index) {
 
-            if (!img) return;
+        if (!paginas[index]) return;
 
-            // evitar duplicados
-            if (container.querySelector("canvas")) return;
+        currentPage = index;
 
-            const render = () => {
-                const canvas = document.createElement("canvas");
+        try {
 
-                const ctx = canvas.getContext("2d");
+            // limpiar canvas anterior
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-
-                // copiar tamaño visual REAL
-                canvas.style.width = img.clientWidth + "px";
-                canvas.style.height = img.clientHeight + "px";
-
-                canvas.style.position = "absolute";
-                canvas.style.left = img.offsetLeft + "px";
-                canvas.style.top = img.offsetTop + "px";
-
-                canvas.style.pointerEvents = "none";
-
-                ctx.drawImage(img, 0, 0);
-
-                container.appendChild(canvas);
-
-                // ocultar imagen original
-                img.style.opacity = "0";
-            };
-
-            if (img.complete && img.naturalWidth > 0) {
-                render();
-            } else {
-                img.onload = render;
+            // liberar bitmap previo
+            if (currentBitmap) {
+                currentBitmap.close();
             }
-        });
-    });
-    // Liberar memoria
-    lightbox.on("contentRemove", (e) => {
-        const canvas = e.content.element;
 
-        if (canvas instanceof HTMLCanvasElement) {
-            const ctx = canvas.getContext("2d");
+            // descargar protegida
+            const response = await fetch(paginas[index].url, {
+                credentials: "include",
+                cache: "force-cache"
+            });
 
-            ctx?.clearRect(0, 0, canvas.width, canvas.height);
+            if (!response.ok) {
+                throw new Error("Error cargando imagen");
+            }
 
-            canvas.width = 1;
-            canvas.height = 1;
+            // blob
+            const blob = await response.blob();
+
+            // bitmap eficiente
+            const bitmap = await createImageBitmap(blob);
+
+            currentBitmap = bitmap;
+
+            // tamaño real
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+
+            // dibujar
+            ctx.drawImage(bitmap, 0, 0);
+
+            // reset zoom
+            panzoom.reset();
+
+            // preload siguiente
+            preload(index + 1);
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+    }
+
+    // =========================
+    // PRELOAD
+    // =========================
+
+    const preloadCache = new Map();
+
+    async function preload(index) {
+
+        if (!paginas[index]) return;
+
+        if (preloadCache.has(index)) return;
+
+        try {
+
+            const response = await fetch(paginas[index].url, {
+                credentials: "include",
+                cache: "force-cache"
+            });
+
+            const blob = await response.blob();
+
+            preloadCache.set(index, blob);
+
+        } catch (err) {
+
+            console.error("Error preload", err);
+
+        }
+    }
+
+    // =========================
+    // NAVEGACIÓN
+    // =========================
+
+    async function nextPage() {
+
+        if (currentPage >= paginas.length - 1) return;
+
+        await renderPage(currentPage + 1);
+    }
+
+    async function prevPage() {
+
+        if (currentPage <= 0) return;
+
+        await renderPage(currentPage - 1);
+    }
+
+    // teclado
+    window.addEventListener("keydown", async (e) => {
+
+        if (e.key === "ArrowRight") {
+            await nextPage();
+        }
+
+        if (e.key === "ArrowLeft") {
+            await prevPage();
         }
     });
 
-    // Preload manual
-    lightbox.on("change", () => {
-        const index = lightbox.pswp?.currIndex ?? 0;
+    // click lateral
+    viewer.addEventListener("click", async (e) => {
 
-        [index + 1, index + 2].forEach((i) => {
-            if (!paginas[i]) return;
+        const middle = window.innerWidth / 2;
 
-            const img = new Image();
-
-            img.decoding = "async";
-            img.src = paginas[i].url;
-        });
+        if (e.clientX > middle) {
+            await nextPage();
+        } else {
+            await prevPage();
+        }
     });
 
-    lightbox.init();
+    // =========================
+    // ZOOM / PAN
+    // =========================
 
-    // Abrir automáticamente
-    lightbox.loadAndOpen(0);
+    const panzoom = Panzoom(canvas, {
 
-    // Protección básica
-    container.addEventListener("contextmenu", (e) => {
+        maxScale: 5,
+
+        minScale: 1,
+
+        contain: "outside"
+
+    });
+
+    // wheel zoom
+    viewer.addEventListener("wheel", panzoom.zoomWithWheel);
+
+    // =========================
+    // PROTECCIONES
+    // =========================
+
+    viewer.addEventListener("contextmenu", (e) => {
         e.preventDefault();
     });
 
-    container.addEventListener("dragstart", (e) => {
+    viewer.addEventListener("dragstart", (e) => {
         e.preventDefault();
     });
+
+    viewer.addEventListener("selectstart", (e) => {
+        e.preventDefault();
+    });
+
+    // =========================
+    // START
+    // =========================
+
+    renderPage(0);
 }

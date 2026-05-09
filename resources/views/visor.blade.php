@@ -10,73 +10,43 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        html,
         body {
-            background: #020617;
-        }
-
-        #scroll-viewer {
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .scroll-page {
+            margin: 0;
             width: 100%;
-            background: black;
-            min-height: 300px;
-        }
-
-        .scroll-page canvas {
-            width: 100%;
-            height: auto;
-        }
-
-        #gallery-trigger {
-            display: none;
-        }
-
-        /* Asegura que PhotoSwipe ocupe solo su contenedor padre */
-        #visor-container .pswp {
-            position: absolute !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-
-        /* Ocultar el botón de cerrar nativo si no lo quieres */
-        .pswp__button--close {
-            display: none !important;
-        }
-
-        #visor-container {
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .pswp__content canvas {
-            display: block;
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .pswp__content {
+            height: 100%;
             overflow: hidden;
+            background: #0f172a;
         }
 
-        .pswp canvas {
-            display: block;
+        #viewer {
+            width: 100vw;
+            height: 100vh;
+
+            overflow: hidden;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: #020617;
+
+            position: relative;
+
+            user-select: none;
         }
 
-        .pswp canvas.pswp__img {
-            object-fit: contain;
-        }
-
-        .pswp canvas.pswp__img {
+        canvas {
             max-width: 100%;
             max-height: 100%;
-            margin: auto;
-            display: block;
+
+            object-fit: contain;
+
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
         }
     </style>
 </head>
@@ -103,11 +73,10 @@
         <div class="flex h-full overflow-hidden bg-zinc-950">
             <!-- LADO IZQUIERDO: El Visor -->
             <div id="visor-container" class="relative w-full h-screen">
-                <div id="gallery-trigger" style="display:none;">
-                    @foreach ($paginas as $p)
-                        <a href="{{ $p['url'] }}" data-pswp-width="{{ $p['w'] }}"
-                            data-pswp-height="{{ $p['h'] }}"></a>
-                    @endforeach
+                <div id="viewer">
+
+                    <canvas id="page-canvas"></canvas>
+
                 </div>
             </div>
 
@@ -132,19 +101,15 @@
             </div>
         </div>
     </main>
-
     <script>
-        document
-            .getElementById("visor-container")
-            ?.addEventListener("dragstart", (e) => {
-                e.preventDefault();
+        document.addEventListener("DOMContentLoaded", () => {
+
+            window.initCanvasViewer({
+
+                paginas: @json($paginas)
+
             });
-        document.addEventListener('DOMContentLoaded', () => {
-            window.initVisor({
-                paginas: @json($paginas),
-                recursoId: {{ $recurso['id'] }},
-                nombreUser: "{{ auth()->user()->email ?? 'usuario' }}"
-            });
+
         });
     </script>
 
