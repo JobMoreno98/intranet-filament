@@ -3,23 +3,14 @@ import Panzoom from "@panzoom/panzoom";
 export function initVisor({ paginas }) {
 
     const viewer = document.getElementById("viewer");
+
     const canvas = document.getElementById("page-canvas");
-    const wrapper = document.getElementById("canvas-wrapper");
 
     const ctx = canvas.getContext("2d");
 
     let currentPage = 0;
+
     let currentBitmap = null;
-
-    const preloadCache = new Map();
-
-    const panzoom = Panzoom(wrapper, {
-        maxScale: 5,
-        minScale: 1,
-        contain: "outside"
-    });
-
-    viewer.addEventListener("wheel", panzoom.zoomWithWheel);
 
     async function renderPage(index) {
 
@@ -29,13 +20,16 @@ export function initVisor({ paginas }) {
 
         try {
 
+            // limpiar canvas anterior
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // liberar bitmap previo
             if (currentBitmap) {
                 currentBitmap.close();
             }
 
-            let response = await fetch(paginas[index].url, {
+            // descargar protegida
+            const response = await fetch(paginas[index].url, {
                 credentials: "include",
                 cache: "force-cache"
             });
@@ -44,89 +38,137 @@ export function initVisor({ paginas }) {
                 throw new Error("Error cargando imagen");
             }
 
+            // blob
             const blob = await response.blob();
+
+            // bitmap eficiente
             const bitmap = await createImageBitmap(blob);
 
             currentBitmap = bitmap;
 
-            const rect = viewer.getBoundingClientRect();
+            // tamaño real
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
 
-            const scale = Math.min(
-                rect.width / bitmap.width,
-                rect.height / bitmap.height
-            );
+            // dibujar
+            ctx.drawImage(bitmap, 0, 0);
 
-            const dpr = window.devicePixelRatio || 1;
-
-            // tamaño real (retina)
-            canvas.width = bitmap.width * scale * dpr;
-            canvas.height = bitmap.height * scale * dpr;
-
-            // tamaño visual
-            canvas.style.width = bitmap.width * scale + "px";
-            canvas.style.height = bitmap.height * scale + "px";
-
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // IMPORTANTE: sin scale aquí
-            ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
-
+            // reset zoom
             panzoom.reset();
 
+            // preload siguiente
             preload(index + 1);
 
         } catch (err) {
+
             console.error(err);
+
         }
     }
+    const preloadCache = new Map();
 
     async function preload(index) {
+
         if (!paginas[index]) return;
+
         if (preloadCache.has(index)) return;
 
         try {
+
             const response = await fetch(paginas[index].url, {
                 credentials: "include",
                 cache: "force-cache"
             });
 
             const blob = await response.blob();
+
             preloadCache.set(index, blob);
 
         } catch (err) {
+
             console.error("Error preload", err);
+
         }
     }
 
+    // =========================
+    // NAVEGACIÓN
+    // =========================
+
     async function nextPage() {
+
         if (currentPage >= paginas.length - 1) return;
+
         await renderPage(currentPage + 1);
     }
 
     async function prevPage() {
+
         if (currentPage <= 0) return;
+
         await renderPage(currentPage - 1);
     }
 
+    // teclado
     window.addEventListener("keydown", async (e) => {
-        if (e.key === "ArrowRight") await nextPage();
-        if (e.key === "ArrowLeft") await prevPage();
+
+        if (e.key === "ArrowRight") {
+            await nextPage();
+        }
+
+        if (e.key === "ArrowLeft") {
+            await prevPage();
+        }
     });
 
+    // click lateral
     viewer.addEventListener("click", async (e) => {
+
         const middle = window.innerWidth / 2;
-        if (e.clientX > middle) await nextPage();
-        else await prevPage();
+
+        if (e.clientX > middle) {
+            await nextPage();
+        } else {
+            await prevPage();
+        }
     });
 
-    viewer.addEventListener("contextmenu", e => e.preventDefault());
-    viewer.addEventListener("dragstart", e => e.preventDefault());
-    viewer.addEventListener("selectstart", e => e.preventDefault());
+    // =========================
+    // ZOOM / PAN
+    // =========================
 
-    window.addEventListener("resize", () => {
-        renderPage(currentPage);
+    const panzoom = Panzoom(canvas, {
+
+        maxScale: 5,
+
+        minScale: 1,
+
+        contain: "outside"
+
     });
+
+    // wheel zoom
+    viewer.addEventListener("wheel", panzoom.zoomWithWheel);
+
+    // =========================
+    // PROTECCIONES
+    // =========================
+
+    viewer.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+    });
+
+    viewer.addEventListener("dragstart", (e) => {
+        e.preventDefault();
+    });
+
+    viewer.addEventListener("selectstart", (e) => {
+        e.preventDefault();
+    });
+
+    // =========================
+    // START
+    // =========================
 
     renderPage(0);
 }

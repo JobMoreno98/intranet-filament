@@ -27,14 +27,10 @@
             background: #020617;
         }
 
-        /* wrapper del canvas (para panzoom) */
-        #canvas-wrapper {
-            display: inline-block;
-        }
-
-        /* canvas limpio */
         canvas {
             display: block;
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
@@ -55,26 +51,33 @@
 
     <main class="h-[calc(100dvh-120px)] overflow-auto">
         <div class="flex flex-col md:flex-row h-screen overflow-hidden bg-zinc-950">
+            <div class="w-full md:flex-1 flex flex-col h-1/2 md:h-full">
 
-            <!-- VISOR -->
-            <div class="w-full md:flex-1 flex flex-col">
+                <!-- TEXTO arriba en móvil -->
+                <div class="w-full p-6 bg-zinc-900 text-zinc-300 md:hidden">
+                    <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
 
-                <div id="visor-container" class="w-full flex-1 bg-black overflow-hidden">
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <span class="block text-zinc-500 uppercase text-xs font-semibold">Autor</span>
+                            <p>{{ $recurso['autor'] }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:flex-1 flex flex-col">
 
-                    <div id="viewer" class="w-full h-full flex items-center justify-center">
+                    <div id="visor-container" class="w-full flex-1 bg-black overflow-hidden">
 
-                        <!-- WRAPPER NECESARIO PARA PANZOOM -->
-                        <div id="canvas-wrapper">
+                        <div id="viewer" class="w-full h-full flex items-center justify-center">
                             <canvas id="page-canvas"></canvas>
                         </div>
 
                     </div>
 
                 </div>
-
             </div>
 
-            <!-- PANEL DERECHO -->
+            <!-- PANEL DERECHO (solo desktop) -->
             <div class="hidden md:block w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
                 <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
 
@@ -96,31 +99,36 @@
             function renderCanvas(originalWidth, originalHeight, drawFn) {
                 const ctx = canvas.getContext("2d");
 
-                const rect = container.getBoundingClientRect();
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
 
+                // Escala para que quepa sin deformar (contain)
                 const scale = Math.min(
-                    rect.width / originalWidth,
-                    rect.height / originalHeight
+                    containerWidth / originalWidth,
+                    containerHeight / originalHeight
                 );
 
-                const dpr = window.devicePixelRatio || 1;
+                const scaledWidth = originalWidth * scale;
+                const scaledHeight = originalHeight * scale;
 
-                canvas.width = originalWidth * scale * dpr;
-                canvas.height = originalHeight * scale * dpr;
+                // Tamaño real del canvas (alta calidad)
+                canvas.width = scaledWidth;
+                canvas.height = scaledHeight;
 
-                canvas.style.width = (originalWidth * scale) + "px";
-                canvas.style.height = (originalHeight * scale) + "px";
-
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                // Limpiar y renderizar
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+                // Dibujar contenido escalado
                 drawFn(ctx, scale);
             }
-
             window.initVisor({
-                paginas: @json($paginas),
+
+                paginas: @json($paginas)
                 renderCanvas
+
             });
+
         });
     </script>
 
