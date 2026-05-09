@@ -43,13 +43,6 @@
             height: 100% !important;
         }
 
-        /* Estilo de "página de libro" con sombra */
-        .pswp__img {
-            background: white;
-            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.6);
-            border: 1px solid #3f3f46;
-            /* Zinc-700 */
-        }
 
         /* Ocultar el botón de cerrar nativo si no lo quieres */
         .pswp__button--close {
@@ -61,10 +54,10 @@
             -webkit-user-select: none;
         }
 
-        .pswp__img canvas {
+        .pswp__content canvas {
+            display: block;
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
         }
     </style>
 </head>

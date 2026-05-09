@@ -25,10 +25,8 @@ export function initVisor({ paginas }) {
 
         const page = paginas[content.index];
 
-        // Wrapper compatible con PhotoSwipe
+        // Wrapper
         const wrapper = document.createElement("div");
-
-        //wrapper.className = "pswp__img";
 
         wrapper.style.width = "100%";
         wrapper.style.height = "100%";
@@ -49,19 +47,19 @@ export function initVisor({ paginas }) {
 
         const img = new Image();
 
-        img.crossOrigin = "use-credentials";
         img.decoding = "async";
 
         img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
+            // IMPORTANTE
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
 
             ctx.drawImage(img, 0, 0);
 
             content.element = wrapper;
 
-            content.width = img.width;
-            content.height = img.height;
+            content.width = img.naturalWidth;
+            content.height = img.naturalHeight;
 
             content.state = "loaded";
 
@@ -70,8 +68,9 @@ export function initVisor({ paginas }) {
             lightbox.pswp?.updateSize(true);
         };
 
-        img.onerror = () => {
-            console.error("Error cargando imagen");
+        img.onerror = (err) => {
+            console.error("Error imagen", err);
+
             content.onError();
         };
 
