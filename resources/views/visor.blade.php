@@ -84,14 +84,13 @@
 
         <div class="flex h-full overflow-hidden bg-zinc-950">
             <!-- LADO IZQUIERDO: El Visor -->
-            <div class="relative flex-1 h-full border-r border-zinc-800" id="visor-container">
+            <div id="visor-container" class="relative w-full h-screen">
                 <div id="gallery-trigger" style="display:none;">
                     @foreach ($paginas as $p)
                         <a href="javascript:void(0)" data-pswp-width="{{ $p['w'] }}"
                             data-pswp-height="{{ $p['h'] }}"></a>
                     @endforeach
                 </div>
-
             </div>
 
             <!-- LADO DERECHO: Información del Libro -->
