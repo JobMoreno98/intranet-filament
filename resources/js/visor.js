@@ -49,6 +49,7 @@ export function initVisor({ paginas }) {
 
         const img = new Image();
 
+        img.crossOrigin = "use-credentials";
         img.decoding = "async";
 
         img.onload = () => {
@@ -71,7 +72,6 @@ export function initVisor({ paginas }) {
 
         img.onerror = () => {
             console.error("Error cargando imagen");
-
             content.onError();
         };
 
