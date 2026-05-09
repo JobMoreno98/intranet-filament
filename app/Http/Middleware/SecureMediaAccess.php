@@ -14,10 +14,7 @@ class SecureMediaAccess
 
         $referer = $request->headers->get('referer');
 
-        if (!$referer || !str_contains($referer, config('app.url'))) {
-            abort(403);
-        }
-        
+
         if (!$token) {
             throw new HttpException(403, 'Token requerido');
         }
@@ -43,6 +40,10 @@ class SecureMediaAccess
         if ($request->has('archivo_id') && $request->archivo_id != $data['a']) {
             throw new HttpException(403, 'El token no corresponde a este archivo');
         }
+        /*
+        if (!$referer || !str_contains($referer, config('app.url'))) {
+            abort(403);
+        }*/
 
         // 4. Inyectar/Sobrescribir el ID del token para el controlador
         $request->merge([
