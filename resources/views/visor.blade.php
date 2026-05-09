@@ -13,24 +13,57 @@
         html,
         body {
             margin: 0;
+            width: 100%;
             height: 100%;
             overflow: hidden;
             background: #0f172a;
         }
 
         #viewer {
-            width: 100%;
-            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             background: #020617;
+            position: relative;
+            user-select: none;
         }
 
         canvas {
-            display: block;
             max-width: 100%;
             max-height: 100%;
+            object-fit: contain;
+        }
+
+        .contenedor {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .contenedor canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+
+            transform: none !important;
+            transition: none !important;
+        }
+
+        #page-canvas {
+            transform: none !important;
+        }
+
+        #visor-container {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+        }
+
+        @media (min-width: 768px) {
+            #visor-container {
+                aspect-ratio: 16 / 9;
+            }
         }
     </style>
 </head>
@@ -64,14 +97,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full md:flex-1 flex flex-col">
 
-                    <div id="visor-container" class="w-full flex-1 bg-black overflow-hidden">
+                <div id="visor-container"
+                    class="w-full md:flex-1 aspect-[3/4] md:aspect-[3/2] bg-black overflow-hidden">
 
-                        <div id="viewer" class="w-full h-full flex items-center justify-center">
-                            <canvas id="page-canvas"></canvas>
-                        </div>
-
+                    <div id="viewer" class="w-full h-full flex items-center justify-center">
+                        <canvas id="page-canvas" class="block"></canvas>
                     </div>
 
                 </div>
@@ -93,39 +124,19 @@
     </main>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const canvas = document.getElementById("page-canvas");
-            const container = document.getElementById("visor-container");
+            function resizeCanvas() {
+                const container = document.getElementById("visor-container");
+                const canvas = document.getElementById("page-canvas");
 
-            function renderCanvas(originalWidth, originalHeight, drawFn) {
-                const ctx = canvas.getContext("2d");
-
-                const containerWidth = container.clientWidth;
-                const containerHeight = container.clientHeight;
-
-                // Escala para que quepa sin deformar (contain)
-                const scale = Math.min(
-                    containerWidth / originalWidth,
-                    containerHeight / originalHeight
-                );
-
-                const scaledWidth = originalWidth * scale;
-                const scaledHeight = originalHeight * scale;
-
-                // Tamaño real del canvas (alta calidad)
-                canvas.width = scaledWidth;
-                canvas.height = scaledHeight;
-
-                // Limpiar y renderizar
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Dibujar contenido escalado
-                drawFn(ctx, scale);
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
             }
+
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
             window.initVisor({
 
                 paginas: @json($paginas)
-                renderCanvas
 
             });
 
