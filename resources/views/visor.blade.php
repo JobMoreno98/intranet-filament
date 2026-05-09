@@ -55,13 +55,16 @@
             transform: none !important;
         }
 
-        /*
-
-        canvas:active {
-            cursor: grabbing;
+        #visor-container {
+            width: 100%;
+            aspect-ratio: 4 / 3;
         }
 
-            */
+        @media (min-width: 768px) {
+            #visor-container {
+                aspect-ratio: 16 / 9;
+            }
+        }
     </style>
 </head>
 
@@ -95,11 +98,12 @@
                     </div>
                 </div>
 
-                <!-- VISOR / CANVAS -->
-                <div id="visor-container" class="relative w-full flex-1">
+                <div id="visor-container" class="w-full md:flex-1 aspect-[4/3] md:aspect-[16/9] bg-black">
+
                     <div id="viewer" class="w-full h-full">
                         <canvas id="page-canvas" class="w-full h-full block"></canvas>
                     </div>
+
                 </div>
             </div>
 
@@ -119,18 +123,16 @@
     </main>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const canvas = document.querySelector("canvas");
-
             function resizeCanvas() {
-                const parent = canvas.parentElement;
+                const container = document.getElementById("visor-container");
+                const canvas = document.getElementById("page-canvas");
 
-                canvas.width = parent.clientWidth;
-                canvas.height = parent.clientHeight;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
             }
 
             window.addEventListener("resize", resizeCanvas);
             resizeCanvas();
-
             window.initVisor({
 
                 paginas: @json($paginas)
