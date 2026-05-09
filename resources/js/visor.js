@@ -26,8 +26,6 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         // Retornamos la URL directa de la API sin convertir a blob
         return data.url;
     }
-
-    // 👇 usa nombreUser en lugar de variable Blade
     async function drawImage(canvas, index) {
         if (canvas.dataset.loaded) return;
 
@@ -161,15 +159,38 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         lightbox.on("contentLoad", (e) => {
             const { content } = e;
             const el = content.data.element;
+
             e.preventDefault();
 
-            // Si ya tenemos la URL por un preload previo, Photoswipe la usará más rápido
+            // 1. IMPORTANTE: Extraer dimensiones del elemento <a>
+            // PhotoSwipe necesita saber el aspecto antes de pintar
+            const width = parseInt(el.dataset.pswpWidth);
+            const height = parseInt(el.dataset.pswpHeight);
+
             getImageUrl(el.dataset.id).then((imageUrl) => {
                 const img = document.createElement("img");
                 img.src = imageUrl;
+                img.className = "pswp__img";
+
                 img.onload = () => {
+                    // 2. Asignar el elemento
                     content.element = img;
-                    lightbox.pswp?.updateSize(true);
+
+                    // 3. Forzar dimensiones en el objeto content
+                    // Sin esto, PhotoSwipe v5 calcula un tamaño de 0px
+                    content.width = width;
+                    content.height = height;
+
+                    // 4. Notificar que la carga terminó
+                    content.onLoaded();
+
+                    if (lightbox.pswp) {
+                        lightbox.pswp.updateSize(true);
+                    }
+                };
+
+                img.onerror = () => {
+                    content.onError();
                 };
             });
         });
