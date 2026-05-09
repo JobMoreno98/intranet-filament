@@ -20,22 +20,15 @@
         }
 
         #viewer {
-            width: 100vw;
-            height: 100vh;
-
+            height: 100dvh;
             overflow: hidden;
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             background: #020617;
-
             position: relative;
-
             user-select: none;
         }
-
         canvas {
             max-width: 100%;
             max-height: 100%;
@@ -83,7 +76,7 @@
 
 
             </div>
-            
+
             <div class="w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
                 <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
 
