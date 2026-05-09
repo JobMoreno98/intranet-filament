@@ -81,10 +81,10 @@
             <!-- LADO IZQUIERDO: El Visor -->
             <div class="relative flex-1 h-full border-r border-zinc-800" id="visor-container">
                 <!-- PhotoSwipe se renderizará aquí dentro -->
-                <div id="gallery-trigger" class="hidden">
+                <div id="gallery-trigger" style="display:none;">
                     @foreach ($paginas as $p)
-                        <a data-id="{{ $p['id'] }}" data-pswp-width="{{ $p['w'] }}"
-                            data-pswp-height="{{ $p['h'] }}"></a>
+                        <a href="{{ $p['url'] }}" data-id="{{ $p['id'] }}"
+                            data-pswp-width="{{ $p['w'] }}" data-pswp-height="{{ $p['h'] }}"></a>
                     @endforeach
                 </div>
             </div>
