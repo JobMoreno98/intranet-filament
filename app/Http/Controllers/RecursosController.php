@@ -26,10 +26,19 @@ class RecursosController extends Controller
 
         // 2. Como ahora $recursoData es un array, accedemos con corchetes []
         $paginas = collect($recursoData['archivos'])->map(function ($archivo) {
+
+            $payload = [
+                'a' => $archivo['id'],
+                'u' => auth()->id(),
+                'e' => now()->timestamp + 3600
+            ];
+
+            $token = encrypt(json_encode($payload));
+
             return [
                 'id' => $archivo['id'],
-                'url' => URL::temporarySignedRoute('media.stream', now()->addMinutes(60), [
-                    'archivo_id' => $archivo['id'],
+                'url' => route('media.stream', [
+                    'token' => $token
                 ]),
                 'w' => 1200,
                 'h' => 1600
