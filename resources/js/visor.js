@@ -118,7 +118,17 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
     }
 
     function initDesktop() {
+        const container = document.querySelector("#visor-container");
+
+        // 2. Verificación de seguridad
+        if (!container) {
+            console.error(
+                "Error: No se encontró el elemento #visor-container en el DOM.",
+            );
+            return;
+        }
         lightbox = new PhotoSwipeLightbox({
+            appendToEl: container,
             gallery: "#gallery-trigger",
             children: "a",
             pswpModule: PhotoSwipe,

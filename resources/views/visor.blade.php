@@ -35,6 +35,26 @@
         #gallery-trigger {
             display: none;
         }
+
+        /* Asegura que PhotoSwipe ocupe solo su contenedor padre */
+        #visor-container .pswp {
+            position: absolute !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Estilo de "página de libro" con sombra */
+        .pswp__img {
+            background: white;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.6);
+            border: 1px solid #3f3f46;
+            /* Zinc-700 */
+        }
+
+        /* Ocultar el botón de cerrar nativo si no lo quieres */
+        .pswp__button--close {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -57,17 +77,38 @@
         <!-- Scroll mode -->
         <div id="scroll-viewer"></div>
 
-        <!-- Desktop mode -->
-        <div id="gallery-trigger">
-            <div id="gallery-trigger">
-                @foreach ($paginas as $p)
-                    <a data-id="{{ $p['id'] }}" data-pswp-width="{{ $p['w'] }}"
-                        data-pswp-height="{{ $p['h'] }}">
-                    </a>
-                @endforeach
+        <div class="flex h-full overflow-hidden bg-zinc-950">
+            <!-- LADO IZQUIERDO: El Visor -->
+            <div class="relative flex-1 h-full border-r border-zinc-800" id="visor-container">
+                <!-- PhotoSwipe se renderizará aquí dentro -->
+                <div id="gallery-trigger" class="hidden">
+                    @foreach ($paginas as $p)
+                        <a data-id="{{ $p['id'] }}" data-pswp-width="{{ $p['w'] }}"
+                            data-pswp-height="{{ $p['h'] }}"></a>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- LADO DERECHO: Información del Libro -->
+            <div class="w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
+                <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
+
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <span class="block text-zinc-500 uppercase text-xs font-semibold">Autor</span>
+                        <p>{{ $recurso['autor'] }}</p>
+                    </div>
+                    <div>
+                        <span class="block text-zinc-500 uppercase text-xs font-semibold">Clasificación</span>
+
+                    </div>
+                    <!-- Botón para continuar lectura -->
+                    <button id="continue-btn" class="hidden w-full py-2 bg-accent text-white rounded-md mt-6">
+                        Continuar lectura
+                    </button>
+                </div>
             </div>
         </div>
-
     </main>
 
     <script>
