@@ -3,7 +3,7 @@
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import PhotoSwipe from "photoswipe";
 
-export function initCanvasDesktop({ paginas }) {
+export function initVisor({ paginas }) {
     const container = document.querySelector("#visor-container");
 
     if (!container) return;
