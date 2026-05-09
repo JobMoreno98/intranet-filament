@@ -20,9 +20,7 @@ export function initVisor({ paginas }) {
     lightbox.on("contentLoad", (e) => {
         const { content } = e;
 
-        const page = paginas[content.index];
-
-        content.data.src = page.url;
+        content.data.src = paginas[content.index].url;
     });
 
     lightbox.on("contentAppend", (e) => {
@@ -34,46 +32,46 @@ export function initVisor({ paginas }) {
             return;
         }
 
-        // ocultar imagen original
-        img.style.opacity = "0";
-        img.style.pointerEvents = "none";
-
-        // evitar duplicados
-        if (content.slide.container.querySelector("canvas")) {
+        // evitar doble canvas
+        if (img.dataset.canvasRendered) {
             return;
         }
 
-        const canvas = document.createElement("canvas");
-
-        const ctx = canvas.getContext("2d");
-
-        canvas.style.position = "absolute";
-        canvas.style.top = "50%";
-        canvas.style.left = "50%";
-        canvas.style.transform = "translate(-50%, -50%)";
-
-        canvas.style.maxWidth = "100%";
-        canvas.style.maxHeight = "100%";
-
-        canvas.style.objectFit = "contain";
-
         const renderCanvas = () => {
+            const canvas = document.createElement("canvas");
+
+            const ctx = canvas.getContext("2d");
+
+            // tamaño REAL imagen
             canvas.width = img.naturalWidth;
             canvas.height = img.naturalHeight;
 
+            // tamaño VISUAL igual al img de PhotoSwipe
+            canvas.style.width = img.style.width;
+            canvas.style.height = img.style.height;
+
+            canvas.style.maxWidth = "100%";
+            canvas.style.maxHeight = "100%";
+
+            canvas.className = "pswp__img";
+
             ctx.drawImage(img, 0, 0);
 
-            content.slide.container.appendChild(canvas);
+            // ocultar img real
+            img.style.display = "none";
+
+            // insertar canvas exactamente donde estaba img
+            img.parentNode.insertBefore(canvas, img);
+
+            img.dataset.canvasRendered = "true";
         };
 
-        // IMPORTANTE
         if (img.complete && img.naturalWidth > 0) {
             renderCanvas();
         } else {
             img.onload = renderCanvas;
         }
     });
-
     // Liberar memoria
     lightbox.on("contentRemove", (e) => {
         const canvas = e.content.element;

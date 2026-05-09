@@ -67,6 +67,10 @@
         .pswp canvas {
             display: block;
         }
+
+        .pswp canvas.pswp__img {
+            object-fit: contain;
+        }
     </style>
 </head>
 
