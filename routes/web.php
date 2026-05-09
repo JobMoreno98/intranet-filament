@@ -5,6 +5,7 @@ use App\Models\RecursosArchivos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -34,12 +35,13 @@ Route::get('/media/stream', function (Request $request) {
 
     return response('', 200)
         ->header('X-Accel-Redirect', '/protegido/' . $path)
+        ->header('Content-Length', Storage::disk('private')->size($path))
         ->header('Content-Type', $mimeType) // Dinámico según el archivo
         ->header('Content-Disposition', 'inline') // Asegura que se vea en el navegador
         ->header('Cache-Control', 'private, max-age=86400') // Permite caché local para no saturar el servidor
         ->header('X-Content-Type-Options', 'nosniff');
 })->name('media.stream')
-    ->middleware(['auth', 'signed', 'secure.media', 'throttle:media']);
+    ->middleware(['auth', 'secure.media', 'throttle:media']);
 
 Route::get('/admin/media/load', function (Request $request) {
     // Verificación de Admin
