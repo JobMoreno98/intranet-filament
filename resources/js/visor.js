@@ -8,32 +8,26 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
     const STORAGE_KEY = `visor_last_page_${recursoId}`;
 
+    const idle =
+        window.requestIdleCallback ||
+        function (cb) {
+            return setTimeout(cb, 1);
+        };
+
     function isMobile() {
         return window.matchMedia("(max-width: 768px)").matches;
     }
 
-    async function getImageUrl(id, isPreload = false) {
-        // Construimos la URL con el query string si es preload
-        const url = isPreload
-            ? `/media/url/${id}?preload=1`
-            : `/media/url/${id}`;
-
-        const res = await fetch(url, {
-            credentials: "include",
-        });
-
-        const data = await res.json();
-        // Retornamos la URL directa de la API sin convertir a blob
-        return data.url;
-    }
     async function drawImage(canvas, index) {
-        if (canvas.dataset.loaded) return;
+        if (canvas.dataset.loaded || canvas.dataset.loading) return;
+
+        canvas.dataset.loading = "true";
 
         try {
-            const imageUrl = await getImageUrl(paginas[index].id);
-
             const img = new Image();
-            img.src = imageUrl;
+
+            img.decoding = "async";
+            img.loading = "lazy";
 
             img.onload = () => {
                 const ctx = canvas.getContext("2d");
@@ -43,22 +37,48 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
 
                 ctx.drawImage(img, 0, 0);
 
-                // Ya no es necesario revokeObjectURL porque imageUrl es una URL normal
-                canvas.dataset.loaded = true;
+                canvas.dataset.loaded = "true";
+                delete canvas.dataset.loading;
             };
+
+            img.onerror = () => {
+                delete canvas.dataset.loading;
+                console.error("Error cargando imagen", index);
+            };
+
+            img.src = paginas[index].url;
         } catch (e) {
-            console.error("Error canvas", index);
+            delete canvas.dataset.loading;
+            console.error("Error canvas", index, e);
         }
+    }
+
+    function releaseCanvas(canvas) {
+        const ctx = canvas.getContext("2d");
+
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
+
+        canvas.width = 1;
+        canvas.height = 1;
+
+        delete canvas.dataset.loaded;
+        delete canvas.dataset.loading;
     }
 
     function initScroll() {
         const container = document.getElementById("scroll-viewer");
+
+        if (!container) return;
+
         container.style.display = "flex";
+
         paginas.forEach((p, index) => {
             const div = document.createElement("div");
+
             div.classList.add("scroll-page");
 
             const canvas = document.createElement("canvas");
+
             canvas.dataset.index = index;
 
             div.appendChild(canvas);
@@ -66,143 +86,154 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         });
 
         const pages = document.querySelectorAll(".scroll-page");
+        const canvases = document.querySelectorAll("canvas");
 
+        // Control de progreso + liberación de memoria
         const observerProgress = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (!entry.isIntersecting) return;
 
                     const index = [...pages].indexOf(entry.target);
-                    const currentIndex = index;
 
                     localStorage.setItem(STORAGE_KEY, index);
 
-                    // liberar memoria
-                    document.querySelectorAll("canvas").forEach((canvas) => {
+                    // Mantener solo canvases cercanos
+                    canvases.forEach((canvas) => {
                         const i = parseInt(canvas.dataset.index);
 
-                        if (i < currentIndex - 5 || i > currentIndex + 5) {
-                            canvas.width = 0;
-                            canvas.height = 0;
-                            canvas.dataset.loaded = "";
+                        if (i < index - 5 || i > index + 5) {
+                            releaseCanvas(canvas);
                         }
                     });
                 });
             },
-            { threshold: 0.5 },
+            {
+                threshold: 0.5,
+            },
         );
 
         pages.forEach((p) => observerProgress.observe(p));
+
+        // Lazy render
         const observer = new IntersectionObserver(
-            async (entries, obs) => {
-                for (let entry of entries) {
+            async (entries) => {
+                for (const entry of entries) {
                     if (!entry.isIntersecting) continue;
 
                     const canvas = entry.target;
-                    const index = canvas.dataset.index;
+                    const index = parseInt(canvas.dataset.index);
 
                     await drawImage(canvas, index);
-                    //obs.unobserve(canvas);
                 }
             },
-            { rootMargin: "300px" },
+            {
+                rootMargin: "300px",
+            },
         );
 
-        document.querySelectorAll("canvas").forEach((c) => observer.observe(c));
+        canvases.forEach((c) => observer.observe(c));
 
-        document.querySelectorAll("canvas").forEach((c, i) => {
-            if (i < 2) drawImage(c, i);
+        // Precargar primeras páginas
+        canvases.forEach((c, i) => {
+            if (i < 2) {
+                drawImage(c, i);
+            }
         });
     }
 
     function initDesktop() {
         const container = document.querySelector("#visor-container");
 
-        // 2. Verificación de seguridad
         if (!container) {
             console.error(
-                "Error: No se encontró el elemento #visor-container en el DOM.",
+                "Error: No se encontró el elemento #visor-container.",
             );
             return;
         }
+
         lightbox = new PhotoSwipeLightbox({
             appendToEl: container,
             gallery: "#gallery-trigger",
             children: "a",
             pswpModule: PhotoSwipe,
             loop: false,
-            // Limitamos la precarga nativa para que no compita con tu lógica
-            preload: [1, 1],
+
+            // Desactivamos preload nativo
+            preload: [0, 0],
         });
 
-        // OPTIMIZACIÓN: Preload más ligero
+        // Preload manual
         lightbox.on("change", () => {
             const index = lightbox.pswp?.currIndex ?? 0;
+
             localStorage.setItem(STORAGE_KEY, index);
 
-            const anchors = document.querySelectorAll("#gallery-trigger a");
+            const anchors =
+                document.querySelectorAll("#gallery-trigger a");
+
             [index + 1, index + 2].forEach((i) => {
-                // Solo predecimos hacia adelante
                 const el = anchors[i];
-                if (el && !el.dataset.preloaded) {
-                    const imgPreload = new Image();
-                    // Llamamos a la URL de preload pero dejamos que el navegador gestione el cache
-                    getImageUrl(el.dataset.id, true).then((url) => {
-                        imgPreload.src = url;
-                        el.dataset.preloaded = "true";
-                    });
-                }
+
+                if (!el || el.dataset.preloaded) return;
+
+                const imgPreload = new Image();
+
+                imgPreload.decoding = "async";
+
+                imgPreload.onload = () => {
+                    el.dataset.preloaded = "true";
+                };
+
+                imgPreload.src = paginas[i].url;
             });
         });
 
-        // OPTIMIZACIÓN: Evitar el parpadeo y mejorar el LCP
+        // Carga personalizada
         lightbox.on("contentLoad", (e) => {
             const { content } = e;
+
             const el = content.data.element;
 
             e.preventDefault();
 
-            // 1. IMPORTANTE: Extraer dimensiones del elemento <a>
-            // PhotoSwipe necesita saber el aspecto antes de pintar
             const width = parseInt(el.dataset.pswpWidth);
             const height = parseInt(el.dataset.pswpHeight);
 
-            getImageUrl(el.dataset.id).then((imageUrl) => {
-                const img = document.createElement("img");
-                img.src = imageUrl;
-                img.className = "pswp__img";
+            const imageUrl = paginas[content.index].url;
 
-                img.onload = () => {
-                    // 2. Asignar el elemento
-                    content.element = img;
+            const img = document.createElement("img");
 
-                    // 3. Forzar dimensiones en el objeto content
-                    // Sin esto, PhotoSwipe v5 calcula un tamaño de 0px
-                    content.width = width;
-                    content.height = height;
+            img.src = imageUrl;
+            img.className = "pswp__img";
+            img.decoding = "async";
 
-                    // 4. Notificar que la carga terminó
-                    content.onLoaded();
+            img.onload = () => {
+                content.element = img;
 
-                    if (lightbox.pswp) {
-                        lightbox.pswp.updateSize(true);
-                    }
-                };
+                content.width = width;
+                content.height = height;
 
-                img.onerror = () => {
-                    content.onError();
-                };
-            });
+                content.onLoaded();
+
+                if (lightbox.pswp) {
+                    lightbox.pswp.updateSize(true);
+                }
+            };
+
+            img.onerror = () => {
+                content.onError();
+            };
         });
 
         lightbox.init();
 
-        // Solo abrir automáticamente si el usuario no ha interactuado
+        // Restaurar lectura
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
+
+        if (saved !== null) {
             setTimeout(() => {
-                // Usar delay para que el hilo principal termine de procesar el CSS de Tailwind
-                requestIdleCallback(() => {
+                idle(() => {
                     lightbox.loadAndOpen(parseInt(saved));
                 });
             }, 500);
@@ -212,16 +243,23 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
     function initContinueButton() {
         const btn = document.getElementById("continue-btn");
 
+        if (!btn) return;
+
         if (localStorage.getItem(STORAGE_KEY) !== null) {
             btn.classList.remove("hidden");
         }
 
         btn.onclick = () => {
-            const index = parseInt(localStorage.getItem(STORAGE_KEY) || 0);
+            const index = parseInt(
+                localStorage.getItem(STORAGE_KEY) || 0,
+            );
 
             if (isMobile()) {
-                const pages = document.querySelectorAll(".scroll-page");
+                const pages =
+                    document.querySelectorAll(".scroll-page");
+
                 const container = document.querySelector("main");
+
                 const target = pages[index];
 
                 if (container && target) {
@@ -236,9 +274,16 @@ export function initVisor({ paginas, recursoId, nombreUser }) {
         };
     }
 
-    document.addEventListener("contextmenu", (e) => e.preventDefault());
-    document.addEventListener("dragstart", (e) => e.preventDefault());
+    // Protección básica
+    document.addEventListener("contextmenu", (e) =>
+        e.preventDefault(),
+    );
 
+    document.addEventListener("dragstart", (e) =>
+        e.preventDefault(),
+    );
+
+    // Inicialización
     if (isMobile()) {
         initScroll();
     } else {

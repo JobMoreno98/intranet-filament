@@ -39,7 +39,7 @@ Route::get('/media/stream', function (Request $request) {
         ->header('Cache-Control', 'private, max-age=86400') // Permite caché local para no saturar el servidor
         ->header('X-Content-Type-Options', 'nosniff');
 })->name('media.stream')
-    ->middleware(['auth', 'secure.media', 'throttle:media']);
+    ->middleware(['auth', 'signed', 'secure.media', 'throttle:media']);
 
 Route::get('/admin/media/load', function (Request $request) {
     // Verificación de Admin
