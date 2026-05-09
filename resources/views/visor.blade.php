@@ -13,57 +13,28 @@
         html,
         body {
             margin: 0;
-            width: 100%;
             height: 100%;
             overflow: hidden;
             background: #0f172a;
         }
 
         #viewer {
-            height: 100dvh;
-            overflow: hidden;
+            width: 100%;
+            height: 100%;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             background: #020617;
-            position: relative;
-            user-select: none;
         }
 
+        /* wrapper del canvas (para panzoom) */
+        #canvas-wrapper {
+            display: inline-block;
+        }
+
+        /* canvas limpio */
         canvas {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .contenedor {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .contenedor canvas {
-            width: 100%;
-            height: 100%;
             display: block;
-
-            transform: none !important;
-            transition: none !important;
-        }
-
-        #page-canvas {
-            transform: none !important;
-        }
-
-        #visor-container {
-            width: 100%;
-            aspect-ratio: 4 / 3;
-        }
-
-        @media (min-width: 768px) {
-            #visor-container {
-                aspect-ratio: 16 / 9;
-            }
         }
     </style>
 </head>
@@ -84,30 +55,26 @@
 
     <main class="h-[calc(100dvh-120px)] overflow-auto">
         <div class="flex flex-col md:flex-row h-screen overflow-hidden bg-zinc-950">
-            <div class="w-full md:flex-1 flex flex-col h-1/2 md:h-full">
 
-                <!-- TEXTO arriba en móvil -->
-                <div class="w-full p-6 bg-zinc-900 text-zinc-300 md:hidden">
-                    <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
+            <!-- VISOR -->
+            <div class="w-full md:flex-1 flex flex-col">
 
-                    <div class="space-y-4 text-sm">
-                        <div>
-                            <span class="block text-zinc-500 uppercase text-xs font-semibold">Autor</span>
-                            <p>{{ $recurso['autor'] }}</p>
+                <div id="visor-container" class="w-full flex-1 bg-black overflow-hidden">
+
+                    <div id="viewer" class="w-full h-full flex items-center justify-center">
+
+                        <!-- WRAPPER NECESARIO PARA PANZOOM -->
+                        <div id="canvas-wrapper">
+                            <canvas id="page-canvas"></canvas>
                         </div>
-                    </div>
-                </div>
 
-                <div id="visor-container" class="w-full md:flex-1 aspect-[4/3] md:aspect-[16/9] bg-black">
-
-                    <div id="viewer" class="w-full h-full">
-                        <canvas id="page-canvas" class="w-full h-full block"></canvas>
                     </div>
 
                 </div>
+
             </div>
 
-            <!-- PANEL DERECHO (solo desktop) -->
+            <!-- PANEL DERECHO -->
             <div class="hidden md:block w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
                 <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
 
@@ -123,22 +90,37 @@
     </main>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            function resizeCanvas() {
-                const container = document.getElementById("visor-container");
-                const canvas = document.getElementById("page-canvas");
+            const canvas = document.getElementById("page-canvas");
+            const container = document.getElementById("visor-container");
 
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
+            function renderCanvas(originalWidth, originalHeight, drawFn) {
+                const ctx = canvas.getContext("2d");
+
+                const rect = container.getBoundingClientRect();
+
+                const scale = Math.min(
+                    rect.width / originalWidth,
+                    rect.height / originalHeight
+                );
+
+                const dpr = window.devicePixelRatio || 1;
+
+                canvas.width = originalWidth * scale * dpr;
+                canvas.height = originalHeight * scale * dpr;
+
+                canvas.style.width = (originalWidth * scale) + "px";
+                canvas.style.height = (originalHeight * scale) + "px";
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                drawFn(ctx, scale);
             }
 
-            window.addEventListener("resize", resizeCanvas);
-            resizeCanvas();
             window.initVisor({
-
-                paginas: @json($paginas)
-
+                paginas: @json($paginas),
+                renderCanvas
             });
-
         });
     </script>
 
