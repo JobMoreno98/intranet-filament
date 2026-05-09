@@ -98,11 +98,10 @@
                     </div>
                 </div>
 
-                <div id="visor-container"
-                    class="w-full md:flex-1 aspect-[3/4] md:aspect-[3/2] bg-black overflow-hidden">
+                <div id="visor-container" class="w-full md:flex-1 aspect-[4/3] md:aspect-[16/9] bg-black">
 
-                    <div id="viewer" class="w-full h-full flex items-center justify-center">
-                        <canvas id="page-canvas" class="block"></canvas>
+                    <div id="viewer" class="w-full h-full">
+                        <canvas id="page-canvas" class="w-full h-full block"></canvas>
                     </div>
 
                 </div>
@@ -124,16 +123,18 @@
     </main>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            function resizeCanvas() {
-                const container = document.getElementById("visor-container");
-                const canvas = document.getElementById("page-canvas");
+            const canvas = document.querySelector("canvas");
 
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
+            function resizeCanvas() {
+                const parent = canvas.parentElement;
+
+                canvas.width = parent.clientWidth;
+                canvas.height = parent.clientHeight;
             }
 
             window.addEventListener("resize", resizeCanvas);
             resizeCanvas();
+
             window.initVisor({
 
                 paginas: @json($paginas)
