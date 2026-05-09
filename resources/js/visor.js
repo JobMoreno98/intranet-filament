@@ -17,62 +17,55 @@ export function initVisor({ paginas }) {
         preload: [0, 0],
     });
 
-    lightbox.on("contentLoad", (e) => {
-        const { content } = e;
+    lightbox.on("uiRegister", () => {
+        lightbox.pswp.on("change", () => {
+            const currSlide = lightbox.pswp.currSlide;
 
-        content.data.src = paginas[content.index].url;
-    });
+            if (!currSlide) return;
 
-    lightbox.on("contentAppend", (e) => {
-        const { content } = e;
+            const container = currSlide.container;
 
-        const img = content.element;
+            if (!container) return;
 
-        if (!(img instanceof HTMLImageElement)) {
-            return;
-        }
+            const img = container.querySelector("img");
 
-        // evitar duplicados
-        if (content.slide.container.querySelector("canvas")) {
-            return;
-        }
+            if (!img) return;
 
-        const renderCanvas = () => {
-            // slide destruido
-            if (!content.slide?.container) {
-                return;
+            // evitar duplicados
+            if (container.querySelector("canvas")) return;
+
+            const render = () => {
+                const canvas = document.createElement("canvas");
+
+                const ctx = canvas.getContext("2d");
+
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+
+                // copiar tamaño visual REAL
+                canvas.style.width = img.clientWidth + "px";
+                canvas.style.height = img.clientHeight + "px";
+
+                canvas.style.position = "absolute";
+                canvas.style.left = img.offsetLeft + "px";
+                canvas.style.top = img.offsetTop + "px";
+
+                canvas.style.pointerEvents = "none";
+
+                ctx.drawImage(img, 0, 0);
+
+                container.appendChild(canvas);
+
+                // ocultar imagen original
+                img.style.opacity = "0";
+            };
+
+            if (img.complete && img.naturalWidth > 0) {
+                render();
+            } else {
+                img.onload = render;
             }
-
-            const canvas = document.createElement("canvas");
-
-            const ctx = canvas.getContext("2d");
-
-            // tamaño real
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-
-            // tamaño visual
-            canvas.style.width = img.style.width || "100%";
-            canvas.style.height = img.style.height || "100%";
-
-            canvas.style.objectFit = "contain";
-
-            canvas.className = "pswp__img";
-
-            ctx.drawImage(img, 0, 0);
-
-            // ocultar imagen real
-            img.style.display = "none";
-
-            // añadir al contenedor del slide
-            content.slide.container.appendChild(canvas);
-        };
-
-        if (img.complete && img.naturalWidth > 0) {
-            renderCanvas();
-        } else {
-            img.onload = renderCanvas;
-        }
+        });
     });
     // Liberar memoria
     lightbox.on("contentRemove", (e) => {
