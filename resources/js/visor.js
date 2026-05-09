@@ -22,30 +22,27 @@ export function initVisor({ paginas }) {
 
         const page = paginas[content.index];
 
-        // dejamos que PhotoSwipe cargue normalmente
         content.data.src = page.url;
     });
 
     lightbox.on("contentAppend", (e) => {
         const { content } = e;
 
-        // img original que crea PhotoSwipe
         const img = content.element;
 
         if (!(img instanceof HTMLImageElement)) {
             return;
         }
 
-        // ocultar imagen real
+        // ocultar imagen original
         img.style.opacity = "0";
         img.style.pointerEvents = "none";
 
-        // evitar duplicado
+        // evitar duplicados
         if (content.slide.container.querySelector("canvas")) {
             return;
         }
 
-        // canvas overlay
         const canvas = document.createElement("canvas");
 
         const ctx = canvas.getContext("2d");
@@ -60,7 +57,7 @@ export function initVisor({ paginas }) {
 
         canvas.style.objectFit = "contain";
 
-        img.onload = () => {
+        const renderCanvas = () => {
             canvas.width = img.naturalWidth;
             canvas.height = img.naturalHeight;
 
@@ -68,6 +65,13 @@ export function initVisor({ paginas }) {
 
             content.slide.container.appendChild(canvas);
         };
+
+        // IMPORTANTE
+        if (img.complete && img.naturalWidth > 0) {
+            renderCanvas();
+        } else {
+            img.onload = renderCanvas;
+        }
     });
 
     // Liberar memoria

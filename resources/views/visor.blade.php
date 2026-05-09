@@ -59,6 +59,14 @@
             max-width: 100%;
             max-height: 100%;
         }
+
+        .pswp__content {
+            overflow: hidden;
+        }
+
+        .pswp canvas {
+            display: block;
+        }
     </style>
 </head>
 
