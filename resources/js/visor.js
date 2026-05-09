@@ -28,7 +28,7 @@ export function initVisor({ paginas }) {
         // Wrapper compatible con PhotoSwipe
         const wrapper = document.createElement("div");
 
-        wrapper.className = "pswp__img";
+        //wrapper.className = "pswp__img";
 
         wrapper.style.width = "100%";
         wrapper.style.height = "100%";
