@@ -60,6 +60,7 @@
         canvas:active {
             cursor: grabbing;
         }
+
             */
     </style>
 </head>
@@ -79,21 +80,31 @@
     </header>
 
     <main class="h-[calc(100dvh-120px)] overflow-auto">
+        <div class="flex flex-col md:flex-row h-screen overflow-hidden bg-zinc-950">
+            <div class="w-full md:flex-1 flex flex-col h-1/2 md:h-full">
 
-        <!-- Scroll mode -->
-        <div id="scroll-viewer"></div>
+                <!-- TEXTO arriba en móvil -->
+                <div class="w-full p-6 bg-zinc-900 text-zinc-300 md:hidden">
+                    <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
 
-        <div class="flex h-full overflow-hidden bg-zinc-950">
-            <!-- LADO IZQUIERDO: El Visor -->
-            <div class="flex-1 h-full">
-                <div id="visor-container" class="relative w-full h-full">
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <span class="block text-zinc-500 uppercase text-xs font-semibold">Autor</span>
+                            <p>{{ $recurso['autor'] }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VISOR / CANVAS -->
+                <div id="visor-container" class="relative w-full flex-1">
                     <div id="viewer" class="w-full h-full">
                         <canvas id="page-canvas" class="w-full h-full block"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
+            <!-- PANEL DERECHO (solo desktop) -->
+            <div class="hidden md:block w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
                 <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
 
                 <div class="space-y-4 text-sm">
@@ -101,16 +112,9 @@
                         <span class="block text-zinc-500 uppercase text-xs font-semibold">Autor</span>
                         <p>{{ $recurso['autor'] }}</p>
                     </div>
-                    <div>
-                        <span class="block text-zinc-500 uppercase text-xs font-semibold">Clasificación</span>
-
-                    </div>
-                    <!-- Botón para continuar lectura -->
-                    <button id="continue-btn" class="hidden w-full py-2 bg-accent text-white rounded-md mt-6">
-                        Continuar lectura
-                    </button>
                 </div>
             </div>
+
         </div>
     </main>
     <script>

@@ -1,5 +1,3 @@
-// resources/js/canvas-viewer.js
-
 import Panzoom from "@panzoom/panzoom";
 
 export function initVisor({ paginas }) {
@@ -13,10 +11,6 @@ export function initVisor({ paginas }) {
     let currentPage = 0;
 
     let currentBitmap = null;
-
-    // =========================
-    // RENDER
-    // =========================
 
     async function renderPage(index) {
 
@@ -71,11 +65,6 @@ export function initVisor({ paginas }) {
 
         }
     }
-
-    // =========================
-    // PRELOAD
-    // =========================
-
     const preloadCache = new Map();
 
     async function preload(index) {
@@ -101,10 +90,6 @@ export function initVisor({ paginas }) {
 
         }
     }
-
-    // =========================
-    // NAVEGACIÓN
-    // =========================
 
     async function nextPage() {
 
