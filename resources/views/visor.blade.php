@@ -15,8 +15,11 @@
             margin: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
             background: #020617;
+        }
+
+        body {
+            overflow-x: hidden;
         }
 
         #viewer {
@@ -68,6 +71,10 @@
             left: 50%;
 
             transform: translate(-50%, -50%);
+        }
+
+        #viewer {
+            min-height: 60vh;
         }
     </style>
 </head>
@@ -129,12 +136,12 @@
     </header>
 
     <!-- MAIN -->
-    <main class="h-[calc(100dvh-72px)] lg:h-[calc(100dvh-73px)] overflow-hidden">
+    <main class="min-h-[calc(100dvh-72px)] lg:h-[calc(100dvh-73px)] overflow-y-auto lg:overflow-hidden">
 
-        <div class="flex flex-col lg:flex-row h-full bg-zinc-950">
+        <div class="flex flex-col lg:flex-row lg:h-full bg-zinc-950">
 
             <!-- VISOR -->
-            <div id="visor-container" class="relative flex-1 h-full flex flex-col">
+            <div id="visor-container" class="relative flex-1 lg:h-full flex flex-col">
 
                 <!-- CANVAS -->
                 <div id="viewer" class="flex-1">
