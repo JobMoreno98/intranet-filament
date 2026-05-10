@@ -74,16 +74,44 @@
 
 <body class="overflow-hidden">
 
-    <!-- MOBILE INFO -->
-    <aside class="lg:hidden border-b border-slate-800 bg-slate-900 p-4 text-zinc-300">
+    <!-- MOBILE SIDEBAR -->
+    <aside class="lg:hidden border-b border-zinc-800 bg-zinc-900 p-4 text-zinc-300 overflow-y-auto">
 
-        <h1 class="text-white text-sm font-bold">
-            {{ $recurso['titulo'] ?? 'Sin título' }}
-        </h1>
+        <h2 class="text-lg font-bold text-white mb-4">
+            {{ $recurso['titulo'] }}
+        </h2>
 
-        <p class="text-slate-400 text-xs mt-1">
-            {{ $recurso['autor'] ?? 'Sin autor' }}
-        </p>
+        <div class="space-y-4 text-sm">
+
+            <div>
+                <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                    Autor
+                </span>
+
+                <p>{{ $recurso['autor'] }}</p>
+            </div>
+
+            <div>
+                <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                    Páginas
+                </span>
+
+                <p>{{ count($paginas) }}</p>
+            </div>
+
+            <div>
+                <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                    Navegación
+                </span>
+
+                <p>
+                    ← Página anterior<br>
+                    → Página siguiente<br>
+                    Pellizcar = Zoom
+                </p>
+            </div>
+
+        </div>
 
     </aside>
 
