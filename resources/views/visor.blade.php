@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @fluxAppearance
-    
+
     <style>
         html,
         body {
@@ -86,49 +86,48 @@
     <!-- MOBILE INFO -->
     <aside class="lg:hidden border-b border-zinc-800 bg-zinc-900 p-3 text-zinc-300">
 
-        <flux:accordion>
+        <details class="group rounded-lg border border-zinc-800 bg-zinc-950">
 
-            <flux:accordion.item collapsed>
+            <summary
+                class="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-white flex items-center justify-between">
 
-                <flux:accordion.heading>
-                    Información del libro
-                </flux:accordion.heading>
+                Información del libro
 
-                <flux:accordion.content>
+                <span class="transition duration-200 group-open:rotate-180">
+                    ▼
+                </span>
 
-                    <div class="space-y-4 text-sm pt-2">
+            </summary>
 
-                        <div>
-                            <span class="block text-zinc-500 uppercase text-xs font-semibold">
-                                Título
-                            </span>
+            <div class="px-4 pb-4 pt-2 space-y-4 text-sm text-zinc-300">
 
-                            <p>{{ $recurso['titulo'] }}</p>
-                        </div>
+                <div>
+                    <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                        Título
+                    </span>
 
-                        <div>
-                            <span class="block text-zinc-500 uppercase text-xs font-semibold">
-                                Autor
-                            </span>
+                    <p>{{ $recurso['titulo'] }}</p>
+                </div>
 
-                            <p>{{ $recurso['autor'] }}</p>
-                        </div>
+                <div>
+                    <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                        Autor
+                    </span>
 
-                        <div>
-                            <span class="block text-zinc-500 uppercase text-xs font-semibold">
-                                Páginas
-                            </span>
+                    <p>{{ $recurso['autor'] }}</p>
+                </div>
 
-                            <p>{{ count($paginas) }}</p>
-                        </div>
+                <div>
+                    <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                        Páginas
+                    </span>
 
-                    </div>
+                    <p>{{ count($paginas) }}</p>
+                </div>
 
-                </flux:accordion.content>
+            </div>
 
-            </flux:accordion.item>
-
-        </flux:accordion>
+        </details>
 
     </aside>
 
