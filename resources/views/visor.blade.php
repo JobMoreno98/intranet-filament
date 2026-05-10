@@ -105,19 +105,6 @@
 
                 <p>{{ count($paginas) }}</p>
             </div>
-
-            <div>
-                <span class="block text-zinc-500 uppercase text-xs font-semibold">
-                    Navegación
-                </span>
-
-                <p>
-                    ← Página anterior<br>
-                    → Página siguiente<br>
-                    Pellizcar = Zoom
-                </p>
-            </div>
-
         </div>
 
     </aside>
