@@ -8,6 +8,7 @@
     <title>{{ $recurso['titulo'] ?? 'Sin título' }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @fluxScripts
 
     <style>
         html,
