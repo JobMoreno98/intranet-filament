@@ -24,13 +24,11 @@
             height: 100%;
 
             overflow: hidden;
-
             display: flex;
             justify-content: center;
             align-items: center;
 
             position: relative;
-
             user-select: none;
             -webkit-user-select: none;
         }
@@ -40,16 +38,54 @@
 
             max-width: 100%;
             max-height: 100%;
-
             object-fit: contain;
+        }
 
-            cursor: grab;
+        .contenedor {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .contenedor canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+
+            transform: none !important;
+            transition: none !important;
 
             image-rendering: auto;
         }
 
-        canvas:active {
-            cursor: grabbing;
+        #page-canvas {
+            transform: none !important;
+        }
+
+        #visor-container {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+        }
+
+        @media (min-width: 768px) {
+            #visor-container {
+                aspect-ratio: 16 / 9;
+            }
+        }
+
+        #viewer.loading::after {
+            content: 'Cargando...';
+
+            position: absolute;
+
+            color: white;
+
+            font-size: 14px;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
         }
 
         #viewer.loading::after {
@@ -147,6 +183,17 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            const canvas = document.querySelector("canvas");
+
+            function resizeCanvas() {
+                const parent = canvas.parentElement;
+
+                canvas.width = parent.clientWidth;
+                canvas.height = parent.clientHeight;
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
 
             window.initVisor({
 
