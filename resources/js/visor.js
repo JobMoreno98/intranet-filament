@@ -113,6 +113,12 @@ export function initVisor({ paginas, recursoId = 0 }) {
         try {
             currentPage = index;
 
+            const indicator = document.getElementById("page-indicator");
+
+            if (indicator) {
+                indicator.innerText = `${currentPage + 1} / ${paginas.length}`;
+            }
+
             localStorage.setItem(STORAGE_KEY, index);
 
             // reset zoom

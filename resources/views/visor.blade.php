@@ -79,48 +79,56 @@
     </style>
 </head>
 
-<body class="overflow-hidden">
+<body class="overflow-x-hidden">
 
-    <!-- MOBILE SIDEBAR -->
-    <aside class="lg:hidden border-b border-zinc-800 bg-zinc-900 p-4 text-zinc-300 overflow-y-auto">
+    <!-- MOBILE INFO -->
+    <aside class="lg:hidden border-b border-zinc-800 bg-zinc-900 p-3 text-zinc-300">
 
-        <h2 class="text-lg font-bold text-white mb-4">
-            {{ $recurso['titulo'] }}
-        </h2>
+        <flux:accordion>
 
-        <div class="space-y-4 text-sm">
+            <flux:accordion.item collapsed>
 
-            <div>
-                <span class="block text-zinc-500 uppercase text-xs font-semibold">
-                    Autor
-                </span>
+                <flux:accordion.heading>
+                    Información del libro
+                </flux:accordion.heading>
 
-                <p>{{ $recurso['autor'] }}</p>
-            </div>
+                <flux:accordion.content>
 
-            <div>
-                <span class="block text-zinc-500 uppercase text-xs font-semibold">
-                    Páginas
-                </span>
+                    <div class="space-y-4 text-sm pt-2">
 
-                <p>{{ count($paginas) }}</p>
-            </div>
-        </div>
+                        <div>
+                            <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                                Título
+                            </span>
+
+                            <p>{{ $recurso['titulo'] }}</p>
+                        </div>
+
+                        <div>
+                            <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                                Autor
+                            </span>
+
+                            <p>{{ $recurso['autor'] }}</p>
+                        </div>
+
+                        <div>
+                            <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                                Páginas
+                            </span>
+
+                            <p>{{ count($paginas) }}</p>
+                        </div>
+
+                    </div>
+
+                </flux:accordion.content>
+
+            </flux:accordion.item>
+
+        </flux:accordion>
 
     </aside>
-
-    <!-- DESKTOP HEADER -->
-    <header class="hidden lg:block border-b border-slate-800 bg-slate-900 px-4 py-3 text-center">
-
-        <h1 class="text-white text-sm font-bold">
-            {{ $recurso['titulo'] ?? 'Sin título' }}
-        </h1>
-
-        <p class="text-slate-400 text-xs">
-            {{ $recurso['autor'] ?? 'Sin autor' }}
-        </p>
-
-    </header>
 
     <!-- MAIN -->
     <main class="min-h-[calc(100dvh-72px)] lg:h-[calc(100dvh-73px)] overflow-y-auto lg:overflow-hidden">
@@ -134,6 +142,16 @@
                 <div id="viewer" class="flex-1">
 
                     <canvas id="page-canvas"></canvas>
+
+                </div>
+                <!-- PAGE INDICATOR -->
+                <div class="lg:hidden px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+
+                    <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
+
+                        1 / {{ count($paginas) }}
+
+                    </p>
 
                 </div>
 
@@ -155,6 +173,7 @@
                     </button>
 
                 </div>
+
 
             </div>
 
@@ -206,6 +225,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+
 
             window.initVisor({
 
