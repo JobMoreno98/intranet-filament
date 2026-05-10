@@ -285,5 +285,22 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // START
     // =========================
 
+    // botones mobile
+    const nextBtn = document.getElementById("next-page");
+
+    const prevBtn = document.getElementById("prev-page");
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", async () => {
+            await nextPage();
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener("click", async () => {
+            await prevPage();
+        });
+    }
+
     renderPage(currentPage);
 }

@@ -38,6 +38,9 @@
         canvas {
             display: block;
 
+            width: auto;
+            height: auto;
+
             max-width: 100%;
             max-height: 100%;
 
@@ -71,8 +74,21 @@
 
 <body class="overflow-hidden">
 
-    <!-- HEADER -->
-    <header class="border-b border-slate-800 bg-slate-900 px-4 py-3 text-center">
+    <!-- MOBILE INFO -->
+    <aside class="lg:hidden border-b border-slate-800 bg-slate-900 p-4 text-zinc-300">
+
+        <h1 class="text-white text-sm font-bold">
+            {{ $recurso['titulo'] ?? 'Sin título' }}
+        </h1>
+
+        <p class="text-slate-400 text-xs mt-1">
+            {{ $recurso['autor'] ?? 'Sin autor' }}
+        </p>
+
+    </aside>
+
+    <!-- DESKTOP HEADER -->
+    <header class="hidden lg:block border-b border-slate-800 bg-slate-900 px-4 py-3 text-center">
 
         <h1 class="text-white text-sm font-bold">
             {{ $recurso['titulo'] ?? 'Sin título' }}
@@ -85,23 +101,44 @@
     </header>
 
     <!-- MAIN -->
-    <main class="h-[calc(100dvh-73px)] overflow-hidden">
+    <main class="h-[calc(100dvh-72px)] lg:h-[calc(100dvh-73px)] overflow-hidden">
 
-        <div class="flex h-full bg-zinc-950">
+        <div class="flex flex-col lg:flex-row h-full bg-zinc-950">
 
             <!-- VISOR -->
-            <div id="visor-container" class="relative flex-1 h-full">
+            <div id="visor-container" class="relative flex-1 h-full flex flex-col">
 
-                <div id="viewer">
+                <!-- CANVAS -->
+                <div id="viewer" class="flex-1">
 
                     <canvas id="page-canvas"></canvas>
 
                 </div>
 
+                <!-- MOBILE BUTTONS -->
+                <div class="lg:hidden flex items-center justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
+
+                    <button id="prev-page"
+                        class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 text-sm font-semibold transition">
+
+                        ← Anterior
+
+                    </button>
+
+                    <button id="next-page"
+                        class="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-3 text-sm font-semibold transition">
+
+                        Siguiente →
+
+                    </button>
+
+                </div>
+
             </div>
 
-            <!-- SIDEBAR -->
-            <aside class="hidden lg:block w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
+            <!-- DESKTOP SIDEBAR -->
+            <aside
+                class="hidden lg:block w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300 border-l border-zinc-800">
 
                 <h2 class="text-xl font-bold text-white mb-4">
                     {{ $recurso['titulo'] }}
