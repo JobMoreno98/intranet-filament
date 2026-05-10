@@ -1,3 +1,5 @@
+// resources/js/canvas-viewer.js
+
 import Panzoom from "@panzoom/panzoom";
 
 export function initVisor({ paginas, recursoId = 0 }) {
@@ -19,8 +21,30 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
     let currentBitmap = null;
 
+    let rendering = false;
+
     // =========================
-    // RENDER
+    // PANZOOM
+    // =========================
+
+    const panzoom = Panzoom(canvas, {
+
+        maxScale: 5,
+
+        minScale: 1,
+
+        contain: "outside",
+
+        cursor: "default"
+
+    });
+
+    viewer.addEventListener("wheel", panzoom.zoomWithWheel, {
+        passive: false
+    });
+
+    // =========================
+    // CACHE
     // =========================
 
     const preloadCache = new Map();
@@ -59,8 +83,6 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
     // PRELOAD
     // =========================
-
-    const preloadCache = new Map();
 
     async function preload(index) {
 
