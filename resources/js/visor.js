@@ -3,7 +3,6 @@
 import Panzoom from "@panzoom/panzoom";
 
 export function initVisor({ paginas, recursoId = 0 }) {
-
     const viewer = document.getElementById("viewer");
 
     const canvas = document.getElementById("page-canvas");
@@ -15,9 +14,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
     const STORAGE_KEY = `visor_page_${recursoId}`;
 
-    let currentPage = parseInt(
-        localStorage.getItem(STORAGE_KEY) || 0
-    );
+    let currentPage = parseInt(localStorage.getItem(STORAGE_KEY) || 0);
 
     let currentBitmap = null;
 
@@ -28,19 +25,17 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     const panzoom = Panzoom(canvas, {
-
         maxScale: 5,
 
         minScale: 1,
 
-        contain: "outside",
+        contain: "inside",
 
-        cursor: "default"
-
+        cursor: "default",
     });
 
     viewer.addEventListener("wheel", panzoom.zoomWithWheel, {
-        passive: false
+        passive: false,
     });
 
     // =========================
@@ -50,14 +45,12 @@ export function initVisor({ paginas, recursoId = 0 }) {
     const preloadCache = new Map();
 
     async function fetchBlob(index) {
-
         if (!paginas[index]) {
             return null;
         }
 
         // usar cache preload
         if (preloadCache.has(index)) {
-
             const cached = preloadCache.get(index);
 
             preloadCache.delete(index);
@@ -66,11 +59,9 @@ export function initVisor({ paginas, recursoId = 0 }) {
         }
 
         const response = await fetch(paginas[index].url, {
-
             credentials: "include",
 
-            cache: "force-cache"
-
+            cache: "force-cache",
         });
 
         if (!response.ok) {
@@ -85,19 +76,15 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     async function preload(index) {
-
         if (!paginas[index]) return;
 
         if (preloadCache.has(index)) return;
 
         try {
-
             const response = await fetch(paginas[index].url, {
-
                 credentials: "include",
 
-                cache: "force-cache"
-
+                cache: "force-cache",
             });
 
             if (!response.ok) return;
@@ -105,11 +92,8 @@ export function initVisor({ paginas, recursoId = 0 }) {
             const blob = await response.blob();
 
             preloadCache.set(index, blob);
-
         } catch (err) {
-
             console.error("Preload error", err);
-
         }
     }
 
@@ -118,7 +102,6 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     async function renderPage(index) {
-
         if (!paginas[index]) return;
 
         if (rendering) return;
@@ -128,7 +111,6 @@ export function initVisor({ paginas, recursoId = 0 }) {
         viewer.classList.add("loading");
 
         try {
-
             currentPage = index;
 
             localStorage.setItem(STORAGE_KEY, index);
@@ -141,7 +123,6 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
             // liberar bitmap anterior
             if (currentBitmap) {
-
                 currentBitmap.close();
 
                 currentBitmap = null;
@@ -173,13 +154,9 @@ export function initVisor({ paginas, recursoId = 0 }) {
             preload(index + 2);
 
             preload(index - 1);
-
         } catch (err) {
-
             console.error("Render error", err);
-
         } finally {
-
             viewer.classList.remove("loading");
 
             rendering = false;
@@ -191,14 +168,12 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     async function nextPage() {
-
         if (currentPage >= paginas.length - 1) return;
 
         await renderPage(currentPage + 1);
     }
 
     async function prevPage() {
-
         if (currentPage <= 0) return;
 
         await renderPage(currentPage - 1);
@@ -209,26 +184,20 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     window.addEventListener("keydown", async (e) => {
-
         // evitar conflicto escribiendo
         const tag = document.activeElement.tagName;
 
-        if (
-            tag === "INPUT" ||
-            tag === "TEXTAREA"
-        ) {
+        if (tag === "INPUT" || tag === "TEXTAREA") {
             return;
         }
 
         if (e.key === "ArrowRight") {
-
             e.preventDefault();
 
             await nextPage();
         }
 
         if (e.key === "ArrowLeft") {
-
             e.preventDefault();
 
             await prevPage();
@@ -240,7 +209,6 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     viewer.addEventListener("click", async (e) => {
-
         // evitar navegación accidental mientras zoom
         if (panzoom.getScale() > 1.05) {
             return;
@@ -249,13 +217,9 @@ export function initVisor({ paginas, recursoId = 0 }) {
         const middle = viewer.clientWidth / 2;
 
         if (e.clientX > middle) {
-
             await nextPage();
-
         } else {
-
             await prevPage();
-
         }
     });
 
@@ -265,16 +229,16 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
     let touchStartX = 0;
 
-    viewer.addEventListener("touchstart", (e) => {
-
-        touchStartX = e.touches[0].clientX;
-
-    }, { passive: true });
+    viewer.addEventListener(
+        "touchstart",
+        (e) => {
+            touchStartX = e.touches[0].clientX;
+        },
+        { passive: true },
+    );
 
     viewer.addEventListener("touchend", async (e) => {
-
-        const deltaX =
-            e.changedTouches[0].clientX - touchStartX;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
 
         // swipe horizontal
         if (Math.abs(deltaX) < 50) {
@@ -287,14 +251,10 @@ export function initVisor({ paginas, recursoId = 0 }) {
         }
 
         if (deltaX < 0) {
-
             await nextPage();
-
         } else {
-
             await prevPage();
         }
-
     });
 
     // =========================
@@ -302,9 +262,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     viewer.addEventListener("dblclick", () => {
-
         panzoom.zoomIn();
-
     });
 
     // =========================
