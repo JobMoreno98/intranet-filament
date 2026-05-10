@@ -2,81 +2,87 @@
 
 import Panzoom from "@panzoom/panzoom";
 
-export function initVisor({ paginas }) {
+export function initVisor({ paginas, recursoId = 0 }) {
 
     const viewer = document.getElementById("viewer");
 
     const canvas = document.getElementById("page-canvas");
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", {
+        alpha: false,
+        desynchronized: true,
+    });
 
-    let currentPage = 0;
+    const STORAGE_KEY = `visor_page_${recursoId}`;
+
+    let currentPage = parseInt(
+        localStorage.getItem(STORAGE_KEY) || 0
+    );
 
     let currentBitmap = null;
 
+    let rendering = false;
+
     // =========================
-    // RENDER
+    // PANZOOM
     // =========================
 
-    async function renderPage(index) {
+    const panzoom = Panzoom(canvas, {
 
-        if (!paginas[index]) return;
+        maxScale: 5,
 
-        currentPage = index;
+        minScale: 1,
 
-        try {
+        contain: "outside",
 
-            // limpiar canvas anterior
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        cursor: "default"
 
-            // liberar bitmap previo
-            if (currentBitmap) {
-                currentBitmap.close();
-            }
+    });
 
-            // descargar protegida
-            const response = await fetch(paginas[index].url, {
-                credentials: "include",
-                cache: "force-cache"
-            });
+    viewer.addEventListener("wheel", panzoom.zoomWithWheel, {
+        passive: false
+    });
 
-            if (!response.ok) {
-                throw new Error("Error cargando imagen");
-            }
+    // =========================
+    // CACHE
+    // =========================
 
-            // blob
-            const blob = await response.blob();
+    const preloadCache = new Map();
 
-            // bitmap eficiente
-            const bitmap = await createImageBitmap(blob);
+    async function fetchBlob(index) {
 
-            currentBitmap = bitmap;
-
-            // tamaño real
-            canvas.width = bitmap.width;
-            canvas.height = bitmap.height;
-
-            // dibujar
-            ctx.drawImage(bitmap, 0, 0);
-
-            // reset zoom
-            panzoom.reset();
-
-            // preload siguiente
-            preload(index + 1);
-
-        } catch (err) {
-
-            console.error(err);
-
+        if (!paginas[index]) {
+            return null;
         }
+
+        // usar cache preload
+        if (preloadCache.has(index)) {
+
+            const cached = preloadCache.get(index);
+
+            preloadCache.delete(index);
+
+            return cached;
+        }
+
+        const response = await fetch(paginas[index].url, {
+
+            credentials: "include",
+
+            cache: "force-cache"
+
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        return await response.blob();
     }
 
     // =========================
     // PRELOAD
     // =========================
-
-    const preloadCache = new Map();
 
     async function preload(index) {
 
@@ -87,9 +93,14 @@ export function initVisor({ paginas }) {
         try {
 
             const response = await fetch(paginas[index].url, {
+
                 credentials: "include",
+
                 cache: "force-cache"
+
             });
+
+            if (!response.ok) return;
 
             const blob = await response.blob();
 
@@ -97,8 +108,81 @@ export function initVisor({ paginas }) {
 
         } catch (err) {
 
-            console.error("Error preload", err);
+            console.error("Preload error", err);
 
+        }
+    }
+
+    // =========================
+    // RENDER
+    // =========================
+
+    async function renderPage(index) {
+
+        if (!paginas[index]) return;
+
+        if (rendering) return;
+
+        rendering = true;
+
+        viewer.classList.add("loading");
+
+        try {
+
+            currentPage = index;
+
+            localStorage.setItem(STORAGE_KEY, index);
+
+            // reset zoom
+            panzoom.reset();
+
+            // limpiar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // liberar bitmap anterior
+            if (currentBitmap) {
+
+                currentBitmap.close();
+
+                currentBitmap = null;
+            }
+
+            // obtener blob
+            const blob = await fetchBlob(index);
+
+            if (!blob) {
+                throw new Error("Blob vacío");
+            }
+
+            // bitmap acelerado GPU
+            const bitmap = await createImageBitmap(blob);
+
+            currentBitmap = bitmap;
+
+            // tamaño real
+            canvas.width = bitmap.width;
+
+            canvas.height = bitmap.height;
+
+            // render
+            ctx.drawImage(bitmap, 0, 0);
+
+            // preload alrededor
+            preload(index + 1);
+
+            preload(index + 2);
+
+            preload(index - 1);
+
+        } catch (err) {
+
+            console.error("Render error", err);
+
+        } finally {
+
+            viewer.classList.remove("loading");
+
+            rendering = false;
         }
     }
 
@@ -120,46 +204,108 @@ export function initVisor({ paginas }) {
         await renderPage(currentPage - 1);
     }
 
-    // teclado
+    // =========================
+    // KEYBOARD
+    // =========================
+
     window.addEventListener("keydown", async (e) => {
 
+        // evitar conflicto escribiendo
+        const tag = document.activeElement.tagName;
+
+        if (
+            tag === "INPUT" ||
+            tag === "TEXTAREA"
+        ) {
+            return;
+        }
+
         if (e.key === "ArrowRight") {
+
+            e.preventDefault();
+
             await nextPage();
         }
 
         if (e.key === "ArrowLeft") {
+
+            e.preventDefault();
+
             await prevPage();
         }
     });
 
-    // click lateral
+    // =========================
+    // CLICK NAVEGACIÓN
+    // =========================
+
     viewer.addEventListener("click", async (e) => {
 
-        const middle = window.innerWidth / 2;
+        // evitar navegación accidental mientras zoom
+        if (panzoom.getScale() > 1.05) {
+            return;
+        }
+
+        const middle = viewer.clientWidth / 2;
 
         if (e.clientX > middle) {
+
             await nextPage();
+
         } else {
+
             await prevPage();
+
         }
     });
 
     // =========================
-    // ZOOM / PAN
+    // TOUCH MOBILE
     // =========================
 
-    const panzoom = Panzoom(canvas, {
+    let touchStartX = 0;
 
-        maxScale: 5,
+    viewer.addEventListener("touchstart", (e) => {
 
-        minScale: 1,
+        touchStartX = e.touches[0].clientX;
 
-        contain: "outside"
+    }, { passive: true });
+
+    viewer.addEventListener("touchend", async (e) => {
+
+        const deltaX =
+            e.changedTouches[0].clientX - touchStartX;
+
+        // swipe horizontal
+        if (Math.abs(deltaX) < 50) {
+            return;
+        }
+
+        // no cambiar página si zoom
+        if (panzoom.getScale() > 1.05) {
+            return;
+        }
+
+        if (deltaX < 0) {
+
+            await nextPage();
+
+        } else {
+
+            await prevPage();
+        }
 
     });
 
-    // wheel zoom
-    viewer.addEventListener("wheel", panzoom.zoomWithWheel);
+    // =========================
+    // DOBLE CLICK ZOOM
+    // =========================
+
+    viewer.addEventListener("dblclick", () => {
+
+        panzoom.zoomIn();
+
+    });
 
     // =========================
     // PROTECCIONES
@@ -181,5 +327,5 @@ export function initVisor({ paginas }) {
     // START
     // =========================
 
-    renderPage(0);
+    renderPage(currentPage);
 }

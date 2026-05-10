@@ -16,12 +16,12 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #0f172a;
+            background: #020617;
         }
 
         #viewer {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
 
             overflow: hidden;
 
@@ -29,84 +29,130 @@
             justify-content: center;
             align-items: center;
 
-            background: #020617;
-
             position: relative;
 
             user-select: none;
+            -webkit-user-select: none;
         }
 
         canvas {
+            display: block;
+
             max-width: 100%;
             max-height: 100%;
 
             object-fit: contain;
 
             cursor: grab;
+
+            image-rendering: auto;
         }
 
         canvas:active {
             cursor: grabbing;
+        }
+
+        #viewer.loading::after {
+            content: 'Cargando...';
+
+            position: absolute;
+
+            color: white;
+
+            font-size: 14px;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
 
 <body class="overflow-hidden">
 
-    <header class="border-b border-slate-800 bg-slate-900 px-4 py-3 text-center sticky top-0 z-10">
-        <h1 class="text-white text-sm font-bold">{{ $recurso['titulo'] ?? 'Sin título' }}</h1>
-        <p class="text-slate-400 text-xs">{{ $recurso['autor'] ?? 'Sin autor' }}</p>
+    <!-- HEADER -->
+    <header class="border-b border-slate-800 bg-slate-900 px-4 py-3 text-center">
 
-        <div class="flex justify-center mt-2">
-            <button id="continue-btn"
-                class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 text-sm rounded-full font-bold">
-                Continuar leyendo
-            </button>
-        </div>
+        <h1 class="text-white text-sm font-bold">
+            {{ $recurso['titulo'] ?? 'Sin título' }}
+        </h1>
+
+        <p class="text-slate-400 text-xs">
+            {{ $recurso['autor'] ?? 'Sin autor' }}
+        </p>
+
     </header>
 
-    <main class="h-[calc(100dvh-120px)] overflow-auto">
+    <!-- MAIN -->
+    <main class="h-[calc(100dvh-73px)] overflow-hidden">
 
-        <!-- Scroll mode -->
-        <div id="scroll-viewer"></div>
+        <div class="flex h-full bg-zinc-950">
 
-        <div class="flex h-full overflow-hidden bg-zinc-950">
-            <!-- LADO IZQUIERDO: El Visor -->
-            <div id="visor-container" class="relative w-full h-screen">
+            <!-- VISOR -->
+            <div id="visor-container" class="relative flex-1 h-full">
+
                 <div id="viewer">
 
                     <canvas id="page-canvas"></canvas>
 
                 </div>
+
             </div>
 
-            <!-- LADO DERECHO: Información del Libro -->
-            <div class="w-80 lg:w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
-                <h2 class="text-xl font-bold text-white mb-4">{{ $recurso['titulo'] }}</h2>
+            <!-- SIDEBAR -->
+            <aside class="hidden lg:block w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300">
+
+                <h2 class="text-xl font-bold text-white mb-4">
+                    {{ $recurso['titulo'] }}
+                </h2>
 
                 <div class="space-y-4 text-sm">
+
                     <div>
-                        <span class="block text-zinc-500 uppercase text-xs font-semibold">Autor</span>
+                        <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                            Autor
+                        </span>
+
                         <p>{{ $recurso['autor'] }}</p>
                     </div>
-                    <div>
-                        <span class="block text-zinc-500 uppercase text-xs font-semibold">Clasificación</span>
 
+                    <div>
+                        <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                            Páginas
+                        </span>
+
+                        <p>{{ count($paginas) }}</p>
                     </div>
-                    <!-- Botón para continuar lectura -->
-                    <button id="continue-btn" class="hidden w-full py-2 bg-accent text-white rounded-md mt-6">
-                        Continuar lectura
-                    </button>
+
+                    <div>
+                        <span class="block text-zinc-500 uppercase text-xs font-semibold">
+                            Navegación
+                        </span>
+
+                        <p>
+                            ← Página anterior<br>
+                            → Página siguiente<br>
+                            Wheel = Zoom
+                        </p>
+                    </div>
+
                 </div>
-            </div>
+
+            </aside>
+
         </div>
+
     </main>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
 
             window.initVisor({
 
-                paginas: @json($paginas)
+                paginas: @json($paginas),
+
+                recursoId: {{ $recurso['id'] }}
 
             });
 
