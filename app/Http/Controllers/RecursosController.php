@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ReaderSession;
 use App\Models\Recursos;
 use App\Models\RecursosArchivos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RecursosController extends Controller
 {
@@ -97,5 +100,86 @@ class RecursosController extends Controller
             ->header('X-Accel-Redirect', '/protegido/' . $path)
             ->header('Content-Type', $mime)
             ->header('Content-Disposition', 'inline');
+    }
+
+    public function publico(Request $request, int $tabla, int $id)
+    {
+
+        $sessionId = Str::uuid();
+
+        $item = DB::connection('mysql2')->table('colecciones')->where('clave', $tabla)->first();
+
+        $recurso = DB::connection('mysql2')->table($item->tabla)->where('idElemento', '=', $id)->first();
+        //dd($recurso);
+        ReaderSession::create([
+
+            'session_id' => $sessionId,
+
+            'recurso_id' => $recurso->IdElemento,
+
+            'ip_address' => $request->ip(),
+
+            'user_agent' => substr(
+                $request->userAgent(),
+                0,
+                500
+            ),
+
+            'expires_at' => now()->addHours(2)
+
+        ]);
+
+        for ($i = 1; $i <= $recurso->numArchivos; $i++) {
+            $recurso->archivos[] =
+                collect(
+
+                    [
+                        'id' => $i,
+                        "ruta" => $recurso->carpetaContenido . $i . "." . strtolower($recurso->tipoArchivo),
+                        'orden' => $i
+                    ]
+                );
+        }
+        $recurso->archivos = collect($recurso->archivos);
+        $recurso->titulo = $recurso->asunto;
+
+
+        $paginas = $recurso->archivos
+            ->sortBy('orden')
+            ->map(function ($archivo) use ($sessionId) {
+                $archivo = collect($archivo);
+                $payload = encrypt(json_encode([
+
+                    'a' => $archivo['id'],
+
+                    's' => $sessionId,
+
+                    'e' => now()->timestamp + 7200
+
+                ]));
+
+                return [
+
+                    'id' => $archivo['id'],
+
+                    'url' => route('media.stream', [
+
+                        'token' => $payload
+
+                    ])
+
+                ];
+            });
+        $recurso = collect($recurso);
+
+
+
+        return view('visor', [
+
+            'recurso' => $recurso,
+
+            'paginas' => $paginas
+
+        ]);
     }
 }

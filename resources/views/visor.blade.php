@@ -105,8 +105,16 @@
                     <span class="block text-zinc-500 uppercase text-xs font-semibold">
                         Título
                     </span>
+                    @php
+                        $keys = array_keys($recurso->toArray());
 
-                    <p>{{ $recurso['titulo'] }}</p>
+                        
+                    @endphp
+                    @foreach ($recurso as $item)
+                        {{ $item }}
+                    @endforeach
+
+              
                 </div>
 
                 <div>
@@ -114,7 +122,7 @@
                         Autor
                     </span>
 
-                    <p>{{ $recurso['autor'] }}</p>
+                    
                 </div>
 
                 <div>
@@ -183,7 +191,7 @@
                 class="hidden lg:block w-96 h-full overflow-y-auto bg-zinc-900 p-6 text-zinc-300 border-l border-zinc-800">
 
                 <h2 class="text-xl font-bold text-white mb-4">
-                    {{ $recurso['titulo'] }}
+                   
                 </h2>
 
                 <div class="space-y-4 text-sm">
@@ -193,7 +201,7 @@
                             Autor
                         </span>
 
-                        <p>{{ $recurso['autor'] }}</p>
+                        
                     </div>
 
                     <div>
@@ -203,19 +211,6 @@
 
                         <p>{{ count($paginas) }}</p>
                     </div>
-
-                    <div>
-                        <span class="block text-zinc-500 uppercase text-xs font-semibold">
-                            Navegación
-                        </span>
-
-                        <p>
-                            ← Página anterior<br>
-                            → Página siguiente<br>
-                            Wheel = Zoom
-                        </p>
-                    </div>
-
                 </div>
 
             </aside>
@@ -232,7 +227,7 @@
 
                 paginas: @json($paginas),
 
-                recursoId: {{ $recurso['id'] }}
+                recursoId: {{ $recurso['IdElemento'] }}
 
             });
 

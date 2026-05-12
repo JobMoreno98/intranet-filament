@@ -1,15 +1,20 @@
 <?php
 
+use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\RecursosController;
+use App\Models\ColeccionesConsulta;
 use App\Models\RecursosArchivos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Storage;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-})->name('home');
+Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
+
+Route::get('/coleccion/{id}', [ColeccionesConsultaController::class, 'show'])->name('coleccion.show');
+
+
+Route::get('/coleccion/{tabla}/{id}', [RecursosController::class, 'publico'])->name('coleccion.individual');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -41,7 +46,7 @@ Route::get('/media/stream', function (Request $request) {
         ->header('Cache-Control', 'private, max-age=86400') // Permite caché local para no saturar el servidor
         ->header('X-Content-Type-Options', 'nosniff');
 })->name('media.stream')
-    ->middleware(['auth', 'secure.media', 'throttle:media']);
+    ->middleware(['secure.media', 'throttle:media']);
 
 Route::get('/admin/media/load', function (Request $request) {
     // Verificación de Admin
@@ -73,3 +78,8 @@ Route::get('/admin/media/load', function (Request $request) {
 
 Route::get('/visor/{id}', [RecursosController::class, 'view'])->middleware('auth');
 Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl'])->middleware('auth');
+
+// Visor Publico 
+Route::get('/viewer/visor/{recurso}', [RecursosController::class, 'publico'])
+    ->middleware('signed')
+    ->name('visor.publico');
