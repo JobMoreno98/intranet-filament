@@ -11,8 +11,12 @@ class ColeccionesConsultaController extends Controller
 {
     public function index()
     {
-        $colecciones = DB::connection('mysql2')->table('colecciones')->orderBy('clave')->get()->pluck('coleccion', 'clave');
-
+        $colecciones = DB::connection('mysql2')
+            ->table('colecciones')
+            ->select('clave', 'coleccion')
+            ->distinct()
+            ->orderBy('clave')
+            ->paginate(15);
         /*
         foreach ($colecciones as $key => $item) {
             //$titulo = DB::connection('mysql2')->table($item->tabla)->first();
@@ -37,7 +41,8 @@ class ColeccionesConsultaController extends Controller
     public function show($id)
     {
         $coleccion = DB::connection('mysql2')->table('colecciones')->where('clave', $id)->value('tabla');
-        $data = DB::connection('mysql2')->table($coleccion)->get();
+        $data = DB::connection('mysql2')->table($coleccion)->paginate(14);
+        //dd($data);
         /*
         foreach ($data as $key => $item) {
             //$titulo = DB::connection('mysql2')->table($item->tabla)->first();
@@ -59,6 +64,6 @@ class ColeccionesConsultaController extends Controller
                 );
             }
         }*/
-        return view('coleccion',compact('data'));
+        return view('coleccion', compact('data', 'coleccion'));
     }
 }
