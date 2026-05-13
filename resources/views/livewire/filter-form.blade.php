@@ -14,8 +14,6 @@ new class extends VoltComponent {
 
         // Consultamos la tabla de metadatos de MySQL
         $this->configuracion = DB::connection('mysql2')->table('colecciones')->where('tabla', $this->tabla)->orderBy('filtro')->get();
-
-        // Inicializamos los modelos para cada input
         foreach ($this->configuracion as $campo) {
             $this->valores[$campo->campo] = '';
         }
@@ -26,40 +24,50 @@ new class extends VoltComponent {
         // Emitimos los valores al componente de la tabla de resultados
         $this->dispatch('aplicar-filtros', filtros: $this->valores);
     }
-}; ?>
 
-<div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-    <form wire:submit="filtrar" class="space-y-4">
+    public function aplicarFiltrado()
+    {
+        // Limpiamos los valores vacíos para que la URL no sea kilométrica
+        $filtrosActivos = array_filter($this->valores, function ($value) {
+            return $value !== '' && $value !== null;
+        });
+
+        // IMPORTANTE: Redirigir a la URL actual + los filtros
+        // Esto hará que el controlador reciba los datos en el $request
+        return redirect()->to(url()->current() . '?' . http_build_query($filtrosActivos));
+    }
+}; ?>
+<div class="bg-white p-4 rounded-lg shadow mb-6">
+    <h4 class="text-md font-bold mb-4 text-gray-700">Filtrar registros</h4>
+
+    {{-- El formulario usa GET para poner los datos en la URL directamente --}}
+    <form action="{{ url()->current() }}" method="GET">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            @foreach ($configuracion as $filtro)
+            @foreach ($configuracion as $f)
                 <div class="flex flex-col">
-                    <label class="text-sm font-semibold text-gray-600 mb-1">
-                        {{ $filtro->label }}
+                    <label class="text-sm font-medium text-gray-600 mb-1">
+                        {{ $f->titulo }}
                     </label>
 
-                    @if ($filtro->tipo_input === 'text')
-                        <input type="text" wire:model="valores.{{ $filtro->nombre_columna }}" placeholder="Buscar..."
-                            class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    @elseif($filtro->tipo_input === 'select')
-                        <select wire:model="valores.{{ $filtro->nombre_columna }}"
-                            class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Todos</option>
-                            @php $opciones = json_decode($filtro->opciones, true); @endphp
-                            @foreach ($opciones as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    @elseif($filtro->tipo_input === 'date')
-                        <input type="date" wire:model="valores.{{ $filtro->nombre_columna }}"
-                            class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    @endif
+                    {{-- IMPORTANTE: El atributo 'name' es lo que el controlador leerá --}}
+                    <input type="text" name="{{ $f->campo }}" value="{{ request($f->campo) }}"
+                        placeholder="Buscar por {{ strtolower($f->titulo) }}..."
+                        class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
             @endforeach
         </div>
 
-        <div class="flex justify-end pt-2">
+        <div class="mt-4 flex justify-end space-x-2">
+            {{-- Botón para limpiar: Simplemente redirige a la URL sin parámetros --}}
+            @if (request()->anyFilled($configuracion->pluck('campos')->toArray()))
+                <a href="{{ url()->current() }}"
+                    class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 flex items-center">
+                    Limpiar filtros
+                </a>
+            @endif
+
             <button type="submit"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 shadow-md">
+                class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition duration-200">
                 Aplicar Filtros
             </button>
         </div>

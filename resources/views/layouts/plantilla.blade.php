@@ -49,6 +49,7 @@
             width: 100%;
         }
     </style>
+    @livewireStyles
 </head>
 
 <body class="antialiased">
@@ -513,7 +514,7 @@
 
         </div>
     </footer>
-
+    @livewireScripts
 </body>
 
 </html>

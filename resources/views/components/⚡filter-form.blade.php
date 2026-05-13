@@ -11,20 +11,11 @@ new class extends VoltComponent {
     public function mount($tabla)
     {
         $this->tabla = $tabla;
-
-        // Consultamos la tabla de metadatos de MySQL
         $this->configuracion = DB::connection('mysql2')->table('colecciones')->where('tabla', $this->tabla)->orderBy('filtro')->get();
 
-        // Inicializamos los modelos para cada input
         foreach ($this->configuracion as $campo) {
             $this->valores[$campo->campo] = '';
         }
-    }
-
-    public function filtrar()
-    {
-        // Emitimos los valores al componente de la tabla de resultados
-        $this->dispatch('aplicar-filtros', filtros: $this->valores);
     }
 }; ?>
 
@@ -38,7 +29,7 @@ new class extends VoltComponent {
                     </label>
 
                     <input type="text" wire:model="valores.{{ $filtro->campo }}" placeholder="Buscar..."
-                        class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        class="rounded-md  px-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                 </div>
             @endforeach
         </div>

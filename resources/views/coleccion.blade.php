@@ -6,7 +6,7 @@
             <div class="grid grid-cols-1  gap-4 w-full">
 
 
-                <livewire:filter-form :tabla=$coleccion />
+                <livewire:filter-form :tabla="$tablaNombre" />
                 @foreach ($data as $key => $value)
                     @php
                         $keys = array_keys((array) $value);

@@ -38,10 +38,43 @@ class ColeccionesConsultaController extends Controller
         return view('home', compact('colecciones'));
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $coleccion = DB::connection('mysql2')->table('colecciones')->where('clave', $id)->value('tabla');
-        $data = DB::connection('mysql2')->table($coleccion)->paginate(14);
+        $nombreTabla = DB::connection('mysql2')
+            ->table('colecciones')
+            ->where('clave', $id)
+            ->value('tabla');
+
+        if (!$nombreTabla) {
+            abort(404, "La colección no existe.");
+        }
+
+        // 2. Iniciar la consulta sobre esa tabla
+        $query = DB::connection('mysql2')->table($nombreTabla);
+
+        // 3. Aplicar filtros solo si existen en la URL
+        // Buscamos en la configuración qué campos están permitidos para esta tabla
+        $camposPermitidos = DB::connection('mysql2')->table('colecciones')
+            ->where('tabla', $nombreTabla)
+            ->pluck('campo')
+            ->toArray();
+
+        foreach ($request->only($camposPermitidos) as $campo => $valor) {
+            if ($valor !== null && $valor !== '') {
+                $query->where($campo, 'LIKE', "%{$valor}%");
+            }
+        }
+
+        // 4. Ejecutar la paginación
+        // .appends(request()->all()) es VITAL para que al cambiar de página en el 
+        // paginador de Laravel no se pierdan los filtros aplicados.
+        $data = $query->paginate(14)->appends($request->all());
+
+        return view('coleccion', [
+            'data' => $data,
+            'tablaNombre' => $nombreTabla,
+            'id' => $id
+        ]);
         //dd($data);
         /*
         foreach ($data as $key => $item) {
