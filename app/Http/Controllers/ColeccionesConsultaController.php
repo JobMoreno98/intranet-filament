@@ -14,8 +14,8 @@ class ColeccionesConsultaController extends Controller
         $colecciones = DB::connection('mysql2')
             ->table('colecciones')
             ->select('clave', 'coleccion')
-            ->distinct()
-            ->orderBy('clave')
+            ->distinct('clave')
+            ->orderBy('coleccion')
             ->paginate(15);
         /*
         foreach ($colecciones as $key => $item) {

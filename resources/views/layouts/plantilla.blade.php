@@ -41,6 +41,7 @@
                 aspect-ratio: 16 / 5 !important;
             }
         }
+
         #img-bpej {
             aspect-ratio: 16 / 9 !important;
             object-fit: cover;
@@ -504,8 +505,8 @@
             <div class="flex flex-col pt-12 ">
                 <p class="text-center">
                     <span class="mx-auto mt-2 text-sm text-gray-500 lg:mx-0">
-                        Derechos reservados ©1997 - 2025. Universidad de Guadalajara. Sitio desarrollado por CGSAit |
-                        Créditos de sitio | Política de privacidad y manejo de datos
+                        Derechos reservados ©1997 - 2025. Universidad de Guadalajara. |
+                        Política de privacidad y manejo de datos
                     </span>
                 </p>
             </div>
