@@ -19,27 +19,36 @@
                             'autor' => 'Autor',
                             'dia' => 'Día',
                             'paginas' => 'Páginas',
-                            'epocaperiodo' => 'Epoca o Periodo'
+                            'epocaperiodo' => 'Epoca o Periodo',
+                            'nombrepersonajeprincipal' => 'Nombre de Personaje principal',
+                            'nombrepersonajesecundario' => 'Nombre de Personaje secundario',
+                            'clavefondoprincipal' => 'Clave Fondo Principal',
+                            'fondoprincipal' => 'Fondo principal',
+                            'lugar1' => 'Lugar 1',
+                            'lugar2' => 'Lugar 2',
+                            'anio2' => 'Año 2',
                         ];
 
                         // Orden especial: primero titulo y autor si existen
-                        $prioritarios = ['titulo', 'autor'];
+                        $prioritarios = ['titulo', 'autor', 'anio', 'clavefondoprincipal', 'fondoprincipal'];
 
-                        // Separamos los prioritarios del resto usando strtolower solo para comparar
                         $primero = array_filter($keys, fn($k) => in_array(strtolower($k), $prioritarios));
                         $resto = array_diff($keys, $primero);
 
-                        // Si quieres, ordena el resto alfabéticamente
                         sort($resto);
 
-                        // Unión final: primero los prioritarios, luego el resto
                         $ordenFinal = array_merge($primero, $resto);
                     @endphp
 
                     <div class="p-6 rounded-md border bg-white flex flex-col w-full shadow-xl">
                         <p class="text-body text-justify">
                             @foreach ($ordenFinal as $item)
-                                @if (!str_contains(strtolower($item), 'id') && isset($value->$item) && $value->$item != '' && $value->$item != 0)
+                                @if (
+                                    !str_contains(strtolower($item), 'id') &&
+                                        isset($value->$item) &&
+                                        $value->$item != '' &&
+                                        $value->$item != '-' &&
+                                        $value->$item != 0)
                                     @php
                                         $label = $cambios[strtolower($item)] ?? $item;
                                     @endphp
