@@ -23,7 +23,17 @@ class SubColeccionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'SubColecciones';
+    protected static ?string $recordTitleAttribute = 'Sub Colecciones';
+    protected static ?string $title = 'Sub Colecciones';
+    protected static ?string $navigationLabel = 'Sub Colecciones';
+    protected static ?string $pluralModelLabel = 'Sub Colecciones';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenidos';
+    }
 
     public static function form(Schema $schema): Schema
     {

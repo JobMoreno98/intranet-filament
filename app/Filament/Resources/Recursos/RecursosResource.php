@@ -28,7 +28,7 @@ class RecursosResource extends Resource
     protected static ?string $title = 'Contenidos';
     protected static ?string $navigationLabel = 'Contenidos';
     protected static ?string $pluralModelLabel = 'Contenidos';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationGroup(): ?string
     {
