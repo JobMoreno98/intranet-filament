@@ -4,6 +4,9 @@
     <section class="bg-gray-50">
         <div class="mx-auto sm:px-7 px-2 max-w-screen-xl py-20 flex gap-10 flex flex-col lg:flex-row items-center">
             <div class="grid grid-cols-1  gap-4 w-full">
+
+
+                <livewire:filter-form :tabla=$coleccion />
                 @foreach ($data as $key => $value)
                     @php
                         $keys = array_keys((array) $value);
