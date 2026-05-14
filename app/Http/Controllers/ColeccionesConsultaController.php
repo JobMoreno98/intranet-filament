@@ -65,38 +65,12 @@ class ColeccionesConsultaController extends Controller
             }
         }
 
-        // 4. Ejecutar la paginación
-        // .appends(request()->all()) es VITAL para que al cambiar de página en el 
-        // paginador de Laravel no se pierdan los filtros aplicados.
-        $data = $query->paginate(14)->appends($request->all());
+        $data = $query->paginate(14)->appends($request->all())->onEachSide(0);
 
         return view('coleccion', [
             'data' => $data,
             'tablaNombre' => $nombreTabla,
             'id' => $id
         ]);
-        //dd($data);
-        /*
-        foreach ($data as $key => $item) {
-            //$titulo = DB::connection('mysql2')->table($item->tabla)->first();
-            //dd($item);
-            if ($item->carpetaContenido != '/intranet/SinDigitalizar/') {
-
-                $item->titulo = $item->asunto;
-                $item->orden = $key;
-                // URL pública temporal
-                $item->public_url = URL::temporarySignedRoute(
-
-                    'visor.publico',
-
-                    now()->addHours(1),
-
-                    [
-                        'recurso' => $item->IdElemento
-                    ]
-                );
-            }
-        }*/
-        return view('coleccion', compact('data', 'coleccion'));
     }
 }

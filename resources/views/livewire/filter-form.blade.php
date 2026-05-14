@@ -39,10 +39,8 @@ new class extends VoltComponent {
 }; ?>
 <div class="bg-white p-4 rounded-lg shadow mb-6">
     <h4 class="text-md font-bold mb-4 text-gray-700">Filtrar registros</h4>
-
-    {{-- El formulario usa GET para poner los datos en la URL directamente --}}
     <form action="{{ url()->current() }}" method="GET">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-4">
             @foreach ($configuracion as $f)
                 <div class="flex flex-col">
                     <label class="text-sm font-medium text-gray-600 mb-1">

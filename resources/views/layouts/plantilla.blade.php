@@ -42,13 +42,19 @@
             }
         }
 
+        @media(min-width:801px) {
+            #img-bpej {
+                aspect-ratio: 16 / 9 !important;
+            }
+        }
+
         #img-bpej {
-            aspect-ratio: 16 / 9 !important;
             object-fit: cover;
             max-height: 350px;
             width: 100%;
         }
     </style>
+    @yield('css')
     @livewireStyles
 </head>
 
@@ -515,6 +521,7 @@
         </div>
     </footer>
     @livewireScripts
+    @yield('js')
 </body>
 
 </html>
