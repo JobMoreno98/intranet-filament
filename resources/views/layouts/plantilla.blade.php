@@ -18,6 +18,8 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/vnd.microsoft.icon" />
     <style>
         :root {
             font-family: 'Inter', sans-serif;
@@ -71,7 +73,7 @@
             <nav style="display: flex;align-items: center;">
                 <ul class="flex items-center gap-4 text-sm md:text-base">
                     <li>
-                        <a href="" class="hover:text-orange-500">Colecciones</a>
+                        <a href="{{ route('home') }}" class="hover:text-orange-500">Colecciones</a>
                     </li>
                 </ul>
             </nav>
