@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
 
+
+Route::get('/buscador', [ColeccionesConsultaController::class, 'buscador'])->name('buscador');
+
+
+
 Route::get('/coleccion/{id}', [ColeccionesConsultaController::class, 'show'])->name('coleccion.show');
 
 
