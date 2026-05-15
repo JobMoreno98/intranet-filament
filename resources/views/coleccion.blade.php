@@ -17,8 +17,6 @@
         .hover-bg-custom-wine:hover {
             background-color: #6d1b23;
         }
-
-        
     </style>
 @endsection
 @section('content')
@@ -85,7 +83,8 @@
                             @foreach ($data as $index => $value)
                                 <tr class="hover:bg-red-50/30 transition-colors">
                                     @foreach ($columnasVisibles as $item)
-                                        <td class="px-6 py-4 whitespace-nowrap md:whitespace-normal text-sm text-gray-700 font-medium">
+                                        <td
+                                            class="px-6 py-4 whitespace-nowrap md:whitespace-normal text-sm text-gray-700 font-medium">
                                             {{ isset($value->$item) && $value->$item !== '' && $value->$item !== '-' && $value->$item !== 0 ? $value->$item : '---' }}
                                         </td>
                                     @endforeach
