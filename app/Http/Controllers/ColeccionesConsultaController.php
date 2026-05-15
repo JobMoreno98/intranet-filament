@@ -38,7 +38,7 @@ class ColeccionesConsultaController extends Controller
         }
             */
         //dd($colecciones);
-        return view('home', compact('colecciones'));
+        return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, $id)

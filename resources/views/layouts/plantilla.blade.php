@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        {{ filled($title ?? null) ? $title . ' - ' . config('app.name', 'Laravel') : config('app.name', 'Laravel') }}
+        {{ filled($title ?? null) ? $title . ' | ' . config('app.name', 'Laravel') : config('app.name', 'Laravel') }}
     </title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
         rel="stylesheet">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/vnd.microsoft.icon" />
-    
+
     <style>
         :root {
             font-family: 'Inter', sans-serif;
