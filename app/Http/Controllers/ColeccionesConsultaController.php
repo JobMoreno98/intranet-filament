@@ -9,12 +9,15 @@ use Illuminate\Support\Facades\URL;
 
 class ColeccionesConsultaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $colecciones = DB::connection('mysql2')
             ->table('colecciones')
             ->select('clave', 'coleccion')
             ->distinct('clave')
+            ->when($request->filled('coleccion'), function ($query) use ($request) {
+                $query->where('coleccion', 'like', '%' . $request->coleccion . '%');
+            })
             ->orderBy('coleccion')
             ->paginate(15);
         /*
@@ -52,7 +55,6 @@ class ColeccionesConsultaController extends Controller
         // 2. Iniciar la consulta sobre esa tabla
         $query = DB::connection('mysql2')->table($nombreTabla->tabla);
 
-        // 3. Aplicar filtros solo si existen en la URL
         // Buscamos en la configuración qué campos están permitidos para esta tabla
         $camposPermitidos = DB::connection('mysql2')->table('colecciones')
             ->where('tabla', $nombreTabla->tabla)

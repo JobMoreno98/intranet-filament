@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
@@ -32,10 +32,6 @@
 
         .pts {
             font-family: "PT Serif", serif;
-        }
-
-        .bg-gradiant {
-            background-image: linear-gradient(rgba(255, 255, 255, 0), #fff), url("data:image/svg+xml,%3Csvg width='12' height='24' viewBox='0 0 12 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d6d6d6' fill-opacity='0.62'%3E%3Cpath d='M2 0h2v12H2V0zm1 20c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM9 8c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-1 4h2v12H8V12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
         @media(max-width:800px) {
@@ -513,9 +509,12 @@
 
             <div class="flex flex-col pt-12 ">
                 <p class="text-center">
-                    <span class="mx-auto mt-2 text-sm text-gray-500 lg:mx-0">
-                        Derechos reservados ©1997 - 2025. Universidad de Guadalajara. |
-                        Política de privacidad y manejo de datos
+                    <span class="mx-auto mt-2 text-sm md:text-base text-gray-500 lg:mx-0">
+                        Derechos reservados ©1997 - 2025. Universidad de Guadalajara |
+                        <a href="https://transparencia.udg.mx/aviso-confidencialidad-integral" target="_blank"
+                            rel="noopener noreferrer" class="  hover:text-red-800">
+                            Aviso de privacidad</a>
+
                     </span>
                 </p>
             </div>
