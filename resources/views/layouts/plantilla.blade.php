@@ -7,19 +7,17 @@
     <title>
         {{ filled($title ?? null) ? $title . ' - ' . config('app.name', 'Laravel') : config('app.name', 'Laravel') }}
     </title>
-    <link rel="icon" type="image/x-icon" href="imgs/favico.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/vnd.microsoft.icon" />
+    
     <style>
         :root {
             font-family: 'Inter', sans-serif;
@@ -75,8 +73,12 @@
             </nav>
             <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
                 {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
-                <a href="{{ route('login') }}" style="background:#86212b"
-                    class="text-sm md:text-base rounded text-white font-bold py-1 px-6">{{ __('Log In') }}
+                <a href="{{ route('login') }}"
+                    class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
+                         text-sm font-medium rounded-md
+                        bg-red-800 hover:bg-red-900 text-white
+                        transition shadow-sm
+                        ">{{ __('Log In') }}
                     / {{ __('Sign up') }}</a>
             </div>
         </div>
@@ -522,7 +524,9 @@
         </div>
     </footer>
     @livewireScripts
+
     @yield('js')
+
 </body>
 
 </html>

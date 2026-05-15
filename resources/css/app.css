@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
 @import 'photoswipe/style.css';
+@import 'aos/dist/aos.css';
+
 
 
 @source '../views';
