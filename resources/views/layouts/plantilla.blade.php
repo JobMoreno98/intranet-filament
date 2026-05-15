@@ -482,7 +482,7 @@
                         <img src="{{ asset('img/logo.svg') }}" alt="" width="80" height="80">
                         <span class="" style="color:#7c2422;">
 
-                            {{ filled($title ?? null) ? $title . ' - ' . config('app.name', 'Laravel') : config('app.name', 'Laravel') }}</span>
+                            {{ config('app.name', 'Laravel') }}</span>
                     </a>
                     <p class="mt-2 text-sm text-gray-500 lg:w-4/5">
                         Biblioteca Pública del Estado de Jalisco "Juan José Arreola" <br>

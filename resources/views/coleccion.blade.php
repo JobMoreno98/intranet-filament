@@ -23,25 +23,21 @@
     <section class="bg-gray-50">
         <div class=" sm:px-7 px-2 w-full py-20 flex gap-10 flex flex-col lg:flex-row items-center">
             <div class="grid grid-cols-1  gap-4 w-full">
-                <div class="border-l-8 border-[#86212b] pl-4 py-2">
-                    <h3 class="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tight">
-                        {{ $title }}
-                    </h3>
+                <div class=" shadow-lg">
+                    <div class="bg-[#86212b] p-3 rounded-t-lg">
+                        <h3 class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                            <svg class="w-8 h-8 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            {{ $title }}
+                        </h3>
+                    </div>
+
+
+                    <livewire:filter-form :tabla="$tablaNombre" />
                 </div>
 
-
-                <div class="bg-[#86212b] p-6 rounded-t-2xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                        <svg class="w-8 h-8 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                        {{ $title }}
-                    </h3>
-                </div>
-
-
-                <livewire:filter-form :tabla="$tablaNombre" />
                 @php
                     // --- Lógica de preparación (Se mantiene igual) ---
                     $firstItem = $data->first();
@@ -80,17 +76,17 @@
                     $tieneMasColumnas = count($ordenTotal) > 6;
                 @endphp
 
-                <div class="relative overflow-x-auto shadow-2xl rounded-xl border border-gray-200">
+                <div class="relative overflow-x-auto shadow-2xl rounded-md border border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200 bg-white text-left">
                         <thead class="bg-custom-wine text-white">
                             <tr>
                                 @foreach ($columnasVisibles as $item)
-                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest">
+                                    <th class="px-2 py-2 text-xs font-bold uppercase tracking-widest">
                                         {{ $cambios[strtolower($item)] ?? $item }}
                                     </th>
                                 @endforeach
                                 @if ($tieneMasColumnas)
-                                    <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-widest">Acciones
+                                    <th class="px-2 py-4 text-center text-xs font-bold uppercase tracking-widest">Acciones
                                     </th>
                                 @endif
                             </tr>
