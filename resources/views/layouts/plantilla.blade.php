@@ -79,7 +79,7 @@
                         bg-red-800 hover:bg-red-900 text-white
                         transition shadow-sm
                         ">{{ __('Log In') }}
-                    / {{ __('Sign up') }}</a>
+                    | {{ __('Sign up') }}</a>
             </div>
         </div>
     </header>

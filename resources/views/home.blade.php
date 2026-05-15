@@ -4,16 +4,12 @@
     <section class="bg-gray-50">
         <div class="mx-auto max-w-screen-xl px-3 sm:px-7 pt-8">
             <form action="{{ route('home') }}" method="GET"
-                class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
+                class="bg-transparent  p-4">
 
                 <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
 
                     <!-- Input -->
                     <div class="flex-1">
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Buscar colección
-                        </label>
-
                         <div class="relative">
                             <!-- Heroicon -->
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -44,7 +40,7 @@
 
                         <flux:button href="{{ route('home') }}" variant="ghost" size="sm"
                             class=" w-full inline-flex items-center justify-center gap-1.5 h-10
-                        px-4 py-2 text-sm font-medium rounded-xl
+                        px-4 py-2 text-sm font-medium rounded-xl bg-white
                         bg-gray-100 hover:bg-gray-200 text-gray-700
                         border border-gray-200 transition">
                             <x-heroicon-o-x-mark class="w-5 h-5" />
