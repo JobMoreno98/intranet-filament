@@ -3,7 +3,7 @@
 @section('content')
     <section class="bg-gray-50">
         <div class="mx-auto max-w-screen-xl px-3 sm:px-7 pt-8">
-            <form action="{{ route('home') }}" method="GET"
+            <form action="{{ route('buscador') }}" method="GET"
                 class="bg-transparent  p-4">
 
                 <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
@@ -16,7 +16,7 @@
                                 <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                             </div>
 
-                            <input type="text" name="coleccion" value="{{ request('coleccion') }}"
+                            <input type="text" name="q" value="{{ request('coleccion') }}"
                                 placeholder="Buscar colección..."
                                 class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300
                                bg-white focus:ring-2 focus:ring-red-100
