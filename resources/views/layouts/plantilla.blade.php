@@ -68,7 +68,7 @@
                 <img src="{{ asset('img/logo.svg') }}" alt="" width="80" height="80" id="logo">
                 <span class="" style="color:#86212b;">
 
-                    {{ filled($title ?? null) ? $title . ' - ' . config('app.name', 'Laravel') : config('app.name', 'Laravel') }}</span>
+                    {{ config('app.name', 'Laravel') }}</span>
             </a>
             <nav style="display: flex;align-items: center;">
                 <ul class="flex items-center gap-4 text-sm md:text-base">

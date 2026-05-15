@@ -23,6 +23,22 @@
     <section class="bg-gray-50">
         <div class=" sm:px-7 px-2 w-full py-20 flex gap-10 flex flex-col lg:flex-row items-center">
             <div class="grid grid-cols-1  gap-4 w-full">
+                <div class="border-l-8 border-[#86212b] pl-4 py-2">
+                    <h3 class="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tight">
+                        {{ $title }}
+                    </h3>
+                </div>
+
+
+                <div class="bg-[#86212b] p-6 rounded-t-2xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                        <svg class="w-8 h-8 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        {{ $title }}
+                    </h3>
+                </div>
 
 
                 <livewire:filter-form :tabla="$tablaNombre" />

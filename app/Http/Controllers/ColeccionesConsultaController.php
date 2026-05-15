@@ -41,21 +41,21 @@ class ColeccionesConsultaController extends Controller
     public function show(Request $request, $id)
     {
         $nombreTabla = DB::connection('mysql2')
-            ->table('colecciones')
+            ->table('colecciones')->select('tabla', 'coleccion')
             ->where('clave', $id)
-            ->value('tabla');
+            ->first();
 
         if (!$nombreTabla) {
             abort(404, "La colección no existe.");
         }
 
         // 2. Iniciar la consulta sobre esa tabla
-        $query = DB::connection('mysql2')->table($nombreTabla);
+        $query = DB::connection('mysql2')->table($nombreTabla->tabla);
 
         // 3. Aplicar filtros solo si existen en la URL
         // Buscamos en la configuración qué campos están permitidos para esta tabla
         $camposPermitidos = DB::connection('mysql2')->table('colecciones')
-            ->where('tabla', $nombreTabla)
+            ->where('tabla', $nombreTabla->tabla)
             ->pluck('campo')
             ->toArray();
 
@@ -69,8 +69,9 @@ class ColeccionesConsultaController extends Controller
 
         return view('coleccion', [
             'data' => $data,
-            'tablaNombre' => $nombreTabla,
-            'id' => $id
+            'tablaNombre' => $nombreTabla->tabla,
+            'id' => $id,
+            'title' => $nombreTabla->coleccion
         ]);
     }
 }
