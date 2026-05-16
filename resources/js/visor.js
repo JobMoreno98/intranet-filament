@@ -350,7 +350,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
     });
 
     // 7. Actualizar el porcentaje si usan gestos táctiles (Pellizco)
-    elem.addEventListener("panzoomzoom", () => {
+    viewer.addEventListener("panzoomzoom", () => {
         updateZoomLabel();
     });
 }
