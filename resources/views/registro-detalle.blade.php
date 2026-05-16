@@ -47,7 +47,7 @@
                             <div class="divide-y divide-zinc-800">
                                 @isset($recurso)
                                     <!-- RECURSO -->
-                                    @foreach ((array) $recurso as $columna => $valor)
+                                    @foreach ((array) $registro as $columna => $valor)
                                         @if (in_array($columna, $omitir))
                                             @continue
                                         @endif
