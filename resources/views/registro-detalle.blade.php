@@ -233,6 +233,46 @@
                             Siguiente →
 
                         </button>
+                        <div class="mx-auto max-w-4xl px-4 sm:px-6">
+
+                            <!-- Barra de Herramientas: Botones de Zoom interactivos -->
+                            <div
+                                class="flex items-center justify-center gap-4 bg-white p-2 mb-4 rounded-xl border border-gray-200 shadow-sm">
+                                <!-- Botón Alejar -->
+                                <button id="btn-zoom-out"
+                                    class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-10 h-10 flex items-center justify-center border border-gray-200">
+                                    −
+                                </button>
+
+                                <!-- Indicador de Porcentaje Dinámico -->
+                                <span id="zoom-percent" class="text-sm font-semibold text-gray-700 min-w-[60px] text-center">
+                                    100%
+                                </span>
+
+                                <!-- Botón Acercar -->
+                                <button id="btn-zoom-in"
+                                    class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-10 h-10 flex items-center justify-center border border-gray-200">
+                                    +
+                                </button>
+
+                                <!-- Separador visual -->
+                                <div class="h-6 w-px bg-gray-200 mx-1"></div>
+
+                                <!-- Botón Restablecer -->
+                                <button id="btn-reset-zoom"
+                                    class="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-10 flex items-center">
+                                    Reiniciar
+                                </button>
+                            </div>
+
+                            <!-- El Visor -->
+                            <div id="viewer"
+                                class="w-full h-[75vh] overflow-hidden bg-gray-900 rounded-xl border border-gray-800 shadow-2xl relative cursor-grab active:cursor-grabbing">
+                                <div id="panzoom-element" class="w-full h-full flex items-center justify-center">
+                                    <canvas id="page-canvas" class="shadow-2xl bg-white"></canvas>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                 @endauth
