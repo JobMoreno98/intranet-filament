@@ -9,7 +9,7 @@
                 @auth
 
                     <!-- TOPBAR -->
-                    <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
+                    <div class="flex items-center flex-col md:flex-row justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
 
                         <a href="{{ url()->previous() }}"
                             class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-300 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
@@ -220,7 +220,7 @@
                     <!-- MOBILE CONTROLS -->
                     <div class=" flex items-center flex-col md:flex-row justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
 
-                        <div class="mx-auto  px-4 sm:px-6">
+                        <div class="mx-auto w-full px-4 sm:px-6">
                             <button id="prev-page"
                                 class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 text-sm font-semibold transition">
 
