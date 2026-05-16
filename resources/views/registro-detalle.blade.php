@@ -9,7 +9,8 @@
                 @auth
 
                     <!-- TOPBAR -->
-                    <div class="flex items-center flex-col md:flex-row justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
+                    <div
+                        class="flex items-center flex-col md:flex-row justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
 
                         <a href="{{ url()->previous() }}"
                             class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-300 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
@@ -20,7 +21,7 @@
 
                         </a>
 
-                        <span class="bg-red-900 text-white text-xs uppercase font-bold px-3 py-1 rounded-md">
+                        <span class="bg-red-900 text-white text-xs uppercase font-bold px-3 py-2 mt-2 md:mt-0 rounded-md">
 
                             {{ $coleccionNombre }}
 
@@ -218,24 +219,19 @@
                     </div>
 
                     <!-- MOBILE CONTROLS -->
-                    <div class=" flex items-center flex-col md:flex-row justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
+                    <div
+                        class=" flex items-center flex-col md:flex-row justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
 
-                        <div class="mx-auto w-full px-4 sm:px-6">
+                        <div class="flex w-full gap-3 px-4 sm:px-6">
                             <button id="prev-page"
-                                class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 text-sm font-semibold transition">
-
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 px-6 text-sm font-semibold transition">
                                 ← Anterior
-
                             </button>
 
                             <button id="next-page"
-                                class="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-3 text-sm font-semibold transition">
-
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-3 px-6 text-sm font-semibold transition">
                                 Siguiente →
-
                             </button>
-
-
                         </div>
 
                         <div class="mx-auto max-w-4xl px-4 sm:px-6">
