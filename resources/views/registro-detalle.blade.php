@@ -271,3 +271,19 @@
 
     </section>
 @endsection
+@section('js')
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+
+            window.initVisor({
+
+                paginas: @json($paginas),
+
+                recursoId: {{ $recurso['id'] }}
+
+            });
+
+        });
+    </script>
+@endsection
