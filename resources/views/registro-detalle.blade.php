@@ -63,7 +63,7 @@
                                                         Sin información
                                                     </span>
                                                 @else
-                                                    {{ $item }}
+                                                    {{ print_r($item) }}
                                                 @endif
 
                                             </div>
