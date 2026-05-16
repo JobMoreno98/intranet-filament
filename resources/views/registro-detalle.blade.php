@@ -291,7 +291,7 @@
             </main>
 
             <!-- DESKTOP SIDEBAR -->
-            <aside class="hidden lg:flex lg:flex-col w-[420px] border-l border-zinc-800 bg-zinc-900">
+            <aside class="hidden lg:flex lg:flex-col w-[420px] border-l border-zinc-800 bg-zinc-900 overflow-auto">
 
                 <!-- HEADER -->
                 <div class="px-6 py-5 border-b border-zinc-800">
