@@ -160,7 +160,7 @@ class ColeccionesConsultaController extends Controller
         if (!$registro) {
             abort(404, 'El registro no fue encontrado.');
         }
-        $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido'];
+        $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido','archvios','updated_at'];
 
         $id = 2;
         // 1. Cacheamos solo el array de datos, no el modelo vivo

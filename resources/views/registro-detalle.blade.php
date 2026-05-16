@@ -47,24 +47,62 @@
                             <div class="divide-y divide-zinc-800">
                                 @isset($recurso)
                                     <!-- RECURSO -->
-                                    @foreach ($recurso as $key => $item)
-                                        <div class="p-4 space-y-1">
+                                    @foreach ((array) $registro as $columna => $valor)
+                                        @if (in_array($columna, $omitir))
+                                            @continue
+                                        @endif
 
-                                            <span class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
+                                        @php
+                                            $valorTexto = trim(strip_tags((string) $valor));
 
-                                                {{ ucwords(str_replace('_', ' ', $key)) }}
+                                            $esCorto = mb_strlen($valorTexto) <= 40;
 
-                                            </span>
+                                            $camposCompactos = [
+                                                'anio',
+                                                'fecha',
+                                                'paginas',
+                                                'tomo',
+                                                'volumen',
+                                                'idioma',
+                                                'isbn',
+                                                'clave',
+                                                'folio',
+                                                'numero',
+                                            ];
 
-                                            <div class="text-sm text-zinc-200 break-words">
+                                            $camposLargos = [
+                                                'descripcion',
+                                                'contenido',
+                                                'notas',
+                                                'resumen',
+                                                'observaciones',
+                                            ];
 
-                                                @if (is_null($item) || $item === '')
-                                                    <span class="italic text-zinc-500">
-                                                        Sin información
-                                                    </span>
-                                                @else
-                                                    {{ print_r($item) }}
-                                                @endif
+                                            $compacto =
+                                                !in_array($columna, $camposLargos) &&
+                                                ($esCorto || in_array($columna, $camposCompactos));
+                                        @endphp
+
+                                        <div class="{{ $compacto ? 'lg:col-span-1' : 'lg:col-span-2' }}">
+
+                                            <div
+                                                class="h-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition">
+
+                                                <!-- Nombre -->
+                                                <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                                    {{ $labels[$columna] ?? ucwords(str_replace('_', ' ', $columna)) }}
+                                                </div>
+
+                                                <!-- Valor -->
+                                                <div class="text-sm text-zinc-200 break-words leading-relaxed">
+                                                    @if (is_null($valor) || $valor === '')
+                                                        <span class="text-zinc-500 italic text-xs">
+                                                            Sin información
+                                                        </span>
+                                                    @else
+                                                        {{ $valor }}
+                                                    @endif
+                                                </div>
 
                                             </div>
 
@@ -95,23 +133,57 @@
                                         @continue
                                     @endif
 
-                                    <div class="p-4 space-y-1">
+                                    @php
+                                        $valorTexto = trim(strip_tags((string) $valor));
 
-                                        <span class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
+                                        $esCorto = mb_strlen($valorTexto) <= 40;
 
-                                            {{ $labels[$columna] ?? ucwords(str_replace('_', ' ', $columna)) }}
+                                        $camposCompactos = [
+                                            'anio',
+                                            'fecha',
+                                            'paginas',
+                                            'tomo',
+                                            'volumen',
+                                            'idioma',
+                                            'isbn',
+                                            'clave',
+                                            'folio',
+                                            'numero',
+                                        ];
 
-                                        </span>
+                                        $camposLargos = [
+                                            'descripcion',
+                                            'contenido',
+                                            'notas',
+                                            'resumen',
+                                            'observaciones',
+                                        ];
 
-                                        <div class="text-sm text-zinc-200 break-words">
+                                        $compacto =
+                                            !in_array($columna, $camposLargos) &&
+                                            ($esCorto || in_array($columna, $camposCompactos));
+                                    @endphp
 
-                                            @if (is_null($valor) || $valor === '')
-                                                <span class="italic text-zinc-500">
-                                                    Sin información
-                                                </span>
-                                            @else
-                                                {{ $valor }}
-                                            @endif
+                                    <div class="{{ $compacto ? 'lg:col-span-1' : 'lg:col-span-2' }}">
+
+                                        <div
+                                            class="h-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition">
+
+                                            <!-- Nombre -->
+                                            <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                                {{ $labels[$columna] ?? ucwords(str_replace('_', ' ', $columna)) }}
+                                            </div>
+
+                                            <!-- Valor -->
+                                            <div class="text-sm text-zinc-200 break-words leading-relaxed">
+                                                @if (is_null($valor) || $valor === '')
+                                                    <span class="text-zinc-500 italic text-xs">
+                                                        Sin información
+                                                    </span>
+                                                @else
+                                                    {{ $valor }}
+                                                @endif
+                                            </div>
 
                                         </div>
 
@@ -163,7 +235,6 @@
                         </button>
 
                     </div>
-
                 @endauth
                 @guest
                     <div class=" border border-zinc-200 bg-white p-10 text-center shadow-sm h-full">
