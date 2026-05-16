@@ -126,8 +126,8 @@
 
                     <!-- VIEWER -->
                     <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
-                    <div id="visor-container" class="relative flex-1 min-h-0 max-w-4xl mx-auto w-full">
-                        <div id="viewer" class="h-full overflow-auto flex justify-center bg-gray-100 p-4">
+                    <div id="visor-container" class="relative flex-1 min-h-0 max-w-5xl mx-auto w-full">
+                        <div id="viewer" class="h-full overflow-auto flex justify-center bg-zinc-800 p-4">
                             <!-- El canvas mantiene su renderizado pero contenido en el ancho máximo -->
                             <canvas id="page-canvas" class="max-w-full h-auto shadow-lg"></canvas>
                         </div>
