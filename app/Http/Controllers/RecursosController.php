@@ -14,7 +14,6 @@ use Illuminate\Support\Str;
 class RecursosController extends Controller
 {
 
-
     public function view($id)
     {
         // 1. Cacheamos solo el array de datos, no el modelo vivo

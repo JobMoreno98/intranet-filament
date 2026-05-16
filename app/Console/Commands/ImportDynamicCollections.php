@@ -18,13 +18,9 @@ class ImportDynamicCollections extends Command
     public function handle()
     {
         // 1. Traer la lista de las 92 tablas únicas
-        $tablas = DB::connection('mysql2')
-            ->table('colecciones')
-            ->whereNotNull('tabla')
-            ->distinct()
-            ->pluck('tabla');
+        $tablas = DB::connection('mysql2')->table('colecciones')->whereNotNull('tabla')->distinct()->pluck('tabla');
 
-        $this->info("Iniciando la indexación de " . $tablas->count() . " tablas en Meilisearch...");
+        $this->info('Iniciando la indexación de ' . $tablas->count() . ' tablas en Meilisearch...');
 
         foreach ($tablas as $tabla) {
             $this->comment("Indexando tabla: {$tabla}...");
@@ -35,15 +31,15 @@ class ImportDynamicCollections extends Command
 
             // Verificamos si la tabla tiene registros
             $totalRegistros = DB::connection('mysql2')->table($tabla)->count();
+            $this->comment("Indexando : {$totalRegistros}...");
             if ($totalRegistros === 0) {
                 $this->warn("La tabla {$tabla} está vacía. Saltando...");
                 continue;
             }
 
-            // Recuperamos los datos en bloques (Chunks) para no saturar la memoria RAM
             DB::connection('mysql2')
                 ->table($tabla)
-                ->orderBy('IdElemento') // <--- Esta línea soluciona el RuntimeException
+                ->orderBy('IdElemento') 
                 ->lazy(500)
                 ->chunk(500)
                 ->each(function ($chunk) use ($tabla) {
@@ -64,13 +60,12 @@ class ImportDynamicCollections extends Command
                         $coleccionModelos->push($modelo);
                     }
 
-                    // Enviar el lote a Meilisearch
                     $coleccionModelos->searchable();
                 });
 
             $this->info("¡Tabla {$tabla} indexada con éxito!");
         }
 
-        $this->info("Proceso de indexación global completado.");
+        $this->info('Proceso de indexación global completado.');
     }
 }

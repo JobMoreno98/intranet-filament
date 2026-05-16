@@ -1,0 +1,550 @@
+{
+  "@jridgewell/gen-mapping@0.3.13": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/sourcemaps",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\gen-mapping",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\gen-mapping\\LICENSE"
+  },
+  "@jridgewell/remapping@2.3.5": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/sourcemaps",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\remapping",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\remapping\\LICENSE"
+  },
+  "@jridgewell/resolve-uri@3.1.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/resolve-uri",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\resolve-uri",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\resolve-uri\\LICENSE"
+  },
+  "@jridgewell/sourcemap-codec@1.5.5": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/sourcemaps",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\sourcemap-codec",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\sourcemap-codec\\LICENSE"
+  },
+  "@jridgewell/trace-mapping@0.3.31": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/sourcemaps",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\trace-mapping",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@jridgewell\\trace-mapping\\LICENSE"
+  },
+  "@napi-rs/wasm-runtime@1.1.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/napi-rs/napi-rs",
+    "publisher": "LongYinan",
+    "url": "https://github.com/Brooooooklyn",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@napi-rs\\wasm-runtime"
+  },
+  "@oxc-project/types@0.127.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/oxc-project/oxc",
+    "publisher": "Boshen and oxc contributors",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@oxc-project\\types",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@oxc-project\\types\\LICENSE"
+  },
+  "@panzoom/panzoom@4.6.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/timmywil/panzoom",
+    "publisher": "Timmy Willison",
+    "email": "timmywil@users.noreply.github.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@panzoom\\panzoom",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@panzoom\\panzoom\\README.md"
+  },
+  "@rolldown/binding-win32-x64-msvc@1.0.0-rc.17": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rolldown/rolldown",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@rolldown\\binding-win32-x64-msvc",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@rolldown\\binding-win32-x64-msvc\\README.md"
+  },
+  "@rolldown/pluginutils@1.0.0-rc.17": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rolldown/rolldown",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@rolldown\\pluginutils",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@rolldown\\pluginutils\\LICENSE"
+  },
+  "@tailwindcss/node@4.2.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tailwindlabs/tailwindcss",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\node",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\node\\LICENSE"
+  },
+  "@tailwindcss/oxide-win32-x64-msvc@4.2.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tailwindlabs/tailwindcss",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\oxide-win32-x64-msvc",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\oxide-win32-x64-msvc\\LICENSE"
+  },
+  "@tailwindcss/oxide@4.2.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tailwindlabs/tailwindcss",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\oxide",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\oxide\\LICENSE"
+  },
+  "@tailwindcss/vite@4.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tailwindlabs/tailwindcss",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\vite",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tailwindcss\\vite\\LICENSE"
+  },
+  "@tybys/wasm-util@0.10.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/toyobayashi/wasm-util",
+    "publisher": "toyobayashi",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tybys\\wasm-util",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\@tybys\\wasm-util\\README.md"
+  },
+  "ansi-regex@5.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/ansi-regex",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\ansi-regex",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\ansi-regex\\license"
+  },
+  "ansi-styles@4.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/ansi-styles",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\ansi-styles",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\ansi-styles\\license"
+  },
+  "aos@2.3.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/michalsnik/aos",
+    "publisher": "Michał Sajnóg",
+    "email": "michal.sajnog@hotmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\aos",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\aos\\LICENSE"
+  },
+  "autoprefixer@10.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/postcss/autoprefixer",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.es",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\autoprefixer",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\autoprefixer\\LICENSE"
+  },
+  "baseline-browser-mapping@2.10.24": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/web-platform-dx/baseline-browser-mapping",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\baseline-browser-mapping",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\baseline-browser-mapping\\LICENSE.txt"
+  },
+  "browserslist@4.28.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserslist/browserslist",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.es",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\browserslist",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\browserslist\\LICENSE"
+  },
+  "caniuse-lite@1.0.30001791": {
+    "licenses": "CC-BY-4.0",
+    "repository": "https://github.com/browserslist/caniuse-lite",
+    "publisher": "Ben Briggs",
+    "email": "beneb.info@gmail.com",
+    "url": "http://beneb.info",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\caniuse-lite",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\caniuse-lite\\LICENSE"
+  },
+  "chalk@4.1.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/chalk",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\chalk",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\chalk\\license"
+  },
+  "cliui@8.0.1": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/cliui",
+    "publisher": "Ben Coe",
+    "email": "ben@npmjs.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\cliui",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\cliui\\LICENSE.txt"
+  },
+  "color-convert@2.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/Qix-/color-convert",
+    "publisher": "Heather Arthur",
+    "email": "fayearthur@gmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\color-convert",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\color-convert\\LICENSE"
+  },
+  "color-name@1.1.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/colorjs/color-name",
+    "publisher": "DY",
+    "email": "dfcreative@gmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\color-name",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\color-name\\LICENSE"
+  },
+  "concurrently@9.2.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/open-cli-tools/concurrently",
+    "publisher": "Kimmo Brunfeldt",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\concurrently",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\concurrently\\LICENSE"
+  },
+  "detect-libc@2.1.2": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/lovell/detect-libc",
+    "publisher": "Lovell Fuller",
+    "email": "npm@lovell.info",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\detect-libc",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\detect-libc\\LICENSE"
+  },
+  "electron-to-chromium@1.5.344": {
+    "licenses": "ISC",
+    "repository": "https://github.com/Kilian/electron-to-chromium",
+    "publisher": "Kilian Valkhof",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\electron-to-chromium",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\electron-to-chromium\\LICENSE"
+  },
+  "emoji-regex@8.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/emoji-regex",
+    "publisher": "Mathias Bynens",
+    "url": "https://mathiasbynens.be/",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\emoji-regex",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\emoji-regex\\LICENSE-MIT.txt"
+  },
+  "enhanced-resolve@5.21.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/webpack/enhanced-resolve",
+    "publisher": "Tobias Koppers @sokra",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\enhanced-resolve",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\enhanced-resolve\\LICENSE"
+  },
+  "escalade@3.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lukeed/escalade",
+    "publisher": "Luke Edwards",
+    "email": "luke.edwards05@gmail.com",
+    "url": "https://lukeed.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\escalade",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\escalade\\license"
+  },
+  "fdir@6.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/thecodrr/fdir",
+    "publisher": "thecodrr",
+    "email": "thecodrr@protonmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\fdir",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\fdir\\LICENSE"
+  },
+  "fraction.js@5.3.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rawify/Fraction.js",
+    "publisher": "Robert Eisele",
+    "email": "robert@raw.org",
+    "url": "https://raw.org/",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\fraction.js",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\fraction.js\\LICENSE"
+  },
+  "get-caller-file@2.0.5": {
+    "licenses": "ISC",
+    "repository": "https://github.com/stefanpenner/get-caller-file",
+    "publisher": "Stefan Penner",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\get-caller-file",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\get-caller-file\\LICENSE.md"
+  },
+  "graceful-fs@4.2.11": {
+    "licenses": "ISC",
+    "repository": "https://github.com/isaacs/node-graceful-fs",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\graceful-fs",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\graceful-fs\\LICENSE"
+  },
+  "has-flag@4.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/has-flag",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\has-flag",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\has-flag\\license"
+  },
+  "is-fullwidth-code-point@3.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/is-fullwidth-code-point",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\is-fullwidth-code-point",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\is-fullwidth-code-point\\license"
+  },
+  "jiti@2.6.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/unjs/jiti",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\jiti",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\jiti\\LICENSE"
+  },
+  "laravel-vite-plugin@3.1.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/laravel/vite-plugin",
+    "publisher": "Laravel",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\laravel-vite-plugin",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\laravel-vite-plugin\\LICENSE.md"
+  },
+  "lightningcss-win32-x64-msvc@1.32.0": {
+    "licenses": "MPL-2.0",
+    "repository": "https://github.com/parcel-bundler/lightningcss",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\lightningcss-win32-x64-msvc",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\lightningcss-win32-x64-msvc\\LICENSE"
+  },
+  "lightningcss@1.32.0": {
+    "licenses": "MPL-2.0",
+    "repository": "https://github.com/parcel-bundler/lightningcss",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\lightningcss",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\lightningcss\\LICENSE"
+  },
+  "magic-string@0.30.21": {
+    "licenses": "MIT",
+    "repository": "https://github.com/Rich-Harris/magic-string",
+    "publisher": "Rich Harris",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\magic-string",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\magic-string\\LICENSE"
+  },
+  "nanoid@3.3.11": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ai/nanoid",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.ru",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\nanoid",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\nanoid\\LICENSE"
+  },
+  "node-releases@2.0.38": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chicoxyzzy/node-releases",
+    "publisher": "Sergey Rubanov",
+    "email": "chi187@gmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\node-releases",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\node-releases\\LICENSE"
+  },
+  "photoswipe@5.4.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/dimsemenov/Photoswipe",
+    "publisher": "Dmytro Semenov",
+    "url": "https://dimsemenov.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\photoswipe",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\photoswipe\\LICENSE"
+  },
+  "picocolors@1.1.1": {
+    "licenses": "ISC",
+    "repository": "https://github.com/alexeyraspopov/picocolors",
+    "publisher": "Alexey Raspopov",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\picocolors",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\picocolors\\LICENSE"
+  },
+  "picomatch@2.3.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/micromatch/picomatch",
+    "publisher": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\vite-plugin-full-reload\\node_modules\\picomatch",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\vite-plugin-full-reload\\node_modules\\picomatch\\LICENSE"
+  },
+  "picomatch@4.0.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/micromatch/picomatch",
+    "publisher": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\picomatch",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\picomatch\\LICENSE"
+  },
+  "postcss-value-parser@4.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/TrySound/postcss-value-parser",
+    "publisher": "Bogdan Chadkin",
+    "email": "trysound@yandex.ru",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\postcss-value-parser",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\postcss-value-parser\\LICENSE"
+  },
+  "postcss@8.5.12": {
+    "licenses": "MIT",
+    "repository": "https://github.com/postcss/postcss",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.es",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\postcss",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\postcss\\LICENSE"
+  },
+  "require-directory@2.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/troygoode/node-require-directory",
+    "publisher": "Troy Goode",
+    "email": "troygoode@gmail.com",
+    "url": "http://github.com/troygoode/",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\require-directory",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\require-directory\\LICENSE"
+  },
+  "rolldown@1.0.0-rc.17": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rolldown/rolldown",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\rolldown",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\rolldown\\LICENSE"
+  },
+  "rxjs@7.8.2": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/reactivex/rxjs",
+    "publisher": "Ben Lesh",
+    "email": "ben@benlesh.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\rxjs",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\rxjs\\LICENSE.txt"
+  },
+  "shell-quote@1.8.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ljharb/shell-quote",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\shell-quote",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\shell-quote\\LICENSE"
+  },
+  "source-map-js@1.2.1": {
+    "licenses": "BSD-3-Clause",
+    "repository": "https://github.com/7rulnik/source-map-js",
+    "publisher": "Valentin 7rulnik Semirulnik",
+    "email": "v7rulnik@gmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\source-map-js",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\source-map-js\\LICENSE"
+  },
+  "string-width@4.2.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/string-width",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\string-width",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\string-width\\license"
+  },
+  "strip-ansi@6.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/strip-ansi",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\strip-ansi",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\strip-ansi\\license"
+  },
+  "supports-color@7.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/supports-color",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\chalk\\node_modules\\supports-color",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\chalk\\node_modules\\supports-color\\license"
+  },
+  "supports-color@8.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/supports-color",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "https://sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\supports-color",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\supports-color\\license"
+  },
+  "tailwindcss@4.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tailwindlabs/tailwindcss",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\tailwindcss",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\tailwindcss\\LICENSE"
+  },
+  "tapable@2.3.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/webpack/tapable",
+    "publisher": "Tobias Koppers @sokra",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\tapable",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\tapable\\LICENSE"
+  },
+  "tinyglobby@0.2.16": {
+    "licenses": "MIT",
+    "repository": "https://github.com/SuperchupuDev/tinyglobby",
+    "publisher": "Superchupu",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\tinyglobby",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\tinyglobby\\LICENSE"
+  },
+  "tree-kill@1.2.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/pkrumins/node-tree-kill",
+    "publisher": "Peteris Krumins",
+    "email": "peteris.krumins@gmail.com",
+    "url": "http://www.catonmat.net",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\tree-kill",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\tree-kill\\LICENSE"
+  },
+  "tslib@2.8.1": {
+    "licenses": "0BSD",
+    "repository": "https://github.com/Microsoft/tslib",
+    "publisher": "Microsoft Corp.",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\tslib",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\tslib\\LICENSE.txt"
+  },
+  "update-browserslist-db@1.2.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserslist/update-db",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.ru",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\update-browserslist-db",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\update-browserslist-db\\LICENSE"
+  },
+  "vite-plugin-full-reload@1.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ElMassimo/vite-plugin-full-reload",
+    "publisher": "Máximo Mussini",
+    "email": "maximomussini@gmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\vite-plugin-full-reload",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\vite-plugin-full-reload\\LICENSE.txt"
+  },
+  "vite@8.0.13": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitejs/vite",
+    "publisher": "Evan You",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\vite",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\vite\\LICENSE.md"
+  },
+  "wrap-ansi@7.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/wrap-ansi",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "https://sindresorhus.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\wrap-ansi",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\wrap-ansi\\license"
+  },
+  "y18n@5.0.8": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/y18n",
+    "publisher": "Ben Coe",
+    "email": "bencoe@gmail.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\y18n",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\y18n\\LICENSE"
+  },
+  "yargs-parser@21.1.1": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/yargs-parser",
+    "publisher": "Ben Coe",
+    "email": "ben@npmjs.com",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\yargs-parser",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\yargs-parser\\LICENSE.txt"
+  },
+  "yargs@17.7.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/yargs/yargs",
+    "path": "D:\\servidor\\intranet-bpej-final\\node_modules\\yargs",
+    "licenseFile": "D:\\servidor\\intranet-bpej-final\\node_modules\\yargs\\LICENSE"
+  }
+}
+

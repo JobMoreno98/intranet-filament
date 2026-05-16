@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\ColeccionesConsulta;
+use App\Models\Recursos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Meilisearch\Client as MeilisearchClient;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Meilisearch\Contracts\SearchQuery;
 
 class ColeccionesConsultaController extends Controller
 {
@@ -24,23 +27,6 @@ class ColeccionesConsultaController extends Controller
             })
             ->orderBy('coleccion')
             ->paginate(15);
-        /*
-        foreach ($colecciones as $key => $item) {
-            //$titulo = DB::connection('mysql2')->table($item->tabla)->first();
-            dd($item);
-            // URL pública temporal
-            $item->public_url = URL::temporarySignedRoute(
-
-                'visor.publico',
-
-                now()->addHours(1),
-
-                [
-                    'recurso' => $item->clave
-                ]
-            );
-        }
-            */
         //dd($colecciones);
         return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
     }
@@ -90,8 +76,7 @@ class ColeccionesConsultaController extends Controller
             // 2. Construir las consultas usando las clases oficiales del SDK
             $queries = [];
             foreach ($coleccionesMeta as $tablaNombre => $meta) {
-                // Creamos una instancia de búsqueda individual con sus parámetros configurados
-                $searchQuery = new \Meilisearch\Contracts\SearchQuery()
+                $searchQuery = new SearchQuery()
                     ->setIndexUid($tablaNombre)
                     ->setQuery($term)
                     ->setLimit(20)
@@ -177,6 +162,52 @@ class ColeccionesConsultaController extends Controller
         }
         $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido'];
 
+        $id = 2;
+        // 1. Cacheamos solo el array de datos, no el modelo vivo
+        $recursoData = Cache::remember("recurso_view_data_{$id}", 1800, function () use ($id) {
+            $recurso = Recursos::with([
+                'archivos' => function ($q) {
+                    $q->orderBy('orden');
+                },
+            ])->findOrFail($id);
+
+            // Convertimos a array para evitar problemas de serialización
+            return $recurso->toArray();
+        });
+
+        // 2. Como ahora $recursoData es un array, accedemos con corchetes []
+        $paginas = collect($recursoData['archivos'])
+            ->map(function ($archivo) {
+                $payload = [
+                    'a' => $archivo['id'],
+                    'u' => auth()->id(),
+                    'e' => now()->timestamp + 3600,
+                ];
+
+                $token = encrypt(json_encode($payload));
+
+                return [
+                    'id' => $archivo['id'],
+                    'url' => route('media.stream', [
+                        'token' => $token,
+                    ]),
+                    'w' => 1200,
+                    'h' => 1600,
+                ];
+            })
+            ->toArray();
+
+        // 3. Pasamos los datos a la vista
+        // Nota: En la vista, ahora $recurso será un array,
+        // asegúrate de usar $recurso['titulo'] en lugar de $recurso->titulo
+
+        /*
+        return view('visor', [
+            'paginas' => $paginas,
+            'recurso' => $recursoData,
+        ]);
+        */
+
         // Tu diccionario de etiquetas amigables
         $labels = [
             'anio' => 'Año',
@@ -202,7 +233,11 @@ class ColeccionesConsultaController extends Controller
             'volumentomoejemplar' => 'Volumen / Tomo / Ejemplar',
             'numInventario' => 'No. Inventario',
             'descripcion' => 'Descripción',
-            'ejemplarTomo' => 'Ejemplar / Tomo '
+            'ejemplarTomo' => 'Ejemplar / Tomo ',
+            'numArchivos' => 'No. Archivos',
+            'tipoArchivo' => 'Tipo Archivo',
+            'nombrePersonajePrincipal' => 'Nombre de Personaje principal',
+            'nombrePersonajeSecundario' => 'Nombre de Personaje secundario',
         ];
 
         return view('registro-detalle', [
@@ -212,6 +247,8 @@ class ColeccionesConsultaController extends Controller
             'labels' => $labels,
             'title' => 'Detalle del Registro',
             'omitir' => $omitir,
+            'paginas' => $paginas,
+            'recurso' => $recursoData,
         ]);
     }
 }
