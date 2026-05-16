@@ -206,7 +206,7 @@
                     </div>
 
                     <!-- MOBILE PAGE -->
-                    <div class="lg:hidden px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+                    <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
 
                         <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
                             @isset($paginas)
