@@ -32,6 +32,7 @@ require __DIR__ . '/settings.php';
 
 
 Route::get('/media/stream', function (Request $request) {
+    
     $archivo = RecursosArchivos::findOrFail($request->archivo_id);
 
     // Intentamos sacar la ruta del JSON de assets
@@ -41,7 +42,6 @@ Route::get('/media/stream', function (Request $request) {
         abort(404, 'No hay versión procesada para este archivo');
     }
 
-    // Identificar la extensión real para el Content-Type
     $extension = pathinfo($path, PATHINFO_EXTENSION);
     $mimeType = ($extension === 'webp') ? 'image/webp' : 'image/jpeg';
 
