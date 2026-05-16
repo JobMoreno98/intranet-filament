@@ -3,7 +3,7 @@
 @section('content')
     <section class="bg-zinc-950 min-h-screen">
 
-        <div class="flex flex-col lg:flex-row lg:h-screen">
+        <div class="flex flex-col lg:flex-row h-full">
             <!-- VISOR -->
             <main class="flex-1 flex flex-col min-h-0">
                 @auth
