@@ -199,12 +199,14 @@
 
                     <!-- VIEWER -->
                     <div id="visor-container" class="relative flex-1 min-h-0 max-w-5xl mx-auto w-full">
+                        <!-- El padre DEBE tener overflow-hidden para recortar, e items-center para centrar al inicio -->
                         <div id="viewer" class="h-full overflow-hidden flex justify-center items-center bg-zinc-800 p-4">
+
+                            <!-- El canvas limpio. Su tamaño REAL se lo dará JavaScript al renderizar los píxeles -->
                             <canvas id="page-canvas" class="shadow-2xl bg-white block mx-auto"></canvas>
 
                         </div>
                     </div>
-
                     <!-- MOBILE PAGE -->
                     <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
 

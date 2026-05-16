@@ -343,11 +343,11 @@ export function initVisor({ paginas, recursoId = 0 }) {
     });
 
     // 6. Mantener activo el zoom con la rueda del mouse (Scroll Wheel)
-    viewerElement.addEventListener("wheel", (event) => {
-        event.preventDefault();
-        panzoom.zoomWithWheel(event);
-        updateZoomLabel(); // Tu función para actualizar el texto del %
-    });
+viewerElement.addEventListener('wheel', (event) => {
+    event.preventDefault();
+    panzoom.zoomWithWheel(event);
+    updateZoomLabel(); // Tu función para actualizar el texto del %
+});
     // 7. Actualizar el porcentaje si usan gestos táctiles (Pellizco)
     elem.addEventListener("panzoomzoom", () => {
         updateZoomLabel();
