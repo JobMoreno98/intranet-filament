@@ -1,0 +1,20 @@
+services:
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.15
+    container_name: meilisearch
+    restart: unless-stopped
+
+    ports:
+      - "7700:7700"
+
+    environment:
+      MEILI_MASTER_KEY: "aGSiP_HO9LP2deojwkVwl0Q3-uM0X-XDs_LW_jY5a3M" ##reemplaazar
+      MEILI_ENV: development
+
+    volumes:
+      - ./meili_data:/meili_data
+
+    command: >
+      meilisearch
+      --db-path /meili_data
