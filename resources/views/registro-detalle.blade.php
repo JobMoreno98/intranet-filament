@@ -47,7 +47,7 @@
                             <div class="divide-y divide-zinc-800">
                                 @isset($recurso)
                                     <!-- RECURSO -->
-                                    @foreach ((array) $registro as $columna => $valor)
+                                    @foreach ((array) $recurso as $columna => $valor)
                                         @if (in_array($columna, $omitir))
                                             @continue
                                         @endif
@@ -218,7 +218,7 @@
                     </div>
 
                     <!-- MOBILE CONTROLS -->
-                    <div class="lg:hidden flex items-center justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
+                    <div class=" flex items-center justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
 
                         <button id="prev-page"
                             class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 text-sm font-semibold transition">
