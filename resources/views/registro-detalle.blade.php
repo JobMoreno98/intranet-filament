@@ -218,7 +218,7 @@
                     </div>
 
                     <!-- MOBILE CONTROLS -->
-                    <div class=" flex items-center justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
+                    <div class=" flex items-center flex-col md:flex-row justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
 
                         <div class="mx-auto  px-4 sm:px-6">
                             <button id="prev-page"
