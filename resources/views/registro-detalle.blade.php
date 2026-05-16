@@ -264,14 +264,6 @@
                                     Reiniciar
                                 </button>
                             </div>
-
-                            <!-- El Visor -->
-                            <div id="viewer"
-                                class="w-full h-[75vh] overflow-hidden bg-gray-900 rounded-xl border border-gray-800 shadow-2xl relative cursor-grab active:cursor-grabbing">
-                                <div id="panzoom-element" class="w-full h-full flex items-center justify-center">
-                                    <canvas id="page-canvas" class="shadow-2xl bg-white"></canvas>
-                                </div>
-                            </div>
                         </div>
 
                     </div>
