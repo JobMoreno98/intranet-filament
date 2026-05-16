@@ -164,6 +164,7 @@ class ColeccionesConsultaController extends Controller
 
         $id = 2;
         // 1. Cacheamos solo el array de datos, no el modelo vivo
+        // 1. Cargar la info desde el Cache (Se mantiene igual de eficiente)
         $recursoData = Cache::remember("recurso_view_data_{$id}", 1800, function () use ($id) {
             $recurso = Recursos::with([
                 'archivos' => function ($q) {
@@ -171,25 +172,25 @@ class ColeccionesConsultaController extends Controller
                 },
             ])->findOrFail($id);
 
-            // Convertimos a array para evitar problemas de serialización
             return $recurso->toArray();
         });
 
-        // 2. Como ahora $recursoData es un array, accedemos con corchetes []
+        // 2. Mapeamos los archivos y les firmamos un token con caducidad
         $paginas = collect($recursoData['archivos'])
             ->map(function ($archivo) {
                 $payload = [
                     'a' => $archivo['id'],
-                    'u' => auth()->id(),
-                    'e' => now()->timestamp + 3600,
+                    'u' => auth()->id(), 
+                    'e' => now()->timestamp + 300, // 
                 ];
 
+                // Se encripta usando la App Key única de tu servidor
                 $token = encrypt(json_encode($payload));
 
                 return [
                     'id' => $archivo['id'],
                     'url' => route('media.stream', [
-                        'token' => $token,
+                        'token' => $token, 
                     ]),
                     'w' => 1200,
                     'h' => 1600,

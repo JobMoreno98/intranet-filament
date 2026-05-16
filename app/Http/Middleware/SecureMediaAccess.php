@@ -13,55 +13,32 @@ class SecureMediaAccess
     {
         $token = $request->query('token');
 
+        // 1. Si no hay token en la URL, se bloquea el acceso
         if (!$token) {
-            abort(403);
+            abort(403, 'Acceso denegado: Token de acceso requerido.');
         }
 
         try {
-
-            $data = json_decode(
-                decrypt($token),
-                true
-            );
+            // Desencriptamos el contenido de forma segura
+            $data = json_decode(decrypt($token), true);
         } catch (\Exception $e) {
-
-            abort(403);
+            // Si el token fue alterado, inventado o manipulado, truena aquí
+            abort(403, 'Acceso denegado: El token de seguridad es inválido.');
         }
 
-        // expira token
-        if (now()->timestamp > $data['e']) {
-
-            abort(403);
+        // 2. ⚡ INVALIDACIÓN POR TIEMPO: Comprobar si los 15 minutos ya pasaron
+        if (!isset($data['e']) || now()->timestamp > $data['e']) {
+            abort(403, 'Acceso denegado: Este enlace temporal ya ha caducado.');
         }
 
-        $session = ReaderSession::where(
-            'session_id',
-            $data['s']
-        )->first();
-
-        if (!$session) {
-
-            abort(403);
+        // 3. ⚡ INVALIDACIÓN POR USUARIO: Verificar que quien descarga sea el dueño del token
+        if (!auth()->check() || auth()->id() !== ($data['u'] ?? null)) {
+            abort(403, 'Acceso denegado: No tienes permisos para usar este enlace.');
         }
 
-        // expira sesión
-        if ($session->expires_at->isPast()) {
-
-            $session->delete();
-
-            abort(403);
-        }
-
-        // validar IP opcional
-        if ($session->ip_address !== $request->ip()) {
-
-            abort(403);
-        }
-
+        // Todo en orden. Inyectamos el archivo_id al request para el controlador del stream
         $request->merge([
-
-            'archivo_id' => $data['a']
-
+            'archivo_id' => $data['a'],
         ]);
 
         return $next($request);
