@@ -32,11 +32,13 @@ export function initVisor({ paginas, recursoId = 0 }) {
     const panzoom = Panzoom(canvas, {
         maxScale: 3,
 
-        minScale: .6    ,
+        minScale: 0.6,
 
         contain: "outside",
 
         cursor: "drag",
+        step: 0.2,
+        canvas: true,
     });
 
     viewer.addEventListener("wheel", panzoom.zoomWithWheel, {

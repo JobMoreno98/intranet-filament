@@ -220,19 +220,24 @@
                     <!-- MOBILE CONTROLS -->
                     <div class=" flex items-center justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
 
-                        <button id="prev-page"
-                            class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 text-sm font-semibold transition">
+                        <div class="mx-auto  px-4 sm:px-6">
+                            <button id="prev-page"
+                                class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 text-sm font-semibold transition">
 
-                            ← Anterior
+                                ← Anterior
 
-                        </button>
+                            </button>
 
-                        <button id="next-page"
-                            class="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-3 text-sm font-semibold transition">
+                            <button id="next-page"
+                                class="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-3 text-sm font-semibold transition">
 
-                            Siguiente →
+                                Siguiente →
 
-                        </button>
+                            </button>
+
+
+                        </div>
+
                         <div class="mx-auto max-w-4xl px-4 sm:px-6">
 
                             <!-- Barra de Herramientas: Botones de Zoom interactivos -->
