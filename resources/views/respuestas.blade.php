@@ -63,8 +63,6 @@
                                     <!-- Celda de Colección -->
                                     <td class="p-4 pl-6">
                                         <span class="font-bold text-gray-900 block">{{ $res['coleccion_nombre'] }}</span>
-                                        <code
-                                            class="text-xs text-gray-400 uppercase tracking-wider">{{ $res['tabla'] }}</code>
                                     </td>
                                     <!-- Celda de Fragmento -->
                                     <td class="p-4 text-gray-500 text-xs max-w-xs truncate-2-lines">
