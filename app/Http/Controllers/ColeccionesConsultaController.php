@@ -160,11 +160,10 @@ class ColeccionesConsultaController extends Controller
         if (!$registro) {
             abort(404, 'El registro no fue encontrado.');
         }
-        $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido','archvios','updated_at'];
+        $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'updated_at'];
 
-        $id = 2;
-        // 1. Cacheamos solo el array de datos, no el modelo vivo
-        // 1. Cargar la info desde el Cache (Se mantiene igual de eficiente)
+        $id = 1;
+        
         $recursoData = Cache::remember("recurso_view_data_{$id}", 1800, function () use ($id) {
             $recurso = Recursos::with([
                 'archivos' => function ($q) {
@@ -180,7 +179,7 @@ class ColeccionesConsultaController extends Controller
             ->map(function ($archivo) {
                 $payload = [
                     'a' => $archivo['id'],
-                    'u' => auth()->id(), 
+                    'u' => auth()->id(),
                     'e' => now()->timestamp + 300, // 
                 ];
 
@@ -190,7 +189,7 @@ class ColeccionesConsultaController extends Controller
                 return [
                     'id' => $archivo['id'],
                     'url' => route('media.stream', [
-                        'token' => $token, 
+                        'token' => $token,
                     ]),
                     'w' => 1200,
                     'h' => 1600,

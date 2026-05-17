@@ -1,134 +1,56 @@
 @extends('layouts.plantilla')
 
 @section('content')
-    <section class="bg-zinc-950 min-h-screen">
+    @php
+        $color = Auth::check() ? 'bg-zinc-950' : 'bg-white';
+    @endphp
+    <section class="{{ $color }} min-h-screen">
 
-        <div class="flex flex-col lg:flex-row lg:h-screen">
+        <div class="flex flex-col lg:flex-row h-full">
             <!-- VISOR -->
-            <main class="flex-1 flex flex-col min-h-0">
-                @auth
+            <main class="flex-1 flex flex-col min-h-0 border-b border-zinc-200">
 
-                    <!-- TOPBAR -->
-                    <div
-                        class="flex items-center flex-col md:flex-row justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
 
-                        <a href="{{ url()->previous() }}"
-                            class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-300 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
+                <!-- TOPBAR -->
+                <div
+                    class="flex items-center flex-col md:flex-row justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
 
-                            <x-heroicon-o-arrow-left class="w-4 h-4" />
+                    <a href="{{ url()->previous() }}"
+                        class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-300 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
 
-                            Volver
+                        <x-heroicon-o-arrow-left class="w-4 h-4" />
 
-                        </a>
+                        Volver
 
-                        <span class="bg-red-900 text-white text-xs uppercase font-bold px-3 py-2 mt-2 md:mt-0 rounded-md">
+                    </a>
 
-                            {{ $coleccionNombre }}
+                    <span class="bg-red-900 text-white text-xs uppercase font-bold px-3 py-2 mt-2 md:mt-0 rounded-md">
 
-                        </span>
+                        {{ $coleccionNombre }}
 
-                    </div>
+                    </span>
 
-                    <!-- MOBILE INFO -->
-                    <aside class="lg:hidden border-b border-zinc-800 bg-zinc-900 p-3 text-zinc-300">
+                </div>
 
-                        <details class="group rounded-lg border border-zinc-800 bg-zinc-950">
+                <!-- MOBILE INFO -->
+                <aside class="lg:hidden border-b border-zinc-800 bg-zinc-900 p-3 text-zinc-300">
 
-                            <summary
-                                class="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-white flex items-center justify-between">
+                    <details class="group rounded-lg border border-zinc-800 bg-zinc-950">
 
-                                Información del libro
+                        <summary
+                            class="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-white flex items-center justify-between">
 
-                                <span class="transition duration-200 group-open:rotate-180">
-                                    ▼
-                                </span>
+                            Información del libro
 
-                            </summary>
+                            <span class="transition duration-200 group-open:rotate-180">
+                                ▼
+                            </span>
 
-                            <div class="divide-y divide-zinc-800">
-                                @isset($recurso)
-                                    <!-- RECURSO -->
-                                    @foreach ((array) $registro as $columna => $valor)
-                                        @if (in_array($columna, $omitir))
-                                            @continue
-                                        @endif
+                        </summary>
 
-                                        @php
-                                            $valorTexto = trim(strip_tags((string) $valor));
-
-                                            $esCorto = mb_strlen($valorTexto) <= 40;
-
-                                            $camposCompactos = [
-                                                'anio',
-                                                'fecha',
-                                                'paginas',
-                                                'tomo',
-                                                'volumen',
-                                                'idioma',
-                                                'isbn',
-                                                'clave',
-                                                'folio',
-                                                'numero',
-                                            ];
-
-                                            $camposLargos = [
-                                                'descripcion',
-                                                'contenido',
-                                                'notas',
-                                                'resumen',
-                                                'observaciones',
-                                            ];
-
-                                            $compacto =
-                                                !in_array($columna, $camposLargos) &&
-                                                ($esCorto || in_array($columna, $camposCompactos));
-                                        @endphp
-
-                                        <div class="{{ $compacto ? 'lg:col-span-1' : 'lg:col-span-2' }}">
-
-                                            <div
-                                                class="h-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition">
-
-                                                <!-- Nombre -->
-                                                <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
-                                                    {{ $labels[$columna] ?? ucwords(str_replace('_', ' ', $columna)) }}
-                                                </div>
-
-                                                <!-- Valor -->
-                                                <div class="text-sm text-zinc-200 break-words leading-relaxed">
-                                                    @if (is_null($valor) || $valor === '')
-                                                        <span class="text-zinc-500 italic text-xs">
-                                                            Sin información
-                                                        </span>
-                                                    @else
-                                                        {{ $valor }}
-                                                    @endif
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-                                    @endforeach
-                                @endisset
-                                <!-- PÁGINAS -->
-                                <div class="p-4 space-y-1">
-
-                                    <span class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
-
-                                        Páginas
-
-                                    </span>
-
-                                    <div class="text-sm text-zinc-200">
-                                        @isset($paginas)
-                                            {{ count($paginas) }}
-                                        @endisset
-
-                                    </div>
-
-                                </div>
-
-                                <!-- REGISTRO -->
+                        <div class="divide-y divide-zinc-800">
+                            @isset($registro)
+                                <!-- RECURSO -->
                                 @foreach ((array) $registro as $columna => $valor)
                                     @if (in_array($columna, $omitir))
                                         @continue
@@ -190,13 +112,88 @@
 
                                     </div>
                                 @endforeach
+                            @endisset
+                            <!-- PÁGINAS -->
+                            <div class="p-4 space-y-1">
+
+                                <span class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
+
+                                    Páginas
+
+                                </span>
+
+                                <div class="text-sm text-zinc-200">
+                                    @isset($paginas)
+                                        {{ count($paginas) }}
+                                    @endisset
+
+                                </div>
 
                             </div>
 
-                        </details>
+                            <!-- REGISTRO -->
+                            @foreach ((array) $registro as $columna => $valor)
+                                @if (in_array($columna, $omitir))
+                                    @continue
+                                @endif
 
-                    </aside>
+                                @php
+                                    $valorTexto = trim(strip_tags((string) $valor));
 
+                                    $esCorto = mb_strlen($valorTexto) <= 40;
+
+                                    $camposCompactos = [
+                                        'anio',
+                                        'fecha',
+                                        'paginas',
+                                        'tomo',
+                                        'volumen',
+                                        'idioma',
+                                        'isbn',
+                                        'clave',
+                                        'folio',
+                                        'numero',
+                                    ];
+
+                                    $camposLargos = ['descripcion', 'contenido', 'notas', 'resumen', 'observaciones'];
+
+                                    $compacto =
+                                        !in_array($columna, $camposLargos) &&
+                                        ($esCorto || in_array($columna, $camposCompactos));
+                                @endphp
+
+                                <div class="{{ $compacto ? 'lg:col-span-1' : 'lg:col-span-2' }}">
+
+                                    <div
+                                        class="h-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition">
+
+                                        <!-- Nombre -->
+                                        <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                            {{ $labels[$columna] ?? ucwords(str_replace('_', ' ', $columna)) }}
+                                        </div>
+
+                                        <!-- Valor -->
+                                        <div class="text-sm text-zinc-200 break-words leading-relaxed">
+                                            @if (is_null($valor) || $valor === '')
+                                                <span class="text-zinc-500 italic text-xs">
+                                                    Sin información
+                                                </span>
+                                            @else
+                                                {{ $valor }}
+                                            @endif
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            @endforeach
+
+                        </div>
+
+                    </details>
+
+                </aside>
+                @auth
                     <!-- VIEWER -->
                     <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
                     <div id="visor-container" class="relative flex-1 min-h-0 max-w-5xl mx-auto w-full">
@@ -220,16 +217,16 @@
 
                     <!-- MOBILE CONTROLS -->
                     <div
-                        class=" flex items-center flex-col md:flex-row justify-between gap-3 p-3 border-t border-zinc-800 bg-zinc-900">
+                        class=" flex items-center flex-col md:flex-row justify-between gap-3  border-t border-zinc-800 bg-zinc-900">
 
                         <div class="flex w-full gap-3 px-4 sm:px-6">
                             <button id="prev-page"
-                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-3 px-6 text-sm font-semibold transition">
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition">
                                 ← Anterior
                             </button>
 
                             <button id="next-page"
-                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-3 px-6 text-sm font-semibold transition">
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
                                 Siguiente →
                             </button>
                         </div>
@@ -238,10 +235,10 @@
 
                             <!-- Barra de Herramientas: Botones de Zoom interactivos -->
                             <div
-                                class="flex items-center justify-center gap-4 bg-white p-2 mb-4 rounded-xl border border-gray-200 shadow-sm">
+                                class="flex items-center justify-center gap-4 bg-white p-1 my-2  rounded-xl border border-gray-200 shadow-sm">
                                 <!-- Botón Alejar -->
                                 <button id="btn-zoom-out"
-                                    class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-10 h-10 flex items-center justify-center border border-gray-200">
+                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
                                     −
                                 </button>
 
@@ -252,7 +249,7 @@
 
                                 <!-- Botón Acercar -->
                                 <button id="btn-zoom-in"
-                                    class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-10 h-10 flex items-center justify-center border border-gray-200">
+                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
                                     +
                                 </button>
 
@@ -261,7 +258,7 @@
 
                                 <!-- Botón Restablecer -->
                                 <button id="btn-reset-zoom"
-                                    class="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-10 flex items-center">
+                                    class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">
                                     Reiniciar
                                 </button>
                             </div>
@@ -270,7 +267,7 @@
                     </div>
                 @endauth
                 @guest
-                    <div class=" border border-zinc-200 bg-white p-10 text-center shadow-sm h-full">
+                    <div class="  bg-white p-10 text-center  h-full">
                         <x-heroicon-o-lock-closed class="w-12 h-12 mx-auto text-zinc-400 mb-4" />
 
                         <h3 class="text-lg font-bold text-zinc-800">
