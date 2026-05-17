@@ -136,7 +136,7 @@ class ColeccionesConsultaController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
-        $paginados->appends($request->all());
+        $paginados->appends($request->all())->onEachSide(0);
 
         return view('respuestas', [
             'resultados' => $paginados,

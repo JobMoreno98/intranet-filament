@@ -43,18 +43,22 @@
                 </p>
             </div>
 
-            <div class="bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
+            <div class=" overflow-hidden">
+
+                <!-- ========================================== -->
+                <!-- 1. VISTA TABLA (Pantallas MD en adelante)  -->
+                <!-- ========================================== -->
+                <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-900 text-white text-sm font-medium">
                             <tr>
                                 <th class="p-4 pl-6">Colección</th>
-                                <th class="p-4 hidden md:table-cell">Extracto de Coincidencia</th>
+                                <th class="p-4">Extracto de Coincidencia</th>
                                 <th class="p-4 text-center w-40">Acción</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
-                            @forelse ($resultados as $res)
+                            @foreach ($resultados as $res)
                                 <tr class="hover:bg-gray-50 transition">
                                     <!-- Celda de Colección -->
                                     <td class="p-4 pl-6">
@@ -62,30 +66,80 @@
                                         <code
                                             class="text-xs text-gray-400 uppercase tracking-wider">{{ $res['tabla'] }}</code>
                                     </td>
-                                    <!-- Celda de Fragmento con etiquetas <em> -->
-                                    <td class="p-4 text-gray-500 text-xs hidden md:table-cell max-w-xs truncate-2-lines">
+                                    <!-- Celda de Fragmento -->
+                                    <td class="p-4 text-gray-500 text-xs max-w-xs truncate-2-lines">
                                         {!! $res['coincidencia'] !!}
                                     </td>
-                                    <!-- Botón de acción individual -->
+                                    <!-- Botón de acción -->
                                     <td class="p-4 text-center">
                                         @if ($res['registro_id'])
                                             <a href="{{ route('buscador.registro', ['tabla' => $res['tabla'], 'id' => $res['registro_id']]) }}"
-                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
+                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver información
                                             </a>
                                         @endif
                                     </td>
                                 </tr>
-                            @empty
+                            @endforeach
+
+                            @if ($resultados->isEmpty())
                                 <tr>
-                                    <td colspan="4" class="p-8 text-center text-gray-400 font-medium">
+                                    <td colspan="3" class="p-12 text-center text-gray-400 font-medium">
                                         No se encontraron registros que coincidan con la búsqueda.
                                     </td>
                                 </tr>
-                            @endforelse
+                            @endif
                         </tbody>
                     </table>
                 </div>
+
+                <!-- ========================================== -->
+                <!-- 2. VISTA CARDS (Pantallas Móviles)         -->
+                <!-- ========================================== -->
+                <div class="block md:hidden divide-y divide-gray-100 flex flex-col gap-4">
+                    @foreach ($resultados as $res)
+                        <div class="p-5 my-2 shadow-md border border-gray-200 bg-white" >
+                            <div class="flex flex-col gap-3 ">
+                                <!-- Encabezado de la Card -->
+                                <div>
+                                    <span
+                                        class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider font-semibold inline-block mt-1">{{ $res['coleccion_nombre'] }}</span>
+                                </div>
+
+                                <!-- Contenido / Extracto -->
+                                <div class="text-gray-600 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <span
+                                        class="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Coincidencia:</span>
+                                    <div class="line-clamp-3 text-xs leading-relaxed text-gray-500">
+                                        {!! $res['coincidencia'] !!}
+                                    </div>
+                                </div>
+
+                                <!-- Acción de la Card -->
+                                @if ($res['registro_id'])
+                                    <div class="mt-1">
+                                        <a href="{{ route('buscador.registro', ['tabla' => $res['tabla'], 'id' => $res['registro_id']]) }}"
+                                            class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
+                                            Ver información
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+
+                    @if ($resultados->isEmpty())
+                        <div class="p-12 text-center text-gray-400 font-medium">
+                            <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            No se encontraron registros que coincidan con la búsqueda.
+                        </div>
+                    @endif
+                </div>
+
             </div>
 
             <!-- Paginación con Tailwind -->
