@@ -227,7 +227,7 @@
 
                 paginas: @json($paginas),
 
-                recursoId: {{ $recurso['IdElemento'] }}
+                recursoId: {{ $recurso['id'] }}
 
             });
 

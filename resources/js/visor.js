@@ -7,6 +7,11 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
     const canvas = document.getElementById("page-canvas");
 
+    const zoomInBtn = document.getElementById("btn-zoom-in");
+    const zoomOutBtn = document.getElementById("btn-zoom-out");
+    const resetBtn = document.getElementById("btn-reset-zoom");
+    const zoomPercent = document.getElementById("zoom-percent");
+
     const ctx = canvas.getContext("2d", {
         alpha: false,
         desynchronized: true,
@@ -25,17 +30,18 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     const panzoom = Panzoom(canvas, {
-        maxScale: 5,
-
+        startScale: 1.0,
+        maxScale: 3,
         minScale: 1,
-
-        contain: "inside",
-
+        contain: "invert",
         cursor: "default",
+        step: 0.2,
+        canvas: true,
+        transformOrigin: { x: 0.5, y: 0.5 }
     });
 
     viewer.addEventListener("wheel", panzoom.zoomWithWheel, {
-        passive: false,
+        passive: true,
     });
 
     // =========================
@@ -309,4 +315,42 @@ export function initVisor({ paginas, recursoId = 0 }) {
     }
 
     renderPage(currentPage);
+
+    ////////////////           ---------------------           Zoom
+
+    // Función auxiliar para actualizar el texto del porcentaje de zoom en la interfaz
+    function updateZoomLabel() {
+        const scale = panzoom.getScale();
+        zoomPercent.innerText = `${Math.round(scale * 100)}%`;
+    }
+
+    // 3. Vincular Botón de Acercar (+)
+    zoomInBtn.addEventListener("click", () => {
+        panzoom.zoomIn(); // Zoom nativo de la librería
+        updateZoomLabel();
+    });
+
+    // 4. Vincular Botón de Alejar (−)
+    zoomOutBtn.addEventListener("click", () => {
+        panzoom.zoomOut(); // Zoom nativo de la librería
+        updateZoomLabel();
+    });
+
+    // 5. Vincular Botón de Reiniciar
+    resetBtn.addEventListener("click", () => {
+        panzoom.reset();
+        updateZoomLabel();
+    });
+
+    // 6. Mantener activo el zoom con la rueda del mouse (Scroll Wheel)
+    viewer.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        panzoom.zoomWithWheel(event);
+        updateZoomLabel(); // Actualiza el porcentaje si usan la rueda
+    });
+
+    // 7. Actualizar el porcentaje si usan gestos táctiles (Pellizco)
+    viewer.addEventListener("panzoomzoom", () => {
+        updateZoomLabel();
+    });
 }

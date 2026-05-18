@@ -79,7 +79,7 @@
                         bg-red-800 hover:bg-red-900 text-white
                         transition shadow-sm
                         ">{{ __('Log In') }}
-                    / {{ __('Sign up') }}</a>
+                    | {{ __('Sign up') }}</a>
             </div>
         </div>
     </header>
@@ -472,7 +472,7 @@
 --}}
 
     <footer>
-        <div class="px-2 py-20 mx-auto max-w-7xl">
+        <div class="px-2 pt-10 mx-auto max-w-7xl">
             <div class="pt-12 border-t border-gray-300 flex flex-col md:flex-row gap-10 items-center">
                 <div class="text-black flex flex-col ">
                     <a href="{{ route('home') }}" class="font-bold text-xl"
