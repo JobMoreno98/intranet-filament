@@ -12,14 +12,16 @@ class ColeccionesConsultaController extends Controller
     public function index(Request $request)
     {
         $colecciones = DB::connection('mysql2')
-            ->table('colecciones')
-            ->select('clave', 'coleccion')
-            ->distinct('clave')
+            ->table('colecciones as coleccion')
+            ->select('coleccion.clave', 'coleccion.coleccion', 'descripcioncolecciones.imagenColeccion')
+            ->distinct('coleccion.clave')
             ->when($request->filled('coleccion'), function ($query) use ($request) {
-                $query->where('coleccion', 'like', '%' . $request->coleccion . '%');
+                $query->where('coleccion.coleccion', 'like', '%' . $request->coleccion . '%');
             })
-            ->orderBy('coleccion')
+            ->leftJoin('descripcioncolecciones', 'coleccion.clave', '=', 'descripcioncolecciones.clave')
+            ->orderBy('coleccion.coleccion')
             ->paginate(15);
+
         /*
         foreach ($colecciones as $key => $item) {
             //$titulo = DB::connection('mysql2')->table($item->tabla)->first();
