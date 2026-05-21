@@ -33,7 +33,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
         startScale: 1.0,
         maxScale: 5,
         minScale: 1,
-        contain: "inside",
+        contain: "outside",
         cursor: "default",
         step: 0.2,
         canvas: true,
