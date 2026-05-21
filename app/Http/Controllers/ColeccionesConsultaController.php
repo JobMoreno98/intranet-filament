@@ -6,7 +6,6 @@ use App\Models\ColeccionesConsulta;
 use App\Models\Recursos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 use Meilisearch\Client as MeilisearchClient;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
@@ -19,14 +18,16 @@ class ColeccionesConsultaController extends Controller
     public function index(Request $request)
     {
         $colecciones = DB::connection('mysql2')
-            ->table('colecciones')
-            ->select('clave', 'coleccion')
-            ->distinct('clave')
+            ->table('colecciones as coleccion')
+            ->select('coleccion.clave', 'coleccion.coleccion', 'descripcioncolecciones.imagenColeccion')
+            ->distinct('coleccion.clave')
             ->when($request->filled('coleccion'), function ($query) use ($request) {
-                $query->where('coleccion', 'like', '%' . $request->coleccion . '%');
+                $query->where('coleccion.coleccion', 'like', '%' . $request->coleccion . '%');
             })
-            ->orderBy('coleccion')
+            ->leftJoin('descripcioncolecciones', 'coleccion.clave', '=', 'descripcioncolecciones.clave')
+            ->orderBy('coleccion.coleccion')
             ->paginate(15);
+
         //dd($colecciones);
         return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
     }

@@ -7,11 +7,8 @@
                 class="bg-transparent  p-4">
 
                 <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
-
-                    <!-- Input -->
                     <div class="flex-1">
                         <div class="relative">
-                            <!-- Heroicon -->
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                 <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                             </div>
@@ -26,7 +23,6 @@
 
                     <!-- Botones -->
                     <div class="flex gap-2 w-full lg:w-auto">
-
 
                         <flux:button type="submit" variant="primary" size="sm"
                             class="
@@ -59,8 +55,8 @@
                         data-aos-duration="500" data-aos-delay="{{ $index * 100 }}"> <!-- escalera -->
 
                         <div>
-                            <img class="mx-auto h-auto max-w-full rounded-base" src="{{ asset('img/bpej.jpg') }}"
-                                alt="">
+                            <img style="aspect-ratio:1/1;" class="mx-auto h-auto max-w-full rounded-base"
+                                src="{{ asset($item->imagenColeccion) }}" alt="">
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-center">{{ $item->coleccion }}</h2>
