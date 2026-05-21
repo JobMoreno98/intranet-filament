@@ -253,7 +253,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
         const deltaX = e.changedTouches[0].clientX - touchStartX;
 
         // swipe horizontal
-        if (Math.abs(deltaX) < 50) {
+        if (Math.abs(deltaX) < 150) {
             return;
         }
 
