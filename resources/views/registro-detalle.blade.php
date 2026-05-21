@@ -6,7 +6,7 @@
     @endphp
     <section class="{{ $color }} min-h-screen">
 
-        <div class="flex flex-col lg:flex-row h-full">
+        <div class="flex flex-col lg:flex-row lg:h-screen">
             <!-- VISOR -->
             <main class="flex-1 flex flex-col min-h-0 border-b border-zinc-200">
 
@@ -193,7 +193,7 @@
                     </details>
 
                 </aside>
-                @auth
+                @if (Auth::check())
                     <!-- VIEWER -->
                     <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
                     <div id="visor-container" class="relative flex-1 min-h-0 max-w-5xl mx-auto w-full">
@@ -243,7 +243,8 @@
                                 </button>
 
                                 <!-- Indicador de Porcentaje Dinámico -->
-                                <span id="zoom-percent" class="text-sm font-semibold text-gray-700 min-w-[60px] text-center">
+                                <span id="zoom-percent"
+                                    class="text-sm font-semibold text-gray-700 min-w-[60px] text-center">
                                     100%
                                 </span>
 
@@ -265,8 +266,7 @@
                         </div>
 
                     </div>
-                @endauth
-                @guest
+                @else
                     <div class="  bg-white p-10 text-center  h-full">
                         <x-heroicon-o-lock-closed class="w-12 h-12 mx-auto text-zinc-400 mb-4" />
 
@@ -284,7 +284,7 @@
                             Iniciar sesión
                         </a>
                     </div>
-                @endguest
+                @endif
             </main>
 
             <!-- DESKTOP SIDEBAR -->
