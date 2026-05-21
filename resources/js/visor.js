@@ -30,7 +30,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     const panzoom = Panzoom(canvas, {
-        startScale: .9,
+        startScale: 1.0,
         maxScale: 5,
         minScale: .8,
         contain: "invert",
@@ -253,12 +253,12 @@ export function initVisor({ paginas, recursoId = 0 }) {
         const deltaX = e.changedTouches[0].clientX - touchStartX;
 
         // swipe horizontal
-        if (Math.abs(deltaX) < 150) {
+        if (Math.abs(deltaX) < 120) {
             return;
         }
 
         // no cambiar página si zoom
-        if (panzoom.getScale() > 1.05) {
+        if (panzoom.getScale() > 1.07) {
             return;
         }
 
