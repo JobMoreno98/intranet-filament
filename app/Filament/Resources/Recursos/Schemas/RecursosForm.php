@@ -91,10 +91,10 @@ class RecursosForm
                     ->schema([
                         Group::make()
                             ->schema(function ($get) {
-                                $coleccionId = $get('sub_colection_id');
+                                $coleccionId = $get('coleccion_id');
                                 if (!$coleccionId) return [];
 
-                                $coleccion = \App\Models\SubColeccion::find($coleccionId);
+                                $coleccion = \App\Models\Coleccion::find($coleccionId);
                                 if (!$coleccion || !$coleccion->esquema) return [];
 
                                 $camposDinamicos = [];

@@ -89,9 +89,51 @@ class ColeccionForm
                 ->columnSpanFull(),
 
             Textarea::make('descripcion')
-                ->autosize()
-                ->columnSpanFull(),
-            FileUpload::make('foto')->disk('colecciones')
+                ->autosize()->label('Descripción'),
+            FileUpload::make('foto')->disk('colecciones'),
+            Repeater::make('esquema')->columnSpanFull()
+                ->label('Configuración de campos para esta colección')
+                ->itemLabel(fn(array $state): ?string => $state['label'] ?? 'Nuevo Campo')
+                ->collapsible()
+                ->schema([
+                    Grid::make(2)->schema([
+                        TextInput::make('label')->required()->label('Nombre del Campo (Label)'),
+                        TextInput::make('variable')->required()->label('ID Interno (Variable)'),
+                    ]),
+
+                    Select::make('type')->label('Tipo de Dato')
+                        ->options([
+                            'text' => 'Texto Corto',
+                            'textarea' => 'Texto Largo',
+                            'number' => 'Número / Año',
+                            'select' => 'Lista Desplegable',
+                            'file' => 'Archivo Adjunto Extra',
+                            'date' => 'Fecha Histórica',
+                            'toggle' => 'Interruptor (Si/No)',
+                        ])
+                        ->live()
+                        ->required(),
+
+                    // Configuración de Opciones para Selects (Tus 'choices')
+                    Repeater::make('options.choices')
+                        ->label('Opciones del Menú')
+                        ->visible(fn($get) => $get('type') === 'select')
+                        ->schema([
+                            TextInput::make('value')->required()->label('Valor'),
+                            TextInput::make('label')->required()->label('Texto'),
+                        ])->columns(2),
+
+                    // Configuración para Archivos (Extensiones)
+                    TextInput::make('options.allowed_formats')
+                        ->label('Formatos permitidos')
+                        ->placeholder('ej: pdf, jpg, png')
+                        ->visible(fn($get) => $get('type') === 'file'),
+
+                    Section::make('Validación')->schema([
+                        Toggle::make('is_required')->label('¿Es obligatorio?')->inline(),
+                    ])->compact(),
+                ])->columns(3),
+            
         ]);
     }
 }

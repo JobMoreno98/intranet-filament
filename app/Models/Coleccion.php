@@ -11,6 +11,10 @@ class Coleccion extends Model
 {
 
     use Searchable;
+    
+    protected $casts = [
+        'esquema' => 'array',
+    ];
 
     protected $guarded = [];
     public function parent(): BelongsTo
