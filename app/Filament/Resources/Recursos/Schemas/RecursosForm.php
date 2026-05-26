@@ -23,12 +23,41 @@ class RecursosForm
                 Section::make('Información Base')
                     ->columns(3)
                     ->schema([
-                        Select::make('sub_colection_id')
-                            ->label('Colección (Plantilla)')
-                            ->relationship('sub_coleccion', 'name')
-                            ->reactive() // Fundamental para la magia
+                        Select::make('coleccion_id')
+                            ->label('Colección')
+                            ->searchable()
+                            ->preload()
                             ->required()
-                            ->afterStateUpdated(fn($set) => $set('metadata', [])),
+                            ->reactive()
+                            ->afterStateUpdated(fn($set) => $set('metadata', []))
+                            ->options(function ($record) {
+                                $roots = \App\Models\Coleccion::query()
+                                    ->whereNull('parent_id')
+                                    ->orderBy('nombre')
+                                    ->get();
+
+                                $options = [];
+                                $currentId = $record ? $record->id : null;
+
+                                $addNodes = function ($node, $depth = 0) use (&$addNodes, &$options, $currentId) {
+                                    if ($currentId && $node->id === $currentId) {
+                                        return;
+                                    }
+
+                                    $prefix = str_repeat('— ', $depth);
+                                    $options[$node->id] = $prefix . $node->nombre;
+
+                                    foreach ($node->children()->orderBy('nombre')->get() as $child) {
+                                        $addNodes($child, $depth + 1);
+                                    }
+                                };
+
+                                foreach ($roots as $root) {
+                                    $addNodes($root);
+                                }
+
+                                return $options;
+                            }),
 
                         TextInput::make('titulo')->required()->label('Título'),
                         TextInput::make('autor')->label('Autor Principal'),

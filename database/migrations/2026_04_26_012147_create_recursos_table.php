@@ -15,7 +15,11 @@ return new class extends Migration {
 
             // 1. Relación con la "Plantilla" (Colección)
             // Usamos foreignId para que MySQL optimice la unión de tablas
-            $table->foreignId('sub_colection_id')->constrained('sub_coleccions')->cascadeOnDelete();
+            $table->foreignId('coleccion_id')
+                ->nullable()
+                ->constrained('coleccions')
+                ->onUpdate('cascade')
+                ->onDelete('set null');
 
             $table->string('fondo')->index();
             $table->integer('claveFondo')->unique();
@@ -37,7 +41,7 @@ return new class extends Migration {
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('sub_colection_id');
+            $table->index('coleccion_id');
             $table->fulltext('titulo');
             $table->index('claveFondo');
         });

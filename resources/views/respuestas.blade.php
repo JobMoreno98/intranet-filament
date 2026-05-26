@@ -52,7 +52,7 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-900 text-white text-sm font-medium">
                             <tr>
-                                <th class="p-4 pl-6">Colección</th>
+                                <th class="p-4 pl-6">Tipo</th>
                                 <th class="p-4">Extracto de Coincidencia</th>
                                 <th class="p-4 text-center w-40">Acción</th>
                             </tr>
@@ -62,16 +62,17 @@
                                 <tr class="hover:bg-gray-50 transition">
                                     <!-- Celda de Colección -->
                                     <td class="p-4 pl-6">
-                                        <span class="font-bold text-gray-900 block">{{ $res['coleccion_nombre'] }}</span>
+                                        <span class="font-bold text-gray-900 block">{{ $res['tipo'] }}</span>
                                     </td>
                                     <!-- Celda de Fragmento -->
                                     <td class="p-4 text-gray-500 text-xs max-w-xs truncate-2-lines">
+                                        <h5 class="font-bold"> {{ $res['titulo_resultado'] }}</h5>  <br>
                                         {!! $res['coincidencia'] !!}
                                     </td>
                                     <!-- Botón de acción -->
                                     <td class="p-4 text-center">
                                         @if ($res['registro_id'])
-                                            <a href="{{ route('buscador.registro', ['tabla' => $res['tabla'], 'id' => $res['registro_id']]) }}"
+                                            <a href="{{ route('buscador.registro', ['tipo' => $res['tipo'], 'id' => $res['registro_id']]) }}"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver información
                                             </a>
@@ -96,12 +97,12 @@
                 <!-- ========================================== -->
                 <div class="block md:hidden divide-y divide-gray-100 flex flex-col gap-4">
                     @foreach ($resultados as $res)
-                        <div class="p-5 my-2 shadow-md border border-gray-200 bg-white" >
+                        <div class="p-5 my-2 shadow-md border border-gray-200 bg-white">
                             <div class="flex flex-col gap-3 ">
                                 <!-- Encabezado de la Card -->
                                 <div>
                                     <span
-                                        class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider font-semibold inline-block mt-1">{{ $res['coleccion_nombre'] }}</span>
+                                        class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider font-semibold inline-block mt-1">{{ $res['tipo'] }}</span>
                                 </div>
 
                                 <!-- Contenido / Extracto -->
@@ -109,14 +110,14 @@
                                     <span
                                         class="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Coincidencia:</span>
                                     <div class="line-clamp-3 text-xs leading-relaxed text-gray-500">
-                                        {!! $res['coincidencia'] !!}
+                                        {!! $res['tipo'] !!}
                                     </div>
                                 </div>
 
                                 <!-- Acción de la Card -->
                                 @if ($res['registro_id'])
                                     <div class="mt-1">
-                                        <a href="{{ route('buscador.registro', ['tabla' => $res['tabla'], 'id' => $res['registro_id']]) }}"
+                                        <a href="{{ route('buscador.registro', ['tipo' => $res['tipo'], 'id' => $res['registro_id']]) }}"
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
                                             Ver información
                                         </a>

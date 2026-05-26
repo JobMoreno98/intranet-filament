@@ -13,8 +13,16 @@ return new class extends Migration {
         Schema::create('coleccions', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
+            $table->string('slug');
+            $table->text('descripcion')->nullable();;
+            $table->string('foto', 100)->nullable();;
+            $table->foreignId('parent_id')
+                ->nullable()
+                ->constrained('coleccions')
+                ->onUpdate('cascade')
+                ->onDelete('set null');
 
-
+            $table->index('parent_id');
             $table->timestamps();
         });
     }

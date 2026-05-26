@@ -3,8 +3,7 @@
 @section('content')
     <section class="bg-gray-50">
         <div class="mx-auto max-w-screen-xl px-3 sm:px-7 pt-8">
-            <form action="{{ route('buscador') }}" method="GET"
-                class="bg-transparent  p-4">
+            <form action="{{ route('buscador') }}" method="GET" class="bg-transparent  p-4">
 
                 <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
                     <div class="flex-1">
@@ -51,26 +50,61 @@
         <div class="mx-auto sm:px-7 px-2 max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 @forelse ($colecciones as $index => $item)
-                    <div class="p-6 rounded-md border bg-white flex flex-col gap-6 w-full shadow-xl" data-aos="fade-up"
-                        data-aos-duration="500" data-aos-delay="{{ $index * 100 }}"> <!-- escalera -->
+                    @php
+                        // 1. Calculamos el nivel de profundidad actual subiendo por los padres
+                        $depth = 0;
+                        $parent = $item->parent;
+                        while ($parent) {
+                            $depth++;
+                            $parent = $parent->parent;
+                        }
+
+                        // 2. Definimos clases de margen dinámico de Tailwind según la profundidad
+                        // Cada nivel se recorre un poco más a la derecha en pantallas medianas/grandes
+                        $marginClasses = match ($depth) {
+                            1 => 'md:ml-12 border-l-2 border-zinc-300 pl-6', // Primer hijo
+                            2 => 'md:ml-24 border-l-2 border-l-dashed border-zinc-300 pl-6', // Nieto
+                            3 => 'md:ml-36 border-l-2 border-l-dotted border-zinc-300 pl-6', // Bisnieto
+                            default => 'w-full', // Nivel raíz o superiores
+                        };
+                    @endphp
+
+                    <div class="{{ $marginClasses }} p-6 rounded-md border bg-white flex flex-col gap-6 shadow-xl relative"
+                        data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 100 }}">
+
+                        @if ($depth > 0)
+                            <div
+                                class="absolute -left-3 top-1/2 -translate-y-1/2 bg-zinc-100 text-zinc-500 text-xs px-1.5 py-0.5 rounded border font-mono">
+                                Sub-{{ $depth }}
+                            </div>
+                        @endif
 
                         <div>
                             <img style="aspect-ratio:1/1;" class="mx-auto h-auto max-w-full rounded-base"
-                                src="{{ asset($item->imagenColeccion) }}" alt="">
+                                src="{{ asset('storage/colecciones/'.$item->foto) }}" alt="{{ $item->nombre }}">
                         </div>
+
                         <div>
-                            <h2 class="text-xl font-bold text-center">{{ $item->coleccion }}</h2>
+                            <h2 class="text-xl font-bold text-center">
+                                {{ $item->nombre }}
+                            </h2>
                         </div>
-                        <p class="text-body text-justify"></p>
+
+                        <p class="text-body text-justify text-zinc-600 text-sm line-clamp-3">
+                            {{ $item->descripcion }}
+                        </p>
+
                         <p class="text-right mt-auto">
-                            <a href="{{ route('coleccion.show', $item->clave) }}" target="_blank"
-                                class="text-sm md:text-base bg-red-800 rounded text-white font-bold py-1 px-6 hover:bg-red-950">
+                            <a href="{{ route('coleccion.show', $item->slug) }}" target="_blank"
+                                class="text-sm md:text-base bg-red-800 rounded text-white font-bold py-1 px-6 hover:bg-red-950 transition-colors">
                                 Ver
                             </a>
                         </p>
                     </div>
                 @empty
-                    <h3>No hay resultados en la búsqueda</h3>
+                    <div class="col-span-full text-center py-12">
+                        <h3 class="text-lg font-medium text-zinc-500">No hay resultados en la búsqueda</h3>
+                    </div>
                 @endforelse
             </div>
 

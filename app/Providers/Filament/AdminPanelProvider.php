@@ -12,6 +12,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -30,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->path('admin')
-            ->authGuard('admin')->homeUrl('/admin')->globalSearch(false)->profile(isSimple:false)
+            ->authGuard('admin')->homeUrl('/admin')->globalSearch(false)->profile(isSimple: false)
             ->authPasswordBroker('admins')
             ->login()
             ->colors([
@@ -49,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 //FilamentInfoWidget::class,
-            ])
+            ])->databaseNotifications()->databaseNotificationsPolling('3s')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -93,6 +94,6 @@ class AdminPanelProvider extends PanelProvider
             ])->viteTheme('resources/css/filament/admin/theme.css')
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])->maxContentWidth(Width::Full);
     }
 }
