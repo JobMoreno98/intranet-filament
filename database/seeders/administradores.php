@@ -19,13 +19,13 @@ class administradores extends Seeder
 
         $user = Admin::create([
             'name' => 'Test User',
-            'email' => 'jobmoreno.mtz@gmail.com',
+            'email' => 'admin@gmail.com',
             'password' => Hash::make('password')
         ]);
 
         User::create([
             'name' => 'Test User',
-            'email' => 'jobmoreno.mtz@gmail.com',
+            'email' => 'admin@gmail.com',
             'password' => Hash::make('password')
         ]);
 

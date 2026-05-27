@@ -19,8 +19,7 @@ class SubColeccion extends Model
     {
         return $this->hasMany(Recursos::class);
     }
-
-
+    
     public function coleccion(): BelongsTo
     {
         return $this->belongsTo(Coleccion::class);

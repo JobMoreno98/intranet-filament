@@ -11,7 +11,7 @@ class Coleccion extends Model
 {
 
     use Searchable;
-    
+
     protected $casts = [
         'esquema' => 'array',
     ];
@@ -65,5 +65,13 @@ class Coleccion extends Model
                 $child->searchable(); // Esto lo re-indexa en Meilisearch
             });
         });
+    }
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+    public function items(): HasMany
+    {
+        return $this->hasMany(Recursos::class);
     }
 }

@@ -41,7 +41,8 @@
                 @php
                     // --- Lógica de preparación (Se mantiene igual) ---
                     $firstItem = $data->first();
-                    $allKeys = $firstItem ? array_keys((array) $firstItem) : [];
+                    //dd($firstItem, array_keys((array) $firstItem->toArray()));
+                    $allKeys = $allKeys = $firstItem ? array_keys($firstItem->getAttributes()) : [];
                     $cambios = [
                         'anio' => 'Año',
                         'tipoarchivo' => 'Tipo Archivo',
@@ -65,8 +66,24 @@
                         'autor1' => 'Autor 1',
                         'volumentomoejemplar' => 'Volumen / Tomo / Ejemplar',
                     ];
+                    $relations = [
+                        'autor_id' => 'autor.nombre',
+                    ];
+
+                    $ignorar = [
+                        'password',
+                        'created_at',
+                        'vistas_count',
+                        'updated_at',
+                        'remember_token',
+                        'deleted_at',
+                        'assets_procesados',
+                    ];
+
                     $prioritarios = ['titulo', 'autor', 'anio', 'clavefondoprincipal', 'fondoprincipal'];
-                    $keysFiltradas = array_filter($allKeys, fn($k) => !str_contains(strtolower($k), 'id'));
+
+                    $keysFiltradas = array_filter($allKeys, fn($k) => !in_array($k, $ignorar));
+
                     $headerPrimarios = array_filter($keysFiltradas, fn($k) => in_array(strtolower($k), $prioritarios));
                     $headerResto = array_diff($keysFiltradas, $headerPrimarios);
                     sort($headerResto);
@@ -161,7 +178,7 @@
                                                         {{ $cambios[strtolower($item)] ?? $item }}
                                                     </dt>
                                                     <dd class="text-sm text-gray-800 font-semibold leading-relaxed">
-                                                        {{ isset($value->$item) && $value->$item !== '' && $value->$item !== '-' && $value->$item !== 0 ? $value->$item : 'N/A' }}
+                                                        {{ isset($value->$item) && $value->$item !== '' && $value->$item !== '-' && $value->$item !== 0 ? print_r($value->$item) : 'N/A' }}
                                                     </dd>
                                                 </div>
                                             @endforeach

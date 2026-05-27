@@ -45,9 +45,6 @@
 
             <div class=" overflow-hidden">
 
-                <!-- ========================================== -->
-                <!-- 1. VISTA TABLA (Pantallas MD en adelante)  -->
-                <!-- ========================================== -->
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-900 text-white text-sm font-medium">
@@ -66,16 +63,25 @@
                                     </td>
                                     <!-- Celda de Fragmento -->
                                     <td class="p-4 text-gray-500 text-xs max-w-xs truncate-2-lines">
-                                        <h5 class="font-bold"> {{ $res['titulo_resultado'] }}</h5>  <br>
+                                        <h5 class="font-bold"> {{ $res['titulo_resultado'] }}</h5> <br>
                                         {!! $res['coincidencia'] !!}
                                     </td>
                                     <!-- Botón de acción -->
                                     <td class="p-4 text-center">
-                                        @if ($res['registro_id'])
+
+                                        @if ($res['registro_id'] && $res['tipo'] == 'documento')
                                             <a href="{{ route('buscador.registro', ['tipo' => $res['tipo'], 'id' => $res['registro_id']]) }}"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver información
                                             </a>
+                                        @else
+                                            <div class="mt-1">
+
+                                                <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
+                                                    class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
+                                                    Ver informacion
+                                                </a>
+                                            </div>
                                         @endif
                                     </td>
                                 </tr>
@@ -115,11 +121,19 @@
                                 </div>
 
                                 <!-- Acción de la Card -->
-                                @if ($res['registro_id'])
+                                @if ($res['registro_id'] && $res['tipo'] == 'documento')
                                     <div class="mt-1">
                                         <a href="{{ route('buscador.registro', ['tipo' => $res['tipo'], 'id' => $res['registro_id']]) }}"
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
                                             Ver información
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="mt-1">
+
+                                        <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
+                                           class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
+                                            Ver informacion
                                         </a>
                                     </div>
                                 @endif

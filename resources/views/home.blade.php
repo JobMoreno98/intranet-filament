@@ -58,9 +58,6 @@
                             $depth++;
                             $parent = $parent->parent;
                         }
-
-                        // 2. Definimos clases de margen dinámico de Tailwind según la profundidad
-                        // Cada nivel se recorre un poco más a la derecha en pantallas medianas/grandes
                         $marginClasses = match ($depth) {
                             1 => 'md:ml-12 border-l-2 border-zinc-300 pl-6', // Primer hijo
                             2 => 'md:ml-24 border-l-2 border-l-dashed border-zinc-300 pl-6', // Nieto

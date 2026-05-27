@@ -11,6 +11,7 @@ use Meilisearch\Client as MeilisearchClient;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Meilisearch\Contracts\SearchQuery;
 
@@ -46,33 +47,40 @@ class ColeccionesConsultaController extends Controller
         return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request, Coleccion $coleccion)
     {
-        $nombreTabla = DB::connection('mysql2')->table('colecciones')->select('tabla', 'coleccion')->where('clave', $id)->first();
 
-        if (!$nombreTabla) {
+        //dd($coleccion->items);
+
+        //$nombreTabla = DB::connection('mysql2')->table('colecciones')->select('tabla', 'coleccion')->where('clave', $id)->first();
+
+        if (!$coleccion) {
             abort(404, 'La colección no existe.');
         }
 
         // 2. Iniciar la consulta sobre esa tabla
-        $query = DB::connection('mysql2')->table($nombreTabla->tabla);
 
         // Buscamos en la configuración qué campos están permitidos para esta tabla
+        /*
         $camposPermitidos = DB::connection('mysql2')->table('colecciones')->where('tabla', $nombreTabla->tabla)->pluck('campo')->toArray();
 
         foreach ($request->only($camposPermitidos) as $campo => $valor) {
             if ($valor !== null && $valor !== '') {
                 $query->where($campo, 'LIKE', "%{$valor}%");
             }
-        }
+        }*/
 
-        $data = $query->paginate(14)->appends($request->all())->onEachSide(0);
+        $data = $coleccion->items()
+            ->paginate(14)
+            ->appends($request->all())
+            ->onEachSide(0);
+
 
         return view('coleccion', [
             'data' => $data,
-            'tablaNombre' => $nombreTabla->tabla,
-            'id' => $id,
-            'title' => $nombreTabla->coleccion,
+            'tablaNombre' => $coleccion->tabla,
+            //'id' => $id,
+            'title' => $coleccion->nombre,
         ]);
     }
 
@@ -86,7 +94,7 @@ class ColeccionesConsultaController extends Controller
             $meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
 
             // Obtener la metadata de las colecciones desde tu MySQL
-            $coleccionesMeta = ['coleccions','recursos'];
+            $coleccionesMeta = ['coleccions', 'recursos'];
 
             // 2. Construir las consultas usando las clases oficiales del SDK
             $queries = [];
@@ -196,25 +204,45 @@ class ColeccionesConsultaController extends Controller
             'title' => 'Búsqueda General',
         ]);
     }
-    public function showRegistro($tabla, $id)
+    public function showRegistro($tipo, $id)
     {
         // 1. Validar que la tabla exista por seguridad
-        if (!Schema::connection('mysql2')->hasTable($tabla)) {
-            abort(404, 'La tabla no existe.');
-        }
 
-        // 2. Traer la metadata de la colección
-        $meta = DB::connection('mysql2')->table('colecciones')->where('tabla', $tabla)->first();
+        $recurso = Recursos::findOrFail($id);
+        //dd($recurso);
 
-        // 3. Buscar el registro completo usando su llave 'IdElemento'
-        $registro = DB::connection('mysql2')->table($tabla)->where('IdElemento', $id)->first();
-
-        if (!$registro) {
+        if (!$recurso) {
             abort(404, 'El registro no fue encontrado.');
         }
-        $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'updated_at'];
 
-        $id = 1;
+        try {
+            // Incrementa el contador del recurso ID dentro del Hash "analytics:recursos_vistas"
+            Redis::hincrby('analytics:recursos_vistas', $recurso->id, 1);
+
+            // También sumamos al contador global del día
+            $hoy = now()->format('Y-m-d');
+            Redis::incr("analytics:recursos_vistas:{$hoy}");
+        } catch (\Exception $e) {
+            // Fallback en caso de que Redis no responda
+        }
+
+        $omitir = [
+            'IdElemento',
+            'id',
+            'created_at',
+            'updated_at',
+            'usuario_id',
+            'carpetaContenido',
+            'archvios',
+            'updated_at',
+            'deleted_at',
+            'vistas_count',
+            'hash_archivo',
+            'assets_procesados',
+            'status'
+        ];
+
+        $id = $recurso->id;
 
         $recursoData = Cache::remember("recurso_view_data_{$id}", 1800, function () use ($id) {
             $recurso = Recursos::with([
@@ -293,9 +321,9 @@ class ColeccionesConsultaController extends Controller
         ];
 
         return view('registro-detalle', [
-            'registro' => $registro,
-            'tablaNombre' => $tabla,
-            'coleccionNombre' => $meta->coleccion ?? $tabla,
+            'registro' => $recurso,
+            'tablaNombre' => $recurso->coleccion,
+            'coleccionNombre' => $recurso->coleccion,
             'labels' => $labels,
             'title' => 'Detalle del Registro',
             'omitir' => $omitir,

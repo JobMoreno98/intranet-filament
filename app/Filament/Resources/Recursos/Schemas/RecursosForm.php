@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Recursos\Schemas;
 
+use App\Models\Coleccion;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -30,21 +31,19 @@ class RecursosForm
                             ->required()
                             ->reactive()
                             ->afterStateUpdated(fn($set) => $set('metadata', []))
-                            ->options(function ($record) {
-                                $roots = \App\Models\Coleccion::query()
+                            ->options(function () {
+
+                                $roots = Coleccion::query()
                                     ->whereNull('parent_id')
                                     ->orderBy('nombre')
                                     ->get();
 
                                 $options = [];
-                                $currentId = $record ? $record->id : null;
 
-                                $addNodes = function ($node, $depth = 0) use (&$addNodes, &$options, $currentId) {
-                                    if ($currentId && $node->id === $currentId) {
-                                        return;
-                                    }
+                                $addNodes = function ($node, $depth = 0) use (&$addNodes, &$options) {
 
                                     $prefix = str_repeat('— ', $depth);
+
                                     $options[$node->id] = $prefix . $node->nombre;
 
                                     foreach ($node->children()->orderBy('nombre')->get() as $child) {
