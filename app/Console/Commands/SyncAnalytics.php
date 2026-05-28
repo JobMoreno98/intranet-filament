@@ -20,16 +20,13 @@ class SyncAnalytics extends Command
 
         $this->info('Iniciando vaciado de analíticas desde Redis (Mapeo bpej_)...');
 
-        // ---- 1. VISITAS GENERALES ----
         $visitas = [];
 
-        // ⚠️ Forzamos el nombre exacto con el prefijo que detectamos en tu log
         $nombreCola = 'bpej_analytics:visitas_queue';
 
         $totalEnCola = $redis->llen($nombreCola);
         $this->line("Elementos encontrados en la cola de visitas: {$totalEnCola}");
 
-        // Vaciamos la lista elemento por elemento
         while ($rawVisita = $redis->lpop($nombreCola)) {
             $datos = json_decode($rawVisita, true);
             if ($datos) {
@@ -43,7 +40,6 @@ class SyncAnalytics extends Command
                 ];
             }
 
-            // Inserción en bloques de 100 para no ahogar a MariaDB/MySQL
             if (count($visitas) >= 100) {
                 DB::table('visitas')->insert($visitas);
                 $visitas = [];

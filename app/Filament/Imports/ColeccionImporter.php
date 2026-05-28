@@ -27,9 +27,6 @@ class ColeccionImporter extends Importer
 
             ImportColumn::make('descripcion'),
 
-            /*
-             * IMPORTAR parent_id DIRECTO
-             */
             ImportColumn::make('parent_id')
                 ->numeric()
                 ->rules(['nullable', 'exists:coleccions,id'])

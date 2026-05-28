@@ -27,7 +27,7 @@ class RecursoImporter extends Importer
             ImportColumn::make('autor'),
 
             ImportColumn::make('anio'),
-            
+
         ];
     }
 
@@ -68,7 +68,7 @@ class RecursoImporter extends Importer
 
                 throw ValidationException::withMessages([
                     $campo['variable'] =>
-                        "El campo {$campo['label']} es obligatorio.",
+                    "El campo {$campo['label']} es obligatorio.",
                 ]);
             }
         }
@@ -106,10 +106,5 @@ class RecursoImporter extends Importer
         }
 
         return $body;
-    }
-
-    public function getJobQueue(): ?string
-    {
-        return 'imports';
     }
 }
