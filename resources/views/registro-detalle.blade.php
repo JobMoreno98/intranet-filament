@@ -11,7 +11,7 @@
             <main class="flex-1 flex flex-col min-h-0 border-b border-zinc-200">
                 <!-- TOPBAR -->
                 <div
-                    class="flex items-center flex-row md:flex-row justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
+                    class="flex items-center flex-col md:flex-row justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900">
                     <a href="{{ url()->previous() }}"
                         class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-300 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
                         <x-heroicon-o-arrow-left class="w-4 h-4" />
@@ -21,6 +21,7 @@
                         {{ $coleccionNombre->nombre }}
                     </span>
                 </div>
+                <!-- MOBILE INFO -->
                 <aside class="lg:hidden border-b border-zinc-800 bg-zinc-900 p-3 text-zinc-300">
                     <details class="group rounded-lg border border-zinc-800 bg-zinc-950">
                         <summary
@@ -240,77 +241,93 @@
                 </aside>
                 @if (Auth::check())
                     <!-- VIEWER -->
-                    <div class="flex-col md:flex-row flex h-full bg-zinc-900">
+                    <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
+
+                    <div class="flex flex-row h-[90%]">
+
+                        <div class="flex  gap-3 px-4 sm:px-6  my-4 hidden md:flex">
+                            <button id="prev-page"
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition">
+                               <flux:icon.arrow-left  variant="mini"/>
+                            </button>
+
+                        </div>
+
                         <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
                         <div id="visor-container" class="relative flex-1 min-h-0 max-w-5xl mx-auto w-full">
                             <div id="viewer" class="h-full overflow-auto flex justify-center bg-zinc-800 p-4">
                                 <!-- El canvas mantiene su renderizado pero contenido en el ancho máximo -->
                                 <canvas id="page-canvas" class="max-w-full h-auto shadow-lg"></canvas>
                             </div>
-
                         </div>
 
-                        <div class=" items-center flex flex-col justify-center">
-                            <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+                        <div class="flex  gap-3 px-4 sm:px-6 my-4 hidden md:flex">
+                            <button id="next-page"
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
+                                 <flux:icon.arrow-right  variant="mini"/>
+                            </button>
+                        </div>
+                    </div>
 
-                                <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
-                                    @isset($paginas)
-                                        1 / {{ count($paginas) }}
-                                    @endisset
+                    <!-- MOBILE PAGE -->
+                    <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
 
-                                </p>
+                        <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
+                            @isset($paginas)
+                                1 / {{ count($paginas) }}
+                            @endisset
 
-                            </div>
-                            <div class="mx-auto max-w-4xl px-4 sm:px-6">
+                        </p>
 
-                                <!-- Barra de Herramientas: Botones de Zoom interactivos -->
-                                <div
-                                    class="flex items-center justify-center gap-4 bg-white p-1 my-2  rounded-xl border border-gray-200 shadow-sm">
-                                    <!-- Botón Alejar -->
-                                    <button id="btn-zoom-out"
-                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
-                                        −
-                                    </button>
+                    </div>
 
-                                    <!-- Indicador de Porcentaje Dinámico -->
-                                    <span id="zoom-percent"
-                                        class="text-sm font-semibold text-gray-700 min-w-[60px] text-center">
-                                        100%
-                                    </span>
+                    <!-- MOBILE CONTROLS -->
+                    <div
+                        class=" flex items-center flex-col md:flex-row justify-between gap-3  border-t border-zinc-800 bg-zinc-900">
 
-                                    <!-- Botón Acercar -->
-                                    <button id="btn-zoom-in"
-                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
-                                        +
-                                    </button>
+                        <div class="flex w-full gap-3 px-4 sm:px-6  md:hidden my-2">
+                            <button id="prev-page"
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition text-center">
+                                <flux:icon.arrow-left variant="mini" class="mx-auto"/>
+                            </button>
 
-                                    <!-- Separador visual -->
-                                    <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                            <button id="next-page"
+                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
+                               <flux:icon.arrow-right  variant="mini" class="mx-auto"/>
+                            </button>
+                        </div>
 
-                                    <!-- Botón Restablecer -->
-                                    <button id="btn-reset-zoom"
-                                        class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">
-                                        Reiniciar
-                                    </button>
-                                </div>
-                                <!-- MOBILE CONTROLS -->
+                        <div class="mx-auto max-w-4xl px-4 sm:px-6">
 
-                                <div
-                                    class=" flex items-center flex-col md:flex-row justify-between gap-3  border-t border-zinc-800 bg-zinc-900">
+                            <!-- Barra de Herramientas: Botones de Zoom interactivos -->
+                            <div
+                                class="flex items-center justify-center gap-4 bg-white p-1 my-2  rounded-xl border border-gray-200 shadow-sm">
+                                <!-- Botón Alejar -->
+                                <button id="btn-zoom-out"
+                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
+                                    −
+                                </button>
 
-                                    <div class="flex w-full gap-3 px-4 sm:px-6">
-                                        <button id="prev-page"
-                                            class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition">
-                                            ← Anterior
-                                        </button>
+                                <!-- Indicador de Porcentaje Dinámico -->
+                                <span id="zoom-percent"
+                                    class="text-sm font-semibold text-gray-700 min-w-[60px] text-center">
+                                    100%
+                                </span>
 
-                                        <button id="next-page"
-                                            class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
-                                            Siguiente →
-                                        </button>
-                                    </div>
+                                <!-- Botón Acercar -->
+                                <button id="btn-zoom-in"
+                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
+                                    +
+                                </button>
 
-                                </div>
+                                <!-- Separador visual -->
+                                <div class="h-6 w-px bg-gray-200 mx-1"></div>
+
+                                <!-- Botón Restablecer -->
+                                <button id="btn-reset-zoom"
+                                    class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">
+                                    Reiniciar
+                                </button>
                             </div>
                         </div>
 
@@ -326,6 +343,7 @@
                         <p class="text-sm text-zinc-500 mt-2">
                             Debes autenticarte para acceder al visor digital.
                         </p>
+
                         @php
                             session(['url.intended' => url()->current()]);
                         @endphp
