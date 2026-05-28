@@ -212,4 +212,17 @@ export function initVisor({ paginas, recursoId = 0 }) {
     renderPage(currentPage);
 }
 
-window.initVisor = initVisor;
+// Al final de tu archivo resources/js/canvas-viewer.js, abajo de todo:
+
+document.addEventListener("DOMContentLoaded", () => {
+    const paginasRaw = document.documentElement.getAttribute('data-paginas');
+    const recursoIdRaw = document.documentElement.getAttribute('data-recurso-id');
+
+    if (paginasRaw) {
+        const paginas = JSON.parse(paginasRaw);
+        const recursoId = parseInt(recursoIdRaw || 0);
+        
+        // Auto-inicialización directa desde el bundle compilado
+        initVisor({ paginas, recursoId });
+    }
+});
