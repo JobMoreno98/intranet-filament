@@ -40,10 +40,10 @@ class ControlarVisitas
                 $visitaUnicaDia = Redis::set($lockKey, '1', 'EX', 86400, 'NX');
 
                 // 4. Si Redis dice que la llave ya existía (false), rompemos el flujo. Ya contó hoy.
-                /*
+                
                 if (!$visitaUnicaDia) {
                     return $response;
-                }*/
+                }
 
                 $payload = json_encode([
                     'ip' => $request->ip(),
