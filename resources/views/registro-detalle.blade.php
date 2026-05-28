@@ -323,6 +323,9 @@
                         <p class="text-sm text-zinc-500 mt-2">
                             Debes autenticarte para acceder al visor digital.
                         </p>
+                        @section('js')
+                            @php session(['url.intended' => url()->current()]); @endphp
+                        @endsection
 
                         <a href="{{ route('login') }}"
                             class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-red-900 text-white text-sm font-semibold hover:bg-red-800 transition">
