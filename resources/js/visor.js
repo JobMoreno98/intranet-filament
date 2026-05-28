@@ -269,9 +269,17 @@ export function initVisor({ paginas, recursoId = 0 }) {
         }
     });
 
+    // =========================
+    // DOBLE CLICK ZOOM
+    // =========================
+
     viewer.addEventListener("dblclick", () => {
         panzoom.zoomIn();
     });
+
+    // =========================
+    // PROTECCIONES
+    // =========================
 
     viewer.addEventListener("contextmenu", (e) => {
         e.preventDefault();
@@ -285,6 +293,11 @@ export function initVisor({ paginas, recursoId = 0 }) {
         e.preventDefault();
     });
 
+    // =========================
+    // START
+    // =========================
+
+    // botones mobile
     const nextBtn = document.getElementById("next-page");
 
     const prevBtn = document.getElementById("prev-page");
