@@ -75,6 +75,16 @@ class ColeccionesConsultaController extends Controller
             ->appends($request->all())
             ->onEachSide(0);
 
+        try {
+            // Incrementa el contador del recurso ID dentro del Hash "analytics:recursos_vistas"
+            Redis::hincrby('analytics:coleccion_vistas', $coleccion->id, 1);
+
+            // También sumamos al contador global del día
+            $hoy = now()->format('Y-m-d');
+            Redis::incr("analytics:coleccion_vistas:{$hoy}");
+        } catch (\Exception $e) {
+            // Fallback en caso de que Redis no responda
+        }
 
         return view('coleccion', [
             'data' => $data,
@@ -204,7 +214,7 @@ class ColeccionesConsultaController extends Controller
             'title' => 'Búsqueda General',
         ]);
     }
-    public function showRegistro($tipo, $id)
+    public function showRegistro(Request $request, $tipo, $id)
     {
         // 1. Validar que la tabla exista por seguridad
 
@@ -216,14 +226,27 @@ class ColeccionesConsultaController extends Controller
         }
 
         try {
-            // Incrementa el contador del recurso ID dentro del Hash "analytics:recursos_vistas"
+            // 1. Incrementa el contador del recurso ID dentro del Hash (Esto ya te funciona)
             Redis::hincrby('analytics:recursos_vistas', $recurso->id, 1);
 
-            // También sumamos al contador global del día
+            // 2. CORREGIDO: Construimos el payload real del visitante único diario
+            $payload = json_encode([
+                'ip' => $request->ip() ?? $request->header('X-Forwarded-For'),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->getRequestUri(),
+                'user_id' => auth()->id(),
+                'created_at' => now()->toDateTimeString(),
+            ]);
+
+            // 3. CORREGIDO: Empujamos a la lista global limpia que procesa tu comando Artisan
+            Redis::rpush('analytics:visitas_queue', $payload);
+
+            // 4. (Opcional) Si quieres mantener tu contador plano del día:
             $hoy = now()->format('Y-m-d');
             Redis::incr("analytics:recursos_vistas:{$hoy}");
         } catch (\Exception $e) {
             // Fallback en caso de que Redis no responda
+            Log::error('Error registrando analítica en visor: ' . $e->getMessage());
         }
 
         $omitir = [

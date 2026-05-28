@@ -9,6 +9,8 @@ use App\Filament\Resources\Recursos\Pages\ViewRecursos;
 use App\Filament\Resources\Recursos\Schemas\RecursosForm;
 use App\Filament\Resources\Recursos\Schemas\RecursosInfolist;
 use App\Filament\Resources\Recursos\Tables\RecursosTable;
+use App\Filament\Resources\Recursos\Widgets\StatsOverview;
+use App\Livewire\ImportStats;
 use App\Models\Recursos;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -73,5 +75,12 @@ class RecursosResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ImportStats::class,
+            StatsOverview::class
+        ];
     }
 }

@@ -15,7 +15,7 @@ Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
 Route::get('/buscador', [ColeccionesConsultaController::class, 'buscador'])->name('buscador');
 
 
-Route::get('/buscador/registro/{tipo}/{id}', [ColeccionesConsultaController::class, 'showRegistro'])->name('buscador.registro');
+Route::get('/buscador/recurso/{tipo}/{id}', [ColeccionesConsultaController::class, 'showRegistro'])->name('buscador.registro');
 
 
 Route::get('/coleccion/{coleccion}', [ColeccionesConsultaController::class, 'show'])->name('coleccion.show');

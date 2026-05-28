@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Recursos\Tables;
 
+use App\Filament\Imports\RecursoImporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -28,6 +30,9 @@ class RecursosTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+            ])->headerActions([
+                ImportAction::make()
+                    ->importer(RecursoImporter::class)
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

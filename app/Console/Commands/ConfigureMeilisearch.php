@@ -7,8 +7,8 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Meilisearch\Client;
 
-#[Signature('app:configure-meilisearch')]
-#[Description('Command description')]
+#[Signature('meili:configure')]
+#[Description('Configura los atributos indexables, filtrables y ordenables en Meilisearch')]
 class ConfigureMeilisearch extends Command
 {
     /**

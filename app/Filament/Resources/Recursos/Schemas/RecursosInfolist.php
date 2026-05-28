@@ -15,6 +15,8 @@ class RecursosInfolist
     {
         return $schema
             ->components([
+
+                
                 Section::make('Galería de Archivos')
                     ->schema([
                         RepeatableEntry::make('archivos') // Relación con la tabla hija

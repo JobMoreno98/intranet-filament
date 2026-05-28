@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\VisitaResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -51,6 +52,9 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
                 //FilamentInfoWidget::class,
             ])->databaseNotifications()->databaseNotificationsPolling('3s')
+            ->resources([
+                VisitaResource::class, // 👈 Agrégalo aquí explícitamente si tus carpetas no se auto-descubren
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

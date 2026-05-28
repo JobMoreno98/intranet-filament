@@ -138,14 +138,6 @@ class RecursosForm
                                     ->label('Vista Previa')
                                     ->view('filament.forms.components.preview')
                                     ->columnSpanFull(),
-                                /*
-                                FileUpload::make('path_original')
-                                    ->image()
-                                    ->hiddenLabel()
-                                    ->disk('private')
-                                    //->visibility('private')
-                                    ->disabled(),
-*/
                                 TextInput::make('status')
                                     ->hiddenLabel()
                                     ->extraAttributes(['class' => 'text-center font-bold'])
@@ -155,10 +147,8 @@ class RecursosForm
                             ->orderable('orden')
                             ->collapsible() // Permite colapsar para ahorrar espacio
                             ->collapsed()
-                            ->addActionLabel('Añadir archivo individual')
                             ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? 'Sin nombre'),
 
-                        // 2. CAMPO CIEGO para subidas masivas nuevas
                         FileUpload::make('archivos_bulk')
                             ->label('Subida Masiva')
                             ->multiple()
