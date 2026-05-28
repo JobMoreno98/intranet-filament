@@ -76,14 +76,12 @@ class ColeccionesConsultaController extends Controller
             ->onEachSide(0);
 
         try {
-            // Incrementa el contador del recurso ID dentro del Hash "analytics:recursos_vistas"
             Redis::hincrby('analytics:coleccion_vistas', $coleccion->id, 1);
 
-            // También sumamos al contador global del día
             $hoy = now()->format('Y-m-d');
             Redis::incr("analytics:coleccion_vistas:{$hoy}");
         } catch (\Exception $e) {
-            // Fallback en caso de que Redis no responda
+            Log::info($e);
         }
 
         return view('coleccion', [

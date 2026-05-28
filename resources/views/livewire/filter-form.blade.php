@@ -46,8 +46,6 @@ new class extends VoltComponent {
                     <label class="text-sm font-medium text-gray-600 mb-1">
                         {{ $f->titulo }}
                     </label>
-
-                    {{-- IMPORTANTE: El atributo 'name' es lo que el controlador leerá --}}
                     <input type="text" name="{{ $f->campo }}" value="{{ request($f->campo) }}"
                         placeholder="Buscar por {{ strtolower($f->titulo) }}..."
                         class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none">

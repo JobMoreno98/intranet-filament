@@ -50,8 +50,12 @@
             width: 100%;
         }
     </style>
-    @yield('css')
+
+    @fluxAppearance
     @livewireStyles
+    @yield('css')
+
+
 </head>
 
 <body class="antialiased">
@@ -71,16 +75,24 @@
                     </li>
                 </ul>
             </nav>
-            <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
-                {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
-                <a href="{{ route('login') }}"
-                    class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
+
+            @if (Auth::check())
+                <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+                    <x-desktop-user-menu />
+                </div>
+            @else
+                <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+                    {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
+                    <a href="{{ route('login') }}"
+                        class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
                          text-sm font-medium rounded-md
                         bg-red-800 hover:bg-red-900 text-white
                         transition shadow-sm
                         ">{{ __('Log In') }}
-                    | {{ __('Sign up') }}</a>
-            </div>
+                        | {{ __('Sign up') }}</a>
+                </div>
+            @endif
+
         </div>
     </header>
     <section class="relative">
@@ -523,8 +535,8 @@
 
         </div>
     </footer>
+    @fluxScripts
     @livewireScripts
-
     @yield('js')
 
 </body>

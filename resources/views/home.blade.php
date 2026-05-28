@@ -68,14 +68,6 @@
 
                     <div class="{{ $marginClasses }} p-6 rounded-md border bg-white flex flex-col gap-6 shadow-xl relative"
                         data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 100 }}">
-
-                        @if ($depth > 0)
-                            <div
-                                class="absolute -left-3 top-1/2 -translate-y-1/2 bg-zinc-100 text-zinc-500 text-xs px-1.5 py-0.5 rounded border font-mono">
-                                Sub-{{ $depth }}
-                            </div>
-                        @endif
-
                         <div>
                             <img style="aspect-ratio:1/1;" class="mx-auto h-auto max-w-full rounded-base"
                                 src="{{ asset('storage/colecciones/' . $item->foto) }}" alt="{{ $item->nombre }}">
