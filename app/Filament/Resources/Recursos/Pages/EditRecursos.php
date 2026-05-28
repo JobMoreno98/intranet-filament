@@ -82,7 +82,7 @@ class EditRecursos extends EditRecord
             'archivo_id'     => $archivo->id,
             'recurso_id'     => $recurso->id,
             'path'           => storage_path('app/private/' . $archivo->path_original),
-            'coleccion_slug' => $recurso->sub_coleccion->slug,
+            'coleccion_slug' => $recurso->coleccion->slug,
             'tipo'           => $recurso->tipo_media ?? 'imagen',
             'action'         => 'update'
         ];
