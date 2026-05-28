@@ -66,6 +66,7 @@ class EditRecursos extends EditRecord
                     'nombre_archivo_original' => $nombreLimpio
                 ]);
             }
+            
             $cantiad = $cantiad + 1;
 
             // 5. Mandamos a Go
