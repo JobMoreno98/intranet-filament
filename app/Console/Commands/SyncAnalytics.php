@@ -22,7 +22,7 @@ class SyncAnalytics extends Command
 
         $visitas = [];
 
-        $nombreCola = 'bpej_analytics:visitas_queue';
+        $nombreCola = 'analytics:visitas_queue';
 
         $totalEnCola = $redis->llen($nombreCola);
         $this->line("Elementos encontrados en la cola de visitas: {$totalEnCola}");
@@ -51,10 +51,7 @@ class SyncAnalytics extends Command
             DB::table('visitas')->insert($visitas);
         }
 
-
-        // ---- 2. RECURSOS CONSULTADOS ----
-        // ⚠️ Forzamos el nombre del Hash con su prefijo bpej_
-        $nombreHash = 'bpej_analytics:recursos_vistas';
+        $nombreHash = 'analytics:recursos_vistas';
 
         $recursosVistas = $redis->hgetall($nombreHash);
         $this->line("Registros únicos de recursos a actualizar: " . count($recursosVistas));

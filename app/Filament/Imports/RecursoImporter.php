@@ -7,6 +7,7 @@ use App\Models\Recursos;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Filament\Notifications\Notification;
 use Illuminate\Validation\ValidationException;
 
 class RecursoImporter extends Importer
@@ -89,12 +90,17 @@ class RecursoImporter extends Importer
             'titulo' => $data['titulo'],
             'autor' => $data['autor'] ?? null,
             'anio' => $data['anio'] ?? null,
-
-            // Solo referencia
             'archivo_original' => $data['archivo'] ?? null,
 
             'metadata' => $metadata,
         ]);
+
+
+        Notification::make()
+            ->title('Importación finalizada')
+            ->body('Se importó correctamente el recurso.')
+            ->success()
+            ->send();
     }
 
     public static function getCompletedNotificationBody(Import $import): string
