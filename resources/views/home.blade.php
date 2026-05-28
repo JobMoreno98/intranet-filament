@@ -59,9 +59,9 @@
                             $parent = $parent->parent;
                         }
                         $marginClasses = match ($depth) {
-                            1 => 'md:ml-12 border-l-2 border-zinc-300 pl-6', // Primer hijo
-                            2 => 'md:ml-24 border-l-2 border-l-dashed border-zinc-300 pl-6', // Nieto
-                            3 => 'md:ml-36 border-l-2 border-l-dotted border-zinc-300 pl-6', // Bisnieto
+                            1 => 'border-l-2 border-zinc-300 pl-6', // Primer hijo
+                            2 => 'border-l-2 border-l-dashed border-zinc-300 pl-6', // Nieto
+                            3 => 'border-l-2 border-l-dotted border-zinc-300 pl-6', // Bisnieto
                             default => 'w-full', // Nivel raíz o superiores
                         };
                     @endphp
@@ -78,7 +78,7 @@
 
                         <div>
                             <img style="aspect-ratio:1/1;" class="mx-auto h-auto max-w-full rounded-base"
-                                src="{{ asset('storage/colecciones/'.$item->foto) }}" alt="{{ $item->nombre }}">
+                                src="{{ asset('storage/colecciones/' . $item->foto) }}" alt="{{ $item->nombre }}">
                         </div>
 
                         <div>

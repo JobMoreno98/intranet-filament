@@ -241,19 +241,16 @@
                 </aside>
                 @if (Auth::check())
                     <!-- VIEWER -->
-                    <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
-
                     <div class="flex flex-row h-[90%]">
 
                         <div class="flex  gap-3 px-4 sm:px-6  my-4 hidden md:flex">
                             <button id="prev-page"
                                 class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition">
-                               <flux:icon.arrow-left  variant="mini"/>
+                                <flux:icon.arrow-left variant="mini" />
                             </button>
 
                         </div>
 
-                        <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
                         <div id="visor-container" class="relative flex-1 min-h-0 max-w-5xl mx-auto w-full">
                             <div id="viewer" class="h-full overflow-auto flex justify-center bg-zinc-800 p-4">
                                 <!-- El canvas mantiene su renderizado pero contenido en el ancho máximo -->
@@ -264,7 +261,7 @@
                         <div class="flex  gap-3 px-4 sm:px-6 my-4 hidden md:flex">
                             <button id="next-page"
                                 class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
-                                 <flux:icon.arrow-right  variant="mini"/>
+                                <flux:icon.arrow-right variant="mini" />
                             </button>
                         </div>
                     </div>
@@ -288,12 +285,12 @@
                         <div class="flex w-full gap-3 px-4 sm:px-6  md:hidden my-2">
                             <button id="prev-page"
                                 class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition text-center">
-                                <flux:icon.arrow-left variant="mini" class="mx-auto"/>
+                                <flux:icon.arrow-left variant="mini" class="mx-auto" />
                             </button>
 
                             <button id="next-page"
                                 class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
-                               <flux:icon.arrow-right  variant="mini" class="mx-auto"/>
+                                <flux:icon.arrow-right variant="mini" class="mx-auto" />
                             </button>
                         </div>
 
