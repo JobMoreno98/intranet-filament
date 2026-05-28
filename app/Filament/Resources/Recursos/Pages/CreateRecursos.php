@@ -53,7 +53,7 @@ class CreateRecursos extends CreateRecord
 
                 // RUTA FINAL: coleccion-slug/15/105/titulo.jpg
                 
-                $rutaFinal = "{$record->sub_coleccion->slug}/{$record->id}/{$nuevoArchivo->id}/{$nombreLimpio}";
+                $rutaFinal = "{$record->coleccion->slug}/{$record->id}/{$nuevoArchivo->id}/{$nombreLimpio}";
 
                 // 3. Movemos el archivo a su nueva casa
                 if (Storage::disk('private')->exists($rutaTemporal)) {
