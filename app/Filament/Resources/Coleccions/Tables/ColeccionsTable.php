@@ -17,6 +17,7 @@ class ColeccionsTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label('ID'),
                 TextColumn::make('nombre')
                     ->searchable()->sortable()->wrap(),
 

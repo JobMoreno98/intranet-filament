@@ -32,7 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->path('admin')
-            ->authGuard('admin')->homeUrl('/admin')->globalSearch(false)->profile(isSimple: false)
+            ->authGuard('admin')->homeUrl('/admin')
+            ->globalSearch(false)->profile(isSimple: false)
             ->authPasswordBroker('admins')
             ->login()
             ->colors([
@@ -51,7 +52,8 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 //AccountWidget::class,
                 //FilamentInfoWidget::class,
-            ])->databaseNotifications()->databaseNotificationsPolling('3s')
+            ])->databaseNotifications()
+            ->databaseNotificationsPolling('3s')
             ->resources([
                 VisitaResource::class, // 👈 Agrégalo aquí explícitamente si tus carpetas no se auto-descubren
             ])
@@ -100,4 +102,5 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])->maxContentWidth(Width::Full);
     }
+    
 }

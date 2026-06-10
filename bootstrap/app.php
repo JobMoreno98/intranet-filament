@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'secure.media' => \App\Http\Middleware\SecureMediaAccess::class,
         ]);
+        $middleware->validateSignatures(except: [
+            'filament/imports/*/failed-rows/download*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

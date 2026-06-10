@@ -50,6 +50,9 @@ class ColeccionImporter extends Importer
         if ($successfulRows) {
             $body .= " {$successfulRows} filas importadas.";
         }
+        if ($failedRowsCount = $import->getFailedRowsCount()) {
+            $body .= " {$failedRowsCount} filas fallaron.";
+        }
 
         return $body;
     }

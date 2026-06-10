@@ -12,6 +12,7 @@ class Admin extends Authenticatable  implements FilamentUser
 {
     use Notifiable;
     use HasRoles;
+    protected string $guard_name = 'admin';
 
     protected $table = 'admin';
 
@@ -36,5 +37,23 @@ class Admin extends Authenticatable  implements FilamentUser
         }
 
         return true;
+    }
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'App.Models.User.' . $this->getKey();
+    }
+    public function getFilamentDatabaseNotificationType(): string
+    {
+        return 'App\Models\User';
+    }
+    public function notifications()
+    {
+        return $this->hasMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable_id')
+            ->whereIn('notifiable_type', [
+                'App\Models\User',
+                'App\Models\Admin',
+                'admin'
+            ])
+            ->latest();
     }
 }
