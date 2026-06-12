@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Admin;
 use App\Models\RecursosArchivos;
 use Carbon\CarbonImmutable;
+use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -48,6 +50,10 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return Limit::perMinute(200)->by($key);
+        });
+
+        Import::resolveRelationUsing('user', function ($importModel) {
+            return $importModel->belongsTo(Admin::class, 'user_id');
         });
     }
 

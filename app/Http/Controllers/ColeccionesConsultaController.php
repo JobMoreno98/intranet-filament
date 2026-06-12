@@ -20,31 +20,32 @@ class ColeccionesConsultaController extends Controller
     public function index(Request $request)
     {
 
-        $colecciones = $colecciones = Coleccion::from('coleccions as c')
-            ->select('c.*')
-            ->join(DB::raw('(
+$colecciones = Coleccion::from('coleccions as c')
+    ->select('c.*')
+    ->join(DB::raw('(
         WITH RECURSIVE colecciones_tree AS (
-            # 1. CASO BASE: Limpiamos espacios con TRIM por si acaso
             SELECT id, CAST(TRIM(nombre) AS CHAR(500)) as path_tree 
             FROM coleccions 
             WHERE parent_id IS NULL
             
             UNION ALL
             
-            # 2. CASO RECURSIVO: Limpiamos también el nombre del hijo al concatenar
             SELECT child.id, CAST(CONCAT(parent.path_tree, " > ", TRIM(child.nombre)) AS CHAR(500))
             FROM coleccions child
             INNER JOIN colecciones_tree parent ON child.parent_id = parent.id
         )
         SELECT id, path_tree FROM colecciones_tree
     ) as tree'), 'c.id', '=', 'tree.id')
-            # Usamos el ordenamiento natural de la ruta limpia
-            ->orderBy('tree.path_tree', 'ASC')
-            ->paginate(15);
+    // IMPORTANTE: Solo nos interesan los padres en la lista principal
+    ->whereNull('c.parent_id') 
+    // Cargamos de golpe todos sus hijos (y si quieres, ordenados)
+    ->with(['children' => function($query) {
+        $query->orderBy('nombre', 'ASC'); 
+    }])
+    ->orderBy('tree.path_tree', 'ASC')
+    ->paginate(5);
 
-
-        //dd($colecciones);
-        return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
+return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, Coleccion $coleccion)

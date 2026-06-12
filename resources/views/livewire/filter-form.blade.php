@@ -37,6 +37,7 @@ new class extends VoltComponent {
         return redirect()->to(url()->current() . '?' . http_build_query($filtrosActivos));
     }
 }; ?>
+
 <div class="bg-white p-4 rounded-b-lg shadow ">
     <h4 class="text-md font-bold mb-4 text-gray-700">Filtrar registros</h4>
     <form action="{{ url()->current() }}" method="GET">

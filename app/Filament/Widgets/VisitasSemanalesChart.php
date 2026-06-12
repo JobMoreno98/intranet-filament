@@ -24,7 +24,6 @@ class VisitasSemanalesChart extends ChartWidget
         ];
     }
 
-
     protected function getData(): array
     {
         $filtroActivo = $this->filter;
@@ -61,22 +60,14 @@ class VisitasSemanalesChart extends ChartWidget
         $conteosMap = [];
 
         if ($filtroActivo === 'este_anio') {
-
             for ($m = 1; $m <= 12; $m++) {
                 $nombreMes = ucfirst(Carbon::create()->month($m)->isoFormat('MMMM'));
                 $labelsEjeX[$m] = $nombreMes;
                 $conteosMap[$m] = 0;
             }
 
-            $visitasBD = DB::table('visitas')
-                ->select(DB::raw('MONTH(created_at) as unidad_tiempo'), DB::raw('COUNT(*) as total'))
-                ->where('created_at', '>=', $inicio)
-                ->groupBy(DB::raw('MONTH(created_at)'))
-                ->get();
-
+            $visitasBD = DB::table('visitas')->select(DB::raw('MONTH(created_at) as unidad_tiempo'), DB::raw('COUNT(*) as total'))->where('created_at', '>=', $inicio)->groupBy(DB::raw('MONTH(created_at)'))->get();
         } else {
-
-          
             for ($i = $diasAtras; $i >= 0; $i--) {
                 $fecha = Carbon::now()->subDays($i)->format('Y-m-d');
                 $label = Carbon::parse($fecha)->isoFormat($formatoEjeX);
@@ -86,11 +77,7 @@ class VisitasSemanalesChart extends ChartWidget
             }
 
             // Consulta agrupada por DÍA limpio
-            $visitasBD = DB::table('visitas')
-                ->select(DB::raw('DATE(created_at) as unidad_tiempo'), DB::raw('COUNT(*) as total'))
-                ->where('created_at', '>=', $inicio)
-                ->groupBy(DB::raw('DATE(created_at)'))
-                ->get();
+            $visitasBD = DB::table('visitas')->select(DB::raw('DATE(created_at) as unidad_tiempo'), DB::raw('COUNT(*) as total'))->where('created_at', '>=', $inicio)->groupBy(DB::raw('DATE(created_at)'))->get();
         }
 
         foreach ($visitasBD as $registro) {
@@ -104,15 +91,20 @@ class VisitasSemanalesChart extends ChartWidget
                 [
                     'label' => 'Visitas registradas',
                     'data' => array_values($conteosMap),
-                    'backgroundColor' => 'rgba(255, 88, 0, 0.8)', 
+                    'backgroundColor' => 'rgba(255, 88, 0, 0.8)',
                     'borderColor' => 'rgb(123, 35, 37)',
                     'borderWidth' => 1,
                 ],
             ],
             'labels' => array_values($labelsEjeX),
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                    'min' => 0, // asegura que nunca baje de 0
+                ],
+            ],
         ];
     }
-
 
     protected function getType(): string
     {

@@ -32,22 +32,50 @@
             font-family: "PT Serif", serif;
         }
 
-        @media(max-width:800px) {
+        @media (max-width: 800px) {
             #img-bpej {
                 aspect-ratio: 16 / 5 !important;
             }
         }
 
-        @media(min-width:801px) {
+        @media (min-width: 801px) {
             #img-bpej {
                 aspect-ratio: 16 / 9 !important;
             }
         }
 
         #img-bpej {
-            object-fit: cover;
-            max-height: 350px;
+            background-image: url('{{ asset('img/portada-web.jpg') }}');
+            /* coloca aquí la ruta */
+            background-size: cover;
+            /* equivalente a object-fit: cover */
+            background-position: center;
+            /* centra la imagen */
+            max-height: 400px;
             width: 100%;
+        }
+
+        /* Indicador con animación tipo gota/elástica */
+        #indicator {
+            /* Aumenté ligeramente el tiempo a 0.5s para que el efecto elástico de la gota se note más */
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);
+        }
+
+        /* El selector '~' ahora funciona porque están al mismo nivel */
+        #todas:checked~#indicator {
+            transform: translateX(0%);
+        }
+
+        #libros:checked~#indicator {
+            transform: translateX(100%);
+        }
+
+        #periodicos:checked~#indicator {
+            transform: translateX(200%);
+        }
+
+        #revistas:checked~#indicator {
+            transform: translateX(300%);
         }
     </style>
 
@@ -71,7 +99,7 @@
             <nav style="display: flex;align-items: center;">
                 <ul class="flex items-center gap-4 text-sm md:text-base">
                     <li>
-                        <a href="{{ route('home') }}" class="hover:text-orange-500">Colecciones</a>
+                        <a href="{{ route('home') }}" class="hover:text-orange-500">Fondos</a>
                     </li>
                 </ul>
             </nav>
@@ -95,9 +123,10 @@
 
         </div>
     </header>
-    <section class="relative">
+    <section id="img-bpej" class="relative flex flex-col">
+        {{--
         <div class="z-10">
-            {{--
+          
             <div class="mx-auto max-w-5xl px-6 md:px-2 py-10 md:py-24 flex flex-col gap-6 items-center">
                 <h1 class="text-4xl font-bold text-center max-w-[600px]">
                     Lorem ipsum dolor sit<br>amet consectetur adipisicing elit
@@ -132,13 +161,94 @@
                     </small>
                 </div>
             </div>
-            --}}
-            <img src="{{ asset('img/portada-web.jpg') }}" id="img-bpej" alt="logo-bpej">
+           
         </div>
+ --}}
+        <div class="mt-auto mx-auto max-w-screen-xl px-3 sm:px-7 pt-8">
+            <form action="{{ route('buscador') }}" method="GET" class="bg-transparent  p-4">
 
+                <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <x-heroicon-o-magnifying-glass class="w-4 h-4" />
+                            </div>
+
+                            <input type="text" name="q" value="{{ request('coleccion') }}"
+                                placeholder="Buscar colección..."
+                                class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300
+                               bg-white focus:ring-2 focus:ring-red-100
+                               focus:border-red-700 outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex gap-2 w-full lg:w-auto">
+
+                        <flux:button type="submit" variant="primary" size="sm"
+                            class="
+                                w-full
+                            inline-flex items-center justify-center gap-1.5
+                        px-4   py-2 text-sm font-medium rounded-xl h-10
+                        bg-red-800 hover:bg-red-900 text-white
+                        transition shadow-sm">
+                            <x-heroicon-o-magnifying-glass class="w-5 h-5" />
+                        </flux:button>
+
+                        <flux:button href="{{ route('home') }}" variant="ghost" size="sm"
+                            class=" w-full inline-flex items-center justify-center gap-1.5 h-10
+                        px-4 py-2 text-sm font-medium rounded-xl bg-white
+                        bg-gray-100 hover:bg-gray-200 text-gray-700
+                        border border-gray-200 transition">
+                            <x-heroicon-o-x-mark class="w-5 h-5" />
+
+                        </flux:button>
+
+                    </div>
+                </div>
+
+                <div class="relative flex w-full lg:w-auto bg-white rounded-xl overflow-hidden mt-1 w-full">
+
+                    <input type="radio" name="filtro" id="todas" value="todas" class="hidden peer/todas"
+                        checked>
+                    <input type="radio" name="filtro" id="libros" value="libros" class="hidden peer/libros">
+                    <input type="radio" name="filtro" id="periodicos" value="periodicos"
+                        class="hidden peer/periodicos">
+                    <input type="radio" name="filtro" id="revistas" value="revistas" class="hidden peer/revistas">
+
+                    <span id="indicator"
+                        class="absolute top-0 left-0 h-full w-1/4 bg-red-900 rounded-xl transition-transform"></span>
+
+                    <label for="todas"
+                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/todas:text-white">
+                        Todas
+                    </label>
+
+                    <label for="libros"
+                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/libros:text-white">
+                        Libros
+                    </label>
+
+                    <label for="periodicos"
+                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/periodicos:text-white">
+                        Periódicos
+                    </label>
+
+                    <label for="revistas"
+                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/revistas:text-white">
+                        Revistas
+                    </label>
+
+                </div>
+
+
+            </form>
+        </div>
+        {{-- 
         <div class="-z-10 absolute top-0 w-full h-[200px] bg-gradiant">
 
         </div>
+         --}}
     </section>
 
 
