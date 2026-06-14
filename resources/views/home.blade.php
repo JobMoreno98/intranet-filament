@@ -1,7 +1,7 @@
 @extends('layouts.plantilla')
 
 @section('content')
-    <section class="bg-gray-50">
+    <section >
 
 
         <div class="mx-auto sm:px-7 px-2 max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center">

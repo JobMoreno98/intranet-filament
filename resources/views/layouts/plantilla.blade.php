@@ -10,7 +10,14 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia(
+                '(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
@@ -86,7 +93,7 @@
 </head>
 
 <body class="antialiased">
-    <nav class="bg-white border-gray-200 py-2.5 dark:bg-gray-900">
+    <nav class="bg-white border-gray-200 py-2.5 dark:bg-gray-700">
         <div class="flex flex-wrap items-center justify-between w-full px-4 mx-auto">
             <div class="flex flex-col md:flex-row w-full md:w-auto ">
                 <div class="flex flex-row justify-between w-full ">
@@ -98,25 +105,54 @@
                             {{ config('app.name', 'Laravel') }}
                         </span>
                     </a>
-                    <div class="hidden mt-2 mr-4 sm:inline-block">
-                        <span></span>
+
+                    <div class="flex  md:hidden">
+
+                        <div x-data="{
+                            darkMode: localStorage.getItem('theme') === 'dark' ||
+                                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+                        }" x-init="darkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+                        $watch('darkMode', val => {
+                            val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+                            localStorage.setItem('theme', val ? 'dark' : 'light');
+                        });">
+
+                            <button @click="darkMode = !darkMode" type="button"
+                                class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
+
+                                <span x-show="!darkMode" x-cloak>
+                                    <x-heroicon-o-moon class="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                </span>
+
+                                <span x-show="darkMode" x-cloak>
+                                    <x-heroicon-o-sun
+                                        class="w-5 h-5 text-amber-400 group-hover:rotate-45 transition-transform" />
+                                </span>
+
+                            </button>
+                        </div>
+                        <div class=" mt-2 mr-4 ">
+                            <span></span>
+                        </div>
+                        <button data-collapse-toggle="mobile-menu-2" type="button"
+                            class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                            aria-controls="mobile-menu-2" aria-expanded="true">
+                            <span class="sr-only">Open main menu</span>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
                     </div>
-                    <button data-collapse-toggle="mobile-menu-2" type="button"
-                        class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                        aria-controls="mobile-menu-2" aria-expanded="true">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
+
                 </div>
                 <div class="items-center justify-between w-full lg:flex lg:w-auto lg:order-1 hidden ms-3"
                     id="mobile-menu-2">
@@ -155,9 +191,34 @@
 
 
             <div class="flex items-center lg:order-2">
-                <div class="hidden md:inline-block">
+                <div class="hidden md:flex">
+
+                    <div x-data="{
+                        darkMode: localStorage.getItem('theme') === 'dark' ||
+                            (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    }" x-init="darkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+                    $watch('darkMode', val => {
+                        val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+                        localStorage.setItem('theme', val ? 'dark' : 'light');
+                    });">
+
+                        <button @click="darkMode = !darkMode" type="button"
+                            class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
+
+                            <span x-show="!darkMode" x-cloak>
+                                <x-heroicon-o-moon class="w-5 h-5 group-hover:scale-110 transition-transform" />
+                            </span>
+
+                            <span x-show="darkMode" x-cloak>
+                                <x-heroicon-o-sun
+                                    class="w-5 h-5 text-amber-400 group-hover:rotate-45 transition-transform" />
+                            </span>
+
+                        </button>
+                    </div>
                     @if (Auth::check())
                         <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+
                             <x-desktop-user-menu />
                         </div>
                     @else
@@ -232,8 +293,7 @@
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                     <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                                 </div>
-                                <input type="text" name="q" 
-                                    placeholder="Buscar contenido..."
+                                <input type="text" name="q" placeholder="Buscar contenido..."
                                     class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
                             </div>
                         </div>
@@ -251,14 +311,13 @@
                         </div>
                     </div>
 
-                    <div
-                        class="w-full overflow-x-auto scrollbar-none mt-1 bg-white rounded-xl mt-3 border border-gray-100">
+                    <div class="w-full overflow-x-auto scrollbar-none mt-1 bg-white rounded-xl mt-3 dark:bg-stone-700">
                         <div class="relative flex min-w-max items-stretch h-12">
 
                             <input type="radio" id="d-todas" name="tabs-desktop" class="hidden" checked
                                 @click="activeIndexDesktop = 0">
                             <label for="d-todas"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 0 ? 'text-white' : 'text-zinc-600'">
                                 Todas
                             </label>
@@ -266,7 +325,7 @@
                             <input type="radio" id="d-libros" name="tabs-desktop" class="hidden"
                                 @click="activeIndexDesktop = 1">
                             <label for="d-libros"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 1 ? 'text-white' : 'text-zinc-600'">
                                 Libros
                             </label>
@@ -274,7 +333,7 @@
                             <input type="radio" id="d-periodicos" name="tabs-desktop" class="hidden"
                                 @click="activeIndexDesktop = 2">
                             <label for="d-periodicos"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 2 ? 'text-white' : 'text-zinc-600'">
                                 Periódicos
                             </label>
@@ -282,7 +341,7 @@
                             <input type="radio" id="d-revistas" name="tabs-desktop" class="hidden"
                                 @click="activeIndexDesktop = 3">
                             <label for="d-revistas"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 3 ? 'text-white' : 'text-zinc-600'">
                                 Revistas
                             </label>
@@ -290,7 +349,7 @@
                             <input type="radio" id="d-mapas" name="tabs-desktop" class="hidden"
                                 @click="activeIndexDesktop = 4">
                             <label for="d-mapas"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 4 ? 'text-white' : 'text-zinc-600'">
                                 Mapas
                             </label>
@@ -317,7 +376,7 @@
                             </div>
                             <input type="text" name="q" value="{{ request('coleccion') }}"
                                 placeholder="Buscar colección..."
-                                class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
+                                class="dark:text-zinc-900 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
                         </div>
                     </div>
 
@@ -328,7 +387,7 @@
                         </flux:button>
 
                         <flux:button href="{{ route('home') }}" variant="ghost" size="sm"
-                            class="w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-white hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
+                            class="dark:bg-zinc-700 dark:text-white w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-white hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
                             <x-heroicon-o-x-mark class="w-5 h-5" />
                         </flux:button>
                     </div>
@@ -336,13 +395,13 @@
 
                 <div class="flex flex-col  px-2" id="img-bpej">
                     <div
-                        class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white rounded-xl border border-gray-100 py-1 shadow-sm">
+                        class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white dark:bg-stone-700 dark:text-white rounded-xl shadow-sm">
                         <div class="relative flex min-w-max items-stretch h-12">
 
                             <input type="radio" id="m-todas" name="tabs-mobile" class="hidden" checked
                                 @click="activeIndexMobile = 0">
                             <label for="m-todas"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexMobile === 0 ? 'text-white' : 'text-zinc-600'">
                                 Todas
                             </label>
@@ -350,7 +409,7 @@
                             <input type="radio" id="m-libros" name="tabs-mobile" class="hidden"
                                 @click="activeIndexMobile = 1">
                             <label for="m-libros"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexMobile === 1 ? 'text-white' : 'text-zinc-600'">
                                 Libros
                             </label>
@@ -358,7 +417,7 @@
                             <input type="radio" id="m-periodicos" name="tabs-mobile" class="hidden"
                                 @click="activeIndexMobile = 2">
                             <label for="m-periodicos"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexMobile === 2 ? 'text-white' : 'text-zinc-600'">
                                 Periódicos
                             </label>
@@ -366,7 +425,7 @@
                             <input type="radio" id="m-revistas" name="tabs-mobile" class="hidden"
                                 @click="activeIndexMobile = 3">
                             <label for="m-revistas"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexMobile === 3 ? 'text-white' : 'text-zinc-600'">
                                 Revistas
                             </label>
@@ -374,7 +433,7 @@
                             <input type="radio" id="m-mapas" name="tabs-mobile" class="hidden"
                                 @click="activeIndexMobile = 4">
                             <label for="m-mapas"
-                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexMobile === 4 ? 'text-white' : 'text-zinc-600'">
                                 Mapas
                             </label>
@@ -398,7 +457,7 @@
     </section>
 
 
-    <div>
+    <div class=" bg-white border-gray-200 py-2.5 dark:bg-gray-700">
         @yield('content')
     </div>
 
@@ -739,9 +798,9 @@
 
 --}}
 
-    <footer>
-        <div class="px-2 pt-10 mx-auto max-w-7xl">
-            <div class="pt-12 border-t border-gray-300 flex flex-col md:flex-row gap-10 items-center">
+    <footer class="dark:bg-zinc-700">
+        <div class="px-2 pt-10 mx-auto max-w-7xl ">
+            <div class="pt-12 border-t border-gray-300 flex flex-col md:flex-row gap-10 items-center ">
                 <div class="text-black flex flex-col ">
                     <a href="{{ route('home') }}" class="font-bold text-xl"
                         style="display: flex; align-items: center; gap: 8px;">
