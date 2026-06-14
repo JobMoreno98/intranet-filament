@@ -51,31 +51,30 @@
             /* equivalente a object-fit: cover */
             background-position: center;
             /* centra la imagen */
-            max-height: 400px;
+            max-height: 320px;
             width: 100%;
         }
 
-        /* Indicador con animación tipo gota/elástica */
-        #indicator {
-            /* Aumenté ligeramente el tiempo a 0.5s para que el efecto elástico de la gota se note más */
+        #indicatorDesktop {
+            /* Multiplica el índice (0, 1, 2...) por el ancho fijo de la pestaña (120px) */
+            transform: translateX(calc(var(--active-index, 0) * var(--tab-width)));
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
 
-        /* El selector '~' ahora funciona porque están al mismo nivel */
-        #todas:checked~#indicator {
-            transform: translateX(0%);
+        #indicatorMoviile {
+            /* Multiplica el índice (0, 1, 2...) por el ancho fijo de la pestaña (120px) */
+            transform: translateX(calc(var(--active-index, 0) * var(--tab-width)));
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
 
-        #libros:checked~#indicator {
-            transform: translateX(100%);
+        /* Opcional: Ocultar la barra de scroll horrible del navegador para estética limpia */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
         }
 
-        #periodicos:checked~#indicator {
-            transform: translateX(200%);
-        }
-
-        #revistas:checked~#indicator {
-            transform: translateX(300%);
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 
@@ -87,43 +86,100 @@
 </head>
 
 <body class="antialiased">
-    <header class="border-b-2">
-        <div class="mx-auto w-full px-6 py-4 flex flex-col md:flex-row gap-2 md:gap-8 items-between">
-            <a href="{{ route('home') }}" class="font-bold text-xl flex flex-col md:flex-row text-center md:text-left"
-                style="align-items: center; gap: 8px;">
-                <img src="{{ asset('img/logo.svg') }}" alt="" width="80" height="80" id="logo">
-                <span class="" style="color:#86212b;">
+    <nav class="bg-white border-gray-200 py-2.5 dark:bg-gray-900">
+        <div class="flex flex-wrap items-center justify-between w-full px-4 mx-auto">
+            <div class="flex flex-col md:flex-row w-full md:w-auto ">
+                <div class="flex flex-row justify-between w-full ">
+                    <a href="{{ route('home') }}" class="flex items-center font-bold text-xl">
+                        <img src="{{ asset('img/logo.svg') }}" class="h-6 mr-3 sm:h-9"
+                            alt="{{ config('app.name', 'Laravel') }} Logo">
+                        <span class="" style="color:#86212b;">
 
-                    {{ config('app.name', 'Laravel') }}</span>
-            </a>
-            <nav style="display: flex;align-items: center;">
-                <ul class="flex items-center gap-4 text-sm md:text-base">
-                    <li>
-                        <a href="{{ route('home') }}" class="hover:text-orange-500">Fondos</a>
-                    </li>
-                </ul>
-            </nav>
-
-            @if (Auth::check())
-                <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
-                    <x-desktop-user-menu />
+                            {{ config('app.name', 'Laravel') }}
+                        </span>
+                    </a>
+                    <div class="hidden mt-2 mr-4 sm:inline-block">
+                        <span></span>
+                    </div>
+                    <button data-collapse-toggle="mobile-menu-2" type="button"
+                        class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                        aria-controls="mobile-menu-2" aria-expanded="true">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
                 </div>
-            @else
-                <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
-                    {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
-                    <a href="{{ route('login') }}"
-                        class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
+                <div class="items-center justify-between w-full lg:flex lg:w-auto lg:order-1 hidden ms-3"
+                    id="mobile-menu-2">
+                    <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
+                        <li>
+                            <a href="{{ route('home') }}"
+                                class="block py-2 pl-3 pr-4 text-white bg-purple-700 rounded lg:bg-transparent lg:text-purple-700 lg:p-0 dark:text-white"
+                                aria-current="page">Inicio</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('home') }}"
+                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Fondos</a>
+                        </li>
+
+                    </ul>
+                    <div class="block md:hidden">
+                        @if (Auth::check())
+                            <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+                                <x-desktop-user-menu />
+                            </div>
+                        @else
+                            <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+                                {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
+                                <a href="{{ route('login') }}"
+                                    class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
                          text-sm font-medium rounded-md
                         bg-red-800 hover:bg-red-900 text-white
                         transition shadow-sm
                         ">{{ __('Log In') }}
-                        | {{ __('Sign up') }}</a>
+                                    | {{ __('Sign up') }}</a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            @endif
+            </div>
+
+
+            <div class="flex items-center lg:order-2">
+                <div class="hidden md:inline-block">
+                    @if (Auth::check())
+                        <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+                            <x-desktop-user-menu />
+                        </div>
+                    @else
+                        <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+                            {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
+                            <a href="{{ route('login') }}"
+                                class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
+                         text-sm font-medium rounded-md
+                        bg-red-800 hover:bg-red-900 text-white
+                        transition shadow-sm
+                        ">{{ __('Log In') }}
+                                | {{ __('Sign up') }}</a>
+                        </div>
+                    @endif
+                </div>
+
+            </div>
 
         </div>
-    </header>
-    <section id="img-bpej" class="relative flex flex-col">
+    </nav>
+
+    <section class="relative flex flex-col">
         {{--
         <div class="z-10">
           
@@ -164,86 +220,176 @@
            
         </div>
  --}}
-        <div class="mt-auto mx-auto max-w-screen-xl px-3 sm:px-7 pt-8">
-            <form action="{{ route('buscador') }}" method="GET" class="bg-transparent  p-4">
+        <div id="img-bpej" style="width: 100%;" class="hidden md:block">
+            <div class="flex flex-col h-full ">
+                <form action="{{ route('buscador') }}" method="GET"
+                    class="mt-auto mx-auto w-full md:max-w-screen-lg mb-3 px-3 sm:px-7 pt-9" x-data="{ activeIndexDesktop: 0 }"
+                    :style="'--active-index: ' + activeIndexDesktop + '; --tab-width: 120px;'">
 
-                <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
-                    <div class="flex-1">
+                    <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
+                        <div class="flex-1">
+                            <div class="relative">
+                                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <x-heroicon-o-magnifying-glass class="w-4 h-4" />
+                                </div>
+                                <input type="text" name="q" 
+                                    placeholder="Buscar contenido..."
+                                    class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 w-full lg:w-auto">
+                            <flux:button type="submit" variant="primary" size="sm"
+                                class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl h-10 bg-red-800 hover:bg-red-900 text-white transition shadow-sm">
+                                <x-heroicon-o-magnifying-glass class="w-5 h-5" />
+                            </flux:button>
+
+                            <flux:button href="{{ route('home') }}" variant="primary" size="sm"
+                                class="w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
+                                <x-heroicon-o-x-mark class="w-5 h-5" />
+                            </flux:button>
+                        </div>
+                    </div>
+
+                    <div
+                        class="w-full overflow-x-auto scrollbar-none mt-1 bg-white rounded-xl mt-3 border border-gray-100">
+                        <div class="relative flex min-w-max items-stretch h-12">
+
+                            <input type="radio" id="d-todas" name="tabs-desktop" class="hidden" checked
+                                @click="activeIndexDesktop = 0">
+                            <label for="d-todas"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexDesktop === 0 ? 'text-white' : 'text-zinc-600'">
+                                Todas
+                            </label>
+
+                            <input type="radio" id="d-libros" name="tabs-desktop" class="hidden"
+                                @click="activeIndexDesktop = 1">
+                            <label for="d-libros"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexDesktop === 1 ? 'text-white' : 'text-zinc-600'">
+                                Libros
+                            </label>
+
+                            <input type="radio" id="d-periodicos" name="tabs-desktop" class="hidden"
+                                @click="activeIndexDesktop = 2">
+                            <label for="d-periodicos"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexDesktop === 2 ? 'text-white' : 'text-zinc-600'">
+                                Periódicos
+                            </label>
+
+                            <input type="radio" id="d-revistas" name="tabs-desktop" class="hidden"
+                                @click="activeIndexDesktop = 3">
+                            <label for="d-revistas"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexDesktop === 3 ? 'text-white' : 'text-zinc-600'">
+                                Revistas
+                            </label>
+
+                            <input type="radio" id="d-mapas" name="tabs-desktop" class="hidden"
+                                @click="activeIndexDesktop = 4">
+                            <label for="d-mapas"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexDesktop === 4 ? 'text-white' : 'text-zinc-600'">
+                                Mapas
+                            </label>
+
+                            <div id="indicatorDesktop" class="absolute bg-red-800 rounded-md z-10 top-0 bottom-0"
+                                style="width: var(--tab-width); transform: translateX(calc(var(--active-index, 0) * var(--tab-width))); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);">
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-auto mx-auto md:hidden w-full sm:px-7 pt-6">
+            <form action="{{ route('buscador') }}" method="GET" class="bg-transparent" x-data="{ activeIndexMobile: 0 }"
+                :style="'--active-index: ' + activeIndexMobile + '; --tab-width: 120px;'">
+
+                <div class="flex flex-col gap-3 p-4 bg-transparent">
+                    <div class="w-full">
                         <div class="relative">
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                 <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                             </div>
-
                             <input type="text" name="q" value="{{ request('coleccion') }}"
                                 placeholder="Buscar colección..."
-                                class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300
-                               bg-white focus:ring-2 focus:ring-red-100
-                               focus:border-red-700 outline-none transition">
+                                class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
                         </div>
                     </div>
 
-                    <!-- Botones -->
-                    <div class="flex gap-2 w-full lg:w-auto">
-
+                    <div class="flex gap-2 w-full">
                         <flux:button type="submit" variant="primary" size="sm"
-                            class="
-                                w-full
-                            inline-flex items-center justify-center gap-1.5
-                        px-4   py-2 text-sm font-medium rounded-xl h-10
-                        bg-red-800 hover:bg-red-900 text-white
-                        transition shadow-sm">
+                            class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl h-10 bg-red-800 hover:bg-red-900 text-white transition shadow-sm">
                             <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                         </flux:button>
 
                         <flux:button href="{{ route('home') }}" variant="ghost" size="sm"
-                            class=" w-full inline-flex items-center justify-center gap-1.5 h-10
-                        px-4 py-2 text-sm font-medium rounded-xl bg-white
-                        bg-gray-100 hover:bg-gray-200 text-gray-700
-                        border border-gray-200 transition">
+                            class="w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-white hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
                             <x-heroicon-o-x-mark class="w-5 h-5" />
-
                         </flux:button>
-
                     </div>
                 </div>
 
-                <div class="relative flex w-full lg:w-auto bg-white rounded-xl overflow-hidden mt-1 w-full">
+                <div class="flex flex-col  px-2" id="img-bpej">
+                    <div
+                        class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white rounded-xl border border-gray-100 py-1 shadow-sm">
+                        <div class="relative flex min-w-max items-stretch h-12">
 
-                    <input type="radio" name="filtro" id="todas" value="todas" class="hidden peer/todas"
-                        checked>
-                    <input type="radio" name="filtro" id="libros" value="libros" class="hidden peer/libros">
-                    <input type="radio" name="filtro" id="periodicos" value="periodicos"
-                        class="hidden peer/periodicos">
-                    <input type="radio" name="filtro" id="revistas" value="revistas" class="hidden peer/revistas">
+                            <input type="radio" id="m-todas" name="tabs-mobile" class="hidden" checked
+                                @click="activeIndexMobile = 0">
+                            <label for="m-todas"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexMobile === 0 ? 'text-white' : 'text-zinc-600'">
+                                Todas
+                            </label>
 
-                    <span id="indicator"
-                        class="absolute top-0 left-0 h-full w-1/4 bg-red-900 rounded-xl transition-transform"></span>
+                            <input type="radio" id="m-libros" name="tabs-mobile" class="hidden"
+                                @click="activeIndexMobile = 1">
+                            <label for="m-libros"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexMobile === 1 ? 'text-white' : 'text-zinc-600'">
+                                Libros
+                            </label>
 
-                    <label for="todas"
-                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/todas:text-white">
-                        Todas
-                    </label>
+                            <input type="radio" id="m-periodicos" name="tabs-mobile" class="hidden"
+                                @click="activeIndexMobile = 2">
+                            <label for="m-periodicos"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexMobile === 2 ? 'text-white' : 'text-zinc-600'">
+                                Periódicos
+                            </label>
 
-                    <label for="libros"
-                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/libros:text-white">
-                        Libros
-                    </label>
+                            <input type="radio" id="m-revistas" name="tabs-mobile" class="hidden"
+                                @click="activeIndexMobile = 3">
+                            <label for="m-revistas"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexMobile === 3 ? 'text-white' : 'text-zinc-600'">
+                                Revistas
+                            </label>
 
-                    <label for="periodicos"
-                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/periodicos:text-white">
-                        Periódicos
-                    </label>
+                            <input type="radio" id="m-mapas" name="tabs-mobile" class="hidden"
+                                @click="activeIndexMobile = 4">
+                            <label for="m-mapas"
+                                class="h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                :class="activeIndexMobile === 4 ? 'text-white' : 'text-zinc-600'">
+                                Mapas
+                            </label>
 
-                    <label for="revistas"
-                        class="w-full relative z-10 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium rounded-xl cursor-pointer transition-colors duration-300 peer-checked/revistas:text-white">
-                        Revistas
-                    </label>
+                            <div id="indicatorMovile" class="absolute bg-red-800 rounded-md z-10 top-0 bottom-0"
+                                style="width: var(--tab-width); transform: translateX(calc(var(--active-index, 0) * var(--tab-width))); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);">
+                            </div>
 
+                        </div>
+                    </div>
                 </div>
-
 
             </form>
         </div>
+
         {{-- 
         <div class="-z-10 absolute top-0 w-full h-[200px] bg-gradiant">
 
@@ -645,6 +791,7 @@
 
         </div>
     </footer>
+    <script src="https://unpkg.com/flowbite@1.4.1/dist/flowbite.js"></script>
     @fluxScripts
     @livewireScripts
     @yield('js')

@@ -2,38 +2,6 @@
 
 @section('content')
     <section class="bg-gray-50 min-h-screen">
-        <!-- Contenedor del Buscador Superior -->
-        <div class="mx-auto max-w-screen-xl px-3 sm:px-7 pt-8">
-            <form action="{{ route('buscador') }}" method="GET" class="bg-transparent p-4">
-                <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                <x-heroicon-o-magnifying-glass class="w-4 h-4" />
-                            </div>
-                            <!-- Cambiamos el name a 'q' para Meilisearch -->
-                            <input type="text" name="q" value="{{ $term }}"
-                                placeholder="Buscar en todos los registros de la base de datos..."
-                                class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300
-                               bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2 w-full lg:w-auto">
-                        <flux:button type="submit" variant="primary" size="sm"
-                            class="w-full lg:w-auto inline-flex items-center justify-center gap-1.5 px-6 py-2 text-sm font-medium rounded-xl h-10 bg-red-800 hover:bg-red-900 text-white transition shadow-sm">
-                            <x-heroicon-o-magnifying-glass class="w-5 h-5" />
-                        </flux:button>
-
-                        <flux:button href="{{ route('home') }}" variant="ghost" size="sm"
-                            class="w-full lg:w-auto inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-white hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
-                            <x-heroicon-o-x-mark class="w-5 h-5" />
-                        </flux:button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
         <!-- Tabla de Resultados Coincidentes -->
         <div class="mx-auto sm:px-7 px-3 max-w-screen-xl py-6">
             <div class="mb-4">
