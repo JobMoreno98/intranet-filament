@@ -63,18 +63,15 @@
         }
 
         #indicatorDesktop {
-            /* Multiplica el índice (0, 1, 2...) por el ancho fijo de la pestaña (120px) */
             transform: translateX(calc(var(--active-index, 0) * var(--tab-width)));
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
 
         #indicatorMoviile {
-            /* Multiplica el índice (0, 1, 2...) por el ancho fijo de la pestaña (120px) */
             transform: translateX(calc(var(--active-index, 0) * var(--tab-width)));
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
 
-        /* Opcional: Ocultar la barra de scroll horrible del navegador para estética limpia */
         .scrollbar-none::-webkit-scrollbar {
             display: none;
         }
@@ -93,21 +90,19 @@
 </head>
 
 <body class="antialiased">
-    <nav class="bg-white border-gray-200 py-2.5 dark:bg-gray-700">
-        <div class="flex flex-wrap items-center justify-between w-full px-4 mx-auto">
-            <div class="flex flex-col md:flex-row w-full md:w-auto ">
-                <div class="flex flex-row justify-between w-full ">
-                    <a href="{{ route('home') }}" class="flex items-center font-bold text-xl">
+
+    <nav class="bg-white border-b border-gray-200 dark:border-neutral-700 h-16 dark:bg-neutral-600">
+        <div class="flex items-center justify-between w-full h-full px-4 mx-auto">
+
+            <div class="flex items-center h-full w-full md:w-auto">
+                <div class="flex flex-row justify-between items-center w-full h-full">
+                    <a href="{{ route('home') }}" class="flex items-center font-bold text-xl h-full py-2">
                         <img src="{{ asset('img/logo.svg') }}" class="h-6 mr-3 sm:h-9"
                             alt="{{ config('app.name', 'Laravel') }} Logo">
-                        <span class="" style="color:#86212b;">
-
-                            {{ config('app.name', 'Laravel') }}
-                        </span>
+                        <span style="color:#86212b;">{{ config('app.name', 'Laravel') }}</span>
                     </a>
 
-                    <div class="flex  md:hidden">
-
+                    <div class="flex items-center md:hidden gap-2">
                         <div x-data="{
                             darkMode: localStorage.getItem('theme') === 'dark' ||
                                 (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -116,26 +111,20 @@
                             val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
                             localStorage.setItem('theme', val ? 'dark' : 'light');
                         });">
-
                             <button @click="darkMode = !darkMode" type="button"
                                 class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
-
                                 <span x-show="!darkMode" x-cloak>
                                     <x-heroicon-o-moon class="w-5 h-5 group-hover:scale-110 transition-transform" />
                                 </span>
-
                                 <span x-show="darkMode" x-cloak>
                                     <x-heroicon-o-sun
                                         class="w-5 h-5 text-amber-400 group-hover:rotate-45 transition-transform" />
                                 </span>
-
                             </button>
                         </div>
-                        <div class=" mt-2 mr-4 ">
-                            <span></span>
-                        </div>
+
                         <button data-collapse-toggle="mobile-menu-2" type="button"
-                            class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                            class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700"
                             aria-controls="mobile-menu-2" aria-expanded="true">
                             <span class="sr-only">Open main menu</span>
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
@@ -144,44 +133,33 @@
                                     d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
                         </button>
                     </div>
-
                 </div>
-                <div class="items-center justify-between w-full lg:flex lg:w-auto lg:order-1 hidden ms-3"
+
+                <div class="items-stretch justify-between w-full lg:flex lg:w-auto lg:order-1 hidden ms-6 h-full"
                     id="mobile-menu-2">
-                    <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                        <li>
+                    <ul class="flex flex-col font-medium lg:flex-row lg:space-x-0 h-full items-stretch">
+                        <li class="flex h-full items-stretch">
                             <a href="{{ route('home') }}"
-                                class="block py-2 pl-3 pr-4 text-white bg-purple-700 rounded lg:bg-transparent lg:text-purple-700 lg:p-0 dark:text-white"
+                                class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200"
                                 aria-current="page">Inicio</a>
                         </li>
-                        <li>
+                        <li class="flex h-full items-stretch">
                             <a href="{{ route('home') }}"
-                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Fondos</a>
+                                class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
                         </li>
-
                     </ul>
+
                     <div class="block md:hidden">
                         @if (Auth::check())
-                            <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
+                            <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center h-full">
                                 <x-desktop-user-menu />
                             </div>
                         @else
-                            <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
-                                {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
+                            <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center h-full">
                                 <a href="{{ route('login') }}"
-                                    class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
-                         text-sm font-medium rounded-md
-                        bg-red-800 hover:bg-red-900 text-white
-                        transition shadow-sm
-                        ">{{ __('Log In') }}
+                                    class="text-sm md:text-base rounded text-white py-1 px-6 bg-red-800 hover:bg-red-900 transition shadow-sm">{{ __('Log In') }}
                                     | {{ __('Sign up') }}</a>
                             </div>
                         @endif
@@ -189,10 +167,8 @@
                 </div>
             </div>
 
-
-            <div class="flex items-center lg:order-2">
-                <div class="hidden md:flex">
-
+            <div class="flex items-center lg:order-2 h-full gap-4">
+                <div class="hidden md:flex items-center h-full gap-4">
                     <div x-data="{
                         darkMode: localStorage.getItem('theme') === 'dark' ||
                             (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -200,47 +176,39 @@
                     $watch('darkMode', val => {
                         val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
                         localStorage.setItem('theme', val ? 'dark' : 'light');
-                    });">
-
+                    });" class="flex items-center">
                         <button @click="darkMode = !darkMode" type="button"
                             class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
-
                             <span x-show="!darkMode" x-cloak>
                                 <x-heroicon-o-moon class="w-5 h-5 group-hover:scale-110 transition-transform" />
                             </span>
-
                             <span x-show="darkMode" x-cloak>
                                 <x-heroicon-o-sun
                                     class="w-5 h-5 text-amber-400 group-hover:rotate-45 transition-transform" />
                             </span>
-
                         </button>
                     </div>
-                    @if (Auth::check())
-                        <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
 
+                    @if (Auth::check())
+                        <div class="flex items-center h-full">
                             <x-desktop-user-menu />
                         </div>
+                        @nodef
                     @else
-                        <div class="flex ml-0 md:ml-auto gap-2 md:gap-8 items-center">
-                            {{-- <a href="/" class="text-sm md:text-base hover:text-orange-500">Demo</a> --}}
+                        <div class="flex items-center h-full">
                             <a href="{{ route('login') }}"
-                                class="text-sm md:text-base rounded text-white py-1 px-6 gap-1.5 h-8
-                         text-sm font-medium rounded-md
-                        bg-red-800 hover:bg-red-900 text-white
-                        transition shadow-sm
-                        ">{{ __('Log In') }}
-                                | {{ __('Sign up') }}</a>
+                                class="inline-flex items-center text-sm font-medium rounded-md bg-red-800 hover:bg-red-900 text-white transition shadow-sm h-9 px-4">
+                                {{ __('Log In') }}
+                            </a>
                         </div>
                     @endif
                 </div>
-
             </div>
 
         </div>
     </nav>
 
-    <section class="relative flex flex-col">
+    <section class="relative flex flex-col dark:bg-gray-200">
         {{--
         <div class="z-10">
           
@@ -354,7 +322,7 @@
                                 Mapas
                             </label>
 
-                            <div id="indicatorDesktop" class="absolute bg-red-800 rounded-md z-10 top-0 bottom-0"
+                            <div id="indicatorDesktop" class="absolute bg-guinda-dark rounded-md z-10 top-0 bottom-0"
                                 style="width: var(--tab-width); transform: translateX(calc(var(--active-index, 0) * var(--tab-width))); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);">
                             </div>
 
@@ -364,7 +332,7 @@
             </div>
         </div>
 
-        <div class="mt-auto mx-auto md:hidden w-full sm:px-7 pt-6">
+        <div class="mt-auto mx-auto md:hidden w-full sm:px-7 pt-6 dark:bg-neutral-800">
             <form action="{{ route('buscador') }}" method="GET" class="bg-transparent" x-data="{ activeIndexMobile: 0 }"
                 :style="'--active-index: ' + activeIndexMobile + '; --tab-width: 120px;'">
 
@@ -457,7 +425,7 @@
     </section>
 
 
-    <div class=" bg-white border-gray-200 py-2.5 dark:bg-gray-700">
+    <div class=" bg-white border-gray-200 py-2.5 dark:bg-neutral-800">
         @yield('content')
     </div>
 
@@ -798,7 +766,7 @@
 
 --}}
 
-    <footer class="dark:bg-zinc-700">
+    <footer class="dark:bg-neutral-600">
         <div class="px-2 pt-10 mx-auto max-w-7xl ">
             <div class="pt-12 border-t border-gray-300 flex flex-col md:flex-row gap-10 items-center ">
                 <div class="text-black flex flex-col ">
@@ -809,7 +777,7 @@
 
                             {{ config('app.name', 'Laravel') }}</span>
                     </a>
-                    <p class="mt-2 text-sm text-gray-500 lg:w-4/5">
+                    <p class="mt-2 text-sm text-gray-500 lg:w-4/5 dark:text-white">
                         Biblioteca Pública del Estado de Jalisco "Juan José Arreola" <br>
                         Periférico Norte Manuel Gómez Morín no. 1695, Colonia Belenes C.P. 45150 <br>
                         Zapopan, Jalisco, México. <br>
@@ -838,7 +806,7 @@
 
             <div class="flex flex-col pt-12 ">
                 <p class="text-center">
-                    <span class="mx-auto mt-2 text-sm md:text-base text-gray-500 lg:mx-0">
+                    <span class="mx-auto mt-2 text-sm md:text-base text-gray-500 lg:mx-0 dark:text-white">
                         Derechos reservados ©1997 - 2025. Universidad de Guadalajara |
                         <a href="https://transparencia.udg.mx/aviso-confidencialidad-integral" target="_blank"
                             rel="noopener noreferrer" class="  hover:text-red-800">

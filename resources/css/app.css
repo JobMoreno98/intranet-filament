@@ -1,7 +1,7 @@
-@import 'tailwindcss';
-@import '../../vendor/livewire/flux/dist/flux.css';
-@import 'photoswipe/style.css';
-@import 'aos/dist/aos.css';
+@import "tailwindcss";
+@import "../../vendor/livewire/flux/dist/flux.css";
+@import "photoswipe/style.css";
+@import "aos/dist/aos.css";
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -12,7 +12,14 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+
+    /*  Color de BPEJ */
+    --color-guinda: #86212b;
+    --color-guinda-dark: #6b1a22;
 
     /* Tus colores Zinc personalizados */
     --color-zinc-50: #fafafa;

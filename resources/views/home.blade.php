@@ -2,8 +2,6 @@
 
 @section('content')
     <section >
-
-
         <div class="mx-auto sm:px-7 px-2 max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center">
             <div class="flex flex-col gap-8">
                 @forelse ($colecciones as $index => $item)
