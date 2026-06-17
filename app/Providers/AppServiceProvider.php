@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Admin;
 use App\Models\RecursosArchivos;
+use App\Models\TipoAcervo;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Facades\Date;
@@ -16,6 +17,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,9 +37,11 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'local') {
             URL::forceRootUrl(config('app.url'));
         }
-        
+
         $this->configureDefaults();
+
         RecursosArchivos::observe(\App\Observers\RecursoArchivoObserver::class);
+
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
         });
@@ -54,6 +58,9 @@ class AppServiceProvider extends ServiceProvider
 
         Import::resolveRelationUsing('user', function ($importModel) {
             return $importModel->belongsTo(Admin::class, 'user_id');
+        });
+        View::composer('*', function ($view) {
+            $view->with('tiposAcervo', TipoAcervo::orderBy('nombre')->get());
         });
     }
 

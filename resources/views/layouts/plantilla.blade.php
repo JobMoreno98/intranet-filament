@@ -252,7 +252,7 @@
         <div id="img-bpej" style="width: 100%;" class="hidden md:block">
             <div class="flex flex-col h-full ">
                 <form action="{{ route('buscador') }}" method="GET"
-                    class="mt-auto mx-auto w-full md:max-w-screen-lg mb-3 px-3 sm:px-7 pt-9" x-data="{ activeIndexDesktop: 0 }"
+                    class="mt-auto mx-auto w-full md:w-fit mb-3 px-3 sm:px-7 pt-9" x-data="{ activeIndexDesktop: 0 }"
                     :style="'--active-index: ' + activeIndexDesktop + '; --tab-width: 120px;'">
 
                     <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
@@ -289,14 +289,17 @@
                                 :class="activeIndexDesktop === 0 ? 'text-white' : 'text-zinc-600'">
                                 Todas
                             </label>
+                            @foreach ($tiposAcervo as $index => $item)
+                                <input type="radio" id="d-{{ $item->nombre }}" name="tabs-desktop" class="hidden"
+                                    @click="activeIndexDesktop = {{ $index + 1 }}">
+                                <label for="d-{{ $item->nombre }}"
+                                    class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                    :class="activeIndexDesktop === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
+                                    {{ $item->nombre }}
+                                </label>
+                            @endforeach
 
-                            <input type="radio" id="d-libros" name="tabs-desktop" class="hidden"
-                                @click="activeIndexDesktop = 1">
-                            <label for="d-libros"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                :class="activeIndexDesktop === 1 ? 'text-white' : 'text-zinc-600'">
-                                Libros
-                            </label>
+                            {{-- 
 
                             <input type="radio" id="d-periodicos" name="tabs-desktop" class="hidden"
                                 @click="activeIndexDesktop = 2">
@@ -321,10 +324,11 @@
                                 :class="activeIndexDesktop === 4 ? 'text-white' : 'text-zinc-600'">
                                 Mapas
                             </label>
-
+ --}}
                             <div id="indicatorDesktop" class="absolute bg-guinda-dark rounded-md z-10 top-0 bottom-0"
                                 style="width: var(--tab-width); transform: translateX(calc(var(--active-index, 0) * var(--tab-width))); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);">
                             </div>
+
 
                         </div>
                     </div>
@@ -361,7 +365,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col  px-2" id="img-bpej">
+                <div class="flex flex-col px-2" id="img-bpej">
                     <div
                         class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white dark:bg-stone-700 dark:text-white rounded-xl shadow-sm">
                         <div class="relative flex min-w-max items-stretch h-12">
@@ -373,38 +377,16 @@
                                 :class="activeIndexMobile === 0 ? 'text-white' : 'text-zinc-600'">
                                 Todas
                             </label>
+                            @foreach ($tiposAcervo as $index => $item)
+                                <input type="radio" id="m-{{ $item->nombre }}" name="tabs-mobile" class="hidden"
+                                    @click="activeIndexMobile = {{ $index + 1 }}">
+                                <label for="m-{{ $item->nombre }}"
+                                    class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                    :class="activeIndexMobile === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
+                                    {{ $item->nombre }}
+                                </label>
+                            @endforeach
 
-                            <input type="radio" id="m-libros" name="tabs-mobile" class="hidden"
-                                @click="activeIndexMobile = 1">
-                            <label for="m-libros"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                :class="activeIndexMobile === 1 ? 'text-white' : 'text-zinc-600'">
-                                Libros
-                            </label>
-
-                            <input type="radio" id="m-periodicos" name="tabs-mobile" class="hidden"
-                                @click="activeIndexMobile = 2">
-                            <label for="m-periodicos"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                :class="activeIndexMobile === 2 ? 'text-white' : 'text-zinc-600'">
-                                Periódicos
-                            </label>
-
-                            <input type="radio" id="m-revistas" name="tabs-mobile" class="hidden"
-                                @click="activeIndexMobile = 3">
-                            <label for="m-revistas"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                :class="activeIndexMobile === 3 ? 'text-white' : 'text-zinc-600'">
-                                Revistas
-                            </label>
-
-                            <input type="radio" id="m-mapas" name="tabs-mobile" class="hidden"
-                                @click="activeIndexMobile = 4">
-                            <label for="m-mapas"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                :class="activeIndexMobile === 4 ? 'text-white' : 'text-zinc-600'">
-                                Mapas
-                            </label>
 
                             <div id="indicatorMovile" class="absolute bg-red-800 rounded-md z-10 top-0 bottom-0"
                                 style="width: var(--tab-width); transform: translateX(calc(var(--active-index, 0) * var(--tab-width))); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);">
