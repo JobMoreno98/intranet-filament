@@ -21,11 +21,12 @@ return new class extends Migration {
                 ->onUpdate('cascade')
                 ->onDelete('set null');
 
-            $table->string('fondo')->index();
-            $table->integer('claveFondo')->unique();
-            $table->string('tipo_media'); // pdf, imagen, video, audio
+            $table->foreignId('acervo_id')
+                ->nullable()
+                ->constrained('tipo_acervos')
+                ->onUpdate('cascade')
+                ->onDelete('set null');
 
-            // 2. Metadatos Bibliográficos (Los "buscables" rápido)
             $table->string('titulo')->index(); // Añadí index para búsquedas rápidas
             $table->string('autor')->nullable()->index();
             $table->integer('anio')->nullable()->index();
@@ -42,8 +43,8 @@ return new class extends Migration {
             $table->softDeletes();
 
             $table->index('coleccion_id');
+            $table->index('acervo_id');
             $table->fulltext('titulo');
-            $table->index('claveFondo');
         });
     }
 

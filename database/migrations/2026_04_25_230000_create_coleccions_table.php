@@ -21,7 +21,8 @@ return new class extends Migration {
                 ->constrained('coleccions')
                 ->onUpdate('cascade')
                 ->onDelete('set null');
-            $table->json('esquema')->nullable();
+
+            
             $table->index('parent_id');
             $table->timestamps();
         });

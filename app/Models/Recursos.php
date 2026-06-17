@@ -26,6 +26,12 @@ class Recursos extends Model
         return $this->belongsTo(Coleccion::class, 'coleccion_id');
     }
 
+    public function acervo(): BelongsTo
+    {
+        return $this->belongsTo(TipoAcervo::class, 'acervo_id');
+    }
+
+
     public function archivos()
     {
         return $this->hasMany(RecursosArchivos::class)->orderBy('orden');

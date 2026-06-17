@@ -22,15 +22,16 @@ class RecursosForm
         return $schema
             ->components([
                 Section::make('Información Base')
-                    ->columns(3)
+                    ->columns(2)
                     ->schema([
+                        Select::make('acervo_id')->label('Tipo Acervo')->relationship('acervo', 'nombre')
+                            ->reactive()->required()
+                            ->afterStateUpdated(fn($set) => $set('metadata', [])),
                         Select::make('coleccion_id')
                             ->label('Colección')
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->reactive()
-                            ->afterStateUpdated(fn($set) => $set('metadata', []))
                             ->options(function () {
 
                                 $roots = Coleccion::query()
@@ -57,43 +58,18 @@ class RecursosForm
 
                                 return $options;
                             }),
-
-                        TextInput::make('titulo')->required()->label('Título'),
-                        TextInput::make('autor')->label('Autor Principal'),
-
-                        TextInput::make('anio')
-                            ->numeric()
-                            ->label('Año'),
-
-                        TextInput::make('fondo')
-                            ->required()
-                            ->label('Fondo'),
-
-                        TextInput::make('claveFondo')
-                            ->required()
-                            //->unique(ignoreRecord: true)
-                            ->integer()
-                            ->label('Clave Fondo'),
-
-                        Select::make('tipo_media')
-                            ->options([
-                                'pdf' => 'Documento PDF',
-                                'video' => 'Archivo de Video',
-                                'audio' => 'Grabación de Audio',
-                                'imagen' => 'Imagen',
-                            ])->required(),
                     ])->columnSpanFull(),
 
                 // 2. DATOS DINÁMICOS (Lo que vive dentro del JSON 'metadata')
-                Section::make('Metadatos Específicos de la Colección')
-                    ->description('Campos adicionales definidos en el diseño de la colección.')
+                Section::make('Metadatos Específicos del Tipo de Acervo')
+                    ->description('Campos definidos en el diseño del acervo.')
                     ->schema([
                         Group::make()
                             ->schema(function ($get) {
-                                $coleccionId = $get('coleccion_id');
-                                if (!$coleccionId) return [];
+                                $acervoId = $get('acervo_id');
+                                if (!$acervoId) return [];
 
-                                $coleccion = \App\Models\Coleccion::find($coleccionId);
+                                $coleccion = \App\Models\TipoAcervo::find($acervoId);
                                 if (!$coleccion || !$coleccion->esquema) return [];
 
                                 $camposDinamicos = [];
@@ -126,7 +102,7 @@ class RecursosForm
 
                                 return $camposDinamicos;
                             })
-                            ->columns(1),
+                            ->columns(3),
                     ])->columnSpanFull(),
                 Section::make('Archivos del Recurso')
                     ->schema([
