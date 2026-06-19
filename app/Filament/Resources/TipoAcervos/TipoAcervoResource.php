@@ -52,8 +52,8 @@ class TipoAcervoResource extends Resource
     {
         return [
             'index' => ListTipoAcervos::route('/'),
-            //'create' => CreateTipoAcervo::route('/create'),
-            //'edit' => EditTipoAcervo::route('/{record}/edit'),
+            'create' => CreateTipoAcervo::route('/create'),
+            'edit' => EditTipoAcervo::route('/{record}/edit'),
         ];
     }
 }

@@ -42,10 +42,9 @@ class Recursos extends Model
         // 1. Cargamos datos básicos planos y limpios
         $array = [
             'id'          => (int) $this->id,
-            'titulo'      => $this->titulo,
-            'autor'       => $this->autor,
-            'fondo'       => $this->fondo,
-            'claveFondo'  => (int) $this->claveFondo,
+            'acervo'      => $this->acervo->nombre,
+            'acervo_id'      => $this->acervo_id,
+            'coleccion'       => $this->coleccion->nombre,
             'tipo_media'  => $this->tipo_media,
             'anio'        => $this->anio ? (int) $this->anio : null,
             'status'      => $this->status,

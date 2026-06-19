@@ -21,7 +21,7 @@ class TipoAcervoForm
                 Repeater::make('esquema')->columnSpanFull()
                     ->label('Configuración de campos para esta colección')
                     ->itemLabel(fn(array $state): ?string => $state['label'] ?? 'Nuevo Campo')
-                    ->collapsible()
+                    ->collapsible()->collapsed()
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('label')->required()->label('Nombre del Campo (Label)'),
@@ -55,8 +55,10 @@ class TipoAcervoForm
                             ->label('Formatos permitidos')
                             ->placeholder('ej: pdf, jpg, png')
                             ->visible(fn($get) => $get('type') === 'file'),
-
-                        Toggle::make('is_required')->label('¿Es obligatorio?'),
+                        Grid::make(2)->schema([
+                            Toggle::make('is_required')->label('¿Es obligatorio?'),
+                            Toggle::make('visible')
+                        ])->columns(1)
                     ])->columns(3),
             ]);
     }

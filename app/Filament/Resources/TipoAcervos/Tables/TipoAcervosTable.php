@@ -21,11 +21,11 @@ class TipoAcervosTable
                 //
             ])
             ->recordActions([
-                //EditAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    //DeleteBulkAction::make(),
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

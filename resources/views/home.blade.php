@@ -11,7 +11,7 @@
 
                 @empty
                     <div class="w-full text-center py-12">
-                        <h3 class="text-lg font-medium text-zinc-500">No hay resultados en la búsqueda</h3>
+                        <h3 class="text-lg font-medium text-zinc-500">No hay datos aun</h3>
                     </div>
                 @endforelse
             </div>

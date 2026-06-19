@@ -33,7 +33,6 @@
                         </summary>
                         <div class="divide-y divide-zinc-800">
                             @isset($registro)
-                                <!-- RECURSO -->
                                 @php
                                     $datos =
                                         $registro instanceof \Illuminate\Database\Eloquent\Model
@@ -240,77 +239,74 @@
 
                 </aside>
                 @if (Auth::check())
-                    <!-- VIEWER -->
-                    <!-- Añadimos max-w-4xl para limitar el ancho y mx-auto para centrarlo -->
-                    <div id="visor-container" class="relative flex-1 min-h-0 max-w-5xl mx-auto w-full">
-                        <div id="viewer" class="h-full overflow-auto flex justify-center bg-zinc-800 p-4">
-                            <!-- El canvas mantiene su renderizado pero contenido en el ancho máximo -->
-                            <canvas id="page-canvas" class="max-w-full h-auto shadow-lg"></canvas>
-                        </div>
-                    </div>
+                    <div id="visor-container"
+                        class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
 
-                    <!-- MOBILE PAGE -->
-                    <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+                        <div id="viewer"
+                            class="relative flex-1 overflow-auto flex items-center justify-center p-4 group">
 
-                        <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
-                            @isset($paginas)
-                                1 / {{ count($paginas) }}
-                            @endisset
+                            <canvas id="page-canvas"
+                                class="max-w-full max-h-full h-auto w-auto object-contain shadow-2xl bg-zinc-900"></canvas>
 
-                        </p>
-
-                    </div>
-
-                    <!-- MOBILE CONTROLS -->
-                    <div
-                        class=" flex items-center flex-col md:flex-row justify-between gap-3  border-t border-zinc-800 bg-zinc-900">
-
-                        <div class="flex w-full gap-3 px-4 sm:px-6">
-                            <button id="prev-page"
-                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition">
-                                ← Anterior
+                            <button onclick="document.getElementById('prev-page').click()"
+                                class="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                </svg>
                             </button>
 
-                            <button id="next-page"
-                                class="w-1/2 md:w-auto flex-1 md:flex-none rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
-                                Siguiente →
+                            <button onclick="document.getElementById('next-page').click()"
+                                class="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 bg-indigo-600/80 hover:bg-indigo-600 text-white p-3 rounded-full shadow-lg transition z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
                             </button>
+
                         </div>
 
-                        <div class="mx-auto max-w-4xl px-4 sm:px-6">
+                        <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+                            <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
+                                @isset($paginas)
+                                    1 / {{ count($paginas) }}
+                                @endisset
+                            </p>
+                        </div>
 
-                            <!-- Barra de Herramientas: Botones de Zoom interactivos -->
-                            <div
-                                class="flex items-center justify-center gap-4 bg-white p-1 my-2  rounded-xl border border-gray-200 shadow-sm">
-                                <!-- Botón Alejar -->
-                                <button id="btn-zoom-out"
-                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
-                                    −
+                        <div
+                            class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
+
+                            <div class="flex lg:hidden items-center gap-3 w-full">
+                                <button id="prev-page"
+                                    class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition border border-zinc-700">
+                                    ← Anterior
                                 </button>
-
-                                <!-- Indicador de Porcentaje Dinámico -->
-                                <span id="zoom-percent"
-                                    class="text-sm font-semibold text-gray-700 min-w-[60px] text-center">
-                                    100%
-                                </span>
-
-                                <!-- Botón Acercar -->
-                                <button id="btn-zoom-in"
-                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">
-                                    +
-                                </button>
-
-                                <!-- Separador visual -->
-                                <div class="h-6 w-px bg-gray-200 mx-1"></div>
-
-                                <!-- Botón Restablecer -->
-                                <button id="btn-reset-zoom"
-                                    class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">
-                                    Reiniciar
+                                <button id="next-page"
+                                    class="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
+                                    Siguiente →
                                 </button>
                             </div>
-                        </div>
 
+                            <div class="hidden lg:block">
+                                <button id="prev-page" class="hidden"></button>
+                                <button id="next-page" class="hidden"></button>
+                            </div>
+
+                            <div
+                                class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
+                                <button id="btn-zoom-out"
+                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">−</button>
+                                <span id="zoom-percent"
+                                    class="text-sm font-semibold text-gray-700 min-w-[50px] text-center">100%</span>
+                                <button id="btn-zoom-in"
+                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">+</button>
+                                <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                                <button id="btn-reset-zoom"
+                                    class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
+                            </div>
+
+                        </div>
                     </div>
                 @else
                     <div class="  bg-white p-10 text-center  h-full">

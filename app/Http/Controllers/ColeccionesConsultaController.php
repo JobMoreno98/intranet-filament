@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Coleccion;
 use App\Models\ColeccionesConsulta;
 use App\Models\Recursos;
+use App\Models\TipoAcervo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Meilisearch\Client as MeilisearchClient;
@@ -20,9 +21,9 @@ class ColeccionesConsultaController extends Controller
     public function index(Request $request)
     {
 
-$colecciones = Coleccion::from('coleccions as c')
-    ->select('c.*')
-    ->join(DB::raw('(
+        $colecciones = Coleccion::from('coleccions as c')
+            ->select('c.*')
+            ->join(DB::raw('(
         WITH RECURSIVE colecciones_tree AS (
             SELECT id, CAST(TRIM(nombre) AS CHAR(500)) as path_tree 
             FROM coleccions 
@@ -36,60 +37,112 @@ $colecciones = Coleccion::from('coleccions as c')
         )
         SELECT id, path_tree FROM colecciones_tree
     ) as tree'), 'c.id', '=', 'tree.id')
-    // IMPORTANTE: Solo nos interesan los padres en la lista principal
-    ->whereNull('c.parent_id') 
-    // Cargamos de golpe todos sus hijos (y si quieres, ordenados)
-    ->with(['children' => function($query) {
-        $query->orderBy('nombre', 'ASC'); 
-    }])
-    ->orderBy('tree.path_tree', 'ASC')
-    ->paginate(5);
+            // IMPORTANTE: Solo nos interesan los padres en la lista principal
+            ->whereNull('c.parent_id')
+            // Cargamos de golpe todos sus hijos (y si quieres, ordenados)
+            ->with(['children' => function ($query) {
+                $query->orderBy('nombre', 'ASC');
+            }])
+            ->orderBy('tree.path_tree', 'ASC')
+            ->paginate(5);
 
-return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
+        return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, Coleccion $coleccion)
     {
-
-        //dd($coleccion->items);
-
-        //$nombreTabla = DB::connection('mysql2')->table('colecciones')->select('tabla', 'coleccion')->where('clave', $id)->first();
-
         if (!$coleccion) {
             abort(404, 'La colección no existe.');
         }
 
-        // 2. Iniciar la consulta sobre esa tabla
+        $acervosDisponibles = $coleccion->items()
+            ->whereNotNull('acervo_id')
+            ->select('acervo_id')
+            ->distinct()
+            ->with('acervo')
+            ->get();
 
-        // Buscamos en la configuración qué campos están permitidos para esta tabla
-        /*
-        $camposPermitidos = DB::connection('mysql2')->table('colecciones')->where('tabla', $nombreTabla->tabla)->pluck('campo')->toArray();
+        $resultados = [];
+        $term = $request->input('q', '');
 
-        foreach ($request->only($camposPermitidos) as $campo => $valor) {
-            if ($valor !== null && $valor !== '') {
-                $query->where($campo, 'LIKE', "%{$valor}%");
+        $meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
+
+        // Filtro base obligatorio
+        $meiliFilters = ["coleccion_id = {$coleccion->id}"];
+
+        if ($request->filled('acervo_id')) {
+            $acervoIdActual = $request->input('acervo_id');
+            $meiliFilters[] = "acervo_id = {$acervoIdActual}";
+
+            // Consultamos el esquema dinámico con tu modelo
+            $config = \App\Models\TipoAcervo::where('id', $acervoIdActual)->first();
+
+            if ($config && isset($config->esquema)) {
+                $esquema = is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
+                $camposAtributos = collect($esquema)->pluck('variable')->toArray();
+
+                // Mapeamos los filtros extras de la URL si el usuario los escribió
+                foreach ($request->only($camposAtributos) as $campo => $valor) {
+                    if ($valor !== null && $valor !== '') {
+                        $meiliFilters[] = "metadata.{$campo} = \"{$valor}\"";
+                    }
+                }
             }
-        }*/
-
-        $data = $coleccion->items()
-            ->paginate(14)
-            ->appends($request->all())
-            ->onEachSide(0);
+        }
 
         try {
-            Redis::hincrby('analytics:coleccion_vistas', $coleccion->id, 1);
+            // La consulta ahora se ejecutará al instante sin errores de "not filterable"
+            $searchQuery = new SearchQuery()
+                ->setIndexUid('recursos')
+                ->setQuery($term)
+                ->setLimit(300)
+                ->setFilter($meiliFilters);
 
-            $hoy = now()->format('Y-m-d');
-            Redis::incr("analytics:coleccion_vistas:{$hoy}");
+            $response = $meili->multiSearch([$searchQuery]);
+            $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
+
+            foreach ($results as $indexResult) {
+                $hits = $indexResult['hits'] ?? [];
+                foreach ($hits as $hit) {
+                    $resultados[] = (object) [
+                        'id'           => $hit['id'],
+                        'acervo_id'    => $hit['acervo_id'] ?? null,
+                        'coleccion_id' => $hit['coleccion_id'] ?? null,
+                        'metadata'     => $hit['metadata'] ?? [],
+                        'tipo_media'   => $hit['tipo_media'] ?? null,
+                        'status'       => $hit['status'] ?? null,
+                        'acervo'       => (object) ['nombre' => $hit['acervo'] ?? '---'],
+                        'coleccion'    => (object) ['nombre' => $hit['coleccion'] ?? '---']
+                    ];
+                }
+            }
         } catch (\Exception $e) {
-            Log::info($e);
+            Log::error('Error en búsqueda automática por Acervo en Meilisearch: ' . $e->getMessage());
+        }
+
+        $perPage = 14;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = array_slice($resultados, ($currentPage - 1) * $perPage, $perPage);
+
+        $data = new LengthAwarePaginator($currentItems, count($resultados), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+        ]);
+
+        $data->appends($request->all())->onEachSide(0);
+
+        try {
+            \Illuminate\Support\Facades\Redis::hincrby('analytics:coleccion_vistas', $coleccion->id, 1);
+            $hoy = now()->format('Y-m-d');
+            \Illuminate\Support\Facades\Redis::incr("analytics:coleccion_vistas:{$hoy}");
+        } catch (\Exception $e) {
         }
 
         return view('coleccion', [
-            'data' => $data,
-            'tablaNombre' => $coleccion->tabla,
-            //'id' => $id,
-            'title' => $coleccion->nombre,
+            'data'               => $data,
+            'tablaNombre'        => 'recursos',
+            'coleccion'          => $coleccion,
+            'acervosDisponibles' => $acervosDisponibles,
+            'title'              => $coleccion->nombre ?? 'Colección'
         ]);
     }
 
@@ -213,6 +266,7 @@ return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
             'title' => 'Búsqueda General',
         ]);
     }
+
     public function showRegistro(Request $request, $tipo, $id)
     {
         // 1. Validar que la tabla exista por seguridad

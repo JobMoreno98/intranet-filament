@@ -1,72 +1,144 @@
 <?php
 
 use Livewire\Volt\Component as VoltComponent;
-use Illuminate\Support\Facades\DB;
 
 new class extends VoltComponent {
-    public $tabla; // Recibido desde la vista padre
-    public $configuracion = [];
-    public $valores = [];
+    public $acervoId; // Permitido (Primitivo)
+    public $valores = []; // Guardará únicamente strings planos
 
-    public function mount($tabla)
+    public function mount($acervoId = null)
     {
-        $this->tabla = $tabla;
+        $this->acervoId = $acervoId ? (int) $acervoId : null;
 
-        // Consultamos la tabla de metadatos de MySQL
-        $this->configuracion = DB::connection('mysql2')->table('colecciones')->where('tabla', $this->tabla)->orderBy('filtro')->get();
-        foreach ($this->configuracion as $campo) {
-            $this->valores[$campo->campo] = '';
+        if ($this->acervoId) {
+            // 1. Obtenemos el esquema de arrays (El que nos mostraste en el dd)
+            $esquema = $this->obtenerEsquemaDeMetadata($this->acervoId);
+
+            foreach ($esquema as $campo) {
+                // Usamos la llave 'variable' según tu estructura (ej: 'asunto', 'anio')
+                $nombreVariable = $campo['variable'] ?? null;
+
+                if ($nombreVariable) {
+                    // BLINDAJE ABSOLUTO: Forzamos que solo extraiga texto plano de la URL
+                    $valorUrl = request()->input($nombreVariable);
+                    $this->valores[$nombreVariable] = is_string($valorUrl) ? $valorUrl : '';
+                }
+            }
         }
-    }
-
-    public function filtrar()
-    {
-        // Emitimos los valores al componente de la tabla de resultados
-        $this->dispatch('aplicar-filtros', filtros: $this->valores);
     }
 
     public function aplicarFiltrado()
     {
-        // Limpiamos los valores vacíos para que la URL no sea kilométrica
+        // Limpiamos los inputs vacíos
         $filtrosActivos = array_filter($this->valores, function ($value) {
             return $value !== '' && $value !== null;
         });
 
-        // IMPORTANTE: Redirigir a la URL actual + los filtros
-        // Esto hará que el controlador reciba los datos en el $request
+        // Mantenemos el acervo_id en la URL
+        if ($this->acervoId) {
+            $filtrosActivos['acervo_id'] = $this->acervoId;
+        }
+
         return redirect()->to(url()->current() . '?' . http_build_query($filtrosActivos));
+    }
+
+    // 2. Pasamos el esquema directamente a la vista sin guardarlo en propiedades públicas (Evita el Exception)
+    public function with()
+    {
+        return [
+            'configuracion' => $this->acervoId ? $this->obtenerEsquemaDeMetadata($this->acervoId) : [],
+        ];
+    }
+
+    /**
+     * Helper para centralizar cómo obtienes ese array de 13 campos.
+     * Ajusta esta consulta a cómo obtienes realmente el JSON de tu base de datos.
+     */
+    private function obtenerEsquemaDeMetadata($acervoId)
+    {
+        // Ejemplo si está guardado en una tabla llamada 'acervos' o 'colecciones' en un campo JSON:
+        // $registro = DB::connection('mysql2')->table('acervos_config')->where('acervo_id', $acervoId)->first();
+        // return json_decode($registro->esquema, true) ?? [];
+
+        // Dejo esta consulta simulada apuntando a donde sea que tengas guardado el JSON de tus esquemas:
+        $config = \Illuminate\Support\Facades\DB::connection('mysql2')
+            ->table('colecciones') // Reemplaza por el nombre real de tu tabla de esquemas
+            ->where('acervo_id', $acervoId)
+            ->first();
+
+        // Si tu campo en base de datos ya se parsea como array o es un string JSON:
+        if ($config && isset($config->esquema)) {
+            return is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
+        }
+
+        return [];
     }
 }; ?>
 
-<div class="bg-white p-4 rounded-b-lg shadow ">
-    <h4 class="text-md font-bold mb-4 text-gray-700">Filtrar registros</h4>
-    <form action="{{ url()->current() }}" method="GET">
-        <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            @foreach ($configuracion as $f)
-                <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-600 mb-1">
-                        {{ $f->titulo }}
-                    </label>
-                    <input type="text" name="{{ $f->campo }}" value="{{ request($f->campo) }}"
-                        placeholder="Buscar por {{ strtolower($f->titulo) }}..."
-                        class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+<div class="bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100">
+    @if ($acervoId)
+        @if (count($configuracion) > 0)
+            <h4 class="text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 8.293A1 1 0 013 7.586V4z" />
+                </svg>
+                Campos de búsqueda disponibles
+            </h4>
+
+            <form method="POST" wire:submit.prevent="aplicarFiltrado">
+                @csrf
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    @foreach ($configuracion as $f)
+                        @php
+                            $variable = $f['variable'] ?? null;
+                            $label = $f['label'] ?? 'Campo';
+                        @endphp
+
+                        @if ($variable)
+                            <div class="flex flex-col">
+                                <label class="text-xs font-bold text-gray-600 uppercase mb-1 tracking-wide">
+                                    {{ $label }}
+                                </label>
+                                <input type="text" wire:model="valores.{{ $variable }}"
+                                    placeholder="Buscar por {{ strtolower($label) }}..."
+                                    class="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400">
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
-            @endforeach
-        </div>
 
-        <div class="mt-4 flex justify-end space-x-2">
-            {{-- Botón para limpiar: Simplemente redirige a la URL sin parámetros --}}
-            @if (request()->anyFilled($configuracion->pluck('campos')->toArray()))
-                <a href="{{ url()->current() }}"
-                    class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 flex items-center">
-                    Limpiar filtros
-                </a>
-            @endif
+                <div class="mt-6 flex justify-end space-x-2 border-t pt-4 border-gray-100">
 
-            <button type="submit"
-                class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition duration-200">
-                Aplicar Filtros
-            </button>
+                    @if (request()->anyFilled(collect($configuracion)->pluck('variable')->toArray()))
+                        <a href="{{ url()->current() . '?acervo_id=' . $acervoId }}"
+                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
+                            Limpiar criterios
+                        </a>
+                    @endif
+
+                    <button type="submit"
+                        class="text-xs font-bold uppercase tracking-widest bg-[#86212b] hover:bg-[#6d1b23] text-white px-6 py-2.5 rounded-md transition duration-200 shadow-sm">
+                        Buscar en este Acervo
+                    </button>
+                </div>
+            </form>
+        @else
+            <div class="text-center py-6 text-gray-400 text-sm font-medium">
+                Este acervo no cuenta con un esquema de metadatos configurado.
+            </div>
+        @endif
+    @else
+        <div class="text-center py-6 flex flex-col items-center justify-center gap-2">
+            <svg class="w-12 h-12 text-gray-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M8 7v12m0 0l-4-4m4 4l4-4m0 6V7m0 0l4 4m-4-4l-4 4" />
+            </svg>
+            <p class="text-sm text-gray-400 font-medium max-w-sm">
+                Por favor, elija un **Tipo de Acervo** en el menú superior para desplegar sus filtros y campos de
+                búsqueda personalizados.
+            </p>
         </div>
-    </form>
+    @endif
 </div>
