@@ -55,18 +55,18 @@
                     'anio' => 'Año', 'tipoarchivo' => 'Tipo Archivo', 'numpaginas' => 'No. Páginas',
                     'numarchivos' => 'No. Archivos', 'numero' => 'Número', 'titulo' => 'Título',
                     'autor' => 'Autor', 'dia' => 'Día', 'paginas' => 'Páginas', 'epocaperiodo' => 'Epoca o Periodo',
-                    'nombrepersonajeprincipal' => 'Nombre de Personaje principal', 'nombrepersonajesecundario' => 'Nombre de Personaje secundario',
+                    'personaje_principal' => 'Nombre de Personaje principal', 'personaje_secundario' => 'Nombre de Personaje secundario',
                     'clavefondoprincipal' => 'Clave Fondo Principal', 'fondoprincipal' => 'Fondo principal',
-                    'lugar1' => 'Lugar 1', 'lugar2' => 'Lugar 2', 'anio2' => 'Año 2',
-                    'numinventario' => 'No. Inventario', 'observaciones1' => 'Observaciones', 'autor1' => 'Autor 1',
-                    'volumentomoejemplar' => 'Volumen / Tomo / Ejemplar'
+                    'lugar' => 'Lugar', 'lugar_2' => 'Lugar 2', 'anio_2' => 'Año 2',
+                    'numinventario' => 'No. Inventario', 'observaciones' => 'Observaciones', 'autor' => 'Autor',
+                    'volumentomoejemplar' => 'Volumen / Tomo / Ejemplar','observaciones_2' => 'Observaciones 2', 'observaciones_3' => 'Observaciones 3'
                 ];
 
                 // Atributos que queremos que salgan primero en la tabla si existen
                 $prioritarios = ['titulo', 'autor', 'anio'];
 
                 // Quitamos llaves de control internas si se colaron en la metadata
-                $ignorar = ['id', 'created_at', 'updated_at', 'deleted_at'];
+                $ignorar = ['id', 'created_at', 'updated_at', 'deleted_at','status'];
                 $keysFiltradas = array_filter($allKeys, fn($k) => !in_array($k, $ignorar));
                 
                 $headerPrimarios = array_filter($keysFiltradas, fn($k) => in_array(strtolower($k), $prioritarios));

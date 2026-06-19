@@ -31,7 +31,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
     const panzoom = Panzoom(canvas, {
         startScale: 1.0,
-        maxScale: 5,
+        maxScale: 8,
         minScale: .8,
         contain: "invert",
         cursor: "default",
