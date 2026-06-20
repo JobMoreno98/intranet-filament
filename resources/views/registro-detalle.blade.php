@@ -430,22 +430,24 @@
                                         @if ($esMetadata && is_array($valorFinal))
                                             <div class="grid grid-cols-1 gap-2">
                                                 @foreach ($valorFinal as $metaKey => $metaValue)
-                                                    <div class="border border-zinc-800 bg-zinc-900 p-2 rounded">
+                                                    @if ($metaValue != null)
+                                                        <div class="border border-zinc-800 bg-zinc-900 p-2 rounded">
 
-                                                        <div class="text-[10px] text-zinc-500 uppercase">
-                                                            {{ ucwords(str_replace('_', ' ', $metaKey)) }}
+                                                            <div class="text-[10px] text-zinc-500 uppercase">
+                                                                {{ ucwords(str_replace('_', ' ', $metaKey)) }}
+                                                            </div>
+
+                                                            <div class="text-sm text-zinc-200">
+                                                                {{ is_scalar($metaValue) ? $metaValue : json_encode($metaValue) }}
+                                                            </div>
+
                                                         </div>
-
-                                                        <div class="text-sm text-zinc-200">
-                                                            {{ is_scalar($metaValue) ? $metaValue : json_encode($metaValue) }}
-                                                        </div>
-
-                                                    </div>
+                                                    @endif
                                                 @endforeach
 
                                             </div>
                                         @else
-                                            {{ is_scalar($valorFinal) ? $valorFinal : json_encode($valorFinal, JSON_UNESCAPED_UNICODE) }}
+                                            {{ is_scalar($valorFinal) ? ucwords($valorFinal) : json_encode($valorFinal, JSON_UNESCAPED_UNICODE) }}
                                         @endif
                                     @endif
                                 </div>

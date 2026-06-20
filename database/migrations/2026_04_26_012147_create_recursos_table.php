@@ -27,10 +27,6 @@ return new class extends Migration {
                 ->onUpdate('cascade')
                 ->onDelete('set null');
 
-            $table->string('titulo')->index(); // Añadí index para búsquedas rápidas
-            $table->string('autor')->nullable()->index();
-            $table->integer('anio')->nullable()->index();
-
             // 3. Flexibilidad y Procesamiento
             $table->json('metadata')->nullable(); // Aquí va TODO lo extra que definas en el CMS
             $table->json('assets_procesados')->nullable(); // Aquí escribirá Go (HLS, WebP, etc.)
