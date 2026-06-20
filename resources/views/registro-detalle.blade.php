@@ -238,6 +238,7 @@
                     </details>
 
                 </aside>
+
                 @if (Auth::check())
                     <div id="visor-container"
                         class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
@@ -428,13 +429,26 @@
                                         <span class="text-zinc-500 italic text-xs">Sin información</span>
                                     @else
                                         @if ($esMetadata && is_array($valorFinal))
-                                            <div class="grid grid-cols-1 gap-2">
+                                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
                                                 @foreach ($valorFinal as $metaKey => $metaValue)
                                                     @if ($metaValue != null)
-                                                        <div class="border border-zinc-800 bg-zinc-900 p-2 rounded">
+                                                        @php
+
+                                                            $label_m =
+                                                                $labels[$metaKey] ??
+                                                                ucwords(str_replace(['_', '-'], ' ', $metaKey));
+
+                                                            $esCorto = mb_strlen($metaValue) <= 40;
+
+                                                            $compacto =
+                                                                !in_array($metaKey, $camposLargos) &&
+                                                                ($esCorto || in_array($metaKey, $camposCompactos));
+                                                        @endphp
+                                                        <div
+                                                            class="{{ $compacto ? 'lg:col-span-1' : 'lg:col-span-2' }} border border-zinc-800 bg-zinc-900 p-2 rounded">
 
                                                             <div class="text-[10px] text-zinc-500 uppercase">
-                                                                {{ ucwords(str_replace('_', ' ', $metaKey)) }}
+                                                                {{ $label_m  }}
                                                             </div>
 
                                                             <div class="text-sm text-zinc-200">
