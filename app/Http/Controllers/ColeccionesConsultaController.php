@@ -20,13 +20,13 @@ class ColeccionesConsultaController extends Controller
 {
     public function index(Request $request)
     {
-
         $colecciones = Coleccion::from('coleccions as c')
             ->select('c.*')
-            ->join(DB::raw('(
+            ->join(
+                DB::raw('(
         WITH RECURSIVE colecciones_tree AS (
-            SELECT id, CAST(TRIM(nombre) AS CHAR(500)) as path_tree 
-            FROM coleccions 
+            SELECT id, CAST(TRIM(nombre) AS CHAR(500)) as path_tree
+            FROM coleccions
             WHERE parent_id IS NULL
             
             UNION ALL
@@ -36,13 +36,19 @@ class ColeccionesConsultaController extends Controller
             INNER JOIN colecciones_tree parent ON child.parent_id = parent.id
         )
         SELECT id, path_tree FROM colecciones_tree
-    ) as tree'), 'c.id', '=', 'tree.id')
+    ) as tree'),
+                'c.id',
+                '=',
+                'tree.id',
+            )
             // IMPORTANTE: Solo nos interesan los padres en la lista principal
             ->whereNull('c.parent_id')
             // Cargamos de golpe todos sus hijos (y si quieres, ordenados)
-            ->with(['children' => function ($query) {
-                $query->orderBy('nombre', 'ASC');
-            }])
+            ->with([
+                'children' => function ($query) {
+                    $query->orderBy('nombre', 'ASC');
+                },
+            ])
             ->orderBy('tree.path_tree', 'ASC')
             ->paginate(5);
 
@@ -55,12 +61,7 @@ class ColeccionesConsultaController extends Controller
             abort(404, 'La colección no existe.');
         }
 
-        $acervosDisponibles = $coleccion->items()
-            ->whereNotNull('acervo_id')
-            ->select('acervo_id')
-            ->distinct()
-            ->with('acervo')
-            ->get();
+        $acervosDisponibles = $coleccion->items()->whereNotNull('acervo_id')->select('acervo_id')->distinct()->with('acervo')->get();
 
         $resultados = [];
         $term = $request->input('q', '');
@@ -92,11 +93,7 @@ class ColeccionesConsultaController extends Controller
 
         try {
             // La consulta ahora se ejecutará al instante sin errores de "not filterable"
-            $searchQuery = new SearchQuery()
-                ->setIndexUid('recursos')
-                ->setQuery($term)
-                ->setLimit(300)
-                ->setFilter($meiliFilters);
+            $searchQuery = new SearchQuery()->setIndexUid('recursos')->setQuery($term)->setLimit(300)->setFilter($meiliFilters);
 
             $response = $meili->multiSearch([$searchQuery]);
             $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
@@ -105,14 +102,15 @@ class ColeccionesConsultaController extends Controller
                 $hits = $indexResult['hits'] ?? [];
                 foreach ($hits as $hit) {
                     $resultados[] = (object) [
-                        'id'           => $hit['id'],
-                        'acervo_id'    => $hit['acervo_id'] ?? null,
+                        'id' => $hit['id'],
+                        'acervo_id' => $hit['acervo_id'] ?? null,
                         'coleccion_id' => $hit['coleccion_id'] ?? null,
-                        'metadata'     => $hit['metadata'] ?? [],
-                        'tipo_media'   => $hit['tipo_media'] ?? null,
-                        'status'       => $hit['status'] ?? null,
-                        'acervo'       => (object) ['nombre' => $hit['acervo'] ?? '---'],
-                        'coleccion'    => (object) ['nombre' => $hit['coleccion'] ?? '---']
+                        'metadata' => $hit['metadata'] ?? [],
+                        'tipo_media' => $hit['tipo_media'] ?? null,
+                        'status' => $hit['status'] ?? null,
+                        'acervo' => (object) ['nombre' => $hit['acervo'] ?? '---'],
+                        'coleccion' => (object) ['nombre' => $hit['coleccion'] ?? '---'],
+                        'archivos' => $hit['archivos'],
                     ];
                 }
             }
@@ -138,11 +136,11 @@ class ColeccionesConsultaController extends Controller
         }
 
         return view('coleccion', [
-            'data'               => $data,
-            'tablaNombre'        => 'recursos',
-            'coleccion'          => $coleccion,
+            'data' => $data,
+            'tablaNombre' => 'recursos',
+            'coleccion' => $coleccion,
             'acervosDisponibles' => $acervosDisponibles,
-            'title'              => $coleccion->nombre ?? 'Colección'
+            'title' => $coleccion->nombre ?? 'Colección',
         ]);
     }
 
@@ -205,11 +203,7 @@ class ColeccionesConsultaController extends Controller
                                         if (str_contains($nombrePadre, '<em>')) {
                                             // Sanitizamos y resaltamos el nombre del padre encontrado
                                             $cleanValue = htmlspecialchars($nombrePadre, ENT_QUOTES, 'UTF-8');
-                                            $cleanValue = str_replace(
-                                                ['&lt;em&gt;', '&lt;/em&gt;'],
-                                                ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'],
-                                                $cleanValue
-                                            );
+                                            $cleanValue = str_replace(['&lt;em&gt;', '&lt;/em&gt;'], ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'], $cleanValue);
 
                                             $snippet = 'Perteneciente a la colección padre: ... ' . $cleanValue . ' ...';
                                             break 2; // Rompemos el bucle del array y el de los campos
@@ -220,11 +214,7 @@ class ColeccionesConsultaController extends Controller
                                 // 3. CASO NORMAL: Si es un campo de texto plano (Nombre, Descripción, etc.)
                                 if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
                                     $cleanValue = htmlspecialchars($valorFormateado, ENT_QUOTES, 'UTF-8');
-                                    $cleanValue = str_replace(
-                                        ['&lt;em&gt;', '&lt;/em&gt;'],
-                                        ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'],
-                                        $cleanValue
-                                    );
+                                    $cleanValue = str_replace(['&lt;em&gt;', '&lt;/em&gt;'], ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'], $cleanValue);
 
                                     $snippet = 'En [' . ucfirst($campo) . ']: ... ' . $cleanValue . ' ...';
                                     break; // Encontró coincidencia en texto plano, rompemos bucle
@@ -245,7 +235,7 @@ class ColeccionesConsultaController extends Controller
             } catch (\Exception $e) {
                 Log::error('Error en búsqueda Meilisearch: ' . $e->getMessage(), [
                     'queries' => $queries,
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
         }
@@ -302,21 +292,7 @@ class ColeccionesConsultaController extends Controller
             Log::error('Error registrando analítica en visor: ' . $e->getMessage());
         }
 
-        $omitir = [
-            'IdElemento',
-            'id',
-            'created_at',
-            'updated_at',
-            'usuario_id',
-            'carpetaContenido',
-            'archvios',
-            'updated_at',
-            'deleted_at',
-            'vistas_count',
-            'hash_archivo',
-            'assets_procesados',
-            'status'
-        ];
+        $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'updated_at', 'deleted_at', 'vistas_count', 'hash_archivo', 'assets_procesados', 'status'];
 
         $id = $recurso->id;
 
@@ -336,7 +312,7 @@ class ColeccionesConsultaController extends Controller
                 $payload = [
                     'a' => $archivo['id'],
                     'u' => auth()->id(),
-                    'e' => now()->timestamp + 300, // 
+                    'e' => now()->timestamp + 300, //
                 ];
 
                 // Se encripta usando la App Key única de tu servidor

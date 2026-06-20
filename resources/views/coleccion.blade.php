@@ -21,7 +21,7 @@
 @endsection
 
 @section('content')
-    <section class="bg-gray-50">
+    <section class="">
         <div class="sm:px-7 px-2 w-full py-20 flex flex-col gap-6">
 
             <div class="shadow-lg bg-white rounded-lg overflow-hidden">
@@ -38,7 +38,7 @@
                         <label class="block text-xs font-bold text-red-200 uppercase mb-1">Filtrar por Tipo de
                             Acervo:</label>
                         <select onchange="window.location.href = '?acervo_id=' + this.value"
-                            class="w-full bg-white text-gray-800 text-sm rounded-md px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                            class="dark:bg-neutral-600 dark:text-white w-full bg-white text-gray-800 text-sm rounded-md px-3 py-2  focus:outline-none focus:ring-1 focus:ring-red-400">
                             <option value="">-- Todos los Acervos --</option>
                             @foreach ($acervosDisponibles as $itemAcervo)
                                 @if ($itemAcervo->acervo)
@@ -52,7 +52,7 @@
                     </div>
                 </div>
 
-                <div class="p-4 bg-gray-100/50">
+                <div class="p-4 bg-gray-100/50 dark:bg-neutral-600">
                     <livewire:filter-form :acervoId="request('acervo_id')" />
                 </div>
             </div>
@@ -108,7 +108,7 @@
                 $tieneMasColumnas = count($ordenTotal) > 6;
             @endphp
 
-            <div class="relative overflow-x-auto shadow-2xl rounded-md border border-gray-200 bg-white">
+            <div class="relative overflow-x-auto shadow-2xl rounded-md border border-gray-200 bg-white dark:bg-neutral-600">
                 <table class="min-w-full divide-y divide-gray-200 text-left">
                     <thead class="bg-custom-wine text-white">
                         <tr>
@@ -129,24 +129,30 @@
                                 $regMeta = (array) $registro->metadata;
                             @endphp
                             <tr class="hover:bg-red-50/30 transition-colors">
-                                <td class="px-4 py-4 text-sm text-gray-700 font-bold">
+                                <td class="px-4 py-4 text-sm text-gray-700 font-bold dark:text-white">
                                     {{ $registro->acervo->nombre }}
                                 </td>
 
                                 @foreach ($columnasVisibles as $item)
-                                    <td class="px-4 py-4 text-sm text-gray-600 font-medium">
+                                    <td class="px-4 py-4 text-sm text-gray-600 font-medium dark:text-white">
                                         {{ isset($regMeta[$item]) && $regMeta[$item] !== '' && $regMeta[$item] !== '-' ? $regMeta[$item] : '---' }}
                                     </td>
                                 @endforeach
                                 <td class="px-3 py-2 text-center">
-                                    <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $registro->id ]) }}"
-                                        class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
-                                        Ver información
-                                    </a>
+                                    @if ($registro->archivos)
+                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $registro->id]) }}"
+                                            class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1 mx-1
+                                        font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white transition-all hover:bg-guinda
+                                        dark:bg-guinda dark:text-white">
+                                            Ver
+                                        </a>
+                                    @endif
 
                                     <button type="button" onclick="toggleModal('modal-{{ $index }}', true)"
-                                        class="text-custom-wine border-2 border-custom-wine rounded-sm px-2 py-1 font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white transition-all">
-                                        Ver Detalle
+                                        class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1 
+                                        font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white hover:bg-guinda transition-all
+                                        dark:bg-guinda dark:text-white">
+                                        Detalle
                                     </button>
                                 </td>
                             </tr>
@@ -187,15 +193,17 @@
                             <div class="p-8 overflow-y-auto bg-gray-50/50">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     @foreach ($ordenTotal as $item)
-                                        <div class="bg-white p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
-                                            <dt
-                                                class="text-[10px] font-black text-custom-wine uppercase tracking-widest mb-1">
-                                                {{ $cambios[strtolower($item)] ?? ($cambios[$item] ?? $item) }}
-                                            </dt>
-                                            <dd class="text-sm text-gray-800 font-semibold leading-relaxed">
-                                                {{ isset($regMeta[$item]) && $regMeta[$item] !== '' && $regMeta[$item] !== '-' ? $regMeta[$item] : 'N/A' }}
-                                            </dd>
-                                        </div>
+                                        @if (isset($regMeta[$item]) && $regMeta[$item] !== '' && $regMeta[$item] !== '-')
+                                            <div class="bg-white p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
+                                                <dt
+                                                    class="text-[10px] font-black text-custom-wine uppercase tracking-widest mb-1">
+                                                    {{ $cambios[strtolower($item)] ?? ($cambios[$item] ?? $item) }}
+                                                </dt>
+                                                <dd class="text-sm text-gray-800 font-semibold leading-relaxed">
+                                                    {{ $regMeta[$item] }}
+                                                </dd>
+                                            </div>
+                                        @endif
                                     @endforeach
                                 </div>
                             </div>

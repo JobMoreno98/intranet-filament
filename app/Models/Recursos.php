@@ -45,9 +45,8 @@ class Recursos extends Model
             'acervo'      => $this->acervo->nombre,
             'acervo_id'      => $this->acervo_id,
             'coleccion'       => $this->coleccion->nombre,
-            'tipo_media'  => $this->tipo_media,
-            'anio'        => $this->anio ? (int) $this->anio : null,
             'status'      => $this->status,
+            'archivos' =>  $this->archivos()->exists(),
         ];
 
         // 2. Herencia de búsqueda: Indexamos datos de la Colección a la que pertenece

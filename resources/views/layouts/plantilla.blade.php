@@ -178,7 +178,7 @@
                         localStorage.setItem('theme', val ? 'dark' : 'light');
                     });" class="flex items-center">
                         <button @click="darkMode = !darkMode" type="button"
-                            class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
+                            class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white  text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
                             <span x-show="!darkMode" x-cloak>
                                 <x-heroicon-o-moon class="w-5 h-5 group-hover:scale-110 transition-transform" />
                             </span>
@@ -262,7 +262,8 @@
                                     <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                                 </div>
                                 <input type="text" name="q" placeholder="Buscar contenido..."
-                                    class="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
+                                    class="dark:bg-stone-700 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border  bg-white 
+                                     focus:ring-red-100 focus:border-red-700 outline-none transition">
                             </div>
                         </div>
 
@@ -273,7 +274,7 @@
                             </flux:button>
 
                             <flux:button href="{{ route('home') }}" variant="primary" size="sm"
-                                class="w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
+                                class="dark:bg-stone-700 dark:text-white w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
                                 <x-heroicon-o-x-mark class="w-5 h-5" />
                             </flux:button>
                         </div>
@@ -285,7 +286,8 @@
                             <input type="radio" id="d-todas" name="tabs-desktop" class="hidden" checked
                                 @click="activeIndexDesktop = 0">
                             <label for="d-todas"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 
+                                font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 0 ? 'text-white' : 'text-zinc-600'">
                                 Todas
                             </label>
@@ -407,7 +409,7 @@
     </section>
 
 
-    <div class=" bg-white border-gray-200 py-2.5 dark:bg-neutral-800">
+    <div class=" bg-white border-gray-200  dark:bg-neutral-800">
         @yield('content')
     </div>
 
