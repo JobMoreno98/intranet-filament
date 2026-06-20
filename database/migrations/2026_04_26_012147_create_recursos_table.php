@@ -40,7 +40,6 @@ return new class extends Migration {
 
             $table->index('coleccion_id');
             $table->index('acervo_id');
-            $table->fulltext('titulo');
         });
     }
 
