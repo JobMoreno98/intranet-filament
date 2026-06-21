@@ -14,16 +14,16 @@ class ConfigureMeilisearchFilters extends Command
     /**
      * Execute the console command.
      */
-public function handle()
+    public function handle()
     {
         $this->info('Conectando con Meilisearch...');
         $meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
 
         $this->info('Obteniendo variables dinámicas desde los esquemas de TipoAcervo...');
-        
+
         // 1. Recopilamos absolutamente todas las variables de todos los acervos existentes en tu base de datos
         $todosLosCampos = ['coleccion_id', 'acervo_id', 'status'];
-        
+
         $acervos = \App\Models\TipoAcervo::whereNotNull('esquema')->get();
         foreach ($acervos as $acervo) {
             $esquema = is_string($acervo->esquema) ? json_decode($acervo->esquema, true) : (array) $acervo->esquema;

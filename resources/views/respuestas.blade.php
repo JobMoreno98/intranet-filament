@@ -18,6 +18,7 @@
                         <thead class="bg-gray-900 text-white text-sm font-medium">
                             <tr>
                                 <th class="p-4 pl-6">Tipo</th>
+                                <th>Acervo</th>
                                 <th class="p-4">Extracto de Coincidencia</th>
                                 <th class="p-4 text-center w-40">Acción</th>
                             </tr>
@@ -25,35 +26,42 @@
                         <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
                             @foreach ($resultados as $res)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <!-- Celda de Colección -->
+                                    <!-- Tipo -->
                                     <td class="p-4 pl-6">
-                                        <span class="font-bold text-gray-900 block">{{ $res['tipo'] }}</span>
+                                        <span class="font-bold text-gray-900 block">{{ ucfirst($res['tipo']) }}</span>
                                     </td>
-                                    <!-- Celda de Fragmento -->
+
+                                    <!-- Acervo o Nombre de Colección -->
+                                    <td class="p-4">
+                                        @if ($res['tipo'] === 'documento')
+                                            {{ $res['acervo'] ?? '---' }}
+                                        @elseif ($res['tipo'] === 'coleccion')
+                                            {{ $res['titulo_resultado'] ?? '---' }}
+                                        @endif
+                                    </td>
+
+                                    <!-- Coincidencia -->
                                     <td class="p-4 text-gray-500 text-xs max-w-xs truncate-2-lines">
-                                        <h5 class="font-bold"> {{ $res['titulo_resultado'] }}</h5> <br>
                                         {!! $res['coincidencia'] !!}
                                     </td>
-                                    <!-- Botón de acción -->
-                                    <td class="p-4 text-center">
 
-                                        @if ($res['registro_id'] && $res['tipo'] == 'documento')
+                                    <!-- Acción -->
+                                    <td class="p-4 text-center">
+                                        @if ($res['tipo'] === 'documento' && $res['registro_id'])
                                             <a href="{{ route('buscador.registro', ['tipo' => $res['tipo'], 'id' => $res['registro_id']]) }}"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver información
                                             </a>
-                                        @else
-                                            <div class="mt-1">
-
-                                                <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
-                                                    class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
-                                                    Ver informacion
-                                                </a>
-                                            </div>
+                                        @elseif ($res['tipo'] === 'coleccion')
+                                            <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
+                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
+                                                Ver información
+                                            </a>
                                         @endif
                                     </td>
                                 </tr>
                             @endforeach
+
 
                             @if ($resultados->isEmpty())
                                 <tr>
@@ -100,7 +108,7 @@
                                     <div class="mt-1">
 
                                         <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
-                                           class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
+                                            class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
                                             Ver informacion
                                         </a>
                                     </div>

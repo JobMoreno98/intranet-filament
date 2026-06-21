@@ -146,7 +146,14 @@ class ColeccionesConsultaController extends Controller
 
     public function buscador(Request $request)
     {
+
+        $request->validate([
+            'q' => ['required', 'string', 'min:1'],
+            'acervo_id' =>  ['nullable', 'exists:tipo_acervos,id'],
+        ]);
+
         $term = $request->input('q');
+        $acervo = $request->acervo_id;
         $resultados = [];
 
         if ($request->filled('q')) {
@@ -162,11 +169,14 @@ class ColeccionesConsultaController extends Controller
                 $searchQuery = new SearchQuery()
                     ->setIndexUid($meta)
                     ->setQuery($term)
-                    ->setLimit(20)
+                    //->setLimit(20)
                     ->setAttributesToHighlight(['*'])
                     ->setAttributesToCrop(['descripcion', 'texto', 'biografia']) // Los campos largos que uses
                     ->setCropLength(25); // Trae aproximadamente unas 25 palabras alrededor del 'em'
 
+                if (!empty($acervo) && $meta === 'recursos') {
+                    $searchQuery->setFilter(["acervo_id = $acervo"]);
+                }
                 $queries[] = $searchQuery;
             }
 
@@ -178,6 +188,7 @@ class ColeccionesConsultaController extends Controller
 
                 // Normalizamos la respuesta a un arreglo nativo para ganar consistencia y velocidad
                 $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
+                //dd($results);
 
                 foreach ($results as $indexResult) {
                     $hits = $indexResult['hits'] ?? [];
@@ -206,7 +217,7 @@ class ColeccionesConsultaController extends Controller
                                             $cleanValue = str_replace(['&lt;em&gt;', '&lt;/em&gt;'], ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'], $cleanValue);
 
                                             $snippet = 'Perteneciente a la colección padre: ... ' . $cleanValue . ' ...';
-                                            break 2; // Rompemos el bucle del array y el de los campos
+                                            break 2;
                                         }
                                     }
                                 }
@@ -220,16 +231,48 @@ class ColeccionesConsultaController extends Controller
                                     break; // Encontró coincidencia en texto plano, rompemos bucle
                                 }
                             }
-                        }
 
-                        $resultados[] = [
-                            'index' => $indexUid,
-                            'tipo' => $hit['tipo'] ?? 'documento',
-                            'titulo_resultado' => $hit['titulo'] ?? ($hit['nombre'] ?? 'Registro sin título'),
-                            'coincidencia' => $snippet, // Ahora va garantizado con texto útil
-                            'registro_id' => $hit['id'] ?? null,
-                            'slug' => $hit['slug'] ?? null,
-                        ];
+
+                            if (isset($formatted['metadata']) && is_array($formatted['metadata'])) {
+                                foreach ($formatted['metadata'] as $clave => $valorFormateado) {
+                                    if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
+                                        $cleanValue = htmlspecialchars($valorFormateado, ENT_QUOTES, 'UTF-8');
+                                        $cleanValue = str_replace(
+                                            ['&lt;em&gt;', '&lt;/em&gt;'],
+                                            ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'],
+                                            $cleanValue
+                                        );
+
+                                        // 👇 Aquí armas la salida completa con la clave y el valor resaltado
+                                        $snippet = 'Valor encontrado en: <br/> ' . ucfirst($clave) . ': ' . $cleanValue;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if ($indexUid === 'coleccions') {
+                            $resultados[] = [
+                                'index'          => $indexUid,
+                                'tipo'           => $hit['tipo'] ?? 'coleccion',
+                                'titulo_resultado' => $hit['nombre'] ?? 'Colección sin nombre',
+                                'coincidencia'   => $snippet,
+                                'registro_id'    => $hit['id'] ?? null,
+                                'slug'           => $hit['slug'] ?? null,
+                                'descripcion'    => $hit['descripcion'] ?? null,
+                            ];
+                        } else { // recursos
+                            $resultados[] = [
+                                'index'          => $indexUid,
+                                'acervo'         => $hit['acervo'] ?? null,
+                                'coleccion'      => $hit['coleccion'] ?? null,
+                                'tipo'           => $hit['tipo'] ?? 'documento',
+                                'titulo_resultado' => $hit['titulo'] ?? ($hit['nombre'] ?? 'Registro sin título'),
+                                'coincidencia'   => $snippet,
+                                'registro_id'    => $hit['id'] ?? null,
+                                'slug'           => $hit['slug'] ?? null,
+                                'metadata'       => $hit['metadata'] ?? [],
+                            ];
+                        }
                     }
                 }
             } catch (\Exception $e) {

@@ -66,9 +66,16 @@ class Recursos extends Model
         // 3. INDEXADO DINÁMICO DEL JSON DE METADATOS
         // Si el CMS guarda ['editorial' => 'Editorial UdeG', 'paginas' => 350], Meilisearch lo mapeará de inmediato
         if (!empty($this->metadata) && is_array($this->metadata)) {
-            $array['metadata'] = $this->metadata;
+            // Concatenamos valores clave => valor en un string
+            $array['metadata'] = $this->metadata; // JSON original
+            $flatMetadata = collect($this->metadata)
+                ->map(fn($valor, $clave) => $clave . ': ' . $valor)
+                ->implode(' | ');
+
+            $array['metadata_text'] = $flatMetadata;
         } else {
-            $array['metadata'] = [];
+            $array['metadata'] = '';
+            $array['metadata_text'] = '';
         }
 
         return $array;

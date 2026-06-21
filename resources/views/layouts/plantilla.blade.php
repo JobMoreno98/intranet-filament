@@ -283,8 +283,8 @@
                     <div class="w-full overflow-x-auto scrollbar-none mt-1 bg-white rounded-xl mt-3 dark:bg-stone-700">
                         <div class="relative flex min-w-max items-stretch h-12">
 
-                            <input type="radio" id="d-todas" name="tabs-desktop" class="hidden" checked
-                                @click="activeIndexDesktop = 0">
+                            <input type="radio" id="d-todas"  class="hidden" checked
+                                 @click="activeIndexDesktop = 0">
                             <label for="d-todas"
                                 class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 
                                 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
@@ -292,8 +292,8 @@
                                 Todas
                             </label>
                             @foreach ($tiposAcervo as $index => $item)
-                                <input type="radio" id="d-{{ $item->nombre }}" name="tabs-desktop" class="hidden"
-                                    @click="activeIndexDesktop = {{ $index + 1 }}">
+                                <input type="radio" id="d-{{ $item->nombre }}" name="acervo_id" class="hidden"
+                                    value="{{ $item->id }}" @click="activeIndexDesktop = {{ $index + 1 }}">
                                 <label for="d-{{ $item->nombre }}"
                                     class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                     :class="activeIndexDesktop === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
@@ -371,8 +371,7 @@
                     <div
                         class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white dark:bg-stone-700 dark:text-white rounded-xl shadow-sm">
                         <div class="relative flex min-w-max items-stretch h-12">
-
-                            <input type="radio" id="m-todas" name="tabs-mobile" class="hidden" checked
+                            <input type="radio" id="m-todas"  class="hidden" checked
                                 @click="activeIndexMobile = 0">
                             <label for="m-todas"
                                 class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
@@ -380,8 +379,8 @@
                                 Todas
                             </label>
                             @foreach ($tiposAcervo as $index => $item)
-                                <input type="radio" id="m-{{ $item->nombre }}" name="tabs-mobile" class="hidden"
-                                    @click="activeIndexMobile = {{ $index + 1 }}">
+                                <input type="radio" id="m-{{ $item->nombre }}" name="acervo_id" class="hidden"
+                                    value="{{ $item->id }}" @click="activeIndexMobile = {{ $index + 1 }}">
                                 <label for="m-{{ $item->nombre }}"
                                     class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                     :class="activeIndexMobile === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
