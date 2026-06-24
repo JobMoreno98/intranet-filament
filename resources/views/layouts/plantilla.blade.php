@@ -260,7 +260,7 @@
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                 <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                             </div>
-                            <input type="text" name="q" value="{{ request('coleccion') }}"
+                            <input type="text" name="q" 
                                 placeholder="Buscar colección..."
                                 class="dark:text-zinc-900 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
                         </div>
