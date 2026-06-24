@@ -107,7 +107,8 @@
                 $columnasVisibles = array_slice($ordenTotal, 0, 6);
                 $tieneMasColumnas = count($ordenTotal) > 6;
             @endphp
-
+            @if (request('acervo_id'))
+                
             <div class="relative overflow-x-auto shadow-2xl rounded-md border border-gray-200 bg-white dark:bg-neutral-600">
                 <table class="min-w-full divide-y divide-gray-200 text-left">
                     <thead class="bg-custom-wine text-white">
@@ -119,7 +120,7 @@
                                     {{ $cambios[strtolower($item)] ?? ($cambios[$item] ?? $item) }}
                                 </th>
                             @endforeach
-                            <th class="px-2 py-3 text-center text-xs font-bold uppercase tracking-widest">Acciones</th>
+                            <th class="px-2 py-3 text-center text-xs font-bold uppercase tracking-widest" style="width: 15px">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -141,15 +142,15 @@
                                 <td class="px-3 py-2 text-center">
                                     @if ($registro->archivos)
                                         <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $registro->id]) }}"
-                                            class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1 mx-1
+                                            class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1  block
                                         font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white transition-all hover:bg-guinda
-                                        dark:bg-guinda dark:text-white">
+                                        dark:bg-guinda dark:text-white w-full my-1">
                                             Ver
                                         </a>
                                     @endif
 
                                     <button type="button" onclick="toggleModal('modal-{{ $index }}', true)"
-                                        class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1 
+                                        class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1  w-full my-1
                                         font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white hover:bg-guinda transition-all
                                         dark:bg-guinda dark:text-white">
                                         Detalle
@@ -224,6 +225,7 @@
                     {{ $data->appends(request()->query())->links() }}
                 </div>
             </div>
+            @endif
         </div>
     </section>
 @endsection

@@ -180,7 +180,7 @@
                         <div class="flex flex-col gap-2 px-3">
                             <a href="{{ route('login') }}"
                                 class="text-center rounded-md text-white py-2 px-4 bg-red-800 hover:bg-red-900 transition shadow-sm w-full">
-                                {{ __('Log In') }} | {{ __('Sign up') }}
+                                {{ __('Log In') }}
                             </a>
                         </div>
                     @endif

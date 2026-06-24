@@ -3,7 +3,7 @@
 @section('content')
     <section >
         <div class="mx-auto sm:px-7 px-2 max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center">
-            <div class="flex flex-col gap-8">
+            <div class="flex flex-col gap-8 w-full">
                 @forelse ($colecciones as $index => $item)
                     <div data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
                         <livewire:parent-collection :collection="$item" :key="$item->id" />
