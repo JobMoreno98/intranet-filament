@@ -128,7 +128,7 @@ class RecursosForm
                                 ->grid(4)
                                 ->orderable('orden')
                                 ->collapsible() // Permite colapsar para ahorrar espacio
-                                ->collapsed()
+                                ->collapsed()->addable(false)
                                 ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? 'Sin nombre'),
 
                             FileUpload::make('archivos_bulk')
