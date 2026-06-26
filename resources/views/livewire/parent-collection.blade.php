@@ -38,7 +38,7 @@ with(function () {
              {{-- El secreto: col-start-1 y row-start-1 los obliga a compartir el mismo espacio físico --}}
              class="col-start-1 row-start-1 p-6 flex flex-col md:flex-row gap-6 items-center w-full h-full bg-white z-10 bg-white  dark:bg-zinc-700">
             
-            <div class="w-full md:w-1/6 flex-shrink-0">
+            <div class="w-full md:w-1/6 flex-shrink-0 w-1/3 ">
                 <img style="aspect-ratio:1/1;" class="mx-auto h-auto w-full object-cover rounded-base"
                     src="{{ asset('storage/colecciones/' . $collection->foto) }}" alt="{{ $collection->nombre }}">
             </div>

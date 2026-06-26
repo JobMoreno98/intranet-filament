@@ -6,7 +6,7 @@
     @endphp
     <section class="{{ $color }} min-h-screen">
 
-        <div class="flex flex-col lg:flex-row lg:h-screen">
+        <div class="flex flex-col lg:flex-row h-screen">
             <!-- VISOR -->
             <main class="flex-1 flex flex-col min-h-0 border-b border-zinc-200">
                 <!-- TOPBAR -->
@@ -201,7 +201,7 @@
                                 class="max-w-full max-h-full h-auto w-auto object-contain shadow-2xl bg-zinc-900"></canvas>
 
                             <button onclick="document.getElementById('prev-page').click()"
-                                class="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
+                                class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -209,7 +209,7 @@
                             </button>
 
                             <button onclick="document.getElementById('next-page').click()"
-                                class="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 bg-indigo-600/80 hover:bg-indigo-600 text-white p-3 rounded-full shadow-lg transition z-10">
+                                class="flex absolute right-4 top-1/2 -translate-y-1/2 bg-indigo-600/80 hover:bg-indigo-600 text-white p-3 rounded-full shadow-lg transition z-10">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -229,18 +229,7 @@
                         <div
                             class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
 
-                            <div class="flex lg:hidden items-center gap-3 w-full">
-                                <button id="prev-page"
-                                    class="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 text-xs font-semibold transition border border-zinc-700">
-                                    ← Anterior
-                                </button>
-                                <button id="next-page"
-                                    class="flex-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 text-xs font-semibold transition">
-                                    Siguiente →
-                                </button>
-                            </div>
-
-                            <div class="hidden lg:block">
+                            <div class="lg:block">
                                 <button id="prev-page" class="hidden"></button>
                                 <button id="next-page" class="hidden"></button>
                             </div>

@@ -11,8 +11,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script>
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia(
-                '(prefers-color-scheme: dark)').matches)) {
+        // 1. Tema blanco por defecto (nuestra base)
+        let theme = 'light';
+
+        // 2. LocalStorage: ¿El usuario ya eligió algo antes?
+        if (localStorage.getItem('theme')) {
+            theme = localStorage.getItem('theme');
+        }
+        // 3. Sistema: Si no hay LocalStorage, ¿qué prefiere su sistema operativo?
+        else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+        }
+
+        // Finalmente, aplicamos el resultado de ese análisis a la página
+        if (theme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -55,7 +67,7 @@
             background-image: url('{{ asset('img/portada-web.jpg') }}');
             background-size: cover;
             background-position: center;
-            max-height: 250px;
+            max-height: 200px;
             width: 100%;
         }
 
@@ -190,7 +202,7 @@
     </nav>
 
     <section class="relative flex flex-col dark:bg-gray-200">
-        <div id="img-bpej" style="width: 100%;" class="hidden md:block">
+        <div id="img-bpej" style="width: 100%;" class="hidden lg:block">
             <div class="flex flex-col h-full " style="max-height: 300px">
                 <form action="{{ route('buscador') }}" method="GET"
                     class="mt-auto mx-auto w-full md:w-fit mb-3 px-3 sm:px-7 pt-9" x-data="{ activeIndexDesktop: 0 }"
@@ -235,9 +247,11 @@
                             @foreach ($tiposAcervo as $index => $item)
                                 <input type="radio" id="d-{{ $item->nombre }}" name="acervo_id" class="hidden"
                                     value="{{ $item->id }}" @click="activeIndexDesktop = {{ $index + 1 }}">
+
                                 <label for="d-{{ $item->nombre }}"
-                                    class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                    class=" dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                     :class="activeIndexDesktop === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
+                                    <flux:icon name="{{ $item->icono }}" class="mx-1 size-4" />
                                     {{ $item->nombre }}
                                 </label>
                             @endforeach
@@ -250,7 +264,7 @@
             </div>
         </div>
 
-        <div class="mt-auto mx-auto md:hidden w-full sm:px-7 pt-6 dark:bg-neutral-800">
+        <div class="mt-auto mx-auto lg:hidden w-full sm:px-7 pt-6 dark:bg-neutral-800">
             <form action="{{ route('buscador') }}" method="GET" class="bg-transparent" x-data="{ activeIndexMobile: 0 }"
                 :style="'--active-index: ' + activeIndexMobile + '; --tab-width: 120px;'">
 
@@ -260,8 +274,7 @@
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                 <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                             </div>
-                            <input type="text" name="q" 
-                                placeholder="Buscar colección..."
+                            <input type="text" name="q" placeholder="Buscar colección..."
                                 class="dark:text-zinc-900 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
                         </div>
                     </div>
@@ -294,8 +307,9 @@
                                 <input type="radio" id="m-{{ $item->nombre }}" name="acervo_id" class="hidden"
                                     value="{{ $item->id }}" @click="activeIndexMobile = {{ $index + 1 }}">
                                 <label for="m-{{ $item->nombre }}"
-                                    class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
+                                    class="boder boder-guinda dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                     :class="activeIndexMobile === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
+                                     <flux:icon name="{{ $item->icono }}" class="mx-1 size-4" />
                                     {{ $item->nombre }}
                                 </label>
                             @endforeach
