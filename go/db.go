@@ -159,6 +159,64 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 }
 func getDB() (*sql.DB, error) {
 	// Centraliza aquí tus credenciales y nombre de DB
-	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/bpej?parseTime=true"
+	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/intranet-bpej?parseTime=true"
 	return sql.Open("mysql", dsn)
+}
+
+// updateArchivoStatus actualiza únicamente el status de un registro en
+// recursos_archivos. Se usa para marcar 'error' cuando falla el procesamiento
+// del video (todavía no hay assets que guardar).
+func updateArchivoStatus(archivoID int, status string) {
+	db, err := getDB()
+	if err != nil {
+		log.Printf("Error conectando: %v", err)
+		return
+	}
+	defer db.Close()
+
+	query := "UPDATE recursos_archivos SET status = ? WHERE id = ?"
+	_, err = db.Exec(query, status, archivoID)
+
+	if err != nil {
+		log.Printf("Error actualizando status del archivo %d: %v", archivoID, err)
+	} else {
+		log.Printf("Archivo %d actualizado a status '%s'", archivoID, status)
+	}
+}
+
+// updateVideoAssets guarda la ruta del .m3u8 (y el thumb.webp, si se generó)
+// en assets_procesados y marca el registro como 'listo', igual que
+// updateDatabase hace con main/thumb para imágenes y páginas de PDF.
+func updateVideoAssets(archivoID int, m3u8Raw string, thumbRaw string) {
+	m3u8 := cleanPathForLaravel(m3u8Raw)
+
+	assetsMap := map[string]string{
+		"video": m3u8,
+	}
+
+	if thumbRaw != "" {
+		assetsMap["thumb"] = cleanPathForLaravel(thumbRaw)
+	}
+
+	assetsJSON, err := json.Marshal(assetsMap)
+	if err != nil {
+		log.Printf("Error serializando JSON del video %d: %v", archivoID, err)
+		return
+	}
+
+	db, err := getDB()
+	if err != nil {
+		log.Printf("Error conectando: %v", err)
+		return
+	}
+	defer db.Close()
+
+	query := "UPDATE recursos_archivos SET assets_procesados = ?, status = 'listo' WHERE id = ?"
+	_, err = db.Exec(query, string(assetsJSON), archivoID)
+
+	if err != nil {
+		log.Printf("Error actualizando assets del video %d: %v", archivoID, err)
+	} else {
+		log.Printf("Video (archivo %d) actualizado a 'listo' (Ruta: %s)", archivoID, m3u8)
+	}
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChunkUploadController;
 use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\RecursosController;
 use App\Models\ColeccionesConsulta;
@@ -7,6 +8,7 @@ use App\Models\RecursosArchivos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Filament\Facades\Filament;
+use Filament\Http\Middleware\Authenticate;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
@@ -90,3 +92,31 @@ Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl'])->middlew
 Route::get('/viewer/visor/{recurso}', [RecursosController::class, 'publico'])
     ->middleware('signed')
     ->name('visor.publico');
+
+
+
+Route::get('/video/key/{key}', function ($key) {
+    abort_unless(request()->hasValidSignature(), 403);
+
+    $fullPath = storage_path("app/keys/{$key}");
+
+    if (! file_exists($fullPath)) {
+        return response()->json([
+            'error' => 'Archivo no encontrado físicamente',
+            'debug_path' => $fullPath,
+            'user' => posix_getpwuid(posix_geteuid())['name'],
+        ], 404);
+    }
+
+    return response(file_get_contents($fullPath), 200, [
+        'Content-Type' => 'application/octet-stream',
+        'Access-Control-Allow-Origin' => app(),
+        'Access-Control-Allow-Credentials' => 'true',
+    ]);
+})->name('video.key')->where('key', '.*');
+
+Route::post('/chunks/upload', [ChunkUploadController::class, 'upload'])->name('api.chunks.upload')->middleware(Authenticate::class);
+
+Route::get('/chunks/upload', [ChunkUploadController::class, 'checkChunk'])
+    ->name('api.chunks.check')
+    ->middleware(Authenticate::class);

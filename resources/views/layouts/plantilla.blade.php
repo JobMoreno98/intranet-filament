@@ -107,7 +107,7 @@
             <a href="{{ route('home') }}" class="flex items-center font-bold text-xl h-full py-2">
                 <img src="{{ asset('img/logo.svg') }}" class="h-6 mr-3 sm:h-9"
                     alt="{{ config('app.name', 'Laravel') }} Logo">
-                <span style="color:#86212b;">{{ config('app.name', 'Laravel') }}</span>
+                <span class="dark:text-white text-guinda">{{ config('app.name', 'Laravel') }}</span>
             </a>
 
             <div class="hidden lg:flex items-center h-full ms-6 space-x-1">
@@ -206,7 +206,7 @@
             <div class="flex flex-col h-full " style="max-height: 300px">
                 <form action="{{ route('buscador') }}" method="GET"
                     class="mt-auto mx-auto w-full md:w-fit mb-3 px-3 sm:px-7 pt-9" x-data="{ activeIndexDesktop: 0 }"
-                    :style="'--active-index: ' + activeIndexDesktop + '; --tab-width: 120px;'">
+                    :style="'--active-index: ' + activeIndexDesktop + '; --tab-width: 140px;'">
 
                     <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
                         <div class="flex-1">
@@ -266,7 +266,7 @@
 
         <div class="mt-auto mx-auto lg:hidden w-full sm:px-7 pt-6 dark:bg-neutral-800">
             <form action="{{ route('buscador') }}" method="GET" class="bg-transparent" x-data="{ activeIndexMobile: 0 }"
-                :style="'--active-index: ' + activeIndexMobile + '; --tab-width: 120px;'">
+                :style="'--active-index: ' + activeIndexMobile + '; --tab-width: 140px;'">
 
                 <div class="flex flex-col gap-3 p-4 bg-transparent">
                     <div class="w-full">

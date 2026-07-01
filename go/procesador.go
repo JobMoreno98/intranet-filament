@@ -37,6 +37,9 @@ func processTask(task ProcessingTask) {
 	case ".jpg", ".jpeg", ".png", ".webp":
 		log.Printf(">>> RUTINA: IMAGEN DETECTADA <<<")
 		processImage(task)
+	case ".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v":
+		log.Printf(">>> RUTINA: VIDEO DETECTADO <<<")
+		processVideo(task)
 	default:
 		log.Printf("ERROR: Extensión '%s' no soportada para ID %d", ext, task.ArchivoID)
 	}
@@ -124,6 +127,126 @@ if _, err := exec.LookPath(binary); err != nil {
 
 	// Actualizamos la DB
 	updateDatabase(task.ArchivoID, mainPath, thumbPath)
+}
+
+func processVideo(task ProcessingTask) {
+	log.Printf("--- Iniciando VIDEO: %s ---", task.Path)
+
+	// Reintento de existencia (igual que en processImage)
+	exists := false
+	for i := 0; i < 5; i++ {
+		if _, err := os.Stat(task.Path); err == nil {
+			exists = true
+			break
+		}
+		log.Printf("Archivo no listo para ID %d, reintentando en 500ms...", task.ArchivoID)
+		time.Sleep(500 * time.Millisecond)
+	}
+	if !exists {
+		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", task.Path)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	// La key, el .keyinfo y la URL firmada los genera Laravel ANTES de encolar
+	// la tarea (necesita APP_KEY para firmar la ruta). Go solo necesita la
+	// ruta al .keyinfo que PHP ya dejó escrito en disco.
+	if task.KeyInfoPath == "" {
+		log.Printf("ERROR CRÍTICO: KeyInfoPath vacío para ID %d", task.ArchivoID)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+	if _, err := os.Stat(task.KeyInfoPath); err != nil {
+		log.Printf("ERROR CRÍTICO: .keyinfo no existe en %s", task.KeyInfoPath)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	outputDir := filepath.Join(basePath, "encrypted", task.OutputName)
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		log.Printf("ERROR CRÍTICO: no se pudo crear %s: %v", outputDir, err)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	// 1. Detectar códec de vídeo con ffprobe
+	probeCmd := exec.Command("ffprobe",
+		"-v", "error",
+		"-select_streams", "v:0",
+		"-show_entries", "stream=codec_name",
+		"-of", "default=noprint_wrappers=1:nokey=1",
+		task.Path,
+	)
+	probeOut, err := probeCmd.Output()
+	codec := "unknown"
+	if err != nil {
+		log.Printf("WARN ffprobe ID %d: %v (se transcodificará por seguridad)", task.ArchivoID, err)
+	} else {
+		codec = strings.TrimSpace(string(probeOut))
+	}
+
+	useCopy := codec == "h264"
+
+	args := []string{
+		"-y",
+		"-loglevel", "error",
+		"-i", task.Path,
+	}
+
+	if useCopy {
+		// Ya es H.264: solo remux (rápido)
+		args = append(args, "-c", "copy")
+	} else {
+		// Otro formato: transcodificar a H.264/AAC
+		args = append(args,
+			"-c:v", "libx264",
+			"-crf", "23",
+			"-preset", "veryfast",
+			"-c:a", "aac",
+		)
+	}
+
+	args = append(args,
+		"-hls_time", "10",
+		"-hls_playlist_type", "vod",
+		"-hls_key_info_file", task.KeyInfoPath,
+		"-hls_segment_filename", filepath.Join(outputDir, "segment_%03d.ts"),
+		filepath.Join(outputDir, task.OutputName+".m3u8"),
+	)
+
+	cmd := exec.Command("ffmpeg", args...)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		log.Printf("ERROR ffmpeg ID %d: %v | output: %s", task.ArchivoID, err, string(out))
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	// Generar thumbnail ANTES de borrar el original: el HLS ya quedó
+	// cifrado y no es trivial re-leerlo con ffmpeg sin pasar la key.
+	thumbPath := filepath.Join(outputDir, "thumb.webp")
+	thumbOk := true
+	thumbCmd := exec.Command("ffmpeg",
+		"-y",
+		"-loglevel", "error",
+		"-ss", "1",
+		"-i", task.Path,
+		"-frames:v", "1",
+		"-vf", "scale=200:200:force_original_aspect_ratio=increase,crop=200:200",
+		"-q:v", "80",
+		thumbPath,
+	)
+	if out, err := thumbCmd.CombinedOutput(); err != nil {
+		log.Printf("WARN: no se pudo generar thumbnail ID %d: %v | output: %s", task.ArchivoID, err, string(out))
+		thumbOk = false
+	}
+
+	m3u8Path := filepath.Join(outputDir, task.OutputName+".m3u8")
+	if thumbOk {
+		updateVideoAssets(task.ArchivoID, m3u8Path, thumbPath)
+	} else {
+		updateVideoAssets(task.ArchivoID, m3u8Path, "")
+	}
+	log.Printf("--- Finalizado VIDEO: %s ---", task.OutputName)
 }
 
 func extractPages(info string) int {

@@ -35,7 +35,7 @@ class RecursosInfolist
                                     ->url(fn($record) => URL::temporarySignedRoute(
                                         'admin.media.load', // La nueva ruta que creamos
                                         now()->addMinutes(120),
-                                        ['archivo_id' => $record->id, 'version' => 'main']
+                                        ['archivo_id' => $record->id, 'version' => 'thumb']
                                     ))
                                     ->openUrlInNewTab(),
                                 // Si no se ha procesado, mostramos un placeholder

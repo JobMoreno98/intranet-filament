@@ -22,6 +22,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Support\Assets\Js;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -98,9 +99,15 @@ class AdminPanelProvider extends PanelProvider
                     ->registerNavigation(true),
 
             ])->viteTheme('resources/css/filament/admin/theme.css')
+            ->assets([
+                // Cargamos Resumable.js de forma global y segura en el panel
+                Js::make('resumable-js', 'https://cdn.jsdelivr.net/npm/resumablejs@1.1.0/resumable.min.js'),
+
+                // Si tienes un CSS específico para tus formularios custom que compilaste con Vite:
+                // Css::make('custom-form-styles', asset('css/custom.css')),
+            ])
             ->authMiddleware([
                 Authenticate::class,
             ])->maxContentWidth(Width::Full);
     }
-    
 }

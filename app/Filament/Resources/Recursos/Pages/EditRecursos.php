@@ -2,18 +2,20 @@
 
 namespace App\Filament\Resources\Recursos\Pages;
 
+use App\Filament\Resources\Recursos\Pages\Concerns\EnviaArchivosAGo;
 use App\Filament\Resources\Recursos\RecursosResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class EditRecursos extends EditRecord
 {
+    use EnviaArchivosAGo;
+
     protected static string $resource = RecursosResource::class;
 
     protected function getHeaderActions(): array
@@ -29,16 +31,20 @@ class EditRecursos extends EditRecord
     protected function afterSave(): void
     {
         $record = $this->record;
+        $rawState = $this->form->getRawState();
 
         // 1. Extraemos los nuevos archivos subidos masivamente
         // getRawState() nos asegura obtener las rutas temporales
-        $archivosParaProcesar = $this->form->getRawState()['archivos_bulk'] ?? [];
+        $archivosParaProcesar = $rawState['archivos_bulk'] ?? [];
+        $rutaVideoTemporal = $rawState['video_bulk'] ?? null;
 
-        if (empty($archivosParaProcesar)) {
+        if (empty($archivosParaProcesar) && empty($rutaVideoTemporal)) {
             return;
         }
-        $cantiad =  $record->archivos()->count() + 1;
-        // 2. Procesamos cada archivo nuevo
+
+        $cantiad = $record->archivos()->count() + 1;
+
+        // 2. Procesamos cada archivo nuevo (imágenes / PDFs)
         foreach (array_values($archivosParaProcesar) as $index => $rutaTemporal) {
 
             // 1. Creamos el registro primero para tener el ID del archivo
@@ -66,28 +72,36 @@ class EditRecursos extends EditRecord
                     'nombre_archivo_original' => $nombreLimpio
                 ]);
             }
-            
+
             $cantiad = $cantiad + 1;
 
             // 5. Mandamos a Go
             $this->enviarAGo($nuevoArchivo, $record);
         }
-    }
 
-    /**
-     * Centralizamos el envío a Redis para mantener el orden
-     */
-    private function enviarAGo($archivo, $recurso): void
-    {
-        $payload = [
-            'archivo_id'     => $archivo->id,
-            'recurso_id'     => $recurso->id,
-            'path'           => storage_path('app/private/' . $archivo->path_original),
-            'coleccion_slug' => $recurso->coleccion->slug,
-            'tipo'           => $recurso->tipo_media ?? 'imagen',
-            'action'         => 'update'
-        ];
+        // 3. Procesamos el video grande (subido por chunks), si lo hay
+        if ($rutaVideoTemporal) {
+            $nuevoVideo = $record->archivos()->create([
+                'path_original' => $rutaVideoTemporal, // Temporal, en disco 'public'
+                'nombre_archivo_original' => basename($rutaVideoTemporal),
+                'status' => 'en_cola',
+                'orden' => $cantiad,
+            ]);
 
-        Redis::lpush('cola_procesamiento', json_encode($payload));
+            $extension = pathinfo($rutaVideoTemporal, PATHINFO_EXTENSION);
+            $nombreLimpio = Str::slug($record->titulo) . "_" . $cantiad . ".{$extension}";
+            $rutaFinal = "{$record->coleccion->slug}/{$record->id}/{$nuevoVideo->id}/{$nombreLimpio}";
+
+            // El chunk uploader deja el archivo ensamblado en el disco 'public',
+            // no en 'private' como archivos_bulk, así que cruzamos discos.
+            if ($this->moverArchivoCrossDisk('public', $rutaVideoTemporal, 'private', $rutaFinal)) {
+                $nuevoVideo->update([
+                    'path_original' => $rutaFinal,
+                    'nombre_archivo_original' => $nombreLimpio,
+                ]);
+            }
+
+            $this->enviarAGo($nuevoVideo, $record);
+        }
     }
 }

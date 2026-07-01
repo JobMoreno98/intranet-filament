@@ -11,14 +11,14 @@
                     @endphp
 
                     <a href="#"
-                        class="group rounded-xl border bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition 
+                        class="dark:bg-zinc-700  group rounded-xl border bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition 
                    {{ $esAncho ? 'flex flex-col lg:col-span-2 flex items-center justify-start gap-4 text-left' : 'lg:col-span-1 text-center flex flex-col items-center justify-center' }}">
 
                         {{-- El componente dinámico carga el icono correspondiente --}}
                         <x-dynamic-component :component="'heroicon-o-' . $categoria->icono"
-                            class="{{ $esAncho ? 'w-12 h-12 shrink-0' : 'w-10 h-10 mb-3' }} {{ $categoria->color ?? 'text-guinda' }}" />
+                            class="dark:text-white {{ $esAncho ? 'w-12 h-12 shrink-0' : 'w-10 h-10 mb-3' }} {{ $categoria->color ?? 'text-guinda' }}" />
 
-                        <h4 class="font-semibold text-gray-900 {{ $esAncho ? 'text-lg' : '' }}">
+                        <h4 class="dark:text-white font-semibold text-gray-900 {{ $esAncho ? 'text-lg' : '' }}">
                             {{ $categoria->nombre }}
                         </h4>
                     </a>
