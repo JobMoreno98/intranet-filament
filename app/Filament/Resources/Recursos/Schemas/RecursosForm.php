@@ -67,7 +67,7 @@ class RecursosForm
 
                 Wizard\Step::make('datos')->label('Datos')->schema([
                     // 2. DATOS DINÁMICOS (Lo que vive dentro del JSON 'metadata')
-                    Select::make('tipo_media')->reactive()
+                    Select::make('tipo_media')->live()
                         ->options([
                             'pdf' => 'Documento PDF',
                             'video' => 'Archivo de Video',
@@ -142,13 +142,13 @@ class RecursosForm
 
                             FileUpload::make('archivos_bulk')
                                 ->label('Subida de archivos')
-                                ->multiple()
+                                ->multiple()->visible(fn($get) => in_array($get('tipo_media'), ['imagen', 'pdf']))
                                 ->disk('private')
                                 ->extraAttributes([
                                     'style' => '--file-upload-grid-column-width: 180px;',
                                 ])
-                                ->directory(fn($get) => 'sub_colection_' . $get('sub_colection_id'))
-                                ->live() // Mantiene el estado vivo en Livewire
+                                ->directory(fn($get) => 'colection_' . $get('colection_id'))
+                                 // Mantiene el estado vivo en Livewire
                                 ->dehydrated(false)
                                 ->panelLayout('grid')
                                 ->reorderable()
@@ -167,7 +167,7 @@ class RecursosForm
                                     return [
                                         'canDeleteFile' => Gate::allows('delete', $record)
                                     ];
-                                }),
+                                })->visible(fn($get) => in_array($get('tipo_media'), ['video', 'audio'])),
 
                         ])
                         ->columnSpanFull(),

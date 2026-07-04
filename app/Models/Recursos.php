@@ -34,7 +34,7 @@ class Recursos extends Model
 
     public function archivos()
     {
-        return $this->hasMany(RecursosArchivos::class)->orderBy('orden');
+        return $this->hasMany(RecursosArchivos::class, 'recursos_id','id')->orderBy('orden');
     }
 
     public function toSearchableArray(): array

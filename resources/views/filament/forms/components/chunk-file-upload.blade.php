@@ -1,114 +1,114 @@
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field">
-    <div x-data="{
-        state: $wire.$entangle('{{ $getStatePath() }}'),
-        progress: 0,
-        uploading: false,
-        fileName: '',
-        resumable: null,
-    
-    
-        init() {
-            if (!{{ $isFieldDisabled() ? 'true' : 'false' }} && typeof Resumable !== 'undefined') {
-    
+
+    @php
+        $isDisabled    = $isFieldDisabled();
+        $acceptedTypes = $getAcceptedFileTypes() ?? [];
+    @endphp
+
+    <div
+        wire:ignore
+        x-data="{
+            state: $wire.$entangle('{{ $getStatePath() }}'),
+            progress: 0,
+            uploading: false,
+            fileName: '',
+            resumable: null,
+            isDisabled: {{ $isDisabled ? 'true' : 'false' }},
+
+            getCsrfToken() {
+                const meta = document.querySelector('meta[name=csrf-token]');
+                return meta ? meta.getAttribute('content') : '';
+            },
+
+            setupResumable() {
+                if (this.isDisabled || typeof Resumable === 'undefined') return;
+
+                const self     = this;
+                const target   = this.$el.dataset.uploadUrl;
+                const accepted = JSON.parse(this.$el.dataset.acceptedTypes);
+
                 this.resumable = new Resumable({
-                    target: '{{ $getUploadUrl() }}',
-                    query: {
-                        _token: '{{ csrf_token() }}',
-                        accepted_types: @js($getAcceptedFileTypes() ?? []),
+                    target,
+                    query()  {
+                        return {
+                            _token: self.getCsrfToken(),
+                            accepted_types: accepted,
+                        };
                     },
                     chunkSize: 4 * 1024 * 1024,
                     forceChunkSize: true,
                     simultaneousUploads: 1,
-                    testChunks: true, //  Verifica chunks ya subidos (permite resume real)
-                    maxChunkRetries: 5, //  Reintentos por chunk fallido
-                    chunkRetryInterval: 2000, //  Espera 2s entre reintentos
-                    permanentErrors: [400, 404, 415, 500, 501], //  Solo estos son errores fatales
-                    xhrTimeout: 60000, //  Timeout de 60s por chunk
+                    testChunks: true,
+                    maxChunkRetries: 5,
+                    chunkRetryInterval: 2000,
+                    permanentErrors: [400, 404, 415, 500, 501],
+                    xhrTimeout: 60000,
                     prioritizeFirstAndLastChunk: false,
-                    generateUniqueIdentifier: null, // usa el default (nombre+tamaño)
+                    generateUniqueIdentifier: null,
                 });
-    
+
                 if (this.$refs.fileInput) {
                     this.resumable.assignBrowse(this.$refs.fileInput);
                 }
-    
+
                 this.resumable.on('fileAdded', (file) => {
                     this.uploading = true;
                     this.progress = 0;
                     this.fileName = file.fileName;
-    
                     this.resumable.upload();
                 });
-    
+
                 this.resumable.on('fileProgress', (file) => {
                     this.progress = Math.floor(file.progress() * 100);
-                    console.log('progress:', this.progress);
                 });
-    
+
                 this.resumable.on('fileSuccess', (file, response) => {
                     this.uploading = false;
-    
                     try {
                         const data = JSON.parse(response);
-    
                         this.state = data.path;
                         this.progress = 100;
-    
-                        // limpiar cola para permitir volver a subir
                         this.resumable.removeFile(file);
-    
                     } catch (e) {
                         console.error(e);
                         alert('Respuesta inválida del servidor');
                     }
                 });
-    
+
                 this.resumable.on('fileError', (file, message) => {
-                    // Resumable ya intentó `maxChunkRetries` veces antes de llegar aquí
                     this.uploading = false;
                     this.progress = 0;
                     console.error('Error fatal tras reintentos:', message);
                     alert('Error al subir el archivo. Intenta de nuevo.');
-    
-                    // Limpia para permitir reintento manual
                     this.resumable.removeFile(file);
-                    if (this.$refs.fileInput) {
-                        this.$refs.fileInput.value = '';
-                    }
+                    if (this.$refs.fileInput) this.$refs.fileInput.value = '';
                 });
-            }
-        },
-    
-        removeFile() {
-            if (!confirm('¿Estás seguro de quitar este archivo?')) {
-                return;
-            }
-    
-            this.state = null;
-            this.progress = 0;
-            this.uploading = false;
-            this.fileName = '';
-    
-            if (this.$refs.fileInput) {
-                this.$refs.fileInput.value = '';
-            }
-    
-            if (this.resumable) {
-                this.resumable.cancel();
-    
-                // limpiar completamente la cola
-                while (this.resumable.files.length > 0) {
-                    this.resumable.removeFile(this.resumable.files[0]);
+            },
+
+            removeFile() {
+                if (!confirm('¿Estás seguro de quitar este archivo?')) return;
+                this.state = null;
+                this.progress = 0;
+                this.uploading = false;
+                this.fileName = '';
+                if (this.$refs.fileInput) this.$refs.fileInput.value = '';
+                if (this.resumable) {
+                    this.resumable.cancel();
+                    while (this.resumable.files.length > 0) {
+                        this.resumable.removeFile(this.resumable.files[0]);
+                    }
                 }
             }
-        }
-    }">
+        }"
+        x-init="setupResumable()"
+        data-upload-url="{{ $getUploadUrl() }}"
+        data-accepted-types='{{ json_encode($acceptedTypes) }}'
+    >
         <div class="fi-fo-placeholder flex flex-col gap-y-2">
 
-            <div x-show="!state && !{{ $isFieldDisabled() ? 'true' : 'false' }}">
+            <div x-show="!state && !isDisabled">
                 <div class="flex items-center justify-center w-full">
-                    <label
-                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer border-gray-300 bg-gray-50/50 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50 dark:hover:bg-gray-900 transition duration-75">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer border-gray-300 bg-gray-50/50 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50 dark:hover:bg-gray-900 transition duration-75">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
                             <svg class="w-8 h-8 mb-3 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -116,18 +116,17 @@
                                     d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
                             </svg>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                <span class="font-semibold text-custom-600 dark:text-custom-400">Haz clic para
-                                    seleccionar</span> o arrastra tu archivo grande
+                                <span class="font-semibold text-custom-600 dark:text-custom-400">Haz clic para seleccionar</span>
+                                o arrastra tu archivo grande
                             </p>
                         </div>
                         <input x-ref="fileInput" type="file" class="hidden"
-                            @if ($getAcceptedFileTypes()) accept="{{ implode(',', $getAcceptedFileTypes()) }}" @endif />
+                            @if ($acceptedTypes) accept="{{ implode(',', $acceptedTypes) }}" @endif />
                     </label>
                 </div>
 
                 <div x-show="uploading" class="w-full mt-3" x-cloak>
                     <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 overflow-hidden">
-
                         <div class="bg-custom-600 h-2 rounded-full transition-all duration-150"
                             :style="`width: ${progress}%`"></div>
                     </div>
@@ -136,14 +135,13 @@
                 </div>
             </div>
 
-            <div x-show="!state && {{ $isFieldDisabled() ? 'true' : 'false' }}"
+            <div x-show="!state && isDisabled"
                 class="text-sm italic text-gray-500 dark:text-gray-400 p-2">
                 Sin archivo adjunto.
             </div>
 
             <template x-if="state">
-                <div
-                    class="flex items-center justify-between p-3 border rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="flex items-center justify-between p-3 border rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-center gap-x-3 truncate">
                         <div class="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400">
                             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -152,7 +150,6 @@
                                     d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                             </svg>
                         </div>
-
                         <div class="flex flex-col truncate">
                             <span class="text-sm font-medium text-gray-950 dark:text-white truncate"
                                 x-text="state.split('/').pop().replace(/^\d+_(.+)$/, '$1')"></span>
@@ -171,7 +168,7 @@
                             </svg>
                         </a>
 
-                        @if (!$isFieldDisabled())
+                        @if (!$isDisabled)
                             @can('delete', $component)
                                 <button type="button" @click="removeFile()"
                                     class="flex items-center justify-center w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition duration-75"

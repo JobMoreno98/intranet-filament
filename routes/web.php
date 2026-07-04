@@ -34,7 +34,7 @@ require __DIR__ . '/settings.php';
 
 
 Route::get('/media/stream', function (Request $request) {
-    
+
     $archivo = RecursosArchivos::findOrFail($request->archivo_id);
 
     // Intentamos sacar la ruta del JSON de assets
@@ -115,8 +115,34 @@ Route::get('/video/key/{key}', function ($key) {
     ]);
 })->name('video.key')->where('key', '.*');
 
-Route::post('/chunks/upload', [ChunkUploadController::class, 'upload'])->name('api.chunks.upload')->middleware(Authenticate::class);
 
-Route::get('/chunks/upload', [ChunkUploadController::class, 'checkChunk'])
-    ->name('api.chunks.check')
-    ->middleware(Authenticate::class);
+Route::get('/videos/{path}', function ($path) {
+
+    $headers = [
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma' => 'no-cache',
+        'Expires' => '0',
+    ];
+
+    if (str_ends_with($path, '.m3u8')) {
+        $headers['Content-Type'] = 'application/vnd.apple.mpegurl';
+    }
+
+    if (str_ends_with($path, '.ts')) {
+        $headers['Content-Type'] = 'video/mp2t';
+    }
+
+    return response('', 200, array_merge($headers, [
+        'X-Accel-Redirect' => "/hls/{$path}",
+    ]));
+})->where('path', '.*');
+
+// routes/web.php
+Route::middleware(['web', Authenticate::class])
+    ->prefix('chunks')
+    ->group(function () {
+        // routes/web.php
+        Route::match(['get', 'post'], '/chunks/upload', [ChunkUploadController::class, 'handle'])
+            ->name('api.chunks.upload')
+            ->middleware(Authenticate::class);
+    });

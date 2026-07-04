@@ -3,6 +3,11 @@
 @section('content')
     @php
         $color = Auth::check() ? 'bg-zinc-950' : 'bg-white';
+
+        // Determina qué visor mostrar: imágenes/páginas o video HLS.
+        // Idealmente esto llega ya calculado desde el controlador como
+        // $esVideo, pero se deja un fallback por si no se define ahí.
+        $esVideo = $esVideo ?? (isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video');
     @endphp
     <section class="{{ $color }} min-h-screen">
 
@@ -169,86 +174,105 @@
                                 @endforeach
                             @endisset
                             <!-- PÁGINAS -->
-                            <div class="p-4 space-y-1">
+                            @unless ($esVideo)
+                                <div class="p-4 space-y-1">
 
-                                <span class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
+                                    <span
+                                        class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
 
-                                    Páginas
+                                        Páginas
 
-                                </span>
+                                    </span>
 
-                                <div class="text-sm text-zinc-200">
-                                    @isset($paginas)
-                                        {{ count($paginas) }}
-                                    @endisset
+                                    <div class="text-sm text-zinc-200">
+                                        @isset($paginas)
+                                            {{ count($paginas) }}
+                                        @endisset
+
+                                    </div>
 
                                 </div>
-
-                            </div>
+                            @endunless
 
                     </details>
 
                 </aside>
 
                 @if (Auth::check())
-                    <div id="visor-container"
-                        class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
+                    @if ($esVideo)
+                        {{-- ============ VISOR DE VIDEO (HLS) ============ --}}
+                        <div id="video-container"
+                            class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-black">
 
-                        <div id="viewer"
-                            class="relative flex-1 overflow-auto flex items-center justify-center p-4 group">
-
-                            <canvas id="page-canvas"
-                                class="max-w-full max-h-full h-auto w-auto object-contain shadow-2xl bg-zinc-900"></canvas>
-
-                            <button onclick="document.getElementById('prev-page').click()"
-                                class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                                </svg>
-                            </button>
-
-                            <button onclick="document.getElementById('next-page').click()"
-                                class="flex absolute right-4 top-1/2 -translate-y-1/2 bg-indigo-600/80 hover:bg-indigo-600 text-white p-3 rounded-full shadow-lg transition z-10">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                </svg>
-                            </button>
+                            <div class="relative flex-1 flex items-center justify-center">
+                                <video id="player" controls muted playsinline
+                                    class="max-w-full max-h-full w-full h-full bg-black"></video>
+                            </div>
 
                         </div>
+                    @else
+                        {{-- ============ VISOR DE IMÁGENES / PÁGINAS ============ --}}
+                        <div id="visor-container"
+                            class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
 
-                        <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
-                            <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
-                                @isset($paginas)
-                                    1 / {{ count($paginas) }}
-                                @endisset
-                            </p>
-                        </div>
+                            <div id="viewer"
+                                class="relative flex-1 overflow-auto flex items-center justify-center p-4 group">
 
-                        <div
-                            class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
+                                <canvas id="page-canvas"
+                                    class="max-w-full max-h-full h-auto w-auto object-contain shadow-2xl bg-zinc-900"></canvas>
 
-                            <div class="lg:block">
-                                <button id="prev-page" class="hidden"></button>
-                                <button id="next-page" class="hidden"></button>
+                                <button onclick="document.getElementById('prev-page').click()"
+                                    class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                    </svg>
+                                </button>
+
+                                <button onclick="document.getElementById('next-page').click()"
+                                    class="flex absolute right-4 top-1/2 -translate-y-1/2 bg-indigo-600/80 hover:bg-indigo-600 text-white p-3 rounded-full shadow-lg transition z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+
+                            </div>
+
+                            <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+                                <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
+                                    @isset($paginas)
+                                        1 / {{ count($paginas) }}
+                                    @endisset
+                                </p>
                             </div>
 
                             <div
-                                class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
-                                <button id="btn-zoom-out"
-                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">−</button>
-                                <span id="zoom-percent"
-                                    class="text-sm font-semibold text-gray-700 min-w-[50px] text-center">100%</span>
-                                <button id="btn-zoom-in"
-                                    class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">+</button>
-                                <div class="h-6 w-px bg-gray-200 mx-1"></div>
-                                <button id="btn-reset-zoom"
-                                    class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
-                            </div>
+                                class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
 
+                                <div class="lg:block">
+                                    <button id="prev-page" class="hidden"></button>
+                                    <button id="next-page" class="hidden"></button>
+                                </div>
+
+                                <div
+                                    class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
+                                    <button id="btn-zoom-out"
+                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">−</button>
+                                    <span id="zoom-percent"
+                                        class="text-sm font-semibold text-gray-700 min-w-[50px] text-center">100%</span>
+                                    <button id="btn-zoom-in"
+                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">+</button>
+                                    <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                                    <button id="btn-reset-zoom"
+                                        class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
+                                </div>
+
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 @else
                     <div class="  bg-white p-10 text-center  h-full">
                         <x-heroicon-o-lock-closed class="w-12 h-12 mx-auto text-zinc-400 mb-4" />
@@ -419,12 +443,23 @@
     </section>
 @endsection
 @section('js')
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            window.initVisor({
-                paginas: @json($paginas),
-                recursoId: {{ $recurso['id'] }}
+    @if ($esVideo)
+        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                window.initVideoVisor({
+                    src: "/videos/{{ $recurso['id'] }}.m3u8"
+                });
             });
-        });
-    </script>
+        </script>
+    @else
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                window.initVisor({
+                    paginas: @json($paginas),
+                    recursoId: {{ $recurso['id'] }}
+                });
+            });
+        </script>
+    @endif
 @endsection

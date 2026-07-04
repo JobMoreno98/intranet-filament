@@ -13,13 +13,14 @@ class RecursoArchivoObserver
     public function saved(RecursosArchivos $archivo)
     {
         $this->clearCache($archivo);
+        $archivo->recurso?->searchable();
     }
 
     public function deleted(RecursosArchivos $archivo)
     {
         // 1. Limpiar Caché (Indispensable para que el visor se actualice)
         $this->clearCache($archivo);
-
+ $archivo->recurso?->searchable(); 
         // 2. Lógica de borrado de archivos físicos que ya tenías
         $directorioPadre = dirname($archivo->path_original);
 

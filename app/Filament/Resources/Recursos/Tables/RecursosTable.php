@@ -22,7 +22,6 @@ class RecursosTable
             ->columns([
                 TextColumn::make('coleccion.nombre'),
                 TextColumn::make('acervo.nombre'),
-                TextColumn::make('metadata')
             ])
             ->filters([
                 TrashedFilter::make(),

@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\Storage;
 
 class ChunkUploadController extends Controller
 {
+
+    public function handle(Request $request)
+    {
+        if ($request->isMethod('get')) {
+            return $this->checkChunk($request);
+        }
+
+        return $this->upload($request);
+    }
+
     /**
      * GET - Verifica si un chunk ya fue subido (para testChunks: true)
      */
@@ -37,7 +47,7 @@ class ChunkUploadController extends Controller
             'resumableFilename'      => 'required|string',
             'resumableIdentifier'    => 'required|string',
             'resumableTotalSize'     => 'required|integer',
-            'resumableType'          => 'required|string', 
+            'resumableType'          => 'required|string',
         ]);
 
         $file        = $request->file('file');

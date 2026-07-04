@@ -413,7 +413,6 @@ class ColeccionesConsultaController extends Controller
             'nombrePersonajePrincipal' => 'Nombre de Personaje principal',
             'nombrePersonajeSecundario' => 'Nombre de Personaje secundario',
         ];
-
         return view('registro-detalle', [
             'registro' => $recurso,
             'tablaNombre' => $recurso->coleccion,
