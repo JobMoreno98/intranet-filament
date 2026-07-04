@@ -110,13 +110,23 @@ Route::get('/video/key/{key}', function ($key) {
 
     return response(file_get_contents($fullPath), 200, [
         'Content-Type' => 'application/octet-stream',
-        'Access-Control-Allow-Origin' => app(),
+        'Access-Control-Allow-Origin' => config('app.url'),
         'Access-Control-Allow-Credentials' => 'true',
     ]);
 })->name('video.key')->where('key', '.*');
 
 
 Route::get('/videos/{path}', function ($path) {
+
+
+    $video = RecursosArchivos::where('recursos_id', $path)->where('nombre_archivo_original', 'like', '.mp4')->first();
+
+    if (!$video) {
+        abort(404);
+    }
+
+    dd($video->id);
+
 
     $headers = [
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
