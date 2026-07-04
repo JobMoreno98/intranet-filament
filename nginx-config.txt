@@ -1,0 +1,87 @@
+cat bpej
+server {
+    listen 80;
+    listen [::]:80;
+    server_name bpej.local bpej.home 192.168.1.51;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    # Habilitamos SSL y el protocolo HTTP/2 en el puerto 9001
+    listen 443 ssl;
+    server_name bpej.local 192.168.1.51;
+    http2 on;
+    # Rutas a los certificados generados con mkcert en el servidor
+    # Rutas absolutas a tus archivos de certificado y clave
+    ssl_certificate /etc/ssl/certs/lan_server.crt;
+    ssl_certificate_key /etc/ssl/private/lan_server.key;
+
+    # Configuraciones recomendadas de seguridad SSL (Opcional pero recomendado)
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    root /var/www/html/bpej/public;
+    index index.php index.html index.htm;
+
+    client_max_body_size 1024M;
+error_page 497 https://$server_name:9001$request_uri;
+    # SEGURIDAD Y CORS
+    add_header Access-Control-Allow-Origin *;
+
+    # IMPORTANTE: Cambiamos "no-store" por una caché inteligente.
+    # Esto permite que el navegador guarde las imágenes de 1MB y no las pida mil veces.
+    add_header Cache-Control "private, no-cache, must-revalidate";
+
+    access_log /var/log/nginx/laravel_access.log;
+    error_log  /var/log/nginx/laravel_error.log;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+fastcgi_param SERVER_PORT 9001;
+        # Le decimos a PHP que estamos bajo HTTPS
+        fastcgi_param HTTPS on;
+    }
+
+    # Tu streaming interno de la BPEJ
+    location /protegido/ {
+        internal;
+        alias /var/www/html/bpej/storage/app/private/;
+
+        # Permitimos que las imágenes se cacheen localmente para suavidad en el visor
+        add_header Cache-Control "private, max-age=86400";
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+    location ~ ^/hls/(.*)$ {
+        internal;
+        # $1 es el contenido capturado por (.*), ej: "carpeta/video.m3u8"
+        alias /var/www/html/bpej/storage/app/private/encrypted/$1;
+
+        etag off;
+        if_modified_since off;
+        add_header Last-Modified "";
+        # CORS necesario para HLS.js con credentials
+        add_header 'Access-Control-Allow-Origin' 'https://192.168.1.51' always; # reelplazar por el dominio
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, HEAD, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Range, Authorization, Content-Type' always;
+
+        # Permitir que el reproductor vea la duración y tamaño
+        add_header 'Access-Control-Expose-Headers' 'Content-Length, Content-Range' always;
+
+        types {
+            application/vnd.apple.mpegurl m3u8;
+            video/mp2t ts;
+        }
+    }
+}
