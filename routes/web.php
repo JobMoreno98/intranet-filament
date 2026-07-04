@@ -119,14 +119,13 @@ Route::get('/video/key/{key}', function ($key) {
 Route::get('/videos/{path}', function ($path) {
 
 
-    $video = RecursosArchivos::where('recursos_id', $path)->where('nombre_archivo_original', 'like', '.mp4')->first();
+    $video = RecursosArchivos::where('recursos_id', $path)->first();
 
     if (!$video) {
         abort(404);
     }
 
-    dd($video->id);
-
+    $path = "/videos/".$video->id."/". $video->id.".m3u8";
 
     $headers = [
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
