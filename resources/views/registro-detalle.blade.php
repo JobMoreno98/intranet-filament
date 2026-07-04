@@ -447,7 +447,7 @@
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 window.initVideoVisor({
-                    src: "/videos/{{ $recurso['id'] }}/{{ $recurso['id'] }}.m3u8"
+                    src: "/videos/{{ $recurso->uiid }}/{{ $recurso->uiid }}.m3u8"
                 });
             });
         </script>
