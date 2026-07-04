@@ -116,16 +116,21 @@ Route::get('/video/key/{key}', function ($key) {
 })->name('video.key')->where('key', '.*');
 
 
-Route::get('/videos/{path}', function ($path) {
+Route::get('/videos/{recursoId}/{filename}', function ($recursoId, $filename) {
 
-
-    $video = RecursosArchivos::where('recursos_id', $path)->first();
+    $video = RecursosArchivos::where('recursos_id', $recursoId)->first();
 
     if (!$video) {
         abort(404);
     }
 
-    $path = "/videos/".$video->id."/". $video->id.".m3u8";
+    // El manifiesto en disco se llama "{id}.m3u8", pero los segmentos
+    // conservan su nombre real (segment_000.ts, etc.)
+    $realFilename = str_ends_with($filename, '.m3u8')
+        ? "{$video->id}.m3u8"
+        : $filename;
+
+    $internalPath = "{$video->id}/{$realFilename}";
 
     $headers = [
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
@@ -133,18 +138,18 @@ Route::get('/videos/{path}', function ($path) {
         'Expires' => '0',
     ];
 
-    if (str_ends_with($path, '.m3u8')) {
+    if (str_ends_with($filename, '.m3u8')) {
         $headers['Content-Type'] = 'application/vnd.apple.mpegurl';
     }
 
-    if (str_ends_with($path, '.ts')) {
+    if (str_ends_with($filename, '.ts')) {
         $headers['Content-Type'] = 'video/mp2t';
     }
 
     return response('', 200, array_merge($headers, [
-        'X-Accel-Redirect' => "/hls/{$path}",
+        'X-Accel-Redirect' => "/hls/{$internalPath}",
     ]));
-})->where('path', '.*');
+})->where('filename', '.*');
 
 // routes/web.php
 Route::middleware(['web', Authenticate::class])

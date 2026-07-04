@@ -7,7 +7,7 @@
         // Determina qué visor mostrar: imágenes/páginas o video HLS.
         // Idealmente esto llega ya calculado desde el controlador como
         // $esVideo, pero se deja un fallback por si no se define ahí.
-        $esVideo = $esVideo ?? (isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video');
+        $esVideo = $esVideo ?? isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video';
     @endphp
     <section class="{{ $color }} min-h-screen">
 
@@ -177,8 +177,7 @@
                             @unless ($esVideo)
                                 <div class="p-4 space-y-1">
 
-                                    <span
-                                        class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
+                                    <span class="block text-zinc-500 uppercase text-[11px] font-semibold tracking-wider">
 
                                         Páginas
 
@@ -448,7 +447,7 @@
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 window.initVideoVisor({
-                    src: "/videos/{{ $recurso['id'] }}.m3u8"
+                    src: "/videos/{{ $recurso['id'] }}/{{ $recurso['id'] }}.m3u8"
                 });
             });
         </script>
