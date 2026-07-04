@@ -203,7 +203,7 @@
                         <div id="video-container"
                             class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-black">
 
-                            <div class="relative flex-1 flex items-center justify-center">
+                            <div class="relative flex-1 flex items-center justify-center h-fll">
                                 <video id="player" controls muted playsinline
                                     class="max-w-full max-h-full w-full h-full bg-black"></video>
                             </div>
@@ -447,7 +447,7 @@
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 window.initVideoVisor({
-                    src: "/videos/{{ $recurso->uiid }}/{{ $recurso->uiid }}.m3u8"
+                    src: "/videos/{{ $recurso['id'] }}/{{ $recurso['id'] }}.m3u8"
                 });
             });
         </script>
