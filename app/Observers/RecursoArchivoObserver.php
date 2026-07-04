@@ -20,8 +20,9 @@ class RecursoArchivoObserver
     {
         // 1. Limpiar Caché (Indispensable para que el visor se actualice)
         $this->clearCache($archivo);
- $archivo->recurso?->searchable(); 
-        // 2. Lógica de borrado de archivos físicos que ya tenías
+        $archivo->recurso?->searchable();
+
+        // 2. Borrado del archivo original
         $directorioPadre = dirname($archivo->path_original);
 
         if ($archivo->path_original) {
@@ -37,8 +38,15 @@ class RecursoArchivoObserver
                 Storage::disk('public')->deleteDirectory($directorioPadre);
             }
         }
+
+        // 3. Borrado del HLS generado (manifiesto .m3u8, segmentos .ts, thumb.webp)
+        $directorioHls = "encrypted/{$archivo->id}";
+
+        if (Storage::disk('private')->exists($directorioHls)) {
+            Storage::disk('private')->deleteDirectory($directorioHls);
+        }
     }
-    
+
     private function clearCache(RecursosArchivos $archivo)
     {
         // Borra la lista completa del visor

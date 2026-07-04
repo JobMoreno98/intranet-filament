@@ -203,7 +203,7 @@
                         <div id="video-container"
                             class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-black">
 
-                            <div class="relative flex-1 flex items-center justify-center h-fll">
+                            <div class="relative flex-1 flex items-center justify-center h-full">
                                 <video id="player" controls muted playsinline
                                     class="max-w-full max-h-full w-full h-full bg-black"></video>
                             </div>
