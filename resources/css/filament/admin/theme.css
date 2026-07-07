@@ -1,4 +1,4 @@
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import "../../../../vendor/filament/filament/resources/css/theme.css";
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
@@ -6,3 +6,9 @@
 
 @source './app/Forms/**/*.php';
 @source './resources/views/forms/**/*.blade.php';
+
+@theme {
+    /*  Color de BPEJ */
+    --color-guinda: #86212b;
+    --color-guinda-dark: #6b1a22;
+}
