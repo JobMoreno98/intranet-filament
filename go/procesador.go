@@ -40,6 +40,9 @@ func processTask(task ProcessingTask) {
 	case ".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v":
 		log.Printf(">>> RUTINA: VIDEO DETECTADO <<<")
 		processVideo(task)
+	case ".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac":
+		log.Printf(">>> RUTINA: AUDIO DETECTADO <<<")
+		processAudio(task)
 	default:
 		log.Printf("ERROR: Extensión '%s' no soportada para ID %d", ext, task.ArchivoID)
 	}
@@ -247,6 +250,120 @@ func processVideo(task ProcessingTask) {
 		updateVideoAssets(task.ArchivoID, m3u8Path, "")
 	}
 	log.Printf("--- Finalizado VIDEO: %s ---", task.OutputName)
+}
+
+func processAudio(task ProcessingTask) {
+	log.Printf("--- Iniciando AUDIO: %s ---", task.Path)
+
+	// Reintento de existencia (igual que en processVideo/processImage)
+	exists := false
+	for i := 0; i < 5; i++ {
+		if _, err := os.Stat(task.Path); err == nil {
+			exists = true
+			break
+		}
+		log.Printf("Archivo no listo para ID %d, reintentando en 500ms...", task.ArchivoID)
+		time.Sleep(500 * time.Millisecond)
+	}
+	if !exists {
+		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", task.Path)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	// Mismo esquema de cifrado que video: Laravel ya generó la key,
+	// el .keyinfo y la URL firmada antes de encolar la tarea.
+	if task.KeyInfoPath == "" {
+		log.Printf("ERROR CRÍTICO: KeyInfoPath vacío para ID %d", task.ArchivoID)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+	if _, err := os.Stat(task.KeyInfoPath); err != nil {
+		log.Printf("ERROR CRÍTICO: .keyinfo no existe en %s", task.KeyInfoPath)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	outputDir := filepath.Join(basePath, "encrypted", task.OutputName)
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		log.Printf("ERROR CRÍTICO: no se pudo crear %s: %v", outputDir, err)
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	// 1. Detectar códec de audio con ffprobe
+	probeCmd := exec.Command("ffprobe",
+		"-v", "error",
+		"-select_streams", "a:0",
+		"-show_entries", "stream=codec_name",
+		"-of", "default=noprint_wrappers=1:nokey=1",
+		task.Path,
+	)
+	probeOut, err := probeCmd.Output()
+	codec := "unknown"
+	if err != nil {
+		log.Printf("WARN ffprobe ID %d: %v (se transcodificará por seguridad)", task.ArchivoID, err)
+	} else {
+		codec = strings.TrimSpace(string(probeOut))
+	}
+
+	useCopy := codec == "aac"
+
+	args := []string{
+		"-y",
+		"-loglevel", "error",
+		"-i", task.Path,
+		"-vn", // sin video (portadas embebidas, etc.)
+	}
+
+	if useCopy {
+		// Ya es AAC: solo remux (rápido)
+		args = append(args, "-c:a", "copy")
+	} else {
+		// Otro formato (mp3, wav, ogg, flac...): transcodificar a AAC
+		args = append(args, "-c:a", "aac", "-b:a", "128k")
+	}
+
+	args = append(args,
+		"-hls_time", "10",
+		"-hls_playlist_type", "vod",
+		"-hls_key_info_file", task.KeyInfoPath,
+		"-hls_segment_filename", filepath.Join(outputDir, "segment_%03d.ts"),
+		filepath.Join(outputDir, task.OutputName+".m3u8"),
+	)
+
+	cmd := exec.Command("ffmpeg", args...)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		log.Printf("ERROR ffmpeg ID %d: %v | output: %s", task.ArchivoID, err, string(out))
+		updateArchivoStatus(task.ArchivoID, "error")
+		return
+	}
+
+	// Generar una miniatura tipo "waveform". Si falla, no es crítico:
+	// el audio igual queda listo, solo sin thumb.
+	thumbPath := filepath.Join(outputDir, "thumb.webp")
+	thumbOk := true
+	thumbCmd := exec.Command("ffmpeg",
+		"-y",
+		"-loglevel", "error",
+		"-i", task.Path,
+		"-filter_complex", "showwavespic=s=200x200:colors=0x4A4A4A",
+		"-frames:v", "1",
+		"-q:v", "80",
+		thumbPath,
+	)
+	if out, err := thumbCmd.CombinedOutput(); err != nil {
+		log.Printf("WARN: no se pudo generar waveform ID %d: %v | output: %s", task.ArchivoID, err, string(out))
+		thumbOk = false
+	}
+
+	m3u8Path := filepath.Join(outputDir, task.OutputName+".m3u8")
+	if thumbOk {
+		updateAudioAssets(task.ArchivoID, m3u8Path, thumbPath)
+	} else {
+		updateAudioAssets(task.ArchivoID, m3u8Path, "")
+	}
+	log.Printf("--- Finalizado AUDIO: %s ---", task.OutputName)
 }
 
 func extractPages(info string) int {

@@ -187,11 +187,14 @@ func updateArchivoStatus(archivoID int, status string) {
 // updateVideoAssets guarda la ruta del .m3u8 (y el thumb.webp, si se generó)
 // en assets_procesados y marca el registro como 'listo', igual que
 // updateDatabase hace con main/thumb para imágenes y páginas de PDF.
-func updateVideoAssets(archivoID int, m3u8Raw string, thumbRaw string) {
+// saveHlsAssets centraliza el guardado de assets_procesados + status='listo'
+// para cualquier medio basado en HLS (video o audio). 'key' define el nombre
+// de campo dentro del JSON: "video" o "audio".
+func saveHlsAssets(archivoID int, key string, m3u8Raw string, thumbRaw string) {
 	m3u8 := cleanPathForLaravel(m3u8Raw)
 
 	assetsMap := map[string]string{
-		"video": m3u8,
+		key: m3u8,
 	}
 
 	if thumbRaw != "" {
@@ -200,7 +203,7 @@ func updateVideoAssets(archivoID int, m3u8Raw string, thumbRaw string) {
 
 	assetsJSON, err := json.Marshal(assetsMap)
 	if err != nil {
-		log.Printf("Error serializando JSON del video %d: %v", archivoID, err)
+		log.Printf("Error serializando JSON del %s %d: %v", key, archivoID, err)
 		return
 	}
 
@@ -215,8 +218,16 @@ func updateVideoAssets(archivoID int, m3u8Raw string, thumbRaw string) {
 	_, err = db.Exec(query, string(assetsJSON), archivoID)
 
 	if err != nil {
-		log.Printf("Error actualizando assets del video %d: %v", archivoID, err)
+		log.Printf("Error actualizando assets del %s %d: %v", key, archivoID, err)
 	} else {
-		log.Printf("Video (archivo %d) actualizado a 'listo' (Ruta: %s)", archivoID, m3u8)
+		log.Printf("%s (archivo %d) actualizado a 'listo' (Ruta: %s)", key, archivoID, m3u8)
 	}
+}
+
+func updateVideoAssets(archivoID int, m3u8Raw string, thumbRaw string) {
+	saveHlsAssets(archivoID, "video", m3u8Raw, thumbRaw)
+}
+
+func updateAudioAssets(archivoID int, m3u8Raw string, thumbRaw string) {
+	saveHlsAssets(archivoID, "audio", m3u8Raw, thumbRaw)
 }

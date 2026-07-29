@@ -27,20 +27,20 @@ trait EnviaArchivosAGo
             'action'         => $action,
         ];
 
-        if ($tipo === 'video') {
+        if (in_array($tipo, ['video', 'audio'], true)) {
             $payload['output_name']   = (string) $archivo->id;
-            $payload['key_info_path'] = $this->generarKeyInfoVideo($archivo);
+            $payload['key_info_path'] = $this->generarKeyInfoMedia($archivo);
         }
 
         Redis::lpush('cola_procesamiento', json_encode($payload));
     }
 
     /**
-     * Genera la key AES-128 y el .keyinfo para HLS cifrado, y devuelve
-     * la ruta absoluta del .keyinfo. El APP_KEY nunca sale de Laravel:
-     * Go solo recibe la ruta, ya resuelta, para pasársela a ffmpeg.
+     * Genera la key AES-128 y el .keyinfo para HLS cifrado (video o audio),
+     * y devuelve la ruta absoluta del .keyinfo. El APP_KEY nunca sale de
+     * Laravel: Go solo recibe la ruta, ya resuelta, para pasársela a ffmpeg.
      */
-    private function generarKeyInfoVideo($archivo): string
+    private function generarKeyInfoMedia($archivo): string
     {
         $outputName = (string) $archivo->id;
 

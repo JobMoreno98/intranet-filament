@@ -155,7 +155,31 @@ class RecursosForm
                                 ->helperText('Usa este campo solo para añadir nuevos archivos.'),
 
                             ChunkFileUpload::make('video_bulk')->nullable()
-                                ->label('Subir archivos')->acceptedFileTypes(['video/mp4'])
+                                ->label('Subir archivos')->acceptedFileTypes([
+                                    'video/mp4',
+                                    'video/quicktime',
+                                    'video/x-matroska',
+                                    'video/webm',
+                                    'video/x-msvideo',
+                                    '.mp4',
+                                    '.mov',
+                                    '.mkv',
+                                    '.webm',
+                                    '.avi',
+                                    'audio/mpeg',
+                                    'audio/wav',
+                                    'audio/x-wav',
+                                    'audio/mp4',
+                                    'audio/ogg',
+                                    'audio/flac',
+                                    'audio/aac',
+                                    '.mp3',
+                                    '.wav',
+                                    '.m4a',
+                                    '.ogg',
+                                    '.flac',
+                                    '.aac',
+                                ])
                                 ->dehydrated(false)
                                 ->extraAttributes(function ($record) {
                                     // Si el registro no existe (es modo creación), permitimos limpiar el input

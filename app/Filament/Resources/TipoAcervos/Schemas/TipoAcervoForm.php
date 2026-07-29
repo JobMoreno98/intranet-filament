@@ -23,7 +23,7 @@ class TipoAcervoForm
                     ->itemLabel(fn(array $state): ?string => $state['label'] ?? 'Nuevo Campo')
                     ->collapsible()->collapsed()
                     ->schema([
-                        Grid::make(2)->schema([
+                        Grid::make(1)->schema([
                             TextInput::make('label')->required()->label('Nombre del Campo (Label)'),
                             TextInput::make('variable')->required()->label('ID Interno (Variable)'),
                         ]),
@@ -48,7 +48,7 @@ class TipoAcervoForm
                             ->schema([
                                 TextInput::make('value')->required()->label('Valor'),
                                 TextInput::make('label')->required()->label('Texto'),
-                            ])->columns(2),
+                            ])->columns(2)->columnSpanFull(),
 
                         // Configuración para Archivos (Extensiones)
                         TextInput::make('options.allowed_formats')
@@ -56,10 +56,15 @@ class TipoAcervoForm
                             ->placeholder('ej: pdf, jpg, png')
                             ->visible(fn($get) => $get('type') === 'file'),
                         Grid::make(2)->schema([
-                            Toggle::make('is_required')->label('¿Es obligatorio?'),
-                            Toggle::make('visible')
+                             Select::make('visible')->options([
+                                'Recuperable' => 'Recuperable',
+                                'Adicional' => 'Adicional',
+                                'Interno' => 'Interno'
+                            ]),
+                            Toggle::make('is_required')->label('¿Es obligatorio?')
+                           
                         ])->columns(1)
-                    ])->columns(3),
+                    ])->columns(3)->grid(2),
             ]);
     }
 }
