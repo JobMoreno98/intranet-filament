@@ -7,7 +7,7 @@
         // Determina qué visor mostrar: imágenes/páginas o video HLS.
         // Idealmente esto llega ya calculado desde el controlador como
         // $esVideo, pero se deja un fallback por si no se define ahí.
-        $esVideo = $esVideo ?? isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video';
+        $esVideo = $esVideo ?? isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video' || $recurso['tipo_media'] === 'audio';
     @endphp
     <section class="{{ $color }} min-h-screen">
 
