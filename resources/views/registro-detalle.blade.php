@@ -212,10 +212,18 @@
                             class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
 
                             <div id="viewer"
-                                class="relative flex-1 overflow-auto flex items-center justify-center p-4 group">
+                                class="relative flex-1 overflow-hidden flex items-center justify-center p-4 group">
 
-                                <canvas id="page-canvas"
-                                    class="max-w-full max-h-full h-auto w-auto object-contain shadow-2xl bg-zinc-900"></canvas>
+                                <!-- ESTE ES EL CONTENEDOR NUEVO QUE FALTABA -->
+                                <div id="panzoom-content" class="relative origin-center">
+
+                                    <canvas id="page-canvas" class="block shadow-2xl bg-zinc-900"></canvas>
+
+                                    <div id="ocr-layer" class="absolute top-0 left-0 w-full h-full pointer-events-auto">
+                                    </div>
+
+                                </div>
+                                <!-- FIN DEL CONTENEDOR NUEVO -->
 
                                 <button onclick="document.getElementById('prev-page').click()"
                                     class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
@@ -234,7 +242,6 @@
                                             d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                     </svg>
                                 </button>
-
                             </div>
 
                             <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">

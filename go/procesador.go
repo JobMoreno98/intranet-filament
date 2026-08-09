@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/otiai10/gosseract/v2"
 )
 
 var basePath string
@@ -51,9 +54,13 @@ func processTask(task ProcessingTask) {
 
 func processImage(task ProcessingTask) {
 
+	// 1. Limpiamos la ruta de posibles espacios o saltos de línea invisibles
+	cleanPath := strings.TrimSpace(task.Path)
+
 	exists := false
-	for i := 0; i < 5; i++ {
-		if _, err := os.Stat(task.Path); err == nil {
+	// 2. Aumentamos a 20 intentos (10 segundos total) para dar tiempo al backend a ensamblar el archivo
+	for i := 0; i < 20; i++ {
+		if _, err := os.Stat(cleanPath); err == nil {
 			exists = true
 			break
 		}
@@ -62,11 +69,12 @@ func processImage(task ProcessingTask) {
 	}
 
 	if !exists {
-		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", task.Path)
+		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", cleanPath)
 		return
 	}
 
-	source := strings.ReplaceAll(task.Path, "\\", "/")
+	// Actualizamos variables para usar cleanPath de aquí en adelante
+	source := strings.ReplaceAll(cleanPath, "\\", "/")
 
 	// Estructura: private/slug-coleccion/id-recurso/id-archivo/
 	outputDir := filepath.Join(basePath, task.ColeccionSlug,
@@ -75,52 +83,58 @@ func processImage(task ProcessingTask) {
 
 	os.MkdirAll(outputDir, 0755)
 
+	// --- INICIO RUTINA OCR ESPACIAL ---
+	log.Printf(">>> Iniciando OCR para ID %d <<<", task.ArchivoID)
+	client := gosseract.NewClient()
+
+	// Analizamos la imagen original usando la ruta limpia
+	client.SetImage(cleanPath)
+	client.SetLanguage("spa", "eng")
+	
+	// Extraer coordenadas por palabra
+	boxes, err := client.GetBoundingBoxes(gosseract.RIL_WORD)
+	if err != nil {
+		log.Printf("ADVERTENCIA OCR ID %d: No se pudo extraer texto (%v)", task.ArchivoID, err)
+	} else if len(boxes) > 0 {
+		// Guardar coordenadas en JSON
+		jsonData, jsonErr := json.Marshal(boxes)
+		if jsonErr == nil {
+			jsonPath := filepath.Join(outputDir, "ocr.json")
+			os.WriteFile(jsonPath, jsonData, 0644)
+			log.Printf("OCR JSON guardado en %s", jsonPath)
+		}
+
+		// Guardar texto plano (útil para búsquedas backend)
+		plainText, _ := client.Text()
+		txtPath := filepath.Join(outputDir, "ocr.txt")
+		os.WriteFile(txtPath, []byte(plainText), 0644)
+	}
+	client.Close()
+	// --- FIN RUTINA OCR ---
+
 	thumbPath := filepath.Join(outputDir, "thumb.webp")
 	mainPath := filepath.Join(outputDir, "main.webp")
 
-	// Ruta al logo SVG
-	//watermark := "/var/www/html/bpej/public/img/logo.svg"
-
-	// COMANDO CORREGIDO:
-	// 1. Cargamos la fuente
-	// 2. Cargamos el watermark con su configuración de fondo
-	// 3. Aplicamos la gravedad y geometría antes del composite
-	// En tu función processImage, cambia el comando de la marca de agua por esto:
 	args := []string{
-		task.Path,
-		"-resize", "2500x>", // Recomendado para evitar archivos gigantes
-		"-quality", "80", // El ajuste de calidad para bajar de MBs a KBs
+		cleanPath,
+		"-resize", "2500x>",
+		"-quality", "80",
 	}
 
-	/*
-	   // COMENTADO DE MOMENTO: Lógica de Marca de Agua
-	   args = append(args,
-	       "-background", "none",
-	       "-size", "150x",
-	       watermark,
-	       "-gravity", "south-east",
-	       "-geometry", "+50+50",
-	       "-composite",
-	   )
-	*/
-binary := "magick"
+	binary := "magick"
+	if _, err := exec.LookPath(binary); err != nil {
+		binary = "convert"
+	}
 
-if _, err := exec.LookPath(binary); err != nil {
-    binary = "convert"
-}
-	// Argumento final: la ruta de destino (forzando formato webp)
 	args = append(args, "webp:"+mainPath)
 
-	// Ejecutamos el comando con los argumentos dinámicos
 	cmd := exec.Command(binary, args...)
 
-	// Captura de errores
 	if out, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("ERROR REAL DE MAGICK en ID %d: %s", task.ArchivoID, string(out))
 	}
 
-	// Generar Miniatura (Thumbnail)
-	// Nota: Aquí usamos 'source' para que la miniatura no tenga marca de agua y sea más clara
+	// Generar Miniatura
 	exec.Command(binary, source,
 		"-thumbnail", "200x200^",
 		"-gravity", "center",
@@ -128,7 +142,6 @@ if _, err := exec.LookPath(binary); err != nil {
 		"-quality", "70",
 		thumbPath).Run()
 
-	// Actualizamos la DB
 	updateDatabase(task.ArchivoID, mainPath, thumbPath)
 }
 
@@ -423,11 +436,11 @@ func processPdf(task ProcessingTask) {
 			log.Printf("Error Cairo pág %d: %v", i, err)
 			continue
 		}
-binary := "magick"
+		binary := "magick"
 
-if _, err := exec.LookPath(binary); err != nil {
-    binary = "convert"
-}
+		if _, err := exec.LookPath(binary); err != nil {
+			binary = "convert"
+		}
 		// 3. Magick: Marca de agua + Conversión a WebP
 		// Usamos el PNG como fuente y guardamos directamente en .webp
 		watermarkCmd := exec.Command(binary,

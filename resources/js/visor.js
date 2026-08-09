@@ -3,11 +3,13 @@
 import Panzoom from "@panzoom/panzoom";
 
 export function initVisor({ paginas, recursoId = 0 }) {
-    const viewer = document.getElementById("viewer");
-
+const viewer = document.getElementById("viewer");
+    const panzoomContent = document.getElementById("panzoom-content"); // Contenedor nuevo
     const canvas = document.getElementById("page-canvas");
+    const ocrLayer = document.getElementById("ocr-layer"); // Capa nueva para el texto
 
     const zoomInBtn = document.getElementById("btn-zoom-in");
+
     const zoomOutBtn = document.getElementById("btn-zoom-out");
     const resetBtn = document.getElementById("btn-reset-zoom");
     const zoomPercent = document.getElementById("zoom-percent");
@@ -29,7 +31,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // PANZOOM
     // =========================
 
-    const panzoom = Panzoom(canvas, {
+const panzoom = Panzoom(panzoomContent, {
         startScale: 1.0,
         maxScale: 8,
         minScale: .8,
@@ -37,6 +39,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
         cursor: "default",
         step: 0.2,
         canvas: true,
+        // Al centrar el contenedor, el transform origin debe ser coherente
         transformOrigin: { x: 0.5, y: 0.5 }
     });
 
@@ -107,6 +110,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // RENDER
     // =========================
 
+    /*
     async function renderPage(index) {
         if (!paginas[index]) return;
 
@@ -174,7 +178,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
             rendering = false;
         }
     }
-
+*/
     // =========================
     // NAVEGACIÓN
     // =========================
@@ -340,4 +344,93 @@ export function initVisor({ paginas, recursoId = 0 }) {
     viewer.addEventListener("panzoomzoom", () => {
         updateZoomLabel();
     });
+
+    async function fetchOcr(index) {
+        if (!paginas[index] || !paginas[index].ocrUrl) return null;
+        try {
+            const response = await fetch(paginas[index].ocrUrl);
+            if (!response.ok) return null;
+            return await response.json();
+        } catch (err) {
+            console.error("OCR fetch error", err);
+            return null;
+        }
+    }
+
+    async function renderPage(index) {
+        if (!paginas[index]) return;
+        if (rendering) return;
+        rendering = true;
+
+        viewer.classList.add("loading");
+
+        try {
+            currentPage = index;
+            // ... (Actualización de indicador y localStorage igual que antes) ...
+
+            panzoom.reset();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ocrLayer.innerHTML = ""; // Limpiar la capa de texto
+
+            if (currentBitmap) {
+                currentBitmap.close();
+                currentBitmap = null;
+            }
+
+            const blob = await fetchBlob(index);
+            if (!blob) throw new Error("Blob vacío");
+
+            const bitmap = await createImageBitmap(blob);
+            currentBitmap = bitmap;
+
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+
+            // Aseguramos que el contenedor tenga el mismo tamaño exacto del canvas
+            panzoomContent.style.width = `${bitmap.width}px`;
+            panzoomContent.style.height = `${bitmap.height}px`;
+
+            ctx.drawImage(bitmap, 0, 0);
+
+            // -- NUEVO: Procesar OCR --
+            const words = await fetchOcr(index);
+            if (words && words.length > 0) {
+                renderOcrLayer(words, bitmap.width, bitmap.height);
+            }
+
+            preload(index + 1);
+            preload(index - 1);
+        } catch (err) {
+            console.error("Render error", err);
+        } finally {
+            viewer.classList.remove("loading");
+            rendering = false;
+        }
+    }
+
+    function renderOcrLayer(words, imgWidth, imgHeight) {
+        const fragment = document.createDocumentFragment();
+
+        words.forEach((item) => {
+            const minX = item.Box.Min.X;
+            const minY = item.Box.Min.Y;
+            const width = item.Box.Max.X - item.Box.Min.X;
+            const height = item.Box.Max.Y - item.Box.Min.Y;
+
+            const span = document.createElement("span");
+            // Usamos Tailwind inline o clases personalizadas
+            span.className =
+                "absolute text-transparent cursor-text leading-none select-text origin-top-left selection:bg-blue-500/40 selection:text-transparent";
+            span.innerText = item.Word + " ";
+
+            span.style.left = `${(minX / imgWidth) * 100}%`;
+            span.style.top = `${(minY / imgHeight) * 100}%`;
+            span.style.width = `${(width / imgWidth) * 100}%`;
+            span.style.height = `${(height / imgHeight) * 100}%`;
+
+            fragment.appendChild(span);
+        });
+
+        ocrLayer.appendChild(fragment);
+    }
 }
