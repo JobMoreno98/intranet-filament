@@ -3,6 +3,10 @@
 @section('content')
     @php
         $color = Auth::check() ? 'bg-zinc-950' : 'bg-white';
+
+        // Determina qué visor mostrar: imágenes/páginas o video HLS.
+        // Idealmente esto llega ya calculado desde el controlador como
+        // $esVideo, pero se deja un fallback por si no se define ahí.
         $esVideo =
             $esVideo ??
             (isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video') || $recurso['tipo_media'] === 'audio';
@@ -77,7 +81,6 @@
                                             'notas',
                                             'resumen',
                                             'observaciones',
-                                            'coleccion_id',
                                         ];
 
                                         $esMetadata = $columna === 'metadata';
@@ -213,24 +216,18 @@
                         <div id="visor-container"
                             class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
 
-                            <!-- Cambié overflow-auto por overflow-hidden para evitar barras de scroll dobles -->
+                            <!-- 1. El visor principal con overflow oculto para el zoom -->
                             <div id="viewer"
                                 class="relative flex-1 overflow-hidden flex items-center justify-center p-4 group">
 
-                                <!-- ========================================== -->
-                                <!-- NUEVO CONTENEDOR PARA SINCRONIZAR EL ZOOM  -->
-                                <!-- ========================================== -->
+                                <!-- 2. El contenedor que Panzoom moverá (Canvas + OCR juntos) -->
                                 <div id="panzoom-content" class="relative origin-center inline-block">
-
                                     <canvas id="page-canvas" class="block shadow-2xl bg-zinc-900"></canvas>
-
-                                    <!-- LA CAPA DE TEXTO (Superpuesta al canvas) -->
                                     <div id="ocr-layer" class="absolute top-0 left-0 w-full h-full pointer-events-auto">
                                     </div>
-
                                 </div>
-                                <!-- ========================================== -->
 
+                                <!-- 3. Botones Prev/Next Flotantes -->
                                 <button onclick="document.getElementById('prev-page').click()"
                                     class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -239,7 +236,6 @@
                                             d="M15.75 19.5L8.25 12l7.5-7.5" />
                                     </svg>
                                 </button>
-
                                 <button onclick="document.getElementById('next-page').click()"
                                     class="flex absolute right-4 top-1/2 -translate-y-1/2 bg-indigo-600/80 hover:bg-indigo-600 text-white p-3 rounded-full shadow-lg transition z-10">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -248,35 +244,39 @@
                                             d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                     </svg>
                                 </button>
-                                <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
-                                    <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
-                                        @isset($paginas)
-                                            1 / {{ count($paginas) }}
-                                        @endisset
-                                    </p>
+                            </div>
+
+                            <!-- 4. Indicador de Páginas (Esto es lo que perdiste) -->
+                            <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+                                <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
+                                    @isset($paginas)
+                                        1 / {{ count($paginas) }}
+                                    @endisset
+                                </p>
+                            </div>
+
+                            <!-- 5. Barra inferior con controles de Zoom y botones ocultos -->
+                            <div
+                                class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
+                                <div class="lg:block">
+                                    <!-- Estos botones ocultos son disparados por el JS -->
+                                    <button id="prev-page" class="hidden"></button>
+                                    <button id="next-page" class="hidden"></button>
                                 </div>
 
                                 <div
-                                    class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
+                                    class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
+                                    <button id="btn-zoom-out"
+                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">−</button>
 
-                                    <div class="lg:block">
-                                        <button id="prev-page" class="hidden"></button>
-                                        <button id="next-page" class="hidden"></button>
-                                    </div>
+                                    <span id="zoom-percent"
+                                        class="text-sm font-semibold text-gray-700 min-w-[50px] text-center">100%</span>
 
-                                    <div
-                                        class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
-                                        <button id="btn-zoom-out"
-                                            class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">−</button>
-                                        <span id="zoom-percent"
-                                            class="text-sm font-semibold text-gray-700 min-w-[50px] text-center">100%</span>
-                                        <button id="btn-zoom-in"
-                                            class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">+</button>
-                                        <div class="h-6 w-px bg-gray-200 mx-1"></div>
-                                        <button id="btn-reset-zoom"
-                                            class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
-                                    </div>
-
+                                    <button id="btn-zoom-in"
+                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">+</button>
+                                    <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                                    <button id="btn-reset-zoom"
+                                        class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
                                 </div>
                             </div>
                         </div>
@@ -356,15 +356,7 @@
                                 'numero',
                             ];
 
-                            $camposLargos = [
-                                'descripcion',
-                                'contenido',
-                                'notas',
-                                'resumen',
-                                'observaciones',
-                                'coleccion_id',
-                                'acervo_id',
-                            ];
+                            $camposLargos = ['descripcion', 'contenido', 'notas', 'resumen', 'observaciones'];
 
                             $esMetadata = $columna === 'metadata';
 
