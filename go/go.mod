@@ -4,6 +4,7 @@ go 1.25.5
 
 require (
 	github.com/go-sql-driver/mysql v1.9.3
+	github.com/otiai10/gosseract/v2 v2.4.1
 	github.com/redis/go-redis/v9 v9.18.0
 )
 

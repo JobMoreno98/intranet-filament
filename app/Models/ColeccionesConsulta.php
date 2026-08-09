@@ -8,4 +8,5 @@ class ColeccionesConsulta extends Model
 {
     protected $table = 'expo';
     protected $connection = 'mysql2';
+    
 }

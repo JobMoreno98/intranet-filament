@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
+use Illuminate\Support\Str;
 
 class Coleccion extends Model
 {
@@ -19,12 +20,16 @@ class Coleccion extends Model
         return $this->belongsTo(Coleccion::class, 'parent_id');
     }
 
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class, 'areas_id');
+    }
+
     // Relación para subcolecciones (Hacia abajo)
     public function children(): HasMany
     {
         return $this->hasMany(Coleccion::class, 'parent_id');
     }
-
 
     public function toSearchableArray(): array
     {
@@ -62,11 +67,20 @@ class Coleccion extends Model
                 $child->searchable(); // Esto lo re-indexa en Meilisearch
             });
         });
+
+        static::creating(function ($model) {
+            $model->slug = Str::slug($model->nombre);
+        });
+
+        static::updating(function ($model) {
+            $model->slug = Str::slug($model->nombre);
+        });
     }
     public function getRouteKeyName()
     {
         return 'slug';
     }
+
     public function items(): HasMany
     {
         return $this->hasMany(Recursos::class);

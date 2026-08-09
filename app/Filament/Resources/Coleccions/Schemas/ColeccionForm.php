@@ -24,22 +24,14 @@ class ColeccionForm
                 ->required()
                 ->maxLength(255)
                 ->live(onBlur: true)
-                // En v5 usamos las clases Get y Set inyectadas explícitamente
                 ->afterStateUpdated(function (string $state, $set) {
                     $set('slug', Str::slug($state));
                 }),
 
-            TextInput::make('slug')
-                ->disabled()
-                ->dehydrated()
-                ->required()
-                // Asegúrate de apuntar a la tabla correcta de Colecciones
-                ->unique(ignoreRecord: true),
+            Select::make('areas_id')->relationship('area','nombre')->required()->label('Área')->preload()->searchable(),
 
             // Relación de Pertenencia Jerárquica
             Select::make('parent_id')
-                // Ya no usamos ->relationship(...) directamente para las opciones
-                // porque necesitamos formatearlas recursivamente.
                 ->relationship(name: 'parent', titleAttribute: 'nombre')
                 ->placeholder('Ninguna (Colección Principal)')
                 ->label('Pertenece a (Colección Padre)')
@@ -90,7 +82,7 @@ class ColeccionForm
 
             Textarea::make('descripcion')
                 ->autosize()->label('Descripción'),
-            FileUpload::make('foto')->disk('colecciones')
+            FileUpload::make('foto')->disk('colecciones')->acceptedFileTypes(['image/*'])
         ]);
     }
 }
