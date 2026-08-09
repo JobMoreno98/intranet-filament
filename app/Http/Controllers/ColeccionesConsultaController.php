@@ -396,6 +396,10 @@ class ColeccionesConsultaController extends Controller
                     ]),
                     'w' => 1200,
                     'h' => 1600,
+                    
+                    'ocrUrl' => route('visor.ocr', [
+                        'token' => $token,
+                    ]),
                 ];
             })
             ->toArray();

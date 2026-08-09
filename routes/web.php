@@ -59,6 +59,39 @@ Route::get('/media/stream', function (Request $request) {
 
 
 
+Route::get('/media/ocr', function (Request $request) {
+
+    // Asumiendo que secure.media ya inyectó $request->archivo_id desde el token
+    $archivo = \App\Models\RecursosArchivos::findOrFail($request->archivo_id);
+
+    // Intentamos sacar la ruta base del JSON de assets
+    $pathImagen = $archivo->assets_procesados['main'] ?? null;
+
+    if (!$pathImagen) {
+        return response()->json([]);
+    }
+
+    // Reemplazamos el nombre de la imagen (ej. main.webp) por ocr.json
+    $pathJson = str_replace(basename($pathImagen), 'ocr.json', $pathImagen);
+
+    // Verificamos si el worker de Go generó el OCR
+    if (!Storage::disk('private')->exists($pathJson)) {
+        return response()->json([]);
+    }
+
+    // Al ser un JSON muy ligero, retornarlo directo funciona perfecto, pero 
+    // mantenemos tu estándar de X-Accel-Redirect para que Nginx lo sirva
+    return response('', 200)
+        ->header('X-Accel-Redirect', '/protegido/' . ltrim($pathJson, '/'))
+        ->header('Content-Type', 'application/json')
+        ->header('Cache-Control', 'private, max-age=86400')
+        ->header('X-Content-Type-Options', 'nosniff');
+})->name('visor.ocr')
+    ->middleware(['secure.media', 'throttle:media']); // ¡Protegida exactamente igual que tus imágenes!
+
+
+
+
 Route::get('/admin/media/load', function (Request $request) {
     // Verificación de Admin
     if (!auth()->guard('admin')->check() && !auth()->user() instanceof \App\Models\Admin) {

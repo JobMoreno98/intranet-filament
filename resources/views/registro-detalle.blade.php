@@ -3,7 +3,9 @@
 @section('content')
     @php
         $color = Auth::check() ? 'bg-zinc-950' : 'bg-white';
-        $esVideo = $esVideo ?? isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video' || $recurso['tipo_media'] === 'audio';
+        $esVideo =
+            $esVideo ??
+            (isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video') || $recurso['tipo_media'] === 'audio';
     @endphp
     <section class="{{ $color }} min-h-screen">
 
@@ -75,7 +77,7 @@
                                             'notas',
                                             'resumen',
                                             'observaciones',
-                                            'coleccion_id'
+                                            'coleccion_id',
                                         ];
 
                                         $esMetadata = $columna === 'metadata';
@@ -211,19 +213,23 @@
                         <div id="visor-container"
                             class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
 
+                            <!-- Cambié overflow-auto por overflow-hidden para evitar barras de scroll dobles -->
                             <div id="viewer"
                                 class="relative flex-1 overflow-hidden flex items-center justify-center p-4 group">
 
-                                <!-- ESTE ES EL CONTENEDOR NUEVO QUE FALTABA -->
-                                <div id="panzoom-content" class="relative origin-center">
+                                <!-- ========================================== -->
+                                <!-- NUEVO CONTENEDOR PARA SINCRONIZAR EL ZOOM  -->
+                                <!-- ========================================== -->
+                                <div id="panzoom-content" class="relative origin-center inline-block">
 
                                     <canvas id="page-canvas" class="block shadow-2xl bg-zinc-900"></canvas>
 
+                                    <!-- LA CAPA DE TEXTO (Superpuesta al canvas) -->
                                     <div id="ocr-layer" class="absolute top-0 left-0 w-full h-full pointer-events-auto">
                                     </div>
 
                                 </div>
-                                <!-- FIN DEL CONTENEDOR NUEVO -->
+                                <!-- ========================================== -->
 
                                 <button onclick="document.getElementById('prev-page').click()"
                                     class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
@@ -242,39 +248,8 @@
                                             d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                     </svg>
                                 </button>
-                            </div>
-
-                            <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
-                                <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
-                                    @isset($paginas)
-                                        1 / {{ count($paginas) }}
-                                    @endisset
-                                </p>
-                            </div>
-
-                            <div
-                                class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
-
-                                <div class="lg:block">
-                                    <button id="prev-page" class="hidden"></button>
-                                    <button id="next-page" class="hidden"></button>
-                                </div>
-
-                                <div
-                                    class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
-                                    <button id="btn-zoom-out"
-                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">−</button>
-                                    <span id="zoom-percent"
-                                        class="text-sm font-semibold text-gray-700 min-w-[50px] text-center">100%</span>
-                                    <button id="btn-zoom-in"
-                                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">+</button>
-                                    <div class="h-6 w-px bg-gray-200 mx-1"></div>
-                                    <button id="btn-reset-zoom"
-                                        class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
-                                </div>
 
                             </div>
-                        </div>
                     @endif
                 @else
                     <div class="  bg-white p-10 text-center  h-full">
@@ -351,7 +326,15 @@
                                 'numero',
                             ];
 
-                            $camposLargos = ['descripcion', 'contenido', 'notas', 'resumen', 'observaciones','coleccion_id','acervo_id'];
+                            $camposLargos = [
+                                'descripcion',
+                                'contenido',
+                                'notas',
+                                'resumen',
+                                'observaciones',
+                                'coleccion_id',
+                                'acervo_id',
+                            ];
 
                             $esMetadata = $columna === 'metadata';
 
