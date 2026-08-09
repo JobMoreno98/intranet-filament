@@ -7,7 +7,9 @@
         // Determina qué visor mostrar: imágenes/páginas o video HLS.
         // Idealmente esto llega ya calculado desde el controlador como
         // $esVideo, pero se deja un fallback por si no se define ahí.
-        $esVideo = $esVideo ?? isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video' || $recurso['tipo_media'] === 'audio';
+        $esVideo =
+            $esVideo ??
+            (isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video') || $recurso['tipo_media'] === 'audio';
     @endphp
     <section class="{{ $color }} min-h-screen">
 
@@ -219,6 +221,10 @@
 
                                 <canvas id="page-canvas"
                                     class="max-w-full max-h-full h-auto w-auto object-contain shadow-2xl bg-zinc-900"></canvas>
+
+                                    
+                                <div id="ocr-layer" class="absolute top-0 left-0 w-full h-full pointer-events-auto"></div>
+
 
                                 <button onclick="document.getElementById('prev-page').click()"
                                     class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
