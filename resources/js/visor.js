@@ -3,7 +3,7 @@
 import Panzoom from "@panzoom/panzoom";
 
 export function initVisor({ paginas, recursoId = 0 }) {
-const viewer = document.getElementById("viewer");
+    const viewer = document.getElementById("viewer");
     const panzoomContent = document.getElementById("panzoom-content"); // Contenedor nuevo
     const canvas = document.getElementById("page-canvas");
     const ocrLayer = document.getElementById("ocr-layer"); // Capa nueva para el texto
@@ -31,16 +31,16 @@ const viewer = document.getElementById("viewer");
     // PANZOOM
     // =========================
 
-const panzoom = Panzoom(panzoomContent, {
+    const panzoom = Panzoom(panzoomContent, {
         startScale: 1.0,
         maxScale: 8,
-        minScale: .8,
+        minScale: 0.8,
         contain: "invert",
         cursor: "default",
         step: 0.2,
         canvas: true,
         // Al centrar el contenedor, el transform origin debe ser coherente
-        transformOrigin: { x: 0.5, y: 0.5 }
+        transformOrigin: { x: 0.5, y: 0.5 },
     });
 
     viewer.addEventListener("wheel", panzoom.zoomWithWheel, {
@@ -418,15 +418,30 @@ const panzoom = Panzoom(panzoomContent, {
             const height = item.Box.Max.Y - item.Box.Min.Y;
 
             const span = document.createElement("span");
-            // Usamos Tailwind inline o clases personalizadas
+
+            // Clases de Tailwind (eliminamos leading-none porque lo controlaremos por JS)
             span.className =
-                "absolute text-transparent cursor-text leading-none select-text origin-top-left selection:bg-blue-500/40 selection:text-transparent";
+                "absolute text-transparent cursor-text select-text origin-top-left selection:bg-blue-500/40 selection:text-transparent";
             span.innerText = item.Word + " ";
 
+            // 1. Posición y área de selección (Porcentajes)
             span.style.left = `${(minX / imgWidth) * 100}%`;
             span.style.top = `${(minY / imgHeight) * 100}%`;
             span.style.width = `${(width / imgWidth) * 100}%`;
             span.style.height = `${(height / imgHeight) * 100}%`;
+
+            // 2. MAGIA: Tamaño de fuente dinámico
+            // Calculamos qué porcentaje de la altura total de la imagen ocupa esta palabra.
+            // Luego usamos 'cqh' para que el texto mida exactamente ese porcentaje de la altura de la capa OCR.
+            const heightPercent = (height / imgHeight) * 100;
+            span.style.fontSize = `${heightPercent}cqh`;
+
+            // 3. Alineación perfecta del texto dentro de la caja de Tesseract
+            span.style.display = "flex";
+            span.style.alignItems = "center"; // Lo centra verticalmente
+            span.style.justifyContent = "center"; // Lo centra horizontalmente
+            span.style.whiteSpace = "pre"; // Evita saltos de línea y respeta el espacio final
+            span.style.lineHeight = "1";
 
             fragment.appendChild(span);
         });
