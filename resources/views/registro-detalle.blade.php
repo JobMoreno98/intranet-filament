@@ -248,8 +248,38 @@
                                             d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                     </svg>
                                 </button>
+                                <div class="px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-center">
+                                    <p id="page-indicator" class="text-xs text-zinc-400 font-medium">
+                                        @isset($paginas)
+                                            1 / {{ count($paginas) }}
+                                        @endisset
+                                    </p>
+                                </div>
 
+                                <div
+                                    class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-zinc-800 bg-zinc-900 w-full">
+
+                                    <div class="lg:block">
+                                        <button id="prev-page" class="hidden"></button>
+                                        <button id="next-page" class="hidden"></button>
+                                    </div>
+
+                                    <div
+                                        class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
+                                        <button id="btn-zoom-out"
+                                            class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">−</button>
+                                        <span id="zoom-percent"
+                                            class="text-sm font-semibold text-gray-700 min-w-[50px] text-center">100%</span>
+                                        <button id="btn-zoom-in"
+                                            class="p-1 rounded-lg hover:bg-gray-100 text-gray-600 transition font-bold text-lg w-8 h-8 flex items-center justify-center border border-gray-200">+</button>
+                                        <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                                        <button id="btn-reset-zoom"
+                                            class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
+                                    </div>
+
+                                </div>
                             </div>
+                        </div>
                     @endif
                 @else
                     <div class="  bg-white p-10 text-center  h-full">
