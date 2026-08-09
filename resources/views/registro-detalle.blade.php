@@ -222,9 +222,8 @@
 
                                 <!-- 2. El contenedor que Panzoom moverá (Canvas + OCR juntos) -->
                                 <div id="panzoom-content" class="relative origin-center inline-block">
-                                    <canvas id="page-canvas" class="block shadow-2xl bg-zinc-900"></canvas>
-                                    <div id="ocr-layer" class="absolute top-0 left-0 w-full h-full pointer-events-auto"
-                                        style="container-type: size;">
+                                    <canvas id="page-canvas" class="block w-full h-full shadow-2xl bg-zinc-900"></canvas>
+                                    <div id="ocr-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none">
                                     </div>
                                 </div>
 

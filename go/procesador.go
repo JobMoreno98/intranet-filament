@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/otiai10/gosseract/v2"
 )
@@ -85,31 +86,73 @@ func processImage(task ProcessingTask) {
 
 	// --- INICIO RUTINA OCR ESPACIAL ---
 	log.Printf(">>> Iniciando OCR para ID %d <<<", task.ArchivoID)
-	client := gosseract.NewClient()
 
-	// Analizamos la imagen original usando la ruta limpia
-	client.SetImage(cleanPath)
+	ocrSourcePath, ocrScale, tempOcrFile, err := prepareImageForOcr(cleanPath, outputDir)
+	if err != nil {
+		log.Printf("ADVERTENCIA OCR ID %d: no se pudo preprocesar (%v), se usa la imagen original", task.ArchivoID, err)
+		ocrSourcePath, ocrScale, tempOcrFile = cleanPath, 1.0, ""
+	}
+	if tempOcrFile != "" {
+		defer os.Remove(tempOcrFile)
+	}
+
+	client := gosseract.NewClient()
+	defer client.Close()
+
+	client.SetImage(ocrSourcePath)
 	client.SetLanguage("spa", "eng")
-	
+	client.SetPageSegMode(gosseract.PSM_AUTO)
+	client.SetVariable("preserve_interword_spaces", "1")
+
 	// Extraer coordenadas por palabra
 	boxes, err := client.GetBoundingBoxes(gosseract.RIL_WORD)
 	if err != nil {
 		log.Printf("ADVERTENCIA OCR ID %d: No se pudo extraer texto (%v)", task.ArchivoID, err)
 	} else if len(boxes) > 0 {
-		// Guardar coordenadas en JSON
-		jsonData, jsonErr := json.Marshal(boxes)
-		if jsonErr == nil {
-			jsonPath := filepath.Join(outputDir, "ocr.json")
-			os.WriteFile(jsonPath, jsonData, 0644)
-			log.Printf("OCR JSON guardado en %s", jsonPath)
+		const confianzaMinima = 55.0
+
+		limpias := make([]gosseract.BoundingBox, 0, len(boxes))
+		var textoPlano strings.Builder
+
+		for _, b := range boxes {
+			palabra := strings.TrimSpace(b.Word)
+
+			// Descarta ruido típico: vacíos, baja confianza, o "palabras"
+			// sin ninguna letra/dígito (puros símbolos sueltos = basura de OCR)
+			if palabra == "" || b.Confidence < confianzaMinima || !contieneLetraODigito(palabra) {
+				continue
+			}
+
+			// Si se preprocesó a mayor resolución, regresamos las coordenadas
+			// a la escala de la imagen ORIGINAL (la que se muestra en el visor)
+			if ocrScale != 1.0 {
+				b.Box.Min.X = int(float64(b.Box.Min.X) / ocrScale)
+				b.Box.Min.Y = int(float64(b.Box.Min.Y) / ocrScale)
+				b.Box.Max.X = int(float64(b.Box.Max.X) / ocrScale)
+				b.Box.Max.Y = int(float64(b.Box.Max.Y) / ocrScale)
+			}
+
+			b.Word = palabra
+			limpias = append(limpias, b)
+			textoPlano.WriteString(palabra)
+			textoPlano.WriteString(" ")
 		}
 
-		// Guardar texto plano (útil para búsquedas backend)
-		plainText, _ := client.Text()
-		txtPath := filepath.Join(outputDir, "ocr.txt")
-		os.WriteFile(txtPath, []byte(plainText), 0644)
+		if len(limpias) > 0 {
+			// Guardar coordenadas en JSON
+			jsonData, jsonErr := json.Marshal(limpias)
+			if jsonErr == nil {
+				jsonPath := filepath.Join(outputDir, "ocr.json")
+				os.WriteFile(jsonPath, jsonData, 0644)
+				log.Printf("OCR JSON guardado en %s (%d palabras, %d descartadas)",
+					jsonPath, len(limpias), len(boxes)-len(limpias))
+			}
+
+			// Guardar texto plano (útil para búsquedas backend)
+			txtPath := filepath.Join(outputDir, "ocr.txt")
+			os.WriteFile(txtPath, []byte(strings.TrimSpace(textoPlano.String())), 0644)
+		}
 	}
-	client.Close()
 	// --- FIN RUTINA OCR ---
 
 	thumbPath := filepath.Join(outputDir, "thumb.webp")
@@ -377,6 +420,70 @@ func processAudio(task ProcessingTask) {
 		updateAudioAssets(task.ArchivoID, m3u8Path, "")
 	}
 	log.Printf("--- Finalizado AUDIO: %s ---", task.OutputName)
+}
+
+// prepareImageForOcr genera una copia optimizada para Tesseract (escala de
+// grises + contraste + nitidez) sin tocar la geometría, para que las
+// coordenadas del OCR sigan alineadas con la imagen original. Si la imagen
+// es pequeña la escala 2x (mejora mucho la precisión) y devuelve el factor
+// para revertir las coordenadas después.
+func prepareImageForOcr(sourcePath, outputDir string) (path string, scale float64, tempFile string, err error) {
+	binary := "magick"
+	if _, lookErr := exec.LookPath(binary); lookErr != nil {
+		binary = "convert"
+	}
+
+	scale = 1.0
+	if w, wErr := imageWidthPx(sourcePath); wErr == nil && w > 0 && w < 1600 {
+		scale = 2.0
+	}
+
+	args := []string{sourcePath}
+	if scale != 1.0 {
+		args = append(args, "-resize", fmt.Sprintf("%d%%", int(scale*100)))
+	}
+
+	args = append(args,
+		"-colorspace", "Gray",
+		"-normalize",
+		"-sharpen", "0x1.2",
+	)
+
+	tempFile = filepath.Join(outputDir, "ocr_source.png")
+	args = append(args, tempFile)
+
+	cmd := exec.Command(binary, args...)
+	if out, cmdErr := cmd.CombinedOutput(); cmdErr != nil {
+		return "", 1.0, "", fmt.Errorf("preprocesamiento OCR: %v (%s)", cmdErr, string(out))
+	}
+
+	return tempFile, scale, tempFile, nil
+}
+
+// imageWidthPx obtiene el ancho en píxeles de una imagen usando ImageMagick
+// (identify o "magick identify" según la instalación disponible).
+func imageWidthPx(path string) (int, error) {
+	cmd := exec.Command("identify", "-format", "%w", path)
+	out, err := cmd.Output()
+	if err != nil {
+		cmd = exec.Command("magick", "identify", "-format", "%w", path)
+		out, err = cmd.Output()
+		if err != nil {
+			return 0, err
+		}
+	}
+	return strconv.Atoi(strings.TrimSpace(string(out)))
+}
+
+// contieneLetraODigito descarta "palabras" que Tesseract detecta pero que
+// son puro ruido: símbolos sueltos, manchas interpretadas como puntuación, etc.
+func contieneLetraODigito(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			return true
+		}
+	}
+	return false
 }
 
 func extractPages(info string) int {

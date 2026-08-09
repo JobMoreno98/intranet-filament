@@ -7,6 +7,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
     const panzoomContent = document.getElementById("panzoom-content"); // Contenedor nuevo
     const canvas = document.getElementById("page-canvas");
     const ocrLayer = document.getElementById("ocr-layer"); // Capa nueva para el texto
+    ocrLayer.style.containerType = "size"; // necesario para que 'cqh' funcione en renderOcrLayer
 
     const zoomInBtn = document.getElementById("btn-zoom-in");
 
@@ -41,6 +42,9 @@ export function initVisor({ paginas, recursoId = 0 }) {
         canvas: true,
         // Al centrar el contenedor, el transform origin debe ser coherente
         transformOrigin: { x: 0.5, y: 0.5 },
+        // Clave: si el gesto empieza sobre una palabra del OCR, Panzoom no
+        // debe interceptarlo, para permitir seleccionar texto sin mover la imagen
+        exclude: [ocrLayer],
     });
 
     viewer.addEventListener("wheel", panzoom.zoomWithWheel, {
@@ -225,6 +229,16 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     viewer.addEventListener("click", async (e) => {
+        // evitar navegación al hacer clic sobre una palabra del OCR
+        if (e.target.closest("#ocr-layer")) {
+            return;
+        }
+
+        // evitar navegación accidental si el usuario acaba de seleccionar texto
+        if (window.getSelection().toString().length > 0) {
+            return;
+        }
+
         // evitar navegación accidental mientras zoom
         if (panzoom.getScale() > 1.05) {
             return;
@@ -244,16 +258,24 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
 
     let touchStartX = 0;
+    let touchStartedOnText = false;
 
     viewer.addEventListener(
         "touchstart",
         (e) => {
             touchStartX = e.touches[0].clientX;
+            touchStartedOnText = !!e.target.closest("#ocr-layer");
         },
         { passive: true },
     );
 
     viewer.addEventListener("touchend", async (e) => {
+        // si el gesto empezó sobre una palabra, dejamos que el navegador
+        // maneje la selección táctil en vez de interpretarlo como swipe
+        if (touchStartedOnText) {
+            return;
+        }
+
         const deltaX = e.changedTouches[0].clientX - touchStartX;
 
         // swipe horizontal
@@ -273,7 +295,11 @@ export function initVisor({ paginas, recursoId = 0 }) {
         }
     });
 
-    viewer.addEventListener("dblclick", () => {
+    viewer.addEventListener("dblclick", (e) => {
+        // doble clic sobre una palabra = selección de palabra, no zoom
+        if (e.target.closest("#ocr-layer")) {
+            return;
+        }
         panzoom.zoomIn();
     });
 
@@ -286,6 +312,10 @@ export function initVisor({ paginas, recursoId = 0 }) {
     });
 
     viewer.addEventListener("selectstart", (e) => {
+        // permitir seleccionar texto solo dentro de la capa OCR
+        if (e.target.closest("#ocr-layer")) {
+            return;
+        }
         e.preventDefault();
     });
 
@@ -414,34 +444,45 @@ export function initVisor({ paginas, recursoId = 0 }) {
         words.forEach((item) => {
             const minX = item.Box.Min.X;
             const minY = item.Box.Min.Y;
-            const width = item.Box.Max.X - item.Box.Min.X;
-            const height = item.Box.Max.Y - item.Box.Min.Y;
+            const width = item.Box.Max.X - minX;
+            const height = item.Box.Max.Y - minY;
+
+            if (width <= 0 || height <= 0) return;
 
             const span = document.createElement("span");
 
-            // Clases de Tailwind (eliminamos leading-none porque lo controlaremos por JS)
+            // Clases de Tailwind. pointer-events-auto es necesario porque el
+            // contenedor #ocr-layer ahora tiene pointer-events-none (así deja
+            // pasar los gestos de pan/zoom hacia el canvas en cualquier zona
+            // sin texto), y cada palabra reactiva sus propios eventos.
             span.className =
-                "absolute text-transparent cursor-text select-text origin-top-left selection:bg-blue-500/40 selection:text-transparent";
-            span.innerText = item.Word + " ";
+                "absolute text-transparent cursor-text select-text origin-top-left selection:bg-blue-500/40 selection:text-transparent pointer-events-auto";
+            span.textContent = item.Word;
 
-            // 1. Posición y área de selección (Porcentajes)
+            // 1. Posición y área de selección (en %, así se mantienen
+            // correctas sin importar el tamaño real en pantalla ni el zoom)
             span.style.left = `${(minX / imgWidth) * 100}%`;
             span.style.top = `${(minY / imgHeight) * 100}%`;
             span.style.width = `${(width / imgWidth) * 100}%`;
             span.style.height = `${(height / imgHeight) * 100}%`;
 
-            // 2. MAGIA: Tamaño de fuente dinámico
-            // Calculamos qué porcentaje de la altura total de la imagen ocupa esta palabra.
-            // Luego usamos 'cqh' para que el texto mida exactamente ese porcentaje de la altura de la capa OCR.
+            // 2. Tamaño de fuente al tamaño real de la palabra en la imagen.
+            // 'cqh' mide contra el tamaño EN PANTALLA de #ocr-layer (que tiene
+            // container-type: size), no contra el bitmap, así que el texto
+            // sigue midiendo lo correcto tanto si la imagen se ve reducida
+            // para caber en el visor como si se hace zoom con Panzoom.
+            // El *1.15 compensa que la caja de Tesseract mide ~cap-height,
+            // no el font-size completo (que incluye ascendentes/descendentes);
+            // ajusta este factor a ojo si el texto se ve chico o grande.
             const heightPercent = (height / imgHeight) * 100;
-            span.style.fontSize = `${heightPercent}cqh`;
+            span.style.fontSize = `${heightPercent * 1.15}cqh`;
+            span.style.lineHeight = `${heightPercent}cqh`;
 
             // 3. Alineación perfecta del texto dentro de la caja de Tesseract
             span.style.display = "flex";
-            span.style.alignItems = "center"; // Lo centra verticalmente
-            span.style.justifyContent = "center"; // Lo centra horizontalmente
-            span.style.whiteSpace = "pre"; // Evita saltos de línea y respeta el espacio final
-            span.style.lineHeight = "1";
+            span.style.alignItems = "center";
+            span.style.justifyContent = "center";
+            span.style.whiteSpace = "pre";
 
             fragment.appendChild(span);
         });
