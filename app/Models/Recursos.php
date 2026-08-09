@@ -34,7 +34,7 @@ class Recursos extends Model
 
     public function archivos()
     {
-        return $this->hasMany(RecursosArchivos::class, 'recursos_id','id')->orderBy('orden');
+        return $this->hasMany(RecursosArchivos::class, 'recursos_id', 'id')->orderBy('orden');
     }
 
     public function toSearchableArray(): array
@@ -65,12 +65,23 @@ class Recursos extends Model
 
         // 3. INDEXADO DINÁMICO DEL JSON DE METADATOS
         // Si el CMS guarda ['editorial' => 'Editorial UdeG', 'paginas' => 350], Meilisearch lo mapeará de inmediato
-        if (!empty($this->metadata) && is_array($this->metadata)) {
+        $metadata = $this->metadata;
+
+        $variables = collect($this->acervo->esquema)
+            ->whereIn('visible', ['Recuperable','Adicional'])
+            ->pluck('variable')
+            ->values()
+            ->all();
+        $filtros = array_intersect_key($metadata, array_flip($variables));
+
+        if (!empty($filtros) && is_array($filtros)) {
             // Concatenamos valores clave => valor en un string
-            $array['metadata'] = $this->metadata; // JSON original
-            $flatMetadata = collect($this->metadata)
+            //$array['metadata'] = $metadata; // JSON original
+            $flatMetadata = collect($filtros)
                 ->map(fn($valor, $clave) => $clave . ': ' . $valor)
                 ->implode(' | ');
+
+                //dd($flatMetadata);
 
             $array['metadata_text'] = $flatMetadata;
         } else {

@@ -106,9 +106,7 @@
                         Título
                     </span>
                     @php
-                        $keys = array_keys($recurso->toArray());
-
-                        
+                        $keys = array_keys($recurso->toArray());                        
                     @endphp
                     @foreach ($recurso as $item)
                         {{ $item }}
@@ -121,8 +119,6 @@
                     <span class="block text-zinc-500 uppercase text-xs font-semibold">
                         Autor
                     </span>
-
-                    
                 </div>
 
                 <div>

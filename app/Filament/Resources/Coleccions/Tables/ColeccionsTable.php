@@ -21,7 +21,7 @@ class ColeccionsTable
                 TextColumn::make('nombre')
                     ->searchable()->sortable()->wrap(),
 
-                TextColumn::make('children.nombre')->label('hijos')->listWithLineBreaks()
+                TextColumn::make('children.nombre')->label('Hijos')->listWithLineBreaks()
                     ->badge()->searchable(),
 
                 TextColumn::make('parent.nombre')->label('Padre')

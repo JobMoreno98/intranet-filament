@@ -80,8 +80,10 @@ class ColeccionesConsultaController extends Controller
 
             if ($config && isset($config->esquema)) {
                 $esquema = is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
-                $camposAtributos = collect($esquema)->pluck('variable')->toArray();
-
+                $camposAtributos = collect($esquema)
+                    ->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')
+                    ->pluck('variable')
+                    ->toArray();
                 // Mapeamos los filtros extras de la URL si el usuario los escribió
                 foreach ($request->only($camposAtributos) as $campo => $valor) {
                     if ($valor !== null && $valor !== '') {
@@ -105,7 +107,7 @@ class ColeccionesConsultaController extends Controller
                         'id' => $hit['id'],
                         'acervo_id' => $hit['acervo_id'] ?? null,
                         'coleccion_id' => $hit['coleccion_id'] ?? null,
-                        'metadata' => $hit['metadata'] ?? [],
+                        'metadata' => $hit['metadata_text'] ?? [],
                         'tipo_media' => $hit['tipo_media'] ?? null,
                         'status' => $hit['status'] ?? null,
                         'acervo' => (object) ['nombre' => $hit['acervo'] ?? '---'],
@@ -135,12 +137,18 @@ class ColeccionesConsultaController extends Controller
         } catch (\Exception $e) {
         }
 
+
+
         return view('coleccion', [
             'data' => $data,
             'tablaNombre' => 'recursos',
             'coleccion' => $coleccion,
             'acervosDisponibles' => $acervosDisponibles,
             'title' => $coleccion->nombre ?? 'Colección',
+            'header' => isset($esquema) ? collect($esquema)
+                ->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')
+                ->pluck('variable')
+                ->toArray() : []
         ]);
     }
 
@@ -335,7 +343,7 @@ class ColeccionesConsultaController extends Controller
             Log::error('Error registrando analítica en visor: ' . $e->getMessage());
         }
 
-        $omitir = ['IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'updated_at', 'deleted_at', 'vistas_count', 'hash_archivo', 'assets_procesados', 'status'];
+        $omitir = ['tipo_media', 'IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'updated_at', 'deleted_at', 'vistas_count', 'hash_archivo', 'assets_procesados', 'status'];
 
         $id = $recurso->id;
 
@@ -348,6 +356,26 @@ class ColeccionesConsultaController extends Controller
 
             return $recurso->toArray();
         });
+
+
+        $esquema = [];
+
+        if ($recurso->acervo && $recurso->acervo->esquema) {
+            $esquema = is_string($recurso->acervo->esquema)
+                ? json_decode($recurso->acervo->esquema, true)
+                : $recurso->acervo->esquema;
+        }
+
+        $camposPermitidos = collect($esquema)
+            ->whereIn('visible', ['Recuperable', 'Adicional'])
+            ->pluck('variable')
+            ->toArray();
+
+        $metadata = collect($recursoData['metadata'] ?? [])
+            ->only($camposPermitidos)
+            ->toArray();
+
+        $recurso->metadata = $metadata;
 
         // 2. Mapeamos los archivos y les firmamos un token con caducidad
         $paginas = collect($recursoData['archivos'])
@@ -384,35 +412,14 @@ class ColeccionesConsultaController extends Controller
         */
 
         // Tu diccionario de etiquetas amigables
-        $labels = [
-            'anio' => 'Año',
-            'tipoarchivo' => 'Tipo Archivo',
-            'numpaginas' => 'No. Páginas',
-            'numarchivos' => 'No. Archivos',
-            'numero' => 'Número',
-            'titulo' => 'Título',
-            'autor' => 'Autor',
-            'dia' => 'Día',
-            'paginas' => 'Páginas',
-            'epocaperiodo' => 'Epoca o Periodo',
-            'nombrepersonajeprincipal' => 'Nombre de Personaje principal',
-            'nombrepersonajesecundario' => 'Nombre de Personaje secundario',
-            'clavefondoprincipal' => 'Clave Fondo Principal',
-            'fondoprincipal' => 'Fondo principal',
-            'lugar' => 'Lugar',
-            'lugar_2' => 'Lugar 2',
-            'anio_2' => 'Año 2',
-            'numinventario' => 'No. Inventario',
-            'observaciones' => 'Observaciones',
-            'volumentomoejemplar' => 'Volumen / Tomo / Ejemplar',
-            'numInventario' => 'No. Inventario',
-            'descripcion' => 'Descripción',
-            'ejemplarTomo' => 'Ejemplar / Tomo ',
-            'numArchivos' => 'No. Archivos',
-            'tipoArchivo' => 'Tipo Archivo',
-            'nombrePersonajePrincipal' => 'Nombre de Personaje principal',
-            'nombrePersonajeSecundario' => 'Nombre de Personaje secundario',
-        ];
+
+
+        $labels = collect($esquema)
+            ->whereIn('visible', ['Recuperable', 'Adicional'])
+            ->pluck('label', 'variable')
+            ->toArray();
+
+
         return view('registro-detalle', [
             'registro' => $recurso,
             'tablaNombre' => $recurso->coleccion,

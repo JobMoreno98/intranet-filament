@@ -3,10 +3,6 @@
 @section('content')
     @php
         $color = Auth::check() ? 'bg-zinc-950' : 'bg-white';
-
-        // Determina qué visor mostrar: imágenes/páginas o video HLS.
-        // Idealmente esto llega ya calculado desde el controlador como
-        // $esVideo, pero se deja un fallback por si no se define ahí.
         $esVideo = $esVideo ?? isset($recurso['tipo_media']) && $recurso['tipo_media'] === 'video' || $recurso['tipo_media'] === 'audio';
     @endphp
     <section class="{{ $color }} min-h-screen">
@@ -79,6 +75,7 @@
                                             'notas',
                                             'resumen',
                                             'observaciones',
+                                            'coleccion_id'
                                         ];
 
                                         $esMetadata = $columna === 'metadata';
@@ -347,7 +344,7 @@
                                 'numero',
                             ];
 
-                            $camposLargos = ['descripcion', 'contenido', 'notas', 'resumen', 'observaciones'];
+                            $camposLargos = ['descripcion', 'contenido', 'notas', 'resumen', 'observaciones','coleccion_id','acervo_id'];
 
                             $esMetadata = $columna === 'metadata';
 

@@ -13,6 +13,7 @@ new class extends VoltComponent {
         if ($this->acervoId) {
             // 1. Obtenemos el esquema de arrays (El que nos mostraste en el dd)
             $esquema = $this->obtenerEsquemaDeMetadata($this->acervoId);
+        
 
             foreach ($esquema as $campo) {
                 // Usamos la llave 'variable' según tu estructura (ej: 'asunto', 'anio')
@@ -66,39 +67,47 @@ new class extends VoltComponent {
 
         // Si tu campo en base de datos ya se parsea como array o es un string JSON:
         if ($config && isset($config->esquema)) {
-            return is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
-        }
+            $esquema = is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
 
+            return array_values(
+                array_filter($esquema, function ($item) {
+                    return ($item['visible'] ?? null) === 'Recuperable';
+                }),
+            );
+        }
         return [];
     }
 }; ?>
 
 <div class="dark:bg-neutral-600  bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100">
-    @if($acervoId)
-        @if(count($configuracion) > 0)
-            <h4 class="dark:text-white text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">
-                <svg class="w-4 h-4 text-gray-500 dark:text-guinda " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 8.293A1 1 0 013 7.586V4z" />
+    @if ($acervoId)
+        @if (count($configuracion) > 0)
+            <h4
+                class="dark:text-white text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-500 dark:text-guinda " fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 8.293A1 1 0 013 7.586V4z" />
                 </svg>
                 Campos de búsqueda disponibles
             </h4>
-            
+
             <div wire:keydown.enter="aplicarFiltrado">
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     @foreach ($configuracion as $f)
-                        @php 
+                        @php
                             $variable = $f['variable'] ?? null;
                             $label = $f['label'] ?? 'Campo';
                         @endphp
-                        
-                        @if($variable)
+
+                        @if ($variable)
                             <div class="flex flex-col">
-                                <label class="text-xs font-bold text-gray-600 uppercase mb-1 tracking-wide dark:text-white">
+                                <label
+                                    class="text-xs font-bold text-gray-600 uppercase mb-1 tracking-wide dark:text-white">
                                     {{ $label }}
                                 </label>
-                                <input type="text" 
-                                    wire:model.blur="valores.{{ $variable }}"
+                                <input type="text" wire:model.blur="valores.{{ $variable }}"
                                     placeholder="Buscar por {{ strtolower($label) }}..."
                                     class="dark:text-white border border-gray-300 rounded-md p-2 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400">
                             </div>
@@ -107,7 +116,7 @@ new class extends VoltComponent {
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-2 border-t pt-4 border-gray-100">
-                    
+
                     @if (request()->anyFilled(collect($configuracion)->pluck('variable')->toArray()))
                         <a href="{{ url()->current() . '?acervo_id=' . $acervoId }}"
                             class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
@@ -115,8 +124,7 @@ new class extends VoltComponent {
                         </a>
                     @endif
 
-                    <button type="button"
-                        wire:click="aplicarFiltrado"
+                    <button type="button" wire:click="aplicarFiltrado"
                         class="text-xs font-bold uppercase tracking-widest bg-[#86212b] hover:bg-[#6d1b23] text-white px-6 py-2.5 rounded-md transition duration-200 shadow-sm">
                         Buscar en este Acervo
                     </button>

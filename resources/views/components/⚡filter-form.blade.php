@@ -15,6 +15,7 @@ new class extends VoltComponent {
         if ($this->acervoId) {
             // 1. Obtenemos el esquema de arrays
             $esquema = $this->obtenerEsquemaDeMetadata($this->acervoId);
+            //dd($esquema);
 
             foreach ($esquema as $campo) {
                 $nombreVariable = $campo['variable'] ?? null;
@@ -58,7 +59,13 @@ new class extends VoltComponent {
         $config = App\Models\TipoAcervo::where('id', $acervoId)->first();
 
         if ($config && isset($config->esquema)) {
-            return is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
+            $esquema = is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
+
+            return array_values(
+                array_filter($esquema, function ($item) {
+                    return ($item['visible'] ?? null) === 'Recuperable';
+                }),
+            );
         }
 
         return [];
