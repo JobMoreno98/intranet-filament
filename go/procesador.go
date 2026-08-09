@@ -54,9 +54,13 @@ func processTask(task ProcessingTask) {
 
 func processImage(task ProcessingTask) {
 
+	// 1. Limpiamos la ruta de posibles espacios o saltos de línea invisibles
+	cleanPath := strings.TrimSpace(task.Path)
+
 	exists := false
-	for i := 0; i < 5; i++ {
-		if _, err := os.Stat(task.Path); err == nil {
+	// 2. Aumentamos a 20 intentos (10 segundos total) para dar tiempo al backend a ensamblar el archivo
+	for i := 0; i < 20; i++ {
+		if _, err := os.Stat(cleanPath); err == nil {
 			exists = true
 			break
 		}
@@ -65,11 +69,12 @@ func processImage(task ProcessingTask) {
 	}
 
 	if !exists {
-		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", task.Path)
+		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", cleanPath)
 		return
 	}
 
-	source := strings.ReplaceAll(task.Path, "\\", "/")
+	// Actualizamos variables para usar cleanPath de aquí en adelante
+	source := strings.ReplaceAll(cleanPath, "\\", "/")
 
 	// Estructura: private/slug-coleccion/id-recurso/id-archivo/
 	outputDir := filepath.Join(basePath, task.ColeccionSlug,
@@ -81,11 +86,11 @@ func processImage(task ProcessingTask) {
 	// --- INICIO RUTINA OCR ESPACIAL ---
 	log.Printf(">>> Iniciando OCR para ID %d <<<", task.ArchivoID)
 	client := gosseract.NewClient()
-	
-	// Analizamos la imagen original antes de que Magick la comprima
-	client.SetImage(task.Path)
-	client.SetLanguage("spa", "eng") // Asegúrate de tener los paquetes tesseract-ocr-spa instalados
 
+	// Analizamos la imagen original usando la ruta limpia
+	client.SetImage(cleanPath)
+	client.SetLanguage("spa", "eng")
+	
 	// Extraer coordenadas por palabra
 	boxes, err := client.GetBoundingBoxes(gosseract.RIL_WORD)
 	if err != nil {
@@ -111,8 +116,8 @@ func processImage(task ProcessingTask) {
 	mainPath := filepath.Join(outputDir, "main.webp")
 
 	args := []string{
-		task.Path,
-		"-resize", "2500x>", 
+		cleanPath,
+		"-resize", "2500x>",
 		"-quality", "80",
 	}
 
@@ -120,7 +125,7 @@ func processImage(task ProcessingTask) {
 	if _, err := exec.LookPath(binary); err != nil {
 		binary = "convert"
 	}
-	
+
 	args = append(args, "webp:"+mainPath)
 
 	cmd := exec.Command(binary, args...)
