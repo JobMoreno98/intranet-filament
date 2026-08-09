@@ -9,7 +9,7 @@ const viewer = document.getElementById("viewer");
     const ocrLayer = document.getElementById("ocr-layer"); // Capa nueva para el texto
 
     const zoomInBtn = document.getElementById("btn-zoom-in");
-    
+
     const zoomOutBtn = document.getElementById("btn-zoom-out");
     const resetBtn = document.getElementById("btn-reset-zoom");
     const zoomPercent = document.getElementById("zoom-percent");
@@ -110,6 +110,7 @@ const panzoom = Panzoom(panzoomContent, {
     // RENDER
     // =========================
 
+    /*
     async function renderPage(index) {
         if (!paginas[index]) return;
 
@@ -177,7 +178,7 @@ const panzoom = Panzoom(panzoomContent, {
             rendering = false;
         }
     }
-
+*/
     // =========================
     // NAVEGACIÓN
     // =========================
