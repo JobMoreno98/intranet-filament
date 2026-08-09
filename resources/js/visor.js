@@ -26,6 +26,13 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
     let currentBitmap = null;
 
+    // Palabras OCR de la página actual (en el mismo orden que ocr.json) y los
+    // <span> ya insertados en el DOM, indexados 1:1 con currentWords — así la
+    // búsqueda puede ir de "coincidencia en el texto" a "elemento a resaltar"
+    // sin tener que re-parsear el layer.
+    let currentWords = [];
+    let ocrSpans = [];
+
     let rendering = false;
 
     // =========================
@@ -423,8 +430,14 @@ export function initVisor({ paginas, recursoId = 0 }) {
             ctx.drawImage(bitmap, 0, 0);
 
             // -- NUEVO: Procesar OCR --
+            currentWords = [];
+            ocrSpans = [];
+            limpiarResaltado();
+            actualizarContadorBusqueda(null); // limpia el "N resultados" de la página anterior
+
             const words = await fetchOcr(index);
             if (words && words.length > 0) {
+                currentWords = words;
                 renderOcrLayer(words, bitmap.width, bitmap.height);
             }
 
@@ -441,7 +454,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
     function renderOcrLayer(words, imgWidth, imgHeight) {
         const fragment = document.createDocumentFragment();
 
-        words.forEach((item) => {
+        words.forEach((item, idx) => {
             const minX = item.Box.Min.X;
             const minY = item.Box.Min.Y;
             const width = item.Box.Max.X - minX;
@@ -450,6 +463,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
             if (width <= 0 || height <= 0) return;
 
             const span = document.createElement("span");
+            span.dataset.wordIndex = idx;
 
             // Clases de Tailwind. pointer-events-auto es necesario porque el
             // contenedor #ocr-layer ahora tiene pointer-events-none (así deja
@@ -457,7 +471,7 @@ export function initVisor({ paginas, recursoId = 0 }) {
             // sin texto), y cada palabra reactiva sus propios eventos.
             span.className =
                 "absolute text-transparent cursor-text select-text origin-top-left selection:bg-blue-500/40 selection:text-transparent pointer-events-auto";
-            span.textContent = item.Word;
+            span.textContent = item.Word + " "; // espacio final invisible: respaldo si el navegador no usa nuestro handler de "copy"
 
             // 1. Posición y área de selección (en %, así se mantienen
             // correctas sin importar el tamaño real en pantalla ni el zoom)
@@ -485,8 +499,213 @@ export function initVisor({ paginas, recursoId = 0 }) {
             span.style.whiteSpace = "pre";
 
             fragment.appendChild(span);
+            ocrSpans[idx] = span;
         });
 
         ocrLayer.appendChild(fragment);
     }
+
+    // =========================
+    // BÚSQUEDA Y RESALTADO (solo en la página actual)
+    // =========================
+
+    // Clases Tailwind que se agregan/quitan por JS. El texto sigue siendo
+    // transparente (viene del span original): lo único que cambia es el
+    // fondo, así que visualmente se ve como un marcador sobre la imagen.
+    const HIGHLIGHT_CLASSES = ["bg-yellow-400/50", "rounded-[2px]"];
+    const ACTIVE_CLASSES = ["bg-orange-500/70", "ring-2", "ring-orange-400"];
+
+    function normalizarTexto(str) {
+        return (str || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "") // quita acentos: á->a, ñ se conserva aparte abajo
+            .toLowerCase()
+            .replace(/[^\p{L}\p{N}\s]/gu, "") // quita puntuación pegada (comas, puntos, etc.)
+            .trim();
+    }
+
+    function limpiarResaltado() {
+        ocrSpans.forEach((span) => {
+            if (span) span.classList.remove(...HIGHLIGHT_CLASSES, ...ACTIVE_CLASSES);
+        });
+    }
+
+    function actualizarContadorBusqueda(total) {
+        const el = document.getElementById("ocr-search-count");
+        if (!el) return;
+        if (total === null) {
+            el.textContent = "";
+        } else if (total === 0) {
+            el.textContent = "Sin resultados en esta página";
+        } else {
+            el.textContent = `${total} resultado${total === 1 ? "" : "s"} en esta página`;
+        }
+    }
+
+    /**
+     * Busca una frase (una o varias palabras) dentro del OCR de la página
+     * que se está viendo actualmente y resalta todas las coincidencias.
+     * No busca en otras páginas ni en el resto del documento.
+     */
+    function buscarEnPaginaActual(query) {
+        limpiarResaltado();
+
+        const queryNorm = normalizarTexto(query);
+        if (!queryNorm) {
+            actualizarContadorBusqueda(null);
+            return { total: 0 };
+        }
+
+        const tokens = queryNorm.split(/\s+/).filter(Boolean);
+        const matches = [];
+
+        for (let i = 0; i <= currentWords.length - tokens.length; i++) {
+            let ok = true;
+            let prevItem = null;
+
+            for (let t = 0; t < tokens.length; t++) {
+                const item = currentWords[i + t];
+                if (!item) {
+                    ok = false;
+                    break;
+                }
+
+                if (normalizarTexto(item.Word) !== tokens[t]) {
+                    ok = false;
+                    break;
+                }
+
+                // Confirma que las palabras estén en el mismo renglón, para no
+                // encadenar palabras que casualmente quedaron seguidas en el
+                // arreglo pero pertenecen a líneas o bloques distintos.
+                if (prevItem) {
+                    const prevCenterY = (prevItem.Box.Min.Y + prevItem.Box.Max.Y) / 2;
+                    const curCenterY = (item.Box.Min.Y + item.Box.Max.Y) / 2;
+                    const lineHeight = item.Box.Max.Y - item.Box.Min.Y || 1;
+
+                    if (Math.abs(curCenterY - prevCenterY) > lineHeight * 0.6) {
+                        ok = false;
+                        break;
+                    }
+                }
+
+                prevItem = item;
+            }
+
+            if (ok) {
+                matches.push({ start: i, end: i + tokens.length - 1 });
+                i += tokens.length - 1; // no solapar coincidencias consecutivas
+            }
+        }
+
+        matches.forEach((m) => {
+            for (let idx = m.start; idx <= m.end; idx++) {
+                const span = ocrSpans[idx];
+                if (span) span.classList.add(...HIGHLIGHT_CLASSES);
+            }
+        });
+
+        if (matches.length > 0) {
+            for (let idx = matches[0].start; idx <= matches[0].end; idx++) {
+                const span = ocrSpans[idx];
+                if (span) span.classList.add(...ACTIVE_CLASSES);
+            }
+        }
+
+        actualizarContadorBusqueda(matches.length);
+        return { total: matches.length, matches };
+    }
+
+    // -- Conectar con el input de búsqueda (si existe en el Blade) --
+    const searchInput = document.getElementById("ocr-search-input");
+    const searchBtn = document.getElementById("ocr-search-btn");
+
+    function ejecutarBusqueda() {
+        if (!searchInput) return;
+        buscarEnPaginaActual(searchInput.value);
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener("click", ejecutarBusqueda);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                ejecutarBusqueda();
+            }
+        });
+
+        // Si borra el texto, limpia el resaltado de inmediato
+        searchInput.addEventListener("input", () => {
+            if (searchInput.value.trim() === "") {
+                limpiarResaltado();
+                actualizarContadorBusqueda(null);
+            }
+        });
+    }
+
+    // =========================
+    // COPIAR TEXTO CON SALTOS DE LÍNEA
+    // =========================
+
+    // Cada palabra es un <span> posicionado con "absolute": para el navegador
+    // no existe ningún salto de línea real entre ellas, así que una selección
+    // de varias líneas se copia como un solo renglón pegado. Aquí interceptamos
+    // el copiado y reconstruimos el texto agrupando por renglón (misma lógica
+    // de "misma línea" que usa la búsqueda), insertando "\n" entre líneas.
+    // Nota: esto reconstruye saltos de línea DENTRO de la página que se está
+    // viendo. Como el visor solo mantiene una página en el DOM a la vez, no
+    // es posible seleccionar texto que cruce dos páginas distintas.
+    document.addEventListener("copy", (e) => {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+            return;
+        }
+
+        // Solo intervenimos si la selección empieza o termina dentro del OCR
+        const anchorInLayer = ocrLayer.contains(selection.anchorNode);
+        const focusInLayer = ocrLayer.contains(selection.focusNode);
+        if (!anchorInLayer && !focusInLayer) {
+            return;
+        }
+
+        const lineas = [];
+        let lineaActual = [];
+        let prevItem = null;
+
+        ocrSpans.forEach((span, idx) => {
+            if (!span || !selection.containsNode(span, true)) {
+                return;
+            }
+
+            const item = currentWords[idx];
+            if (!item) return;
+
+            if (prevItem) {
+                const prevCenterY = (prevItem.Box.Min.Y + prevItem.Box.Max.Y) / 2;
+                const curCenterY = (item.Box.Min.Y + item.Box.Max.Y) / 2;
+                const lineHeight = item.Box.Max.Y - item.Box.Min.Y || 1;
+
+                if (Math.abs(curCenterY - prevCenterY) > lineHeight * 0.6) {
+                    lineas.push(lineaActual.join(" "));
+                    lineaActual = [];
+                }
+            }
+
+            lineaActual.push(item.Word);
+            prevItem = item;
+        });
+
+        if (lineaActual.length > 0) {
+            lineas.push(lineaActual.join(" "));
+        }
+
+        const texto = lineas.join("\n").trim();
+        if (texto) {
+            e.clipboardData.setData("text/plain", texto);
+            e.preventDefault();
+        }
+    });
 }

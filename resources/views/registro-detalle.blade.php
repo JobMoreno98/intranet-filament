@@ -264,6 +264,21 @@
                                     <button id="next-page" class="hidden"></button>
                                 </div>
 
+                                <!-- Búsqueda de texto OCR: solo resalta en la página que se está viendo -->
+                                <div class="flex flex-col items-center gap-1 w-full sm:w-auto">
+                                    <div
+                                        class="flex items-center gap-2 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full sm:w-64">
+                                        <x-heroicon-o-magnifying-glass class="w-4 h-4 text-gray-400 ml-2 shrink-0" />
+                                        <input id="ocr-search-input" type="text" placeholder="Buscar en esta página..."
+                                            class="flex-1 min-w-0 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent" />
+                                        <button id="ocr-search-btn"
+                                            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition shrink-0">
+                                            Buscar
+                                        </button>
+                                    </div>
+                                    <span id="ocr-search-count" class="text-[11px] text-zinc-400"></span>
+                                </div>
+
                                 <div
                                     class="flex items-center justify-center gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full lg:w-auto mx-auto">
                                     <button id="btn-zoom-out"
