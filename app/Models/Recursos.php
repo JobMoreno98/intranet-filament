@@ -72,6 +72,8 @@ class Recursos extends Model
             ->pluck('variable')
             ->values()
             ->all();
+
+            
         $filtros = array_intersect_key($metadata, array_flip($variables));
 
         if (!empty($filtros) && is_array($filtros)) {
