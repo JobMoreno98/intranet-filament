@@ -120,76 +120,8 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // =========================
     // RENDER
     // =========================
+    // (la función renderPage real, con soporte de OCR, está más abajo)
 
-    /*
-    async function renderPage(index) {
-        if (!paginas[index]) return;
-
-        if (rendering) return;
-
-        rendering = true;
-
-        viewer.classList.add("loading");
-
-        try {
-            currentPage = index;
-
-            const indicator = document.getElementById("page-indicator");
-
-            if (indicator) {
-                indicator.innerText = `${currentPage + 1} / ${paginas.length}`;
-            }
-
-            localStorage.setItem(STORAGE_KEY, index);
-
-            // reset zoom
-            panzoom.reset();
-
-            // limpiar canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // liberar bitmap anterior
-            if (currentBitmap) {
-                currentBitmap.close();
-
-                currentBitmap = null;
-            }
-
-            // obtener blob
-            const blob = await fetchBlob(index);
-
-            if (!blob) {
-                throw new Error("Blob vacío");
-            }
-
-            // bitmap acelerado GPU
-            const bitmap = await createImageBitmap(blob);
-
-            currentBitmap = bitmap;
-
-            // tamaño real
-            canvas.width = bitmap.width;
-
-            canvas.height = bitmap.height;
-
-            // render
-            ctx.drawImage(bitmap, 0, 0);
-
-            // preload alrededor
-            preload(index + 1);
-
-            preload(index + 2);
-
-            preload(index - 1);
-        } catch (err) {
-            console.error("Render error", err);
-        } finally {
-            viewer.classList.remove("loading");
-
-            rendering = false;
-        }
-    }
-*/
     // =========================
     // NAVEGACIÓN
     // =========================
@@ -403,7 +335,13 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
         try {
             currentPage = index;
-            // ... (Actualización de indicador y localStorage igual que antes) ...
+
+            const indicator = document.getElementById("page-indicator");
+            if (indicator) {
+                indicator.innerText = `${currentPage + 1} / ${paginas.length}`;
+            }
+
+            localStorage.setItem(STORAGE_KEY, index);
 
             panzoom.reset();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -658,31 +596,17 @@ export function initVisor({ paginas, recursoId = 0 }) {
     // Nota: esto reconstruye saltos de línea DENTRO de la página que se está
     // viendo. Como el visor solo mantiene una página en el DOM a la vez, no
     // es posible seleccionar texto que cruce dos páginas distintas.
-    document.addEventListener("copy", (e) => {
-        const selection = window.getSelection();
-        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
-            return;
-        }
-
-        // Solo intervenimos si la selección empieza o termina dentro del OCR
-        const anchorInLayer = ocrLayer.contains(selection.anchorNode);
-        const focusInLayer = ocrLayer.contains(selection.focusNode);
-        if (!anchorInLayer && !focusInLayer) {
-            return;
-        }
-
+    /**
+     * Toma una lista de items OCR (en el orden en que aparecen en ocr.json)
+     * y arma el texto agrupándolos por renglón, insertando "\n" entre líneas.
+     * La comparten tanto el copiado manual (selección) como el botón "Copiar página".
+     */
+    function construirTextoDesdeWords(words) {
         const lineas = [];
         let lineaActual = [];
         let prevItem = null;
 
-        ocrSpans.forEach((span, idx) => {
-            if (!span || !selection.containsNode(span, true)) {
-                return;
-            }
-
-            const item = currentWords[idx];
-            if (!item) return;
-
+        words.forEach((item) => {
             if (prevItem) {
                 const prevCenterY = (prevItem.Box.Min.Y + prevItem.Box.Max.Y) / 2;
                 const curCenterY = (item.Box.Min.Y + item.Box.Max.Y) / 2;
@@ -702,10 +626,61 @@ export function initVisor({ paginas, recursoId = 0 }) {
             lineas.push(lineaActual.join(" "));
         }
 
-        const texto = lineas.join("\n").trim();
+        return lineas.join("\n").trim();
+    }
+
+    document.addEventListener("copy", (e) => {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+            return;
+        }
+
+        // Solo intervenimos si la selección empieza o termina dentro del OCR
+        const anchorInLayer = ocrLayer.contains(selection.anchorNode);
+        const focusInLayer = ocrLayer.contains(selection.focusNode);
+        if (!anchorInLayer && !focusInLayer) {
+            return;
+        }
+
+        const seleccionadas = [];
+        ocrSpans.forEach((span, idx) => {
+            if (span && selection.containsNode(span, true) && currentWords[idx]) {
+                seleccionadas.push(currentWords[idx]);
+            }
+        });
+
+        const texto = construirTextoDesdeWords(seleccionadas);
         if (texto) {
             e.clipboardData.setData("text/plain", texto);
             e.preventDefault();
         }
     });
+
+    // -- Botón "Copiar página": copia TODO el texto OCR de la página actual
+    // de un clic, sin necesidad de seleccionar manualmente con el mouse --
+    const copyPageBtn = document.getElementById("ocr-copy-page-btn");
+
+    if (copyPageBtn) {
+        copyPageBtn.addEventListener("click", async () => {
+            if (!currentWords || currentWords.length === 0) return;
+
+            const texto = construirTextoDesdeWords(currentWords);
+            if (!texto) return;
+
+            try {
+                await navigator.clipboard.writeText(texto);
+
+                const original = copyPageBtn.textContent;
+                copyPageBtn.textContent = "¡Copiado!";
+                copyPageBtn.disabled = true;
+
+                setTimeout(() => {
+                    copyPageBtn.textContent = original;
+                    copyPageBtn.disabled = false;
+                }, 1500);
+            } catch (err) {
+                console.error("No se pudo copiar la página", err);
+            }
+        });
+    }
 }
