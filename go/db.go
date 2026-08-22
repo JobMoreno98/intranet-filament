@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
 	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/redis/go-redis/v9"
 	"path/filepath"
 	"strings"
 )
 
-func updateDatabase(itemID int, mainRaw string, thumbRaw string) {
+func updateDatabase(itemID int, mainRaw string, thumbRaw string, ocrTexto string) {
 	// 1. Convertir barras de Windows (\) a barras normales (/)
 	// filepath.ToSlash es más robusto para rutas de sistema
 
@@ -54,8 +56,8 @@ func updateDatabase(itemID int, mainRaw string, thumbRaw string) {
 
 	// Usamos el nombre de tabla que mencionaste antes: recursos_archvios (con el typo de la 'v')
 	// Si ya lo corregiste en la migración, cámbialo a recursos_archivos
-	query := "UPDATE recursos_archivos SET assets_procesados = ?, status = 'listo' WHERE id = ?"
-	_, err = db.Exec(query, string(assetsJSON), itemID)
+	query := "UPDATE recursos_archivos SET assets_procesados = ?, ocr = ?, status = 'listo' WHERE id = ?"
+	_, err = db.Exec(query, string(assetsJSON), ocrTexto, itemID)
 
 	if err != nil {
 		log.Printf("Error actualizando ID %d: %v", itemID, err)
@@ -114,7 +116,7 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 		log.Printf("Página %d insertada correctamente para recurso %d", orden, recursoID)
 	}
 }
-func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumbRaw string) {
+func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumbRaw string, ocrTexto string) (int64, error) {
 	main := cleanPathForLaravel(mainRaw)
 	thumb := cleanPathForLaravel(thumbRaw)
 
@@ -130,32 +132,41 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 	db, err := getDB()
 	if err != nil {
 		log.Printf("Error conectando: %v", err)
-		return
+		return 0, err
 	}
 	defer db.Close()
 
 	// Ajustamos la consulta para incluir ÚNICAMENTE path_original
 	// que es el que MySQL te está reclamando.
 	query := `INSERT INTO recursos_archivos 
-              (recursos_id, nombre_archivo_original, path_original, assets_procesados, orden, status, created_at, updated_at) 
-              VALUES (?, ?, ?, ?, ?, 'listo', NOW(), NOW())`
+              (recursos_id, nombre_archivo_original, path_original, assets_procesados, ocr, orden, status, created_at, updated_at) 
+              VALUES (?, ?, ?, ?, ?, ?, 'listo', NOW(), NOW())`
 
 	nombre := fmt.Sprintf("Página %d", pageNum)
 
-	// Ejecutamos con los 5 parámetros correspondientes a los 5 signos '?'
-	_, err = db.Exec(query,
+	// Ejecutamos con los parámetros correspondientes a los signos '?'
+	result, err := db.Exec(query,
 		task.RecursoID,
 		nombre,
 		pathOriginal, // <--- Este es el valor que faltaba
 		string(assetsJSON),
+		ocrTexto,
 		pageNum,
 	)
 
 	if err != nil {
 		log.Printf("Error insertando página %d: %v", pageNum, err)
-	} else {
-		log.Printf("Página %d del recurso %d insertada con path_original", pageNum, task.RecursoID)
+		return 0, err
 	}
+
+	log.Printf("Página %d del recurso %d insertada con path_original", pageNum, task.RecursoID)
+
+	nuevoID, idErr := result.LastInsertId()
+	if idErr != nil {
+		log.Printf("Página %d insertada pero no se pudo leer el ID nuevo: %v", pageNum, idErr)
+	}
+
+	return nuevoID, nil
 }
 func getDB() (*sql.DB, error) {
 	// Centraliza aquí tus credenciales y nombre de DB
@@ -230,4 +241,27 @@ func updateVideoAssets(archivoID int, m3u8Raw string, thumbRaw string) {
 
 func updateAudioAssets(archivoID int, m3u8Raw string, thumbRaw string) {
 	saveHlsAssets(archivoID, "audio", m3u8Raw, thumbRaw)
+}
+
+// getRedis centraliza la conexión a Redis, igual que getDB() para MySQL.
+// Debe apuntar a la misma instancia de Redis que ya usa Laravel.
+func getRedis() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: "127.0.0.1:6379",
+		DB:   0,
+	})
+}
+
+// pushOcrReindexQueue avisa a Laravel (vía la cola "ocr_reindex_queue") que el
+// recurso cambió su OCR y necesita reindexarse en Meilisearch. No es crítico:
+// si falla, solo se pierde ese reindexado puntual, así que no debe frenar
+// el procesamiento de la página.
+func pushOcrReindexQueue(recursoID int) {
+	rdb := getRedis()
+	defer rdb.Close()
+
+	ctx := context.Background()
+	if err := rdb.RPush(ctx, "ocr_reindex_queue", recursoID).Err(); err != nil {
+		log.Printf("No se pudo encolar recurso %d para reindexado: %v", recursoID, err)
+	}
 }

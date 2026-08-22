@@ -14,14 +14,6 @@ class RecursosArchivos extends Model
                 'assets_procesados' => 'array',
         ];
 
-        public function toSearchableArray()
-        {
-                return [
-                        'id' => $this->id,
-                        'recursos_id' => $this->recursos_id,
-                        'ocr' => $this->ocr,
-                ];
-        }
 
         public function recurso()
         {

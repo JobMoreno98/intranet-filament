@@ -87,71 +87,10 @@ func processImage(task ProcessingTask) {
 	// --- INICIO RUTINA OCR ESPACIAL ---
 	log.Printf(">>> Iniciando OCR para ID %d <<<", task.ArchivoID)
 
-	ocrSourcePath, ocrScale, tempOcrFile, err := prepareImageForOcr(cleanPath, outputDir)
+	textoOcr, err := runOcr(fmt.Sprintf("imagen ID %d", task.ArchivoID), cleanPath, outputDir)
 	if err != nil {
-		log.Printf("ADVERTENCIA OCR ID %d: no se pudo preprocesar (%v), se usa la imagen original", task.ArchivoID, err)
-		ocrSourcePath, ocrScale, tempOcrFile = cleanPath, 1.0, ""
-	}
-	if tempOcrFile != "" {
-		defer os.Remove(tempOcrFile)
-	}
-
-	client := gosseract.NewClient()
-	defer client.Close()
-
-	client.SetImage(ocrSourcePath)
-	client.SetLanguage("spa", "eng")
-	client.SetPageSegMode(gosseract.PSM_AUTO)
-	client.SetVariable("preserve_interword_spaces", "1")
-
-	// Extraer coordenadas por palabra
-	boxes, err := client.GetBoundingBoxes(gosseract.RIL_WORD)
-	if err != nil {
-		log.Printf("ADVERTENCIA OCR ID %d: No se pudo extraer texto (%v)", task.ArchivoID, err)
-	} else if len(boxes) > 0 {
-		const confianzaMinima = 55.0
-
-		limpias := make([]gosseract.BoundingBox, 0, len(boxes))
-		var textoPlano strings.Builder
-
-		for _, b := range boxes {
-			palabra := strings.TrimSpace(b.Word)
-
-			// Descarta ruido típico: vacíos, baja confianza, o "palabras"
-			// sin ninguna letra/dígito (puros símbolos sueltos = basura de OCR)
-			if palabra == "" || b.Confidence < confianzaMinima || !contieneLetraODigito(palabra) {
-				continue
-			}
-
-			// Si se preprocesó a mayor resolución, regresamos las coordenadas
-			// a la escala de la imagen ORIGINAL (la que se muestra en el visor)
-			if ocrScale != 1.0 {
-				b.Box.Min.X = int(float64(b.Box.Min.X) / ocrScale)
-				b.Box.Min.Y = int(float64(b.Box.Min.Y) / ocrScale)
-				b.Box.Max.X = int(float64(b.Box.Max.X) / ocrScale)
-				b.Box.Max.Y = int(float64(b.Box.Max.Y) / ocrScale)
-			}
-
-			b.Word = palabra
-			limpias = append(limpias, b)
-			textoPlano.WriteString(palabra)
-			textoPlano.WriteString(" ")
-		}
-
-		if len(limpias) > 0 {
-			// Guardar coordenadas en JSON
-			jsonData, jsonErr := json.Marshal(limpias)
-			if jsonErr == nil {
-				jsonPath := filepath.Join(outputDir, "ocr.json")
-				os.WriteFile(jsonPath, jsonData, 0644)
-				log.Printf("OCR JSON guardado en %s (%d palabras, %d descartadas)",
-					jsonPath, len(limpias), len(boxes)-len(limpias))
-			}
-
-			// Guardar texto plano (útil para búsquedas backend)
-			txtPath := filepath.Join(outputDir, "ocr.txt")
-			os.WriteFile(txtPath, []byte(strings.TrimSpace(textoPlano.String())), 0644)
-		}
+		log.Printf("ADVERTENCIA OCR ID %d: %v", task.ArchivoID, err)
+		textoOcr = ""
 	}
 	// --- FIN RUTINA OCR ---
 
@@ -185,7 +124,11 @@ func processImage(task ProcessingTask) {
 		"-quality", "70",
 		thumbPath).Run()
 
-	updateDatabase(task.ArchivoID, mainPath, thumbPath)
+	updateDatabase(task.ArchivoID, mainPath, thumbPath, textoOcr)
+
+	if textoOcr != "" {
+		pushOcrReindexQueue(task.RecursoID)
+	}
 }
 
 func processVideo(task ProcessingTask) {
@@ -422,6 +365,89 @@ func processAudio(task ProcessingTask) {
 	log.Printf("--- Finalizado AUDIO: %s ---", task.OutputName)
 }
 
+// runOcr corre Tesseract sobre una imagen (foto suelta o página renderizada de
+// un PDF), guarda las coordenadas por palabra en ocr.json y el texto plano en
+// ocr.txt dentro de outputDir, y devuelve ese texto plano para que el llamador
+// lo suba a la base de datos y dispare el reindexado en Meilisearch.
+// 'label' es solo para identificar la fuente en los logs (ID de imagen, o
+// "PDF X pág Y").
+func runOcr(label string, sourceImagePath, outputDir string) (string, error) {
+	ocrSourcePath, ocrScale, tempOcrFile, err := prepareImageForOcr(sourceImagePath, outputDir)
+	if err != nil {
+		log.Printf("ADVERTENCIA OCR %s: no se pudo preprocesar (%v), se usa la imagen original", label, err)
+		ocrSourcePath, ocrScale, tempOcrFile = sourceImagePath, 1.0, ""
+	}
+	if tempOcrFile != "" {
+		defer os.Remove(tempOcrFile)
+	}
+
+	client := gosseract.NewClient()
+	defer client.Close()
+
+	client.SetImage(ocrSourcePath)
+	client.SetLanguage("spa", "eng")
+	client.SetPageSegMode(gosseract.PSM_AUTO)
+	client.SetVariable("preserve_interword_spaces", "1")
+
+	// Extraer coordenadas por palabra
+	boxes, err := client.GetBoundingBoxes(gosseract.RIL_WORD)
+	if err != nil {
+		return "", fmt.Errorf("no se pudo extraer texto: %v", err)
+	}
+	if len(boxes) == 0 {
+		return "", nil
+	}
+
+	const confianzaMinima = 55.0
+
+	limpias := make([]gosseract.BoundingBox, 0, len(boxes))
+	var textoPlano strings.Builder
+
+	for _, b := range boxes {
+		palabra := strings.TrimSpace(b.Word)
+
+		// Descarta ruido típico: vacíos, baja confianza, o "palabras"
+		// sin ninguna letra/dígito (puros símbolos sueltos = basura de OCR)
+		if palabra == "" || b.Confidence < confianzaMinima || !contieneLetraODigito(palabra) {
+			continue
+		}
+
+		// Si se preprocesó a mayor resolución, regresamos las coordenadas
+		// a la escala de la imagen ORIGINAL (la que se muestra en el visor)
+		if ocrScale != 1.0 {
+			b.Box.Min.X = int(float64(b.Box.Min.X) / ocrScale)
+			b.Box.Min.Y = int(float64(b.Box.Min.Y) / ocrScale)
+			b.Box.Max.X = int(float64(b.Box.Max.X) / ocrScale)
+			b.Box.Max.Y = int(float64(b.Box.Max.Y) / ocrScale)
+		}
+
+		b.Word = palabra
+		limpias = append(limpias, b)
+		textoPlano.WriteString(palabra)
+		textoPlano.WriteString(" ")
+	}
+
+	if len(limpias) == 0 {
+		return "", nil
+	}
+
+	// Guardar coordenadas en JSON (usadas por el overlay del visor)
+	if jsonData, jsonErr := json.Marshal(limpias); jsonErr == nil {
+		jsonPath := filepath.Join(outputDir, "ocr.json")
+		os.WriteFile(jsonPath, jsonData, 0644)
+		log.Printf("OCR JSON guardado en %s (%d palabras, %d descartadas)",
+			jsonPath, len(limpias), len(boxes)-len(limpias))
+	}
+
+	texto := strings.TrimSpace(textoPlano.String())
+
+	// Guardar texto plano también en disco (compatibilidad con lo que ya tenías)
+	txtPath := filepath.Join(outputDir, "ocr.txt")
+	os.WriteFile(txtPath, []byte(texto), 0644)
+
+	return texto, nil
+}
+
 // prepareImageForOcr genera una copia optimizada para Tesseract (escala de
 // grises + contraste + nitidez) sin tocar la geometría, para que las
 // coordenadas del OCR sigan alineadas con la imagen original. Si la imagen
@@ -562,7 +588,15 @@ func processPdf(task ProcessingTask) {
 			log.Printf("Error Magick pág %d: %v", i, err)
 		}
 
-		// 4. Generar Thumbnail (desde el WebP ya procesado)
+		// 4. OCR de la página (usa el PNG sin marca de agua, más limpio para Tesseract,
+		// justo antes de borrarlo)
+		textoOcr, ocrErr := runOcr(fmt.Sprintf("PDF recurso %d pág %d", task.RecursoID, i), actualPng, pageDir)
+		if ocrErr != nil {
+			log.Printf("ADVERTENCIA OCR recurso %d pág %d: %v", task.RecursoID, i, ocrErr)
+			textoOcr = ""
+		}
+
+		// 5. Generar Thumbnail (desde el WebP ya procesado)
 		exec.Command(binary, finalWebp,
 			"-thumbnail", "200x200^",
 			"-gravity", "center",
@@ -570,14 +604,23 @@ func processPdf(task ProcessingTask) {
 			"-quality", "70",
 			thumbPath).Run()
 
-		// 5. Limpieza: Eliminar el PNG temporal para ahorrar espacio
+		// 6. Limpieza: Eliminar el PNG temporal para ahorrar espacio
 		os.Remove(actualPng)
 
-		// 6. Registro en Base de Datos
+		// 7. Registro en Base de Datos
 		if i == 1 {
-			updateDatabase(task.ArchivoID, finalWebp, thumbPath)
+			updateDatabase(task.ArchivoID, finalWebp, thumbPath, textoOcr)
 		} else {
-			createNewPageRecord(task, i, finalWebp, thumbPath)
+			if _, err := createNewPageRecord(task, i, finalWebp, thumbPath, textoOcr); err != nil {
+				log.Printf("No se pudo insertar la página %d del recurso %d: %v", i, task.RecursoID, err)
+			}
+		}
+
+		// El texto se junta por libro completo en Meilisearch (no por página),
+		// así que basta con avisarle a Laravel el recursos_id; el worker de
+		// Laravel hace debounce para no reindexar una vez por cada página.
+		if textoOcr != "" {
+			pushOcrReindexQueue(task.RecursoID)
 		}
 	}
 	log.Printf("--- Finalizado PDF: %d ---", task.RecursoID)

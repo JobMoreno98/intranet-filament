@@ -19,58 +19,33 @@ use Meilisearch\Contracts\SearchQuery;
 
 class ColeccionesConsultaController extends Controller
 {
+    /**
+     * Cliente Meilisearch compartido por los métodos que hacen búsquedas,
+     * en vez de instanciar uno nuevo en cada método.
+     */
+    protected MeilisearchClient $meili;
+
+    public function __construct()
+    {
+        $this->meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
+    }
+
     public function index(Request $request)
     {
-        /*
-        $colecciones = Coleccion::from('coleccions as c')
-            ->select('c.*')
-            ->join(
-                DB::raw('(
-        WITH RECURSIVE colecciones_tree AS (
-            SELECT id, CAST(TRIM(nombre) AS CHAR(500)) as path_tree
-            FROM coleccions
-            WHERE parent_id IS NULL
-
-            UNION ALL
-
-            SELECT child.id, CAST(CONCAT(parent.path_tree, " > ", TRIM(child.nombre)) AS CHAR(500))
-            FROM coleccions child
-            INNER JOIN colecciones_tree parent ON child.parent_id = parent.id
-        )
-        SELECT id, path_tree FROM colecciones_tree
-    ) as tree'),
-                'c.id',
-                '=',
-                'tree.id',
-            )
-            // IMPORTANTE: Solo nos interesan los padres en la lista principal
-            ->whereNull('c.parent_id')
-            // Cargamos de golpe todos sus hijos (y si quieres, ordenados)
-            ->with([
-                'children' => function ($query) {
-                    $query->orderBy('nombre', 'ASC');
-                },
-            ])
-            ->orderBy('tree.path_tree', 'ASC')
-            ->paginate(5);
-*/
-
         $areas = Area::paginate(6);
         return view('home', compact('areas'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, Coleccion $coleccion)
     {
-        if (!$coleccion) {
-            abort(404, 'La colección no existe.');
-        }
+        // Nota: con route-model binding tipado, Laravel ya lanza 404 automáticamente
+        // si $coleccion no existe, así que no hace falta comprobarlo aquí.
 
         $acervosDisponibles = $coleccion->items()->whereNotNull('acervo_id')->select('acervo_id')->distinct()->with('acervo')->get();
 
         $resultados = [];
         $term = $request->input('q', '');
-
-        $meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
+        $esquema = [];
 
         // Filtro base obligatorio
         $meiliFilters = ["coleccion_id = {$coleccion->id}"];
@@ -79,8 +54,11 @@ class ColeccionesConsultaController extends Controller
             $acervoIdActual = $request->input('acervo_id');
             $meiliFilters[] = "acervo_id = {$acervoIdActual}";
 
-            // Consultamos el esquema dinámico con tu modelo
-            $config = \App\Models\TipoAcervo::where('id', $acervoIdActual)->first();
+            // El esquema de un TipoAcervo casi no cambia: lo cacheamos para no
+            // pegarle a la base de datos en cada búsqueda filtrada.
+            $config = Cache::remember("tipo_acervo_esquema_{$acervoIdActual}", 3600, function () use ($acervoIdActual) {
+                return TipoAcervo::find($acervoIdActual);
+            });
 
             if ($config && isset($config->esquema)) {
                 $esquema = is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
@@ -91,20 +69,31 @@ class ColeccionesConsultaController extends Controller
                 // Mapeamos los filtros extras de la URL si el usuario los escribió
                 foreach ($request->only($camposAtributos) as $campo => $valor) {
                     if ($valor !== null && $valor !== '') {
-                        $meiliFilters[] = "metadata.{$campo} = \"{$valor}\"";
+                        $meiliFilters[] = "metadata.{$campo} = \"" . $this->escaparFiltroMeili($valor) . "\"";
                     }
                 }
             }
         }
 
-        try {
-            // La consulta ahora se ejecutará al instante sin errores de "not filterable"
-            $searchQuery = new SearchQuery()->setIndexUid('recursos')->setQuery($term)->setLimit(300)->setFilter($meiliFilters);
+        $perPage = 14;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $totalHits = 0;
 
-            $response = $meili->multiSearch([$searchQuery]);
+        try {
+            // Pedimos solo la página actual a Meilisearch (offset/limit nativos)
+            // en vez de traer 300 resultados y cortarlos en PHP.
+            $searchQuery = new SearchQuery()
+                ->setIndexUid('recursos')
+                ->setQuery($term)
+                ->setOffset(($currentPage - 1) * $perPage)
+                ->setLimit($perPage)
+                ->setFilter($meiliFilters);
+
+            $response = $this->meili->multiSearch([$searchQuery]);
             $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
 
             foreach ($results as $indexResult) {
+                $totalHits = $indexResult['estimatedTotalHits'] ?? $indexResult['totalHits'] ?? count($indexResult['hits'] ?? []);
                 $hits = $indexResult['hits'] ?? [];
                 foreach ($hits as $hit) {
                     $resultados[] = (object) [
@@ -124,24 +113,19 @@ class ColeccionesConsultaController extends Controller
             Log::error('Error en búsqueda automática por Acervo en Meilisearch: ' . $e->getMessage());
         }
 
-        $perPage = 14;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = array_slice($resultados, ($currentPage - 1) * $perPage, $perPage);
-
-        $data = new LengthAwarePaginator($currentItems, count($resultados), $perPage, $currentPage, [
+        // $resultados ya es solo la página actual, no hace falta array_slice
+        $data = new LengthAwarePaginator($resultados, $totalHits, $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
         $data->appends($request->all())->onEachSide(0);
 
         try {
-            \Illuminate\Support\Facades\Redis::hincrby('analytics:coleccion_vistas', $coleccion->id, 1);
+            Redis::hincrby('analytics:coleccion_vistas', $coleccion->id, 1);
             $hoy = now()->format('Y-m-d');
-            \Illuminate\Support\Facades\Redis::incr("analytics:coleccion_vistas:{$hoy}");
+            Redis::incr("analytics:coleccion_vistas:{$hoy}");
         } catch (\Exception $e) {
         }
-
-
 
         return view('coleccion', [
             'data' => $data,
@@ -149,11 +133,35 @@ class ColeccionesConsultaController extends Controller
             'coleccion' => $coleccion,
             'acervosDisponibles' => $acervosDisponibles,
             'title' => $coleccion->nombre ?? 'Colección',
-            'header' => isset($esquema) ? collect($esquema)
+            'header' => collect($esquema)
                 ->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')
                 ->pluck('variable')
-                ->toArray() : []
+                ->toArray(),
         ]);
+    }
+
+    /**
+     * Escapa comillas dobles y backslashes para poder interpolar un valor
+     * de forma segura dentro de un filtro de Meilisearch.
+     */
+    private function escaparFiltroMeili(string $valor): string
+    {
+        return str_replace(['\\', '"'], ['\\\\', '\\"'], $valor);
+    }
+
+    /**
+     * Sanitiza un valor resaltado por Meilisearch (con marcas <em>) y le aplica
+     * las clases de Tailwind para mostrarlo en la vista de resultados.
+     */
+    private function resaltarCoincidencia(string $valorFormateado): string
+    {
+        $cleanValue = htmlspecialchars($valorFormateado, ENT_QUOTES, 'UTF-8');
+
+        return str_replace(
+            ['&lt;em&gt;', '&lt;/em&gt;'],
+            ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'],
+            $cleanValue
+        );
     }
 
     public function buscador(Request $request)
@@ -169,46 +177,37 @@ class ColeccionesConsultaController extends Controller
         $resultados = [];
 
         if ($request->filled('q')) {
-            // 1. Inicializamos el cliente leyendo de tu .env de forma segura
-            $meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
-
-            // Obtener la metadata de las colecciones desde tu MySQL
+            // Índices reales sobre los que buscamos (el '' original generaba
+            // una búsqueda vacía contra un índice inexistente en cada request)
             $coleccionesMeta = ['coleccions', 'recursos'];
 
-            // 2. Construir las consultas usando las clases oficiales del SDK
+            // Construir las consultas usando las clases oficiales del SDK
             $queries = [];
-            foreach ($coleccionesMeta as $key => $meta) {
+            foreach ($coleccionesMeta as $meta) {
                 $searchQuery = new SearchQuery()
                     ->setIndexUid($meta)
                     ->setQuery($term)
-                    //->setLimit(20)
+                    ->setLimit(150)
                     ->setAttributesToHighlight(['*'])
                     ->setAttributesToCrop(['descripcion', 'texto', 'biografia']) // Los campos largos que uses
                     ->setCropLength(25); // Trae aproximadamente unas 25 palabras alrededor del 'em'
 
                 if (!empty($acervo) && $meta === 'recursos') {
-                    $searchQuery->setFilter(["acervo_id = $acervo"]);
+                    $searchQuery->setFilter(["acervo_id = " . $this->escaparFiltroMeili((string) $acervo)]);
                 }
                 $queries[] = $searchQuery;
             }
 
-            //dd($queries);
-
             try {
-                // 3. Enviamos el lote unificado a Meilisearch
-                $response = $meili->multiSearch($queries);
-
+                // Enviamos el lote unificado a Meilisearch
+                $response = $this->meili->multiSearch($queries);
                 // Normalizamos la respuesta a un arreglo nativo para ganar consistencia y velocidad
                 $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
-                //dd($results);
-
                 foreach ($results as $indexResult) {
                     $hits = $indexResult['hits'] ?? [];
                     $indexUid = $indexResult['indexUid'] ?? 'desconocido';
-
                     foreach ($hits as $hit) {
                         $formatted = $hit['_formatted'] ?? [];
-
                         // 1. SALVAVIDAS: En lugar de un texto estático, usamos la descripción como base
                         // Si el match fue en un ID o Array, el usuario verá el inicio de la descripción
                         $descripcionBase = $hit['descripcion'] ?? ($hit['resumen'] ?? 'Sin descripción disponible');
@@ -219,16 +218,11 @@ class ColeccionesConsultaController extends Controller
                                 if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids'])) {
                                     continue;
                                 }
-
                                 // 2. CASO ESPECIAL: Si es el array de los nombres de los padres (Escalera)
                                 if ($campo === 'parent_names' && is_array($valorFormateado)) {
                                     foreach ($valorFormateado as $nombrePadre) {
                                         if (str_contains($nombrePadre, '<em>')) {
-                                            // Sanitizamos y resaltamos el nombre del padre encontrado
-                                            $cleanValue = htmlspecialchars($nombrePadre, ENT_QUOTES, 'UTF-8');
-                                            $cleanValue = str_replace(['&lt;em&gt;', '&lt;/em&gt;'], ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'], $cleanValue);
-
-                                            $snippet = 'Perteneciente a la colección padre: ... ' . $cleanValue . ' ...';
+                                            $snippet = 'Perteneciente a la colección padre: ... ' . $this->resaltarCoincidencia($nombrePadre) . ' ...';
                                             break 2;
                                         }
                                     }
@@ -236,27 +230,16 @@ class ColeccionesConsultaController extends Controller
 
                                 // 3. CASO NORMAL: Si es un campo de texto plano (Nombre, Descripción, etc.)
                                 if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
-                                    $cleanValue = htmlspecialchars($valorFormateado, ENT_QUOTES, 'UTF-8');
-                                    $cleanValue = str_replace(['&lt;em&gt;', '&lt;/em&gt;'], ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'], $cleanValue);
-
-                                    $snippet = 'En [' . ucfirst($campo) . ']: ... ' . $cleanValue . ' ...';
+                                    $snippet = 'En [' . ucfirst($campo) . ']: ... ' . $this->resaltarCoincidencia($valorFormateado) . ' ...';
                                     break; // Encontró coincidencia en texto plano, rompemos bucle
                                 }
                             }
 
-
                             if (isset($formatted['metadata']) && is_array($formatted['metadata'])) {
                                 foreach ($formatted['metadata'] as $clave => $valorFormateado) {
                                     if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
-                                        $cleanValue = htmlspecialchars($valorFormateado, ENT_QUOTES, 'UTF-8');
-                                        $cleanValue = str_replace(
-                                            ['&lt;em&gt;', '&lt;/em&gt;'],
-                                            ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'],
-                                            $cleanValue
-                                        );
-
-                                        // 👇 Aquí armas la salida completa con la clave y el valor resaltado
-                                        $snippet = 'Valor encontrado en: <br/> ' . ucfirst($clave) . ': ' . $cleanValue;
+                                        // Aquí armas la salida completa con la clave y el valor resaltado
+                                        $snippet = 'Valor encontrado en: <br/> ' . ucfirst($clave) . ': ' . $this->resaltarCoincidencia($valorFormateado);
                                         break;
                                     }
                                 }
@@ -314,14 +297,20 @@ class ColeccionesConsultaController extends Controller
 
     public function showRegistro(Request $request, $tipo, $id)
     {
-        // 1. Validar que la tabla exista por seguridad
+        // Nota: findOrFail() ya lanza 404 automáticamente si no existe,
+        // así que no hace falta un chequeo adicional después.
 
-        $recurso = Recursos::findOrFail($id);
-        //dd($recurso);
-
-        if (!$recurso) {
-            abort(404, 'El registro no fue encontrado.');
-        }
+        // Una sola query (cacheada) trayendo también 'archivos' y 'acervo',
+        // en vez de consultar Recursos dos veces (una suelta y otra dentro del cache).
+        $recurso = Cache::remember("recurso_con_relaciones_{$id}", 1800, function () use ($id) {
+            return Recursos::with([
+                'archivos' => function ($q) {
+                    $q->orderBy('orden');
+                },
+                'acervo',
+                'coleccion',
+            ])->findOrFail($id);
+        });
 
         try {
             // 1. Incrementa el contador del recurso ID dentro del Hash (Esto ya te funciona)
@@ -347,19 +336,9 @@ class ColeccionesConsultaController extends Controller
             Log::error('Error registrando analítica en visor: ' . $e->getMessage());
         }
 
-        $omitir = ['tipo_media', 'IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'updated_at', 'deleted_at', 'vistas_count', 'hash_archivo', 'assets_procesados', 'status'];
+        $omitir = ['tipo_media', 'IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'deleted_at', 'vistas_count', 'hash_archivo', 'assets_procesados', 'status'];
 
-        $id = $recurso->id;
-
-        $recursoData = Cache::remember("recurso_view_data_{$id}", 1800, function () use ($id) {
-            $recurso = Recursos::with([
-                'archivos' => function ($q) {
-                    $q->orderBy('orden');
-                },
-            ])->findOrFail($id);
-
-            return $recurso->toArray();
-        });
+        $recursoData = $recurso->toArray();
 
 
         $esquema = [];
@@ -420,7 +399,6 @@ class ColeccionesConsultaController extends Controller
         */
 
         // Tu diccionario de etiquetas amigables
-
 
         $labels = collect($esquema)
             ->whereIn('visible', ['Recuperable', 'Adicional'])

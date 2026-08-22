@@ -49,8 +49,8 @@ class RecursoArchivoObserver
 
     private function clearCache(RecursosArchivos $archivo)
     {
-        // Borra la lista completa del visor
-        Cache::forget("recurso_view_data_{$archivo->recursos_id}");
+        // Borra la lista completa del visor (misma key que usa showRegistro() en el controlador)
+        Cache::forget("recurso_con_relaciones_{$archivo->recursos_id}");
 
         // Borra la metadata individual del stream
         Cache::forget("archivo_metadata_{$archivo->id}");

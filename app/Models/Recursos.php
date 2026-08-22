@@ -39,14 +39,18 @@ class Recursos extends Model
 
     public function toSearchableArray(): array
     {
+        // Cargamos la colección de páginas una sola vez (ya viene ordenada
+        // por 'orden' gracias a la relación) y la reusamos abajo para 'archivos' y 'ocr'.
+        $paginas = $this->archivos;
+
         // 1. Cargamos datos básicos planos y limpios
         $array = [
             'id'          => (int) $this->id,
-            'acervo'      => $this->acervo->nombre,
+            'acervo'      => $this->acervo->nombre ?? null,
             'acervo_id'      => $this->acervo_id,
-            'coleccion'       => $this->coleccion->nombre,
+            'coleccion'       => $this->coleccion->nombre ?? null,
             'status'      => $this->status,
-            'archivos' =>  $this->archivos()->exists(),
+            'archivos' =>  $paginas->isNotEmpty(),
         ];
 
         // 2. Herencia de búsqueda: Indexamos datos de la Colección a la que pertenece
@@ -67,7 +71,7 @@ class Recursos extends Model
         // Si el CMS guarda ['editorial' => 'Editorial UdeG', 'paginas' => 350], Meilisearch lo mapeará de inmediato
         $metadata = $this->metadata;
 
-        $variables = collect($this->acervo->esquema)
+        $variables = collect($this->acervo->esquema ?? [])
             ->whereIn('visible', ['Recuperable','Adicional'])
             ->pluck('variable')
             ->values()
@@ -90,6 +94,14 @@ class Recursos extends Model
             $array['metadata'] = '';
             $array['metadata_text'] = '';
         }
+
+        // 4. OCR: concatenamos el texto de todas las páginas para que la
+        // búsqueda encuentre el libro completo por su contenido interno.
+        // Las páginas sin OCR (aún no procesadas, o vacías) se ignoran.
+        $array['ocr'] = $paginas
+            ->pluck('ocr')
+            ->filter()
+            ->implode(' ');
 
         return $array;
     }
