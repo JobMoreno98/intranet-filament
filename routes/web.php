@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ChunkUploadController;
 use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\RecursosController;
@@ -25,6 +26,38 @@ Route::get('/coleccion/{coleccion}', [ColeccionesConsultaController::class, 'sho
 
 
 Route::get('/coleccion/{tabla}/{id}', [RecursosController::class, 'publico'])->name('coleccion.individual');
+
+
+
+Route::get('/blog', function () {
+    $tagsDisponibles = \App\Models\Blog::pluck('tags')
+        ->flatten()
+        ->unique()
+        ->values();
+        
+    return view('blogs.index', [
+        'tagsDisponibles' => $tagsDisponibles,
+        'recientes'       => \App\Models\Blog::latest()->take(4)->get(),
+    ]);
+})->name('blog.index');
+
+Route::get('/blog/{blog:slug}', function (\App\Models\Blog $blog) {
+    $tags = \App\Models\Blog::pluck('tags')->flatten()->unique()->values();
+    return view('blogs.show', [
+        'post'            => $blog,
+        'tagsDisponibles' => \App\Models\Blog::pluck('tags')->flatten()->unique()->values(),
+        'recientes'       => \App\Models\Blog::where('id', '!=', $blog->id)->latest()->take(4)->get(),
+        'relacionados'    => \App\Models\Blog::where('id', '!=', $blog->id)
+            ->where(function ($q) use ($blog) {
+                foreach ($blog->tags ?? [] as $t) {
+                    $q->orWhereJsonContains('tags', $t);
+                }
+            })
+            ->latest()->take(3)->get(),
+    ]);
+})->name('blog.show');
+
+
 
 Route::resource('/areas', AreaController::class)->names('area');
 

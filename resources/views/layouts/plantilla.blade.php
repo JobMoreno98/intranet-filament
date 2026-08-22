@@ -100,7 +100,8 @@
 
 <body class="antialiased">
 
-    <nav x-data="{ mobileMenuOpen: false }" class="bg-white border-b border-gray-200 dark:border-neutral-700 dark:bg-neutral-600">
+    <nav x-data="{ mobileMenuOpen: false }"
+        class="bg-white border-b border-gray-200 dark:border-neutral-700 dark:bg-neutral-600">
 
         <div class="flex items-center justify-between w-full h-16 px-4 mx-auto">
 
@@ -115,6 +116,8 @@
                     class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Inicio</a>
                 <a href="{{ route('fondos.index') }}"
                     class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
+                <a href="{{ route('blog.index') }}"
+                    class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Blog</a>
             </div>
 
             <div class="flex items-center gap-2 md:gap-4">
@@ -214,8 +217,7 @@
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                     <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                                 </div>
-                                <input type="text" name="q" placeholder="Buscar contenido..."
-                                    class="dark:bg-stone-700 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border  bg-white 
+                                <input type="text" name="q" placeholder="Buscar contenido..." class="dark:bg-stone-700 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border  bg-white 
                                      focus:ring-red-100 focus:border-red-700 outline-none transition">
                             </div>
                         </div>
@@ -236,10 +238,8 @@
                     <div class="w-full overflow-x-auto scrollbar-none mt-1 bg-white rounded-xl mt-3 dark:bg-stone-700">
                         <div class="relative flex min-w-max items-stretch h-12">
 
-                            <input type="radio" id="d-todas" class="hidden" checked
-                                @click="activeIndexDesktop = 0">
-                            <label for="d-todas"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 
+                            <input type="radio" id="d-todas" class="hidden" checked @click="activeIndexDesktop = 0">
+                            <label for="d-todas" class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 
                                 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 0 ? 'text-white' : 'text-zinc-600'">
                                 Todas
@@ -296,8 +296,7 @@
                     <div
                         class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white dark:bg-stone-700 dark:text-white rounded-xl shadow-sm">
                         <div class="relative flex min-w-max items-stretch h-12">
-                            <input type="radio" id="m-todas" class="hidden" checked
-                                @click="activeIndexMobile = 0">
+                            <input type="radio" id="m-todas" class="hidden" checked @click="activeIndexMobile = 0">
                             <label for="m-todas"
                                 class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexMobile === 0 ? 'text-white' : 'text-zinc-600'">
@@ -309,7 +308,7 @@
                                 <label for="m-{{ $item->nombre }}"
                                     class="boder boder-guinda dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                     :class="activeIndexMobile === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
-                                     <flux:icon name="{{ $item->icono }}" class="mx-1 size-4" />
+                                    <flux:icon name="{{ $item->icono }}" class="mx-1 size-4" />
                                     {{ $item->nombre }}
                                 </label>
                             @endforeach
@@ -326,11 +325,11 @@
             </form>
         </div>
 
-        {{-- 
+        {{--
         <div class="-z-10 absolute top-0 w-full h-[200px] bg-gradiant">
 
         </div>
-         --}}
+        --}}
     </section>
 
 
@@ -515,8 +514,8 @@
                         this.activeAccordion = (this.activeAccordion == id) ? '' : id
                     }
                 }">
-                    <div class="cursor-pointer group text-gray-600 hover:text-zinc-500" x-data="{ id: $id('accordion') }"
-                        :class="{
+                    <div class="cursor-pointer group text-gray-600 hover:text-zinc-500"
+                        x-data="{ id: $id('accordion') }" :class="{
                             'text-zinc-900': activeAccordion ==
                                 id,
                             'text-gray-600 hover:text-zinc-500': activeAccordion != id
@@ -525,9 +524,9 @@
                             class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
                             @click="setActiveAccordion(id)">
                             <span>How does bookme work?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
-                                stroke-width="1.5" :class="{ '-rotate-[45deg]': activeAccordion == id }">
+                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
+                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
                                 <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </button>
@@ -540,8 +539,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500" x-data="{ id: $id('accordion') }"
-                        :class="{
+                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
+                        x-data="{ id: $id('accordion') }" :class="{
                             'text-zinc-900': activeAccordion ==
                                 id,
                             'text-gray-600 hover:text-zinc-500': activeAccordion != id
@@ -550,9 +549,9 @@
                             class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
                             @click="setActiveAccordion(id)">
                             <span>What type of bookme?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
-                                stroke-width="1.5" :class="{ '-rotate-[45deg]': activeAccordion == id }">
+                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
+                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
                                 <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </button>
@@ -565,8 +564,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500" x-data="{ id: $id('accordion') }"
-                        :class="{
+                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
+                        x-data="{ id: $id('accordion') }" :class="{
                             'text-zinc-900': activeAccordion ==
                                 id,
                             'text-gray-600 hover:text-zinc-500': activeAccordion != id
@@ -575,9 +574,9 @@
                             class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
                             @click="setActiveAccordion(id)">
                             <span>Can I cancel my subscription?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
-                                stroke-width="1.5" :class="{ '-rotate-[45deg]': activeAccordion == id }">
+                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
+                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
                                 <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </button>
@@ -590,8 +589,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500" x-data="{ id: $id('accordion') }"
-                        :class="{
+                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
+                        x-data="{ id: $id('accordion') }" :class="{
                             'text-zinc-900': activeAccordion ==
                                 id,
                             'text-gray-600 hover:text-zinc-500': activeAccordion != id
@@ -600,9 +599,9 @@
                             class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
                             @click="setActiveAccordion(id)">
                             <span>is bookme safe?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
-                                stroke-width="1.5" :class="{ '-rotate-[45deg]': activeAccordion == id }">
+                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
+                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
                                 <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </button>
@@ -615,8 +614,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500" x-data="{ id: $id('accordion') }"
-                        :class="{
+                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
+                        x-data="{ id: $id('accordion') }" :class="{
                             'text-zinc-900': activeAccordion ==
                                 id,
                             'text-gray-600 hover:text-zinc-500': activeAccordion != id
@@ -625,9 +624,9 @@
                             class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
                             @click="setActiveAccordion(id)">
                             <span>Can I use 2 account?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
-                                stroke-width="1.5" :class="{ '-rotate-[45deg]': activeAccordion == id }">
+                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
+                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
                                 <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </button>
@@ -640,8 +639,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500" x-data="{ id: $id('accordion') }"
-                        :class="{
+                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
+                        x-data="{ id: $id('accordion') }" :class="{
                             'text-zinc-900': activeAccordion ==
                                 id,
                             'text-gray-600 hover:text-zinc-500': activeAccordion != id
@@ -650,9 +649,9 @@
                             class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
                             @click="setActiveAccordion(id)">
                             <span>Is bookme a free service?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
-                                stroke-width="1.5" :class="{ '-rotate-[45deg]': activeAccordion == id }">
+                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
+                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
                                 <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </button>
@@ -670,7 +669,7 @@
         </div>
     </section>
 
---}}
+    --}}
 
     <footer class="dark:bg-neutral-600">
         <div class="px-2 pt-10 mx-auto max-w-7xl ">
@@ -690,7 +689,7 @@
                         Teléfono 33 3836 4530
                     </p>
                 </div>
-                {{-- 
+                {{--
                 <nav class="ml-0 md:ml-auto">
                     <ul class="flex flex-row gap-4">
                         <li>
@@ -707,7 +706,7 @@
                         </li>
                     </ul>
                 </nav>
-                 --}}
+                --}}
             </div>
 
             <div class="flex flex-col pt-12 ">

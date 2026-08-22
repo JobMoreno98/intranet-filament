@@ -76,6 +76,7 @@ class Coleccion extends Model
             $model->slug = Str::slug($model->nombre);
         });
     }
+    
     public function getRouteKeyName()
     {
         return 'slug';

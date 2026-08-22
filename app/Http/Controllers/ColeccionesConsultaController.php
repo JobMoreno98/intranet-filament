@@ -55,7 +55,7 @@ class ColeccionesConsultaController extends Controller
             ->paginate(5);
 */
 
-        $areas = Area::where('parent_id', null)->paginate(6);
+        $areas = Area::paginate(6);
         return view('home', compact('areas'))->with(['title' => 'Inicio']);
     }
 
