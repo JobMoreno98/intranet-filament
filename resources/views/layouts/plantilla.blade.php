@@ -113,7 +113,7 @@
             <div class="hidden lg:flex items-center h-full ms-6 space-x-1">
                 <a href="{{ route('home') }}"
                     class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Inicio</a>
-                <a href="{{ route('home') }}"
+                <a href="{{ route('fondos.index') }}"
                     class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
             </div>
 

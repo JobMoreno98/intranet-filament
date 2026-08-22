@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\Coleccion;
 use App\Models\ColeccionesConsulta;
 use App\Models\Recursos;
@@ -20,6 +21,7 @@ class ColeccionesConsultaController extends Controller
 {
     public function index(Request $request)
     {
+        /*
         $colecciones = Coleccion::from('coleccions as c')
             ->select('c.*')
             ->join(
@@ -28,9 +30,9 @@ class ColeccionesConsultaController extends Controller
             SELECT id, CAST(TRIM(nombre) AS CHAR(500)) as path_tree
             FROM coleccions
             WHERE parent_id IS NULL
-            
+
             UNION ALL
-            
+
             SELECT child.id, CAST(CONCAT(parent.path_tree, " > ", TRIM(child.nombre)) AS CHAR(500))
             FROM coleccions child
             INNER JOIN colecciones_tree parent ON child.parent_id = parent.id
@@ -51,8 +53,10 @@ class ColeccionesConsultaController extends Controller
             ])
             ->orderBy('tree.path_tree', 'ASC')
             ->paginate(5);
+*/
 
-        return view('home', compact('colecciones'))->with(['title' => 'Inicio']);
+        $areas = Area::where('parent_id', null)->paginate(6);
+        return view('home', compact('areas'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, Coleccion $coleccion)
@@ -157,7 +161,7 @@ class ColeccionesConsultaController extends Controller
 
         $request->validate([
             'q' => ['required', 'string', 'min:1'],
-            'acervo_id' =>  ['nullable', 'exists:tipo_acervos,id'],
+            'acervo_id' => ['nullable', 'exists:tipo_acervos,id'],
         ]);
 
         $term = $request->input('q');
@@ -260,25 +264,25 @@ class ColeccionesConsultaController extends Controller
                         }
                         if ($indexUid === 'coleccions') {
                             $resultados[] = [
-                                'index'          => $indexUid,
-                                'tipo'           => $hit['tipo'] ?? 'coleccion',
+                                'index' => $indexUid,
+                                'tipo' => $hit['tipo'] ?? 'coleccion',
                                 'titulo_resultado' => $hit['nombre'] ?? 'Colección sin nombre',
-                                'coincidencia'   => $snippet,
-                                'registro_id'    => $hit['id'] ?? null,
-                                'slug'           => $hit['slug'] ?? null,
-                                'descripcion'    => $hit['descripcion'] ?? null,
+                                'coincidencia' => $snippet,
+                                'registro_id' => $hit['id'] ?? null,
+                                'slug' => $hit['slug'] ?? null,
+                                'descripcion' => $hit['descripcion'] ?? null,
                             ];
                         } else { // recursos
                             $resultados[] = [
-                                'index'          => $indexUid,
-                                'acervo'         => $hit['acervo'] ?? null,
-                                'coleccion'      => $hit['coleccion'] ?? null,
-                                'tipo'           => $hit['tipo'] ?? 'documento',
+                                'index' => $indexUid,
+                                'acervo' => $hit['acervo'] ?? null,
+                                'coleccion' => $hit['coleccion'] ?? null,
+                                'tipo' => $hit['tipo'] ?? 'documento',
                                 'titulo_resultado' => $hit['titulo'] ?? ($hit['nombre'] ?? 'Registro sin título'),
-                                'coincidencia'   => $snippet,
-                                'registro_id'    => $hit['id'] ?? null,
-                                'slug'           => $hit['slug'] ?? null,
-                                'metadata'       => $hit['metadata'] ?? [],
+                                'coincidencia' => $snippet,
+                                'registro_id' => $hit['id'] ?? null,
+                                'slug' => $hit['slug'] ?? null,
+                                'metadata' => $hit['metadata'] ?? [],
                             ];
                         }
                     }
@@ -396,7 +400,7 @@ class ColeccionesConsultaController extends Controller
                     ]),
                     'w' => 1200,
                     'h' => 1600,
-                    
+
                     'ocrUrl' => route('visor.ocr', [
                         'token' => $token,
                     ]),

@@ -25,6 +25,13 @@ class Area extends Model
     {
         return 'slug';
     }
+
+
+    public function colecciones()
+    {
+        return $this->hasMany(Coleccion::class, 'areas_id', 'id');
+    }
+
     public function toSearchableArray(): array
     {
         $array = [

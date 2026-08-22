@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\ChunkUploadController;
 use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\RecursosController;
@@ -25,6 +26,20 @@ Route::get('/coleccion/{coleccion}', [ColeccionesConsultaController::class, 'sho
 
 Route::get('/coleccion/{tabla}/{id}', [RecursosController::class, 'publico'])->name('coleccion.individual');
 
+Route::resource('/areas', AreaController::class)->names('area');
+
+// routes/web.php
+Route::get('/areas/{area:slug}/colecciones', function (\App\Models\Area $area) {
+    return view('areas.colecciones', ['area' => $area]);
+})->name('area.colecciones');
+
+
+Route::get('/fondos', function () {
+    return view('fondos.index', [
+        'areasDisponibles' => \App\Models\Area::orderBy('nombre')->get(),
+        'title' => 'Colecciones (Fondos)',
+    ]);
+})->name('fondos.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
@@ -89,9 +104,6 @@ Route::get('/media/ocr', function (Request $request) {
 })->name('visor.ocr')
     ->middleware(['secure.media', 'throttle:media']); // ¡Protegida exactamente igual que tus imágenes!
 
-
-
-
 Route::get('/admin/media/load', function (Request $request) {
     // Verificación de Admin
     if (!auth()->guard('admin')->check() && !auth()->user() instanceof \App\Models\Admin) {
@@ -106,10 +118,12 @@ Route::get('/admin/media/load', function (Request $request) {
         ?? $archivo->assets_procesados['main']
         ?? $archivo->path_original;
 
-    if (!$path) abort(404);
+    if (!$path)
+        abort(404);
 
     $mime = str_ends_with($path, '.webp') ? 'image/webp' : 'image/jpeg';
-    if (str_ends_with($path, '.pdf')) $mime = 'application/pdf';
+    if (str_ends_with($path, '.pdf'))
+        $mime = 'application/pdf';
 
     return response('', 200)
         ->header('X-Accel-Redirect', '/protegido/' . $path)
@@ -133,7 +147,7 @@ Route::get('/video/key/{key}', function ($key) {
 
     $fullPath = storage_path("app/keys/{$key}");
 
-    if (! file_exists($fullPath)) {
+    if (!file_exists($fullPath)) {
         return response()->json([
             'error' => 'Archivo no encontrado físicamente',
             'debug_path' => $fullPath,
@@ -193,3 +207,4 @@ Route::middleware(['web', Authenticate::class])
             ->name('api.chunks.upload')
             ->middleware(Authenticate::class);
     });
+

@@ -59,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         Import::resolveRelationUsing('user', function ($importModel) {
             return $importModel->belongsTo(Admin::class, 'user_id');
         });
+        
         View::composer('*', function ($view) {
             $view->with('tiposAcervo', TipoAcervo::orderBy('nombre')->get());
         });
