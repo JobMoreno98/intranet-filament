@@ -43,8 +43,8 @@
                                 @php
                                     $datos =
                                         $registro instanceof \Illuminate\Database\Eloquent\Model
-                                            ? $registro->getAttributes()
-                                            : (array) $registro;
+                                        ? $registro->getAttributes()
+                                        : (array) $registro;
 
                                     $datos = array_filter(
                                         $datos,
@@ -217,8 +217,7 @@
                             class="relative flex-1 h-0 min-h-0 w-full max-w-5xl mx-auto flex flex-col bg-zinc-800">
 
                             <!-- 1. El visor principal con overflow oculto para el zoom -->
-                            <div id="viewer"
-                                class="relative flex-1 overflow-hidden flex items-center justify-center p-4 group">
+                            <div id="viewer" class="relative flex-1 overflow-hidden flex items-center justify-center p-4 group">
 
                                 <!-- 2. El contenedor que Panzoom moverá (Canvas + OCR juntos) -->
                                 <div id="panzoom-content" class="relative origin-center inline-block">
@@ -230,18 +229,16 @@
                                 <!-- 3. Botones Prev/Next Flotantes -->
                                 <button onclick="document.getElementById('prev-page').click()"
                                     class="flex absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/60 hover:bg-zinc-900/90 text-white p-3 rounded-full shadow-lg transition border border-zinc-700 backdrop-blur-sm z-10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                        stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                                     </svg>
                                 </button>
                                 <button onclick="document.getElementById('next-page').click()"
                                     class="flex absolute right-4 top-1/2 -translate-y-1/2 bg-indigo-600/80 hover:bg-indigo-600 text-white p-3 rounded-full shadow-lg transition z-10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                        stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                     </svg>
                                 </button>
                             </div>
@@ -270,16 +267,14 @@
                                         <div
                                             class="flex items-center gap-2 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full sm:w-64">
                                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-gray-400 ml-2 shrink-0" />
-                                            <input id="ocr-search-input" type="text"
-                                                placeholder="Buscar en esta página..."
+                                            <input id="ocr-search-input" type="text" placeholder="Buscar en esta página..."
                                                 class="flex-1 min-w-0 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent" />
                                             <button id="ocr-search-btn"
                                                 class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition shrink-0">
                                                 Buscar
                                             </button>
                                         </div>
-                                        <button id="ocr-copy-page-btn" type="button"
-                                            title="Copiar todo el texto de esta página"
+                                        <button id="ocr-copy-page-btn" type="button" title="Copiar todo el texto de esta página"
                                             class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-xl border border-gray-200 shadow-sm shrink-0 transition">
                                             <x-heroicon-o-clipboard-document class="w-4 h-4" />
                                             <span class="hidden sm:inline">Copiar página</span>
@@ -351,8 +346,8 @@
                     @php
                         $datos =
                             $registro instanceof \Illuminate\Database\Eloquent\Model
-                                ? $registro->getAttributes()
-                                : (array) $registro;
+                            ? $registro->getAttributes()
+                            : (array) $registro;
 
                         $datos = array_filter($datos, fn($v, $k) => !in_array($k, $omitir), ARRAY_FILTER_USE_BOTH);
                     @endphp
@@ -487,9 +482,19 @@
     @else
         <script>
             document.addEventListener("DOMContentLoaded", () => {
+                // Laravel nos pasa el número de página real (1, 2, 3...)
+                const paginaSolicitada = {{ $paginaSolicitada ?? 1 }};
+
+                // Si tu visor lee los arreglos desde 0 (0, 1, 2...), calculamos el índice
+                const indiceInicial = paginaSolicitada > 0 ? paginaSolicitada - 1 : 0;
+
                 window.initVisor({
                     paginas: @json($paginas),
-                    recursoId: {{ $recurso['id'] }}
+                    recursoId: {{ $recurso['id'] }},
+
+                    // Añadimos estas propiedades para que tu JS sepa dónde empezar
+                    paginaInicial: paginaSolicitada,
+                    startIndex: indiceInicial
                 });
             });
         </script>

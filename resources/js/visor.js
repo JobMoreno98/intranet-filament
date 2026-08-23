@@ -2,15 +2,15 @@
 
 import Panzoom from "@panzoom/panzoom";
 
-export function initVisor({ paginas, recursoId = 0 }) {
+// 1. Agregamos startIndex a los parámetros que recibe la función
+export function initVisor({ paginas, recursoId = 0, startIndex = null }) { 
     const viewer = document.getElementById("viewer");
-    const panzoomContent = document.getElementById("panzoom-content"); // Contenedor nuevo
+    const panzoomContent = document.getElementById("panzoom-content");
     const canvas = document.getElementById("page-canvas");
-    const ocrLayer = document.getElementById("ocr-layer"); // Capa nueva para el texto
-    ocrLayer.style.containerType = "size"; // necesario para que 'cqh' funcione en renderOcrLayer
+    const ocrLayer = document.getElementById("ocr-layer");
+    ocrLayer.style.containerType = "size";
 
     const zoomInBtn = document.getElementById("btn-zoom-in");
-
     const zoomOutBtn = document.getElementById("btn-zoom-out");
     const resetBtn = document.getElementById("btn-reset-zoom");
     const zoomPercent = document.getElementById("zoom-percent");
@@ -22,10 +22,16 @@ export function initVisor({ paginas, recursoId = 0 }) {
 
     const STORAGE_KEY = `visor_page_${recursoId}`;
 
-    let currentPage = parseInt(localStorage.getItem(STORAGE_KEY) || 0);
+    // 2. MODIFICAMOS LA LÓGICA DE INICIO
+    // Si viene un startIndex de la búsqueda, lo usamos e ignoramos el caché local.
+    let currentPage = 0;
+    if (startIndex !== null && startIndex !== undefined) {
+        currentPage = parseInt(startIndex);
+    } else {
+        currentPage = parseInt(localStorage.getItem(STORAGE_KEY) || 0);
+    }
 
     let currentBitmap = null;
-
     // Palabras OCR de la página actual (en el mismo orden que ocr.json) y los
     // <span> ya insertados en el DOM, indexados 1:1 con currentWords — así la
     // búsqueda puede ir de "coincidencia en el texto" a "elemento a resaltar"

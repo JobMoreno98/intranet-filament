@@ -39,70 +39,47 @@ class Recursos extends Model
 
     public function toSearchableArray(): array
     {
-        // Cargamos la colección de páginas una sola vez (ya viene ordenada
-        // por 'orden' gracias a la relación) y la reusamos abajo para 'archivos' y 'ocr'.
         $paginas = $this->archivos;
 
-        // 1. Cargamos datos básicos planos y limpios
         $array = [
-            'id'          => (int) $this->id,
-            'acervo'      => $this->acervo->nombre ?? null,
-            'acervo_id'      => $this->acervo_id,
-            'coleccion'       => $this->coleccion->nombre ?? null,
-            'status'      => $this->status,
-            'archivos' =>  $paginas->isNotEmpty(),
+            'id' => (int) $this->id,
+            'acervo' => $this->acervo->nombre ?? null,
+            'acervo_id' => $this->acervo_id,
+            'coleccion' => $this->coleccion->nombre ?? null,
+            'status' => $this->status,
+            'archivos' => $paginas->isNotEmpty(),
         ];
 
-        // 2. Herencia de búsqueda: Indexamos datos de la Colección a la que pertenece
         if ($this->coleccion) {
-            $array['coleccion_id']     = (int) $this->coleccion_id;
+            $array['coleccion_id'] = (int) $this->coleccion_id;
             $array['coleccion_nombre'] = $this->coleccion->nombre;
-
-            // Si recuerdas la escalera de la consulta anterior, puedes heredar los padres:
-            // Esto permite que si buscan "Historia", aparezcan los libros dentro de sus subcolecciones
-            $array['parent_names']     = $this->coleccion->toSearchableArray()['parent_names'] ?? [];
+            $array['parent_names'] = $this->coleccion->toSearchableArray()['parent_names'] ?? [];
         } else {
-            $array['coleccion_id']     = null;
+            $array['coleccion_id'] = null;
             $array['coleccion_nombre'] = null;
-            $array['parent_names']     = [];
+            $array['parent_names'] = [];
         }
 
-        // 3. INDEXADO DINÁMICO DEL JSON DE METADATOS
-        // Si el CMS guarda ['editorial' => 'Editorial UdeG', 'paginas' => 350], Meilisearch lo mapeará de inmediato
         $metadata = $this->metadata;
 
         $variables = collect($this->acervo->esquema ?? [])
-            ->whereIn('visible', ['Recuperable','Adicional'])
+            ->whereIn('visible', ['Recuperable', 'Adicional'])
             ->pluck('variable')
             ->values()
             ->all();
 
-            
         $filtros = array_intersect_key($metadata, array_flip($variables));
 
         if (!empty($filtros) && is_array($filtros)) {
-            // Concatenamos valores clave => valor en un string
-            //$array['metadata'] = $metadata; // JSON original
             $flatMetadata = collect($filtros)
                 ->map(fn($valor, $clave) => $clave . ': ' . $valor)
                 ->implode(' | ');
-
-                //dd($flatMetadata);
-
             $array['metadata_text'] = $flatMetadata;
         } else {
             $array['metadata'] = '';
             $array['metadata_text'] = '';
         }
-
-        // 4. OCR: concatenamos el texto de todas las páginas para que la
-        // búsqueda encuentre el libro completo por su contenido interno.
-        // Las páginas sin OCR (aún no procesadas, o vacías) se ignoran.
-        $array['ocr'] = $paginas
-            ->pluck('ocr')
-            ->filter()
-            ->implode(' ');
-
+        
         return $array;
     }
 }
