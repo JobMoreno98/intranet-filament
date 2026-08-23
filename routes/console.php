@@ -7,4 +7,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('chunks:clean')->dailyAt('01:00')->withoutOverlapping();
+Schedule::command('app:clean-chunks')->dailyAt('01:00')->withoutOverlapping();
