@@ -7,11 +7,9 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\File;
 
-
-#[Signature('app:clean-chunks')]
-#[Description('Command description')]
+#[Signature('app:clean-chunks {--hours=24 : Horas de antigüedad para borrar}')]
+#[Description('Comando para limpiar los archivos temporales de Livewire')]
 class CleanChunks extends Command
 {
     /**
@@ -19,7 +17,7 @@ class CleanChunks extends Command
      */
     public function handle()
     {
-        // 1. Apuntamos al disco privado que me mencionaste
+        // 1. Apuntamos al disco privado
         $disk = Storage::disk('private');
         $directory = 'livewire-tmp';
 
@@ -46,8 +44,7 @@ class CleanChunks extends Command
             }
         }
 
-        // Si usas subida por chunks (Resumable.js), a veces Livewire crea subcarpetas.
-        // También podemos limpiar carpetas vacías o viejas:
+        // 4. Limpiamos carpetas vacías o viejas (generadas por chunks)
         $directories = $disk->directories($directory);
         foreach ($directories as $dir) {
             $lastModified = Carbon::createFromTimestamp($disk->lastModified($dir));
