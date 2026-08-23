@@ -182,7 +182,7 @@ class ColeccionesConsultaController extends Controller
 
             $queries = [];
             foreach ($coleccionesMeta as $meta) {
-                $searchQuery = (new \Meilisearch\Endpoints\SearchQuery())
+                $searchQuery = (new SearchQuery())
                     ->setIndexUid($meta)
                     ->setQuery($term)
                     ->setLimit(150)
@@ -315,7 +315,7 @@ class ColeccionesConsultaController extends Controller
         ]);
     }
 
-public function showRegistro(Request $request, $tipo, $id)
+    public function showRegistro(Request $request, $tipo, $id)
     {
         // NUEVO: Capturamos la página solicitada desde la URL (ej. ?page=4). Si no viene, por defecto es la 1.
         $paginaSolicitada = $request->input('page', 1);
@@ -377,7 +377,7 @@ public function showRegistro(Request $request, $tipo, $id)
                 $payload = [
                     'a' => $archivo['id'],
                     'u' => auth()->id(),
-                    'e' => now()->timestamp + 300, 
+                    'e' => now()->timestamp + 300,
                 ];
 
                 $token = encrypt(json_encode($payload));
@@ -385,7 +385,7 @@ public function showRegistro(Request $request, $tipo, $id)
                 return [
                     'id' => $archivo['id'],
                     // NUEVO: Agregamos el orden (número de página real) al JSON que recibe el frontend
-                    'orden' => $archivo['orden'] ?? 1, 
+                    'orden' => $archivo['orden'] ?? 1,
                     'url' => route('media.stream', [
                         'token' => $token,
                     ]),
@@ -413,7 +413,7 @@ public function showRegistro(Request $request, $tipo, $id)
             'paginas' => $paginas,
             'recurso' => $recursoData,
             // NUEVO: Pasamos la variable de la página a la vista
-            'paginaSolicitada' => (int) $paginaSolicitada, 
+            'paginaSolicitada' => (int) $paginaSolicitada,
         ]);
     }
 }
