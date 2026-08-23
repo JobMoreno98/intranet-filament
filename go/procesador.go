@@ -195,9 +195,16 @@ func processVideo(task ProcessingTask) {
 
 	useCopy := codec == "h264"
 
+	hilos := runtime.NumCPU() - 2
+
+	if hilos < 1 {
+		hilos = 1 // Asegura que siempre use al menos 1 núcleo si el servidor es muy pequeño
+	}
+
 	args := []string{
 		"-y",
 		"-loglevel", "error",
+		"-threads", strconv.Itoa(hilos), // 2. Se lo pasamos dinámicamente a FFmpeg
 		"-i", task.Path,
 	}
 
@@ -314,11 +321,16 @@ func processAudio(task ProcessingTask) {
 
 	useCopy := codec == "aac"
 
+	hilos := runtime.NumCPU() - 2
+	if hilos < 1 {
+		hilos = 1 // Asegura que siempre use al menos 1 núcleo si el servidor es muy pequeño
+	}
+
 	args := []string{
 		"-y",
 		"-loglevel", "error",
+		"-threads", strconv.Itoa(hilos), // 2. Se lo pasamos dinámicamente a FFmpeg
 		"-i", task.Path,
-		"-vn", // sin video (portadas embebidas, etc.)
 	}
 
 	if useCopy {
