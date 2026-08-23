@@ -78,7 +78,6 @@ class OcrReindexQueueWorker extends Command
     {
         try {
             // La cache del visor debe limpiarse siempre que cambie el OCR de una página.
-            Cache::forget("recurso_con_relaciones_{$recursoId}");
 
             $recurso = Recursos::find($recursoId);
 
