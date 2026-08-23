@@ -102,7 +102,7 @@ func processImage(task ProcessingTask) {
 	args := []string{
 		cleanPath,
 		"-resize", "2500x>", // Redimensiona primero
-		"-background", "none", 
+		"-background", "none",
 		"-size", "150x", watermark, // Carga la marca de agua
 		"-gravity", "south-east", "-geometry", "+50+50", // La posiciona
 		"-composite", // Las fusiona
@@ -196,17 +196,40 @@ func processVideo(task ProcessingTask) {
 	useCopy := codec == "h264"
 
 	hilos := runtime.NumCPU() - 2
-
 	if hilos < 1 {
-		hilos = 1 // Asegura que siempre use al menos 1 núcleo si el servidor es muy pequeño
+		hilos = 1
 	}
 
+	// 1. Argumentos de entrada (Sin el -threads)
 	args := []string{
 		"-y",
 		"-loglevel", "error",
-		"-threads", strconv.Itoa(hilos), // 2. Se lo pasamos dinámicamente a FFmpeg
 		"-i", task.Path,
+		// "-vn", <-- (Recuerda que este va aquí si es processAudio)
 	}
+
+	if useCopy {
+		// Ya es el formato correcto: solo remux
+		args = append(args, "-c:v", "copy") // (o -c:a "copy" para audio)
+	} else {
+		// Transcodificar
+		args = append(args,
+			"-c:v", "libx264",
+			"-crf", "23",
+			"-preset", "veryfast",
+			"-c:a", "aac",
+		)
+	}
+
+	// 2. Argumentos de salida (AQUÍ PONEMOS LOS HILOS)
+	args = append(args,
+		"-threads", strconv.Itoa(hilos), // <-- Se aplica al codificador
+		"-hls_time", "10",
+		"-hls_playlist_type", "vod",
+		"-hls_key_info_file", task.KeyInfoPath,
+		"-hls_segment_filename", filepath.Join(outputDir, "segment_%03d.ts"),
+		filepath.Join(outputDir, task.OutputName+".m3u8"),
+	)
 
 	if useCopy {
 		// Ya es H.264: solo remux (rápido)
@@ -246,7 +269,8 @@ func processVideo(task ProcessingTask) {
 		"-ss", "1",
 		"-i", task.Path,
 		"-frames:v", "1",
-		"-vf", "scale=200:200:force_original_aspect_ratio=increase,crop=200:200",
+		// NUEVO: Escala a 1280px de ancho máximo, manteniendo la proporción original
+		"-vf", "scale='min(1280,iw)':-1",
 		"-q:v", "80",
 		thumbPath,
 	)
@@ -261,6 +285,7 @@ func processVideo(task ProcessingTask) {
 	} else {
 		updateVideoAssets(task.ArchivoID, m3u8Path, "")
 	}
+
 	log.Printf("--- Finalizado VIDEO: %s ---", task.OutputName)
 }
 
@@ -361,12 +386,12 @@ func processAudio(task ProcessingTask) {
 	// el audio igual queda listo, solo sin thumb.
 	thumbPath := filepath.Join(outputDir, "thumb.webp")
 	thumbOk := true
-	
+
 	thumbCmd := exec.Command("ffmpeg",
 		"-y",
 		"-loglevel", "error",
 		"-i", task.Path,
-		"-an", // Ignoramos el audio, solo queremos la imagen
+		"-an",            // Ignoramos el audio, solo queremos la imagen
 		"-frames:v", "1", // Extraemos solo el primer fotograma (la portada)
 		// CORRECCIÓN: Comillas ajustadas en el filtro scale
 		"-vf", "scale='min(800,iw)':'min(800,ih)':force_original_aspect_ratio=decrease,pad=ceil(iw/2)*2:ceil(ih/2)*2",
@@ -376,7 +401,7 @@ func processAudio(task ProcessingTask) {
 
 	if _, err := thumbCmd.CombinedOutput(); err != nil {
 		log.Printf("WARN: El MP3 no tiene portada o falló la extracción ID %d: %v", task.ArchivoID, err)
-		
+
 		// FALLBACK: Si falla (porque el MP3 no tiene imagen), generamos el waveform como respaldo
 		thumbCmd = exec.Command("ffmpeg",
 			"-y",
