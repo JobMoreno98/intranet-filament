@@ -36,9 +36,9 @@ class RecursosForm
                         ->required()
                         ->afterStateUpdated(fn($set) => $set('metadata', []))->columns(3)
                 ]),
-                Wizard\Step::make('coleccion')->label('Colección')->schema([
+                Wizard\Step::make('coleccion')->label('Fondo')->schema([
                     Select::make('coleccion_id')
-                        ->label('Colección')
+                        ->label('Fondo')
                         ->searchable()
                         ->preload()
                         ->required()

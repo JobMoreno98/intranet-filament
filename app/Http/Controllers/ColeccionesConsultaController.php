@@ -49,23 +49,25 @@ class ColeccionesConsultaController extends Controller
 
         // Filtro base obligatorio
         $meiliFilters = ["coleccion_id = {$coleccion->id}"];
-
         if ($request->filled('acervo_id')) {
             $acervoIdActual = $request->input('acervo_id');
             $meiliFilters[] = "acervo_id = {$acervoIdActual}";
 
-            // El esquema de un TipoAcervo casi no cambia: lo cacheamos para no
-            // pegarle a la base de datos en cada búsqueda filtrada.
-            $config = Cache::remember("tipo_acervo_esquema_{$acervoIdActual}", 3600, function () use ($acervoIdActual) {
-                return TipoAcervo::find($acervoIdActual);
+            // Cacheamos SOLO el esquema (que es un string o array), no el modelo completo
+            $esquemaCacheado = Cache::remember("tipo_acervo_esquema_{$acervoIdActual}", 3600, function () use ($acervoIdActual) {
+                $tipoAcervo = TipoAcervo::find($acervoIdActual);
+                return $tipoAcervo ? $tipoAcervo->esquema : null;
             });
 
-            if ($config && isset($config->esquema)) {
-                $esquema = is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
+            if ($esquemaCacheado) {
+                // Decodificamos de forma segura
+                $esquema = is_string($esquemaCacheado) ? json_decode($esquemaCacheado, true) : (array) $esquemaCacheado;
+
                 $camposAtributos = collect($esquema)
                     ->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')
                     ->pluck('variable')
                     ->toArray();
+
                 // Mapeamos los filtros extras de la URL si el usuario los escribió
                 foreach ($request->only($camposAtributos) as $campo => $valor) {
                     if ($valor !== null && $valor !== '') {
@@ -74,7 +76,6 @@ class ColeccionesConsultaController extends Controller
                 }
             }
         }
-
         $perPage = 14;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $totalHits = 0;

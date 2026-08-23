@@ -20,7 +20,7 @@ class RecursosTable
     {
         return $table
             ->columns([
-                TextColumn::make('coleccion.nombre'),
+                TextColumn::make('coleccion.nombre')->label('Fondo'),
                 TextColumn::make('acervo.nombre'),
             ])
             ->filters([
