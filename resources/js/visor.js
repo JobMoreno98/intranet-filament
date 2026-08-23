@@ -3,7 +3,7 @@
 import Panzoom from "@panzoom/panzoom";
 
 // 1. Agregamos startIndex a los parámetros que recibe la función
-export function initVisor({ paginas, recursoId = 0, startIndex = null }) { 
+export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
     const viewer = document.getElementById("viewer");
     const panzoomContent = document.getElementById("panzoom-content");
     const canvas = document.getElementById("page-canvas");
@@ -372,6 +372,35 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
             panzoomContent.style.height = `${bitmap.height}px`;
 
             ctx.drawImage(bitmap, 0, 0);
+
+            // =========================================
+            // AJUSTAR AL ALTO/ANCHO DEL CONTENEDOR
+            // =========================================
+
+            // 1. Obtenemos el tamaño disponible en el visor
+            const containerHeight = viewer.clientHeight;
+            const containerWidth = viewer.clientWidth;
+
+            // 2. Calculamos la escala exacta (le restamos un 2% o 5% para dejar un margen estético)
+            let initialScale = (containerHeight / bitmap.height) * 0.98;
+            const scaleWidth = (containerWidth / bitmap.width) * 0.95;
+
+            // 3. Si la imagen es más ancha que el contenedor, ajustamos por el ancho
+            if (scaleWidth < initialScale) {
+                initialScale = scaleWidth;
+            }
+
+            // 4. Actualizamos Panzoom para que permita esta nueva escala
+            panzoom.setOptions({
+                minScale: initialScale * 0.5,
+                startScale: initialScale
+            });
+
+            // 5. Aplicamos el zoom calculado instantáneamente y lo centramos
+            panzoom.reset({ animate: false });
+            panzoom.zoom(initialScale, { animate: false });
+
+            // =========================================
 
             // -- NUEVO: Procesar OCR --
             currentWords = [];
