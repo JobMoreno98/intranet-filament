@@ -374,7 +374,7 @@ func processAudio(task ProcessingTask) {
 		thumbPath,
 	)
 
-	if out, err := thumbCmd.CombinedOutput(); err != nil {
+	if _, err := thumbCmd.CombinedOutput(); err != nil {
 		log.Printf("WARN: El MP3 no tiene portada o falló la extracción ID %d: %v", task.ArchivoID, err)
 		
 		// FALLBACK: Si falla (porque el MP3 no tiene imagen), generamos el waveform como respaldo
