@@ -1,5 +1,19 @@
 @extends('layouts.plantilla')
 
+@section('css')
+    <!-- Estilo para que Meilisearch pinte las palabras encontradas en color oro/amarillo -->
+    <style>
+        em {
+            background-color: #fef08a !important;
+            /* amarillo tailwind */
+            color: #854d0e !important;
+            font-style: normal !important;
+            font-weight: 700 !important;
+            padding: 1px 3px;
+            border-radius: 4px;
+        }
+    </style>
+@endsection
 @section('content')
     <section class="bg-gray-50 min-h-screen">
         <!-- Tabla de Resultados Coincidentes -->
@@ -35,7 +49,7 @@
                                     <td class="p-4">
                                         @if ($res['tipo'] === 'documento')
                                             {{ $res['acervo'] ?? '---' }}
-                                        @elseif ($res['tipo'] === 'coleccion')
+                                        @elseif ($res['tipo'] === 'coleccion' || $res['tipo'] === 'pagina')
                                             {{ $res['titulo_resultado'] ?? '---' }}
                                         @endif
                                     </td>
@@ -45,27 +59,32 @@
                                         {!! $res['coincidencia'] !!}
                                     </td>
 
-                                    <!-- Acción -->
+                                    <!-- Acción (CORREGIDA PARA SOPORTAR PÁGINAS) -->
                                     <td class="p-4 text-center">
                                         @if ($res['tipo'] === 'documento' && $res['registro_id'])
-                                            <a href="{{ route('buscador.registro', ['tipo' => $res['tipo'], 'id' => $res['registro_id']]) }}"
+                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id']]) }}"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver información
                                             </a>
-                                        @elseif ($res['tipo'] === 'coleccion')
+                                        @elseif ($res['tipo'] === 'coleccion' && isset($res['slug']))
                                             <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
-                                                Ver información
+                                                Ver colección
+                                            </a>
+                                        @elseif ($res['tipo'] === 'pagina' && $res['registro_id'])
+                                            <!-- Enviamos la variable 'page' en la URL -->
+                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id'], 'page' => $res['orden_pagina'] ?? 1]) }}"
+                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition shadow-sm whitespace-nowrap">
+                                                Ir a Pág. {{ $res['orden_pagina'] ?? 1 }}
                                             </a>
                                         @endif
                                     </td>
                                 </tr>
                             @endforeach
 
-
                             @if ($resultados->isEmpty())
                                 <tr>
-                                    <td colspan="3" class="p-12 text-center text-gray-400 font-medium">
+                                    <td colspan="4" class="p-12 text-center text-gray-400 font-medium">
                                         No se encontraron registros que coincidan con la búsqueda.
                                     </td>
                                 </tr>
@@ -92,27 +111,29 @@
                                     <span
                                         class="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Coincidencia:</span>
                                     <div class="line-clamp-3 text-xs leading-relaxed text-gray-500">
-                                        {!! $res['tipo'] !!}
+                                        {!! $res['coincidencia'] !!} <!-- CORRECCIÓN: Antes decías {!! $res['tipo'] !!} aquí -->
                                     </div>
                                 </div>
 
-                                <!-- Acción de la Card -->
-                                @if ($res['registro_id'] && $res['tipo'] == 'documento')
-                                    <div class="mt-1">
-                                        <a href="{{ route('buscador.registro', ['tipo' => $res['tipo'], 'id' => $res['registro_id']]) }}"
+                                <!-- Acción de la Card (CORREGIDA CON EL IF/ELSEIF/ELSEIF) -->
+                                <div class="mt-1">
+                                    @if ($res['tipo'] === 'documento' && $res['registro_id'])
+                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id']]) }}"
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
                                             Ver información
                                         </a>
-                                    </div>
-                                @else
-                                    <div class="mt-1">
-
+                                    @elseif ($res['tipo'] === 'coleccion' && isset($res['slug']))
                                         <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
-                                            Ver informacion
+                                            Ver colección
                                         </a>
-                                    </div>
-                                @endif
+                                    @elseif ($res['tipo'] === 'pagina' && $res['registro_id'])
+                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id'], 'page' => $res['orden_pagina'] ?? 1]) }}"
+                                            class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition shadow-sm">
+                                            Ir a Pág. {{ $res['orden_pagina'] ?? 1 }}
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -138,16 +159,5 @@
         </div>
     </section>
 
-    <!-- Estilo para que Meilisearch pinte las palabras encontradas en color oro/amarillo -->
-    <style>
-        em {
-            background-color: #fef08a !important;
-            /* amarillo tailwind */
-            color: #854d0e !important;
-            font-style: normal !important;
-            font-weight: 700 !important;
-            padding: 1px 3px;
-            border-radius: 4px;
-        }
-    </style>
+
 @endsection
