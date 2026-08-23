@@ -320,15 +320,13 @@ class ColeccionesConsultaController extends Controller
         // NUEVO: Capturamos la página solicitada desde la URL (ej. ?page=4). Si no viene, por defecto es la 1.
         $paginaSolicitada = $request->input('page', 1);
 
-        $recurso = Cache::remember("recurso_con_relaciones_{$id}", 1800, function () use ($id) {
-            return Recursos::with([
-                'archivos' => function ($q) {
-                    $q->orderBy('orden');
-                },
-                'acervo',
-                'coleccion',
-            ])->findOrFail($id);
-        });
+        $recurso = Recursos::with([
+            'archivos' => function ($q) {
+                $q->orderBy('orden');
+            },
+            'acervo',
+            'coleccion',
+        ])->findOrFail($id);
 
         try {
             Redis::hincrby('analytics:recursos_vistas', $recurso->id, 1);
