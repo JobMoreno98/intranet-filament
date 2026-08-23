@@ -331,6 +331,7 @@ func processAudio(task ProcessingTask) {
 		"-loglevel", "error",
 		"-threads", strconv.Itoa(hilos), // 2. Se lo pasamos dinámicamente a FFmpeg
 		"-i", task.Path,
+		"-vn",
 	}
 
 	if useCopy {
