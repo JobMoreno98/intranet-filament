@@ -5,6 +5,8 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ChunkUploadController;
 use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\RecursosController;
+use App\Models\Area;
+use App\Models\Blog;
 use App\Models\ColeccionesConsulta;
 use App\Models\RecursosArchivos;
 use Illuminate\Http\Request;
@@ -30,24 +32,24 @@ Route::get('/coleccion/{tabla}/{id}', [RecursosController::class, 'publico'])->n
 
 
 Route::get('/blog', function () {
-    $tagsDisponibles = \App\Models\Blog::pluck('tags')
+    $tagsDisponibles = Blog::pluck('tags')
         ->flatten()
         ->unique()
         ->values();
-        
+
     return view('blogs.index', [
         'tagsDisponibles' => $tagsDisponibles,
-        'recientes'       => \App\Models\Blog::latest()->take(4)->get(),
+        'recientes' => Blog::latest()->take(4)->get(),
     ]);
 })->name('blog.index');
 
-Route::get('/blog/{blog:slug}', function (\App\Models\Blog $blog) {
-    $tags = \App\Models\Blog::pluck('tags')->flatten()->unique()->values();
+Route::get('/blog/{blog:slug}', function (Blog $blog) {
+    $tags = Blog::pluck('tags')->flatten()->unique()->values();
     return view('blogs.show', [
-        'post'            => $blog,
-        'tagsDisponibles' => \App\Models\Blog::pluck('tags')->flatten()->unique()->values(),
-        'recientes'       => \App\Models\Blog::where('id', '!=', $blog->id)->latest()->take(4)->get(),
-        'relacionados'    => \App\Models\Blog::where('id', '!=', $blog->id)
+        'post' => $blog,
+        'tagsDisponibles' => Blog::pluck('tags')->flatten()->unique()->values(),
+        'recientes' => Blog::where('id', '!=', $blog->id)->latest()->take(4)->get(),
+        'relacionados' => Blog::where('id', '!=', $blog->id)
             ->where(function ($q) use ($blog) {
                 foreach ($blog->tags ?? [] as $t) {
                     $q->orWhereJsonContains('tags', $t);
@@ -62,15 +64,15 @@ Route::get('/blog/{blog:slug}', function (\App\Models\Blog $blog) {
 Route::resource('/areas', AreaController::class)->names('area');
 
 // routes/web.php
-Route::get('/areas/{area:slug}/colecciones', function (\App\Models\Area $area) {
+Route::get('/areas/{area:slug}/colecciones', function (Area $area) {
     return view('areas.colecciones', ['area' => $area]);
 })->name('area.colecciones');
 
 
 Route::get('/fondos', function () {
     return view('fondos.index', [
-        'areasDisponibles' => \App\Models\Area::orderBy('nombre')->get(),
-        'title' => 'Colecciones (Fondos)',
+        'areasDisponibles' => Area::orderBy('nombre')->get(),
+        'title' => 'Fondos',
     ]);
 })->name('fondos.index');
 
@@ -204,14 +206,12 @@ Route::get('/videos/{recursoId}/{filename}', function ($recursoId, $filename) {
         abort(404);
     }
 
-    // El manifiesto en disco se llama "{id}.m3u8", pero los segmentos
-    // conservan su nombre real (segment_000.ts, etc.)
     $realFilename = str_ends_with($filename, '.m3u8')
         ? "{$video->id}.m3u8"
         : $filename;
 
     $internalPath = "{$video->id}/{$realFilename}";
-
+    
     $headers = [
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
         'Pragma' => 'no-cache',
@@ -220,10 +220,15 @@ Route::get('/videos/{recursoId}/{filename}', function ($recursoId, $filename) {
 
     if (str_ends_with($filename, '.m3u8')) {
         $headers['Content-Type'] = 'application/vnd.apple.mpegurl';
-    }
-
-    if (str_ends_with($filename, '.ts')) {
+    } elseif (str_ends_with($filename, '.ts')) {
         $headers['Content-Type'] = 'video/mp2t';
+    } elseif (str_ends_with($filename, '.webp')) {
+        // --- NUEVO: Soporte para la miniatura ---
+        $headers['Content-Type'] = 'image/webp';
+
+        // Sobrescribimos el anti-caché para que la imagen cargue rápido la próxima vez
+        unset($headers['Pragma'], $headers['Expires']);
+        $headers['Cache-Control'] = 'public, max-age=86400'; // Caché por 1 día
     }
 
     return response('', 200, array_merge($headers, [
