@@ -200,50 +200,29 @@ func processVideo(task ProcessingTask) {
 		hilos = 1
 	}
 
-	// 1. Argumentos de entrada (Sin el -threads)
+	// 1. Argumentos de entrada (con el primer candado de hilos para lectura)
 	args := []string{
 		"-y",
 		"-loglevel", "error",
+		"-threads", strconv.Itoa(hilos),
 		"-i", task.Path,
-		// "-vn", <-- (Recuerda que este va aquí si es processAudio)
 	}
 
 	if useCopy {
 		// Ya es el formato correcto: solo remux
-		args = append(args, "-c:v", "copy") // (o -c:a "copy" para audio)
+		args = append(args, "-c:v", "copy")
 	} else {
-		// Transcodificar
+		// Transcodificar con el segundo candado de hilos
 		args = append(args,
 			"-c:v", "libx264",
 			"-crf", "23",
 			"-preset", "veryfast",
+			"-threads", strconv.Itoa(hilos),
 			"-c:a", "aac",
 		)
 	}
 
-	// 2. Argumentos de salida (AQUÍ PONEMOS LOS HILOS)
-	args = append(args,
-		"-threads", strconv.Itoa(hilos), // <-- Se aplica al codificador
-		"-hls_time", "10",
-		"-hls_playlist_type", "vod",
-		"-hls_key_info_file", task.KeyInfoPath,
-		"-hls_segment_filename", filepath.Join(outputDir, "segment_%03d.ts"),
-		filepath.Join(outputDir, task.OutputName+".m3u8"),
-	)
-
-	if useCopy {
-		// Ya es H.264: solo remux (rápido)
-		args = append(args, "-c", "copy")
-	} else {
-		// Otro formato: transcodificar a H.264/AAC
-		args = append(args,
-			"-c:v", "libx264",
-			"-crf", "23",
-			"-preset", "veryfast",
-			"-c:a", "aac",
-		)
-	}
-
+	// 2. Argumentos de salida (HLS)
 	args = append(args,
 		"-hls_time", "10",
 		"-hls_playlist_type", "vod",
@@ -269,7 +248,7 @@ func processVideo(task ProcessingTask) {
 		"-ss", "1",
 		"-i", task.Path,
 		"-frames:v", "1",
-		// NUEVO: Escala a 1280px de ancho máximo, manteniendo la proporción original
+		// Escala a 1280px de ancho máximo, manteniendo la proporción original
 		"-vf", "scale='min(1280,iw)':-1",
 		"-q:v", "80",
 		thumbPath,
