@@ -12,7 +12,7 @@ func main() {
 	ctx := context.Background()
 
 	// Limitar a 3 procesos simultáneos para no colgar el disco duro
-	sem := make(chan struct{}, 3)
+	sem := make(chan struct{}, 2)
 
 	log.Println("Worker iniciado. Esperando imágenes...")
 	log.Println("Se actualizo el binario")

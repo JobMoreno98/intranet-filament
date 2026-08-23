@@ -195,7 +195,21 @@ func processVideo(task ProcessingTask) {
 
 	useCopy := codec == "h264"
 
-	hilos := runtime.NumCPU() - 2
+	totalCPU := runtime.NumCPU()
+
+	// 1. Calculamos el límite máximo seguro: 2/3 del total del procesador
+	maxHilosTotales := (totalCPU * 2) / 3
+
+	// 2. Dividimos ese límite entre los 2 procesos simultáneos que permite el main
+	maxHilosPorProceso := maxHilosTotales / 2
+
+	// 3. Asignamos 4 hilos como ideal, pero lo reducimos si supera el límite seguro
+	hilos := 4
+	if hilos > maxHilosPorProceso {
+		hilos = maxHilosPorProceso
+	}
+
+	// 4. Red de seguridad final para servidores de un solo núcleo
 	if hilos < 1 {
 		hilos = 1
 	}
@@ -271,7 +285,7 @@ func processVideo(task ProcessingTask) {
 func processAudio(task ProcessingTask) {
 	log.Printf("--- Iniciando AUDIO: %s ---", task.Path)
 
-	// Reintento de existencia (igual que en processVideo/processImage)
+	// Reintento de existencia
 	exists := false
 	for i := 0; i < 5; i++ {
 		if _, err := os.Stat(task.Path); err == nil {
@@ -287,8 +301,7 @@ func processAudio(task ProcessingTask) {
 		return
 	}
 
-	// Mismo esquema de cifrado que video: Laravel ya generó la key,
-	// el .keyinfo y la URL firmada antes de encolar la tarea.
+	// Validación de llaves para el cifrado HLS
 	if task.KeyInfoPath == "" {
 		log.Printf("ERROR CRÍTICO: KeyInfoPath vacío para ID %d", task.ArchivoID)
 		updateArchivoStatus(task.ArchivoID, "error")
@@ -323,30 +336,27 @@ func processAudio(task ProcessingTask) {
 		codec = strings.TrimSpace(string(probeOut))
 	}
 
-	useCopy := codec == "aac"
-
-	hilos := runtime.NumCPU() - 2
-	if hilos < 1 {
-		hilos = 1 // Asegura que siempre use al menos 1 núcleo si el servidor es muy pequeño
-	}
-
+	// 2. Argumentos de entrada (Fijado a 1 solo hilo de lectura)
 	args := []string{
 		"-y",
 		"-loglevel", "error",
-		"-threads", strconv.Itoa(hilos), // 2. Se lo pasamos dinámicamente a FFmpeg
+		"-threads", "1",
 		"-i", task.Path,
-		"-vn",
+		"-vn", // Ignoramos cualquier portada embebida en el audio original
 	}
 
-	if useCopy {
-		// Ya es AAC: solo remux (rápido)
+	// 3. Lógica de preservación de calidad (bit-perfect para MP3/AAC)
+	if codec == "mp3" || codec == "aac" {
+		// Copia directa bit a bit: máximo rendimiento y calidad original
 		args = append(args, "-c:a", "copy")
 	} else {
-		// Otro formato (mp3, wav, ogg, flac...): transcodificar a AAC
-		args = append(args, "-c:a", "aac", "-b:a", "128k")
+		// Otro formato (wav, flac, ogg...): transcodificar a AAC en alta calidad
+		args = append(args, "-c:a", "aac", "-b:a", "256k")
 	}
 
+	// 4. Argumentos de salida HLS (Fijado a 1 hilo de escritura)
 	args = append(args,
+		"-threads", "1",
 		"-hls_time", "10",
 		"-hls_playlist_type", "vod",
 		"-hls_key_info_file", task.KeyInfoPath,
@@ -361,8 +371,7 @@ func processAudio(task ProcessingTask) {
 		return
 	}
 
-	// Generar una miniatura tipo "waveform". Si falla, no es crítico:
-	// el audio igual queda listo, solo sin thumb.
+	// Generar una miniatura tipo "waveform" o extraer la portada
 	thumbPath := filepath.Join(outputDir, "thumb.webp")
 	thumbOk := true
 
@@ -372,7 +381,6 @@ func processAudio(task ProcessingTask) {
 		"-i", task.Path,
 		"-an",            // Ignoramos el audio, solo queremos la imagen
 		"-frames:v", "1", // Extraemos solo el primer fotograma (la portada)
-		// CORRECCIÓN: Comillas ajustadas en el filtro scale
 		"-vf", "scale='min(800,iw)':'min(800,ih)':force_original_aspect_ratio=decrease,pad=ceil(iw/2)*2:ceil(ih/2)*2",
 		"-q:v", "80",
 		thumbPath,
@@ -381,7 +389,7 @@ func processAudio(task ProcessingTask) {
 	if _, err := thumbCmd.CombinedOutput(); err != nil {
 		log.Printf("WARN: El MP3 no tiene portada o falló la extracción ID %d: %v", task.ArchivoID, err)
 
-		// FALLBACK: Si falla (porque el MP3 no tiene imagen), generamos el waveform como respaldo
+		// FALLBACK: Si falla (porque el archivo no tiene imagen), generamos el waveform como respaldo
 		thumbCmd = exec.Command("ffmpeg",
 			"-y",
 			"-loglevel", "error",
@@ -402,6 +410,7 @@ func processAudio(task ProcessingTask) {
 	} else {
 		updateAudioAssets(task.ArchivoID, m3u8Path, "")
 	}
+
 	log.Printf("--- Finalizado AUDIO: %s ---", task.OutputName)
 }
 
