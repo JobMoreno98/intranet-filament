@@ -30,7 +30,7 @@ class ChunkFileUpload extends Field
         return $this->isDisabled();
     }
 
-    // ✅ Setter — permite encadenar: ChunkFileUpload::make('file')->acceptedFileTypes([...])
+    // Setter — permite encadenar: ChunkFileUpload::make('file')->acceptedFileTypes([...])
     public function acceptedFileTypes(array | Arrayable | Closure $types): static
     {
         $this->acceptedFileTypes = $types;
@@ -38,7 +38,7 @@ class ChunkFileUpload extends Field
         return $this;
     }
 
-    // ✅ Getter — usado en el blade y en la validación
+    // Getter — usado en el blade y en la validación
     public function getAcceptedFileTypes(): ?array
     {
         $types = $this->evaluate($this->acceptedFileTypes);

@@ -83,7 +83,7 @@ class RecursosForm
                                     return [];
                                 }
 
-                                $coleccion = \App\Models\TipoAcervo::find($acervoId);
+                                $coleccion = TipoAcervo::find($acervoId);
                                 if (!$coleccion || !$coleccion->esquema) {
                                     return [];
                                 }
