@@ -31,7 +31,6 @@ class CleanChunks extends Command
         }
 
         $files = $disk->files($directory);
-        dd($files);
 
         foreach ($files as $file) {
             $fileTime = $disk->lastModified($file);
