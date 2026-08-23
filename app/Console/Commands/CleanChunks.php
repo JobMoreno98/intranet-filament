@@ -17,38 +17,39 @@ class CleanChunks extends Command
      */
     public function handle()
     {
-        // 1. Apuntamos al disco privado
-        $disk = Storage::disk('private');
+        $disk = Storage::disk('local'); // O 'private', el que funcionó en tu debug
         $directory = 'livewire-tmp';
 
-        $hours = $this->option('hours') ?? 24;
-        $now = Carbon::now();
+        // Forzamos a que sea un número flotante, así acepta 0 o 0.5 horas
+        $hours = (float) ($this->option('hours') ?? 24);
+        $now = time(); // Timestamp actual nativo (segundos desde 1970)
         $deleted = 0;
 
-        // 2. Verificamos que el directorio exista para evitar errores
         if (!$disk->exists($directory)) {
             $this->info("El directorio temporal no existe aún.");
             return;
         }
 
-        // 3. Obtenemos todos los archivos dentro de la carpeta temporal
         $files = $disk->files($directory);
+        dd($files);
 
         foreach ($files as $file) {
-            $lastModified = Carbon::createFromTimestamp($disk->lastModified($file));
+            $fileTime = $disk->lastModified($file);
+            $ageInHours = ($now - $fileTime) / 3600; // Convertimos los segundos a horas
 
-            // Si el archivo supera el límite de horas, lo eliminamos
-            if ($now->diffInHours($lastModified) >= $hours) {
+            if ($ageInHours >= $hours) {
                 $disk->delete($file);
                 $deleted++;
             }
         }
 
-        // 4. Limpiamos carpetas vacías o viejas (generadas por chunks)
         $directories = $disk->directories($directory);
+
         foreach ($directories as $dir) {
-            $lastModified = Carbon::createFromTimestamp($disk->lastModified($dir));
-            if ($now->diffInHours($lastModified) >= $hours) {
+            $dirTime = $disk->lastModified($dir);
+            $ageInHours = ($now - $dirTime) / 3600;
+
+            if ($ageInHours >= $hours) {
                 $disk->deleteDirectory($dir);
                 $deleted++;
             }
