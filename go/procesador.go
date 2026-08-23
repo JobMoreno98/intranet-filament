@@ -361,18 +361,35 @@ func processAudio(task ProcessingTask) {
 	// el audio igual queda listo, solo sin thumb.
 	thumbPath := filepath.Join(outputDir, "thumb.webp")
 	thumbOk := true
+	
 	thumbCmd := exec.Command("ffmpeg",
 		"-y",
 		"-loglevel", "error",
 		"-i", task.Path,
-		"-filter_complex", "showwavespic=s=200x200:colors=0x4A4A4A",
-		"-frames:v", "1",
+		"-an", // Ignoramos el audio, solo queremos la imagen
+		"-frames:v", "1", // Extraemos solo el primer fotograma (la portada)
+		// CORRECCIÓN: Comillas ajustadas en el filtro scale
+		"-vf", "scale='min(800,iw)':'min(800,ih)':force_original_aspect_ratio=decrease,pad=ceil(iw/2)*2:ceil(ih/2)*2",
 		"-q:v", "80",
 		thumbPath,
 	)
+
 	if out, err := thumbCmd.CombinedOutput(); err != nil {
-		log.Printf("WARN: no se pudo generar waveform ID %d: %v | output: %s", task.ArchivoID, err, string(out))
-		thumbOk = false
+		log.Printf("WARN: El MP3 no tiene portada o falló la extracción ID %d: %v", task.ArchivoID, err)
+		
+		// FALLBACK: Si falla (porque el MP3 no tiene imagen), generamos el waveform como respaldo
+		thumbCmd = exec.Command("ffmpeg",
+			"-y",
+			"-loglevel", "error",
+			"-i", task.Path,
+			"-filter_complex", "showwavespic=s=800x450:colors=0x4A4A4A",
+			"-frames:v", "1",
+			"-q:v", "80",
+			thumbPath,
+		)
+		if _, err := thumbCmd.CombinedOutput(); err != nil {
+			thumbOk = false
+		}
 	}
 
 	m3u8Path := filepath.Join(outputDir, task.OutputName+".m3u8")
