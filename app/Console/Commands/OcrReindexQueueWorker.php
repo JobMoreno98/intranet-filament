@@ -38,12 +38,25 @@ class OcrReindexQueueWorker extends Command
 
     public function handle(): int
     {
-        $this->info('Escuchando ' . self::QUEUE_KEY . '...');
+        $this->info('Escuchando ' . self::QUEUE_KEY . ' (ignorando prefijos de Laravel)...');
+
+        // Extraemos el cliente nativo de Redis que usa Laravel por debajo
+        $redisClient = Redis::connection()->client();
+
+        // Si Laravel está usando la extensión nativa PhpRedis (el estándar actual)
+        // le quitamos el prefijo a la fuerza para que escuche la misma ruta de Go
+        if (method_exists($redisClient, 'setOption')) {
+            $redisClient->setOption(\Redis::OPT_PREFIX, '');
+        }
 
         while (true) {
-            // BLPOP espera hasta 5s a que llegue algo; si no llega nada, vuelve a intentar.
-            // Esto evita hacer polling agresivo (busy loop) sin dejar el proceso "colgado" para siempre.
-            $item = Redis::blpop([self::QUEUE_KEY], 5);
+            // blPop con "P" mayúscula es la sintaxis nativa de PhpRedis
+            // Envolvemos en un try/catch para soportar si usaras Predis
+            try {
+                $item = $redisClient->blPop([self::QUEUE_KEY], 5);
+            } catch (\Throwable $e) {
+                $item = $redisClient->blpop([self::QUEUE_KEY], 5);
+            }
 
             if (!$item) {
                 continue;
@@ -60,8 +73,8 @@ class OcrReindexQueueWorker extends Command
             $recursoId = (int) $recursoId;
             $lockKey = "ocr_reindex_lock:{$recursoId}";
 
-            // Debounce: si ya reindexamos este recurso hace poco, lo saltamos.
-            // NX = solo pone la llave si no existe; si devuelve false, ya había una reciente.
+            // El candado (debounce) sí lo podemos seguir guardando con la 
+            // fachada normal de Laravel porque es de consumo interno de PHP
             $lockObtenido = Redis::set($lockKey, 1, 'EX', self::DEBOUNCE_SEGUNDOS, 'NX');
 
             if (!$lockObtenido) {
