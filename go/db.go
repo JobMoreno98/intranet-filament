@@ -261,7 +261,7 @@ func pushOcrReindexQueue(recursoID int) {
 	defer rdb.Close()
 
 	ctx := context.Background()
-	if err := rdb.RPush(ctx, "ocr_reindex_queue", recursoID).Err(); err != nil {
+	if err := rdb.RPush(ctx, "bpej_ocr_reindex_queue", recursoID).Err(); err != nil {
 		log.Printf("No se pudo encolar recurso %d para reindexado: %v", recursoID, err)
 	}
 }
