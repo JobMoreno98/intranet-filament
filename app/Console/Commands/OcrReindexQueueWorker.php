@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Recursos;
+use App\Models\RecursosArchivos;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -90,23 +91,26 @@ class OcrReindexQueueWorker extends Command
         return self::SUCCESS;
     }
 
-    private function reindexar(int $recursoId): void
+private function reindexar(int $recursoId): void
     {
         try {
-            // La cache del visor debe limpiarse siempre que cambie el OCR de una página.
-
-            $recurso = Recursos::find($recursoId);
+            // Buscamos el documento padre
+            $recurso = \App\Models\Recursos::find($recursoId);
 
             if (!$recurso) {
-                Log::warning("ocr:watch-reindex-queue: recurso {$recursoId} no existe, se ignora.");
+                \Illuminate\Support\Facades\Log::warning("ocr:watch-reindex-queue: recurso {$recursoId} no existe, se ignora.");
                 return;
             }
 
+            // 1. Reindexamos el documento principal (el libro)
             $recurso->searchable();
 
-            $this->info("Recurso {$recursoId} reindexado en Meilisearch.");
+            // 2. Reindexamos las páginas hijas usando tu modelo correcto
+            RecursosArchivos::where('recursos_id', $recursoId)->searchable();
+
+            $this->info("Recurso {$recursoId} y sus páginas fueron reindexados en Meilisearch.");
         } catch (\Throwable $e) {
-            Log::error('Error reindexando recurso tras OCR: ' . $e->getMessage(), [
+            \Illuminate\Support\Facades\Log::error('Error reindexando recurso tras OCR: ' . $e->getMessage(), [
                 'recurso_id' => $recursoId,
             ]);
         }
