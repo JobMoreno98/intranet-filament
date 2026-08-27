@@ -38,50 +38,53 @@ class OcrReindexQueueWorker extends Command
 
     public function handle(): int
     {
-        $this->info('Escuchando ' . self::QUEUE_KEY . ' (ignorando prefijos de Laravel)...');
-
-        // Extraemos el cliente nativo de Redis que usa Laravel por debajo
-        $redisClient = Redis::connection()->client();
-
-        // Si Laravel está usando la extensión nativa PhpRedis (el estándar actual)
-        // le quitamos el prefijo a la fuerza para que escuche la misma ruta de Go
-        if (method_exists($redisClient, 'setOption')) {
-            $redisClient->setOption(\Redis::OPT_PREFIX, '');
-        }
+        $this->info('Escuchando la cola de OCR (con auto-reconexión y debounce)...');
 
         while (true) {
-            // blPop con "P" mayúscula es la sintaxis nativa de PhpRedis
-            // Envolvemos en un try/catch para soportar si usaras Predis
             try {
-                $item = $redisClient->blPop([self::QUEUE_KEY], 5);
+                // Asumiendo que ya añadiste el prefijo en tu código de Go
+                $item = \Illuminate\Support\Facades\Redis::blpop([self::QUEUE_KEY], 5);
+
+                if (!$item) {
+                    continue;
+                }
+
+                $recursoId = $item[1] ?? null;
+
+                if (!is_numeric($recursoId)) {
+                    continue;
+                }
+
+                $recursoId = (int) $recursoId;
+                $lockKey = "ocr_reindex_lock:{$recursoId}";
+
+                $lockObtenido = \Illuminate\Support\Facades\Redis::set($lockKey, 1, 'EX', self::DEBOUNCE_SEGUNDOS, 'NX');
+
+                // --- NUEVA LÓGICA DEL CANDADO ---
+                if (!$lockObtenido) {
+                    $tiempoRestante = \Illuminate\Support\Facades\Redis::ttl($lockKey);
+
+                    // Si llega una imagen mientras Meilisearch está indexando, 
+                    // pausamos el worker unos segundos en lugar de descartar la imagen
+                    if ($tiempoRestante > 0) {
+                        sleep($tiempoRestante);
+                    }
+
+                    // Renovamos el candado para nuestra ejecución
+                    \Illuminate\Support\Facades\Redis::set($lockKey, 1, 'EX', self::DEBOUNCE_SEGUNDOS);
+                }
+
+                // Esta ejecución atrapará TODAS las imágenes de la ráfaga
+                $this->reindexar($recursoId);
             } catch (\Throwable $e) {
-                $item = $redisClient->blpop([self::QUEUE_KEY], 5);
-            }
+                // --- EL ESCUDO CONTRA CAÍDAS DE REDIS ---
+                // Si Redis se cae o parpadea, atrapamos el error en lugar de crashear el worker
+                \Illuminate\Support\Facades\Log::warning("Micro-corte con Redis. Reconectando en 2s... Detalle: " . $e->getMessage());
 
-            if (!$item) {
+                // Dormimos 2 segundos para darle tiempo a Redis de reponerse y volvemos al inicio del while
+                sleep(2);
                 continue;
             }
-
-            // blpop devuelve [nombre_de_la_lista, valor]
-            $recursoId = $item[1] ?? null;
-
-            if (!is_numeric($recursoId)) {
-                Log::warning('ocr:watch-reindex-queue recibió un valor inesperado', ['valor' => $recursoId]);
-                continue;
-            }
-
-            $recursoId = (int) $recursoId;
-            $lockKey = "ocr_reindex_lock:{$recursoId}";
-
-            // El candado (debounce) sí lo podemos seguir guardando con la 
-            // fachada normal de Laravel porque es de consumo interno de PHP
-            $lockObtenido = Redis::set($lockKey, 1, 'EX', self::DEBOUNCE_SEGUNDOS, 'NX');
-
-            if (!$lockObtenido) {
-                continue;
-            }
-
-            $this->reindexar($recursoId);
         }
 
         return self::SUCCESS;
