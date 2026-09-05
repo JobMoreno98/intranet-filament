@@ -60,6 +60,9 @@ Route::get('/blog/{blog:slug}', function (Blog $blog) {
 })->name('blog.show');
 
 
+Route::get('/busqueda-avanzada', [RecursosController::class, 'avanzada'])->name('busqueda.avanzada');
+Route::get('/busqueda-resultado', [ColeccionesConsultaController::class, 'busquedaAvanzada'])->name('busqueda.resultado');
+
 
 Route::resource('/areas', AreaController::class)->names('area');
 
@@ -211,7 +214,7 @@ Route::get('/videos/{recursoId}/{filename}', function ($recursoId, $filename) {
         : $filename;
 
     $internalPath = "{$video->id}/{$realFilename}";
-    
+
     $headers = [
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
         'Pragma' => 'no-cache',

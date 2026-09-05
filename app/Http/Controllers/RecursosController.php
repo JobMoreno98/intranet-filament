@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ReaderSession;
 use App\Models\Recursos;
 use App\Models\RecursosArchivos;
+use App\Models\TipoAcervo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Cache;
@@ -162,5 +163,10 @@ class RecursosController extends Controller
 
             'paginas' => $paginas,
         ]);
+    }
+
+    public function avanzada()
+    {
+        return view('busqueda-avanzada');
     }
 }

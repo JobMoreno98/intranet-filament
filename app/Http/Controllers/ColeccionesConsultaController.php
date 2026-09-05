@@ -9,6 +9,7 @@ use App\Models\Recursos;
 use App\Models\TipoAcervo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Meilisearch\Client as MeilisearchClient;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
@@ -164,42 +165,99 @@ class ColeccionesConsultaController extends Controller
             $cleanValue
         );
     }
-
     public function buscador(Request $request)
     {
+
         $request->validate([
             'q' => ['required', 'string', 'min:1'],
             'acervo_id' => ['nullable', 'exists:tipo_acervos,id'],
         ]);
 
-        $term = $request->input('q');
-        $acervo = $request->acervo_id;
+        return $this->procesarMultiSearch(
+            term: $request->input('q'),
+            filtrosBase: [],
+            request: $request,
+            tituloVista: 'Búsqueda General',
+            acervoId: $request->input('acervo_id')
+        );
+    }
+
+    // 2. Nuevo Método Exclusivo para Búsqueda Avanzada
+    public function busquedaAvanzada(Request $request)
+    {
+        $request->validate([
+            'q' => ['required', 'array'],
+            'tipos' => ['nullable', 'array'],
+            'fondos' => ['nullable', 'array'],
+        ]);
+
+        $filas = $request->input('q');
+        $term = $filas[0]['termino'] ?? '';
+        $filtrosAvanzados = [];
+
+        // Filtros de Tipos Documentales
+        if ($request->filled('tipos') && !in_array('Todos', $request->input('tipos'))) {
+            $tipos = array_map(fn($t) => "tipo_documental = " . $this->escaparFiltroMeili($t), $request->input('tipos'));
+            $filtrosAvanzados[] = "(" . implode(" OR ", $tipos) . ")";
+        }
+
+        // Filtros de Fondos
+        if ($request->filled('fondos') && !in_array('Todos', $request->input('fondos'))) {
+            $fondos = array_map(fn($f) => "fondo = " . $this->escaparFiltroMeili($f), $request->input('fondos'));
+            $filtrosAvanzados[] = "(" . implode(" OR ", $fondos) . ")";
+        }
+
+        // Filtros booleanos dinámicos
+        foreach (array_slice($filas, 1) as $fila) {
+            if (empty($fila['termino']))
+                continue;
+
+            $campo = $fila['campo'] === 'all' ? null : "metadata.{$fila['campo']}";
+            if ($campo) {
+                $condicion = "{$campo} = " . $this->escaparFiltroMeili($fila['termino']);
+                $prefijo = $fila['operador'] === 'NOT' ? 'NOT ' : '';
+                $filtrosAvanzados[] = "{$prefijo}{$condicion}";
+            }
+        }
+        return $this->procesarMultiSearch(
+            term: $term,
+            filtrosBase: $filtrosAvanzados,
+            request: $request,
+            tituloVista: 'Búsqueda Avanzada'
+        );
+    }
+
+    // 3. Motor Centralizado (Privado) que ejecuta Meilisearch para ambos métodos
+    private function procesarMultiSearch(string $term, array $filtrosBase, Request $request, string $tituloVista, $acervoId = null)
+    {
         $resultados = [];
 
-        if ($request->filled('q')) {
-            // 1. AÑADIMOS EL NUEVO ÍNDICE: 'paginas_index'
+        if (!empty($term)) {
             $coleccionesMeta = ['coleccions', 'recursos', 'paginas_index'];
-
             $queries = [];
+
             foreach ($coleccionesMeta as $meta) {
                 $searchQuery = (new SearchQuery())
                     ->setIndexUid($meta)
                     ->setQuery($term)
                     ->setLimit(150)
                     ->setAttributesToHighlight(['*'])
-                    // 2. AÑADIMOS 'ocr' A LOS ATRIBUTOS PARA RECORTAR (Snippet)
                     ->setAttributesToCrop(['descripcion', 'texto', 'biografia', 'ocr'])
                     ->setCropLength(25);
 
-                // 3. ADAPTAMOS LOS FILTROS
-                // Dependiendo del índice, el campo de acervo se llama diferente
-                if (!empty($acervo)) {
+                $filtrosLocales = $filtrosBase;
+
+                // Inyectar el filtro de acervo si existe (dependiendo del índice)
+                if (!empty($acervoId)) {
                     if ($meta === 'recursos') {
-                        $searchQuery->setFilter(["acervo_id = " . $this->escaparFiltroMeili((string) $acervo)]);
+                        $filtrosLocales[] = "acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
                     } elseif ($meta === 'paginas_index') {
-                        // Recuerda que en el modelo RecursosArchivos lo llamamos 'libro_acervo_id'
-                        $searchQuery->setFilter(["libro_acervo_id = " . $this->escaparFiltroMeili((string) $acervo)]);
+                        $filtrosLocales[] = "libro_acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
                     }
+                }
+
+                if (!empty($filtrosLocales)) {
+                    $searchQuery->setFilter($filtrosLocales); 
                 }
 
                 $queries[] = $searchQuery;
@@ -216,13 +274,12 @@ class ColeccionesConsultaController extends Controller
                     foreach ($hits as $hit) {
                         $formatted = $hit['_formatted'] ?? [];
                         $descripcionBase = $hit['descripcion'] ?? ($hit['resumen'] ?? 'Coincidencia encontrada');
-                        $snippet = \Illuminate\Support\Str::limit($descripcionBase, 140);
+                        $snippet = Str::limit($descripcionBase, 140);
 
                         if (!empty($formatted)) {
                             foreach ($formatted as $campo => $valorFormateado) {
-                                if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden'])) {
+                                if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden']))
                                     continue;
-                                }
 
                                 if ($campo === 'parent_names' && is_array($valorFormateado)) {
                                     foreach ($valorFormateado as $nombrePadre) {
@@ -233,16 +290,13 @@ class ColeccionesConsultaController extends Controller
                                     }
                                 }
 
-                                // 4. MEJORAMOS EL SNIPPET PARA EL OCR
                                 if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
-                                    // Si la coincidencia es en el OCR, lo indicamos de forma amigable
                                     $nombreCampo = $campo === 'ocr' ? 'Página ' . ($hit['orden'] ?? '') : ucfirst($campo);
                                     $snippet = 'En [' . $nombreCampo . ']: ... ' . $this->resaltarCoincidencia($valorFormateado) . ' ...';
                                     break;
                                 }
                             }
 
-                            // Búsqueda en metadata
                             if (isset($formatted['metadata']) && is_array($formatted['metadata'])) {
                                 foreach ($formatted['metadata'] as $clave => $valorFormateado) {
                                     if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
@@ -253,7 +307,6 @@ class ColeccionesConsultaController extends Controller
                             }
                         }
 
-                        // 5. MAPEO DE RESULTADOS SEGÚN EL ÍNDICE
                         if ($indexUid === 'coleccions') {
                             $resultados[] = [
                                 'index' => $indexUid,
@@ -277,21 +330,19 @@ class ColeccionesConsultaController extends Controller
                                 'metadata' => $hit['metadata'] ?? [],
                             ];
                         } elseif ($indexUid === 'paginas_index') {
-                            // NUEVO: Mapeo específico para las páginas
                             $resultados[] = [
                                 'index' => $indexUid,
-                                'tipo' => 'pagina',
-                                // Puedes armar el título para que el usuario sepa de qué libro es
+                                'tipo' => 'página',
                                 'titulo_resultado' => 'Coincidencia en el texto del documento',
                                 'coincidencia' => $snippet,
-                                'registro_id' => $hit['recursos_id'] ?? null, // Usamos el ID del padre para armar el link
-                                'orden_pagina' => $hit['orden'] ?? null, // Pasamos el número de página a la vista
+                                'registro_id' => $hit['recursos_id'] ?? null,
+                                'orden_pagina' => $hit['orden'] ?? null,
                             ];
                         }
                     }
                 }
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Error en búsqueda Meilisearch: ' . $e->getMessage(), [
+                Log::error('Error en búsqueda Meilisearch: ' . $e->getMessage(), [
                     'queries' => $queries,
                     'trace' => $e->getTraceAsString(),
                 ]);
@@ -299,11 +350,11 @@ class ColeccionesConsultaController extends Controller
         }
 
         $perPage = 15;
-        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $currentItems = array_slice($resultados, ($currentPage - 1) * $perPage, $perPage);
 
-        $paginados = new \Illuminate\Pagination\LengthAwarePaginator($currentItems, count($resultados), $perPage, $currentPage, [
-            'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(),
+        $paginados = new LengthAwarePaginator($currentItems, count($resultados), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
         $paginados->appends($request->all())->onEachSide(0);
@@ -311,7 +362,7 @@ class ColeccionesConsultaController extends Controller
         return view('respuestas', [
             'resultados' => $paginados,
             'term' => $term,
-            'title' => 'Búsqueda General',
+            'title' => $tituloVista,
         ]);
     }
 

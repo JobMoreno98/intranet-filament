@@ -228,9 +228,9 @@
                                 <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                             </flux:button>
 
-                            <flux:button href="{{ route('home') }}" variant="primary" size="sm"
+                            <flux:button href="{{ route('busqueda.avanzada') }}" variant="primary" size="sm"
                                 class="dark:bg-stone-700 dark:text-white w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
-                                <x-heroicon-o-x-mark class="w-5 h-5" />
+                                <x-heroicon-o-funnel class="w-5 h-5" />
                             </flux:button>
                         </div>
                     </div>
@@ -285,9 +285,9 @@
                             <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                         </flux:button>
 
-                        <flux:button href="{{ route('home') }}" variant="ghost" size="sm"
+                        <flux:button href="{{ route('busqueda.avanzada') }}" variant="ghost" size="sm"
                             class="dark:bg-zinc-700 dark:text-white w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-white hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
-                            <x-heroicon-o-x-mark class="w-5 h-5" />
+                            <x-heroicon-o-funnel class="w-5 h-5" />
                         </flux:button>
                     </div>
                 </div>
