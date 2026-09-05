@@ -186,14 +186,14 @@ class ColeccionesConsultaController extends Controller
     public function busquedaAvanzada(Request $request)
     {
         $request->validate([
-            'q' => ['required', 'array'],
+            'q' => ['nullable', 'array'],
             'tipos' => ['nullable', 'array'],
             'fondos' => ['nullable', 'array'],
         ]);
 
-        $filas = $request->input('q');
-        $term = $filas[0]['termino'] ?? '';
+        $filas = $request->input('q') ?? [];
         $filtrosAvanzados = [];
+        $terminosGlobales = [];
 
         // Filtros de Tipos Documentales
         if ($request->filled('tipos') && !in_array('Todos', $request->input('tipos'))) {
@@ -207,18 +207,36 @@ class ColeccionesConsultaController extends Controller
             $filtrosAvanzados[] = "(" . implode(" OR ", $fondos) . ")";
         }
 
-        // Filtros booleanos dinámicos
-        foreach (array_slice($filas, 1) as $fila) {
+        // Procesar TODAS las filas (sin ignorar la 0)
+        $stringFilas = "";
+        foreach ($filas as $fila) {
             if (empty($fila['termino']))
                 continue;
 
-            $campo = $fila['campo'] === 'all' ? null : "metadata.{$fila['campo']}";
-            if ($campo) {
+            if ($fila['campo'] === 'all') {
+                // Se acumulan para la búsqueda global (Full-Text)
+                $terminosGlobales[] = $fila['termino'];
+            } else {
+                // Se envían como filtros específicos de Meilisearch
+                $campo = "metadata.{$fila['campo']}";
                 $condicion = "{$campo} = " . $this->escaparFiltroMeili($fila['termino']);
-                $prefijo = $fila['operador'] === 'NOT' ? 'NOT ' : '';
-                $filtrosAvanzados[] = "{$prefijo}{$condicion}";
+
+                if (empty($stringFilas)) {
+                    $stringFilas = $fila['operador'] === 'NOT' ? "NOT {$condicion}" : $condicion;
+                } else {
+                    $operador = $fila['operador'] === 'NOT' ? 'AND NOT' : $fila['operador'];
+                    $stringFilas .= " {$operador} {$condicion}";
+                }
             }
         }
+
+        if (!empty($stringFilas)) {
+            $filtrosAvanzados[] = "({$stringFilas})";
+        }
+
+        // Unimos múltiples términos globales con un espacio (si eligieron 'all' varias veces)
+        $term = implode(" ", $terminosGlobales);
+
         return $this->procesarMultiSearch(
             term: $term,
             filtrosBase: $filtrosAvanzados,
@@ -226,128 +244,130 @@ class ColeccionesConsultaController extends Controller
             tituloVista: 'Búsqueda Avanzada'
         );
     }
-
     // 3. Motor Centralizado (Privado) que ejecuta Meilisearch para ambos métodos
     private function procesarMultiSearch(string $term, array $filtrosBase, Request $request, string $tituloVista, $acervoId = null)
     {
         $resultados = [];
 
-        if (!empty($term)) {
-            $coleccionesMeta = ['coleccions', 'recursos', 'paginas_index'];
-            $queries = [];
+        $coleccionesMeta = ['coleccions', 'recursos', 'paginas_index'];
+        $queries = [];
 
-            foreach ($coleccionesMeta as $meta) {
-                $searchQuery = (new SearchQuery())
-                    ->setIndexUid($meta)
-                    ->setQuery($term)
-                    ->setLimit(150)
-                    ->setAttributesToHighlight(['*'])
-                    ->setAttributesToCrop(['descripcion', 'texto', 'biografia', 'ocr'])
-                    ->setCropLength(25);
+        foreach ($coleccionesMeta as $meta) {
+            $searchQuery = (new SearchQuery())
+                ->setIndexUid($meta)
+                ->setQuery($term) // Funciona incluso si $term es un string vacío ""
+                ->setLimit(150)
+                ->setAttributesToHighlight(['*'])
+                ->setAttributesToCrop(['descripcion', 'texto', 'biografia', 'ocr'])
+                ->setCropLength(25);
 
-                $filtrosLocales = $filtrosBase;
+            $filtrosLocales = $filtrosBase;
 
-                // Inyectar el filtro de acervo si existe (dependiendo del índice)
-                if (!empty($acervoId)) {
-                    if ($meta === 'recursos') {
-                        $filtrosLocales[] = "acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
-                    } elseif ($meta === 'paginas_index') {
-                        $filtrosLocales[] = "libro_acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
-                    }
+            // Inyectar el filtro de acervo si existe (dependiendo del índice)
+            if (!empty($acervoId)) {
+                if ($meta === 'recursos') {
+                    $filtrosLocales[] = "acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
+                } elseif ($meta === 'paginas_index') {
+                    $filtrosLocales[] = "libro_acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
                 }
-
-                if (!empty($filtrosLocales)) {
-                    $searchQuery->setFilter($filtrosLocales); 
-                }
-
-                $queries[] = $searchQuery;
             }
 
-            try {
-                $response = $this->meili->multiSearch($queries);
-                $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
+            if (!empty($filtrosLocales)) {
+                // Unimos todos los bloques (checkboxes, filas dinámicas y acervo) con AND
+                $filtroFinalString = implode(' AND ', $filtrosLocales);
 
-                foreach ($results as $indexResult) {
-                    $hits = $indexResult['hits'] ?? [];
-                    $indexUid = $indexResult['indexUid'] ?? 'desconocido';
+                // Lo enviamos envuelto en un array para satisfacer el requerimiento de la librería
+                $searchQuery->setFilter([$filtroFinalString]);
+            }
 
-                    foreach ($hits as $hit) {
-                        $formatted = $hit['_formatted'] ?? [];
-                        $descripcionBase = $hit['descripcion'] ?? ($hit['resumen'] ?? 'Coincidencia encontrada');
-                        $snippet = Str::limit($descripcionBase, 140);
+            $queries[] = $searchQuery;
+        }
 
-                        if (!empty($formatted)) {
-                            foreach ($formatted as $campo => $valorFormateado) {
-                                if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden']))
-                                    continue;
+        try {
+            $response = $this->meili->multiSearch($queries);
+            $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
 
-                                if ($campo === 'parent_names' && is_array($valorFormateado)) {
-                                    foreach ($valorFormateado as $nombrePadre) {
-                                        if (str_contains($nombrePadre, '<em>')) {
-                                            $snippet = 'Perteneciente a la colección padre: ... ' . $this->resaltarCoincidencia($nombrePadre) . ' ...';
-                                            break 2;
-                                        }
+            foreach ($results as $indexResult) {
+                $hits = $indexResult['hits'] ?? [];
+                $indexUid = $indexResult['indexUid'] ?? 'desconocido';
+
+                foreach ($hits as $hit) {
+                    $formatted = $hit['_formatted'] ?? [];
+                    $descripcionBase = $hit['descripcion'] ?? ($hit['resumen'] ?? 'Coincidencia encontrada');
+                    $snippet = Str::limit($descripcionBase, 140);
+
+                    if (!empty($formatted)) {
+                        foreach ($formatted as $campo => $valorFormateado) {
+                            if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden']))
+                                continue;
+
+                            if ($campo === 'parent_names' && is_array($valorFormateado)) {
+                                foreach ($valorFormateado as $nombrePadre) {
+                                    if (str_contains($nombrePadre, '<em>')) {
+                                        $snippet = 'Perteneciente a la colección padre: ... ' . $this->resaltarCoincidencia($nombrePadre) . ' ...';
+                                        break 2;
                                     }
                                 }
+                            }
 
+                            if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
+                                $nombreCampo = $campo === 'ocr' ? 'Página ' . ($hit['orden'] ?? '') : ucfirst($campo);
+                                $snippet = 'En [' . $nombreCampo . ']: ... ' . $this->resaltarCoincidencia($valorFormateado) . ' ...';
+                                break;
+                            }
+                        }
+
+                        if (isset($formatted['metadata']) && is_array($formatted['metadata'])) {
+                            foreach ($formatted['metadata'] as $clave => $valorFormateado) {
                                 if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
-                                    $nombreCampo = $campo === 'ocr' ? 'Página ' . ($hit['orden'] ?? '') : ucfirst($campo);
-                                    $snippet = 'En [' . $nombreCampo . ']: ... ' . $this->resaltarCoincidencia($valorFormateado) . ' ...';
+                                    $snippet = 'Valor encontrado en: <br/> ' . ucfirst($clave) . ': ' . $this->resaltarCoincidencia($valorFormateado);
                                     break;
                                 }
                             }
-
-                            if (isset($formatted['metadata']) && is_array($formatted['metadata'])) {
-                                foreach ($formatted['metadata'] as $clave => $valorFormateado) {
-                                    if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
-                                        $snippet = 'Valor encontrado en: <br/> ' . ucfirst($clave) . ': ' . $this->resaltarCoincidencia($valorFormateado);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if ($indexUid === 'coleccions') {
-                            $resultados[] = [
-                                'index' => $indexUid,
-                                'tipo' => $hit['tipo'] ?? 'coleccion',
-                                'titulo_resultado' => $hit['nombre'] ?? 'Colección sin nombre',
-                                'coincidencia' => $snippet,
-                                'registro_id' => $hit['id'] ?? null,
-                                'slug' => $hit['slug'] ?? null,
-                                'descripcion' => $hit['descripcion'] ?? null,
-                            ];
-                        } elseif ($indexUid === 'recursos') {
-                            $resultados[] = [
-                                'index' => $indexUid,
-                                'acervo' => $hit['acervo'] ?? null,
-                                'coleccion' => $hit['coleccion'] ?? null,
-                                'tipo' => 'documento',
-                                'titulo_resultado' => $hit['titulo'] ?? ($hit['nombre'] ?? 'Registro sin título'),
-                                'coincidencia' => $snippet,
-                                'registro_id' => $hit['id'] ?? null,
-                                'slug' => $hit['slug'] ?? null,
-                                'metadata' => $hit['metadata'] ?? [],
-                            ];
-                        } elseif ($indexUid === 'paginas_index') {
-                            $resultados[] = [
-                                'index' => $indexUid,
-                                'tipo' => 'página',
-                                'titulo_resultado' => 'Coincidencia en el texto del documento',
-                                'coincidencia' => $snippet,
-                                'registro_id' => $hit['recursos_id'] ?? null,
-                                'orden_pagina' => $hit['orden'] ?? null,
-                            ];
                         }
                     }
+
+                    if ($indexUid === 'coleccions') {
+                        $resultados[] = [
+                            'index' => $indexUid,
+                            'tipo' => $hit['tipo'] ?? 'coleccion',
+                            'titulo_resultado' => $hit['nombre'] ?? 'Colección sin nombre',
+                            'coincidencia' => $snippet,
+                            'registro_id' => $hit['id'] ?? null,
+                            'slug' => $hit['slug'] ?? null,
+                            'descripcion' => $hit['descripcion'] ?? null,
+                        ];
+                    } elseif ($indexUid === 'recursos') {
+                        $resultados[] = [
+                            'index' => $indexUid,
+                            'acervo' => $hit['acervo'] ?? null,
+                            'coleccion' => $hit['coleccion'] ?? null,
+                            'tipo' => 'documento',
+                            'titulo_resultado' => $hit['titulo'] ?? ($hit['nombre'] ?? 'Registro sin título'),
+                            'coincidencia' => $snippet,
+                            'registro_id' => $hit['id'] ?? null,
+                            'slug' => $hit['slug'] ?? null,
+                            'metadata' => $hit['metadata'] ?? [],
+                        ];
+                    } elseif ($indexUid === 'paginas_index') {
+                        $resultados[] = [
+                            'index' => $indexUid,
+                            'tipo' => 'página',
+                            'titulo_resultado' => 'Coincidencia en el texto del documento',
+                            'coincidencia' => $snippet,
+                            'registro_id' => $hit['recursos_id'] ?? null,
+                            'orden_pagina' => $hit['orden'] ?? null,
+                        ];
+                    }
                 }
-            } catch (\Exception $e) {
-                Log::error('Error en búsqueda Meilisearch: ' . $e->getMessage(), [
-                    'queries' => $queries,
-                    'trace' => $e->getTraceAsString(),
-                ]);
             }
+        } catch (\Exception $e) {
+            Log::error('Error en búsqueda Meilisearch: ' . $e->getMessage(), [
+                'queries' => $queries,
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
+
 
         $perPage = 15;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();

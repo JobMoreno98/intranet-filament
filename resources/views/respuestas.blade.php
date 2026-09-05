@@ -19,9 +19,17 @@
         <!-- Tabla de Resultados Coincidentes -->
         <div class="mx-auto sm:px-7 px-3 max-w-screen-xl py-6">
             <div class="mb-4">
+                <!-- Título dinámico enviado desde el controlador -->
+                <h2 class="text-xl font-bold text-gray-800 mb-2">{{ $title ?? 'Resultados de Búsqueda' }}</h2>
+
                 <p class="text-sm text-gray-500">
                     Se encontraron <span class="font-bold text-gray-800">{{ $resultados->total() }}</span> registros
-                    coincidentes para "<span class="font-semibold text-red-800">{{ $term }}</span>".
+
+                    @if(!empty(trim($term)))
+                        coincidentes para "<span class="font-semibold text-red-800">{{ $term }}</span>".
+                    @else
+                        coincidentes con los filtros seleccionados.
+                    @endif
                 </p>
             </div>
 

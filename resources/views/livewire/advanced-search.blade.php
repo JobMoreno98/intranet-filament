@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Component as VoltComponent;
 use App\Models\TipoAcervo;
+use App\Models\Coleccion;
 // use App\Models\Fondo; // Descomenta o ajusta si tienes un modelo para Fondos
 use Illuminate\Support\Facades\Cache;
 
@@ -74,7 +75,7 @@ new class extends VoltComponent {
             // Si Fondo es otro modelo:
             // 'fondosDisponibles' => Fondo::pluck('nombre')->toArray(),
             // Si el fondo viene de un campo específico en otra tabla, ajusta la consulta aquí:
-            'fondosDisponibles' => ['Archivo real audiencia', 'Archivo visual y sonoro'], // Reemplazar con consulta real
+            'fondosDisponibles' => Coleccion::pluck('nomnbre')->toArray(), // Reemplazar con consulta real
         ];
     }
 

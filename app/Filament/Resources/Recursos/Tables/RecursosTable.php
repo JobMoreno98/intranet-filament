@@ -22,11 +22,17 @@ class RecursosTable
         return $table
             ->columns([
                 TextColumn::make("id")->sortable(),
+                TextColumn::make('metadata_indicador') // Nombre inventado para la columna
+                    ->label('Título')
+                    ->getStateUsing(function ($record) {
+                        return $record->metadata['indicador'] ?? 'Sin indicador';
+                    })->sortable()->searchable(),
                 TextColumn::make('metadata_titulo') // Nombre inventado para la columna
                     ->label('Título')
                     ->getStateUsing(function ($record) {
                         return $record->metadata['titulo'] ?? 'Sin título';
                     })->sortable()->searchable(),
+
                 TextColumn::make('coleccion.nombre')->label('Fondo')->sortable()->searchable(),
                 TextColumn::make('acervo.nombre')->label('Tipo Acervo')->sortable()->searchable(),
 
