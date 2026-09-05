@@ -85,7 +85,7 @@ new class extends VoltComponent {
             // Si Fondo es otro modelo:
             // 'fondosDisponibles' => Fondo::pluck('nombre')->toArray(),
             // Si el fondo viene de un campo específico en otra tabla, ajusta la consulta aquí:
-            'fondosDisponibles' => Coleccion::pluck('nomnbre')->toArray(), // Reemplazar con consulta real
+            'fondosDisponibles' => Coleccion::pluck('nombre')->toArray(), // Reemplazar con consulta real
         ];
     }
 
