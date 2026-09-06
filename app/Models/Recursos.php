@@ -71,12 +71,16 @@ class Recursos extends Model
         $filtros = array_intersect_key($metadata, array_flip($variables));
 
         if (!empty($filtros) && is_array($filtros)) {
+            // Objeto estructurado: permite filtros reales por campo, ej. metadata.titulo
+            $array['metadata'] = $filtros;
+
+            // String plano: se mantiene solo para la búsqueda de texto libre ("Todos los campos")
             $flatMetadata = collect($filtros)
                 ->map(fn($valor, $clave) => $clave . ': ' . $valor)
                 ->implode(' | ');
             $array['metadata_text'] = $flatMetadata;
         } else {
-            $array['metadata'] = '';
+            $array['metadata'] = [];
             $array['metadata_text'] = '';
         }
         

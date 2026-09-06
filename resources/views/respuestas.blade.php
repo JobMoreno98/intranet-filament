@@ -40,7 +40,8 @@
                         <thead class="bg-gray-900 text-white text-sm font-medium">
                             <tr>
                                 <th class="p-4 pl-6">Tipo</th>
-                                <th>Acervo</th>
+                                <th>Tipo de Acervo</th>
+                                <th>Fondo</th>
                                 <th class="p-4">Extracto de Coincidencia</th>
                                 <th class="p-4 text-center w-40">Acción</th>
                             </tr>
@@ -60,6 +61,10 @@
                                         @elseif ($res['tipo'] === 'coleccion' || $res['tipo'] === 'pagina')
                                             {{ $res['titulo_resultado'] ?? '---' }}
                                         @endif
+                                    </td>
+
+                                    <td class="p-4"> 
+                                        {{ ($res['coleccion']) }}
                                     </td>
 
                                     <!-- Coincidencia -->
@@ -87,6 +92,7 @@
                                             </a>
                                         @endif
                                     </td>
+
                                 </tr>
                             @endforeach
 

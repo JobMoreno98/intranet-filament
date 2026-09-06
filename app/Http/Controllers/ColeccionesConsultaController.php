@@ -194,16 +194,18 @@ class ColeccionesConsultaController extends Controller
         $filas = $request->input('q') ?? [];
         $filtrosAvanzados = [];
         $terminosGlobales = [];
+        $camposPrioritarios = [];
+        $terminosDescriptivos = [];
 
         // Filtros de Tipos Documentales
         if ($request->filled('tipos') && !in_array('Todos', $request->input('tipos'))) {
-            $tipos = array_map(fn($t) => "tipo_documental = " . $this->escaparFiltroMeili($t), $request->input('tipos'));
+            $tipos = array_map(fn($t) => "acervo = \"" . $this->escaparFiltroMeili($t) . "\"", $request->input('tipos'));
             $filtrosAvanzados[] = "(" . implode(" OR ", $tipos) . ")";
         }
 
         // Filtros de Fondos
         if ($request->filled('fondos') && !in_array('Todos', $request->input('fondos'))) {
-            $fondos = array_map(fn($f) => "fondo = " . $this->escaparFiltroMeili($f), $request->input('fondos'));
+            $fondos = array_map(fn($f) => "coleccion = \"" . $this->escaparFiltroMeili($f) . "\"", $request->input('fondos'));
             $filtrosAvanzados[] = "(" . implode(" OR ", $fondos) . ")";
         }
 
@@ -216,10 +218,18 @@ class ColeccionesConsultaController extends Controller
             if ($fila['campo'] === 'all') {
                 // Se acumulan para la búsqueda global (Full-Text)
                 $terminosGlobales[] = $fila['termino'];
+                $terminosDescriptivos[] = $fila['termino'];
             } else {
                 // Se envían como filtros específicos de Meilisearch
                 $campo = "metadata.{$fila['campo']}";
-                $condicion = "{$campo} = " . $this->escaparFiltroMeili($fila['termino']);
+                $condicion = "{$campo} CONTAINS \"" . $this->escaparFiltroMeili($fila['termino']) . "\"";
+
+                // Los filtros no generan highlighting (<em>) en Meilisearch, solo la
+                // búsqueda de texto lo hace. Mandamos el mismo término como texto
+                // libre para que el snippet muestre en qué campo se encontró.
+                $terminosGlobales[] = $fila['termino'];
+                $camposPrioritarios[] = $fila['campo'];
+                $terminosDescriptivos[] = ucfirst($fila['campo']) . ': ' . $fila['termino'];
 
                 if (empty($stringFilas)) {
                     $stringFilas = $fila['operador'] === 'NOT' ? "NOT {$condicion}" : $condicion;
@@ -241,15 +251,24 @@ class ColeccionesConsultaController extends Controller
             term: $term,
             filtrosBase: $filtrosAvanzados,
             request: $request,
-            tituloVista: 'Búsqueda Avanzada'
+            tituloVista: 'Búsqueda Avanzada',
+            camposPrioritarios: array_unique($camposPrioritarios),
+            terminoMostrar: implode(', ', $terminosDescriptivos)
         );
     }
     // 3. Motor Centralizado (Privado) que ejecuta Meilisearch para ambos métodos
-    private function procesarMultiSearch(string $term, array $filtrosBase, Request $request, string $tituloVista, $acervoId = null)
+    private function procesarMultiSearch(string $term, array $filtrosBase, Request $request, string $tituloVista, $acervoId = null, array $camposPrioritarios = [], ?string $terminoMostrar = null)
     {
         $resultados = [];
 
-        $coleccionesMeta = ['coleccions', 'recursos', 'paginas_index'];
+        // Si no hay texto libre (búsqueda puramente por campo/metadata), no tiene
+        // sentido consultar "coleccions" ni "paginas_index": con query vacía y sin
+        // filtro aplicable ahí, Meilisearch entra en "modo browse" y devuelve
+        // documentos sin relación con la búsqueda. Solo "recursos" entiende metadata.*.
+        $coleccionesMeta = trim($term) !== ''
+            ? ['coleccions', 'recursos', 'paginas_index']
+            : ['recursos'];
+
         $queries = [];
 
         foreach ($coleccionesMeta as $meta) {
@@ -261,7 +280,11 @@ class ColeccionesConsultaController extends Controller
                 ->setAttributesToCrop(['descripcion', 'texto', 'biografia', 'ocr'])
                 ->setCropLength(25);
 
-            $filtrosLocales = $filtrosBase;
+            // Los filtros avanzados (tipos, fondos, metadata.*) usan campos que
+            // solo existen en el esquema del índice "recursos". Aplicarlos a
+            // "coleccions" o "paginas_index" rompe el multiSearch completo,
+            // porque Meilisearch valida todo el batch antes de ejecutar nada.
+            $filtrosLocales = $meta === 'recursos' ? $filtrosBase : [];
 
             // Inyectar el filtro de acervo si existe (dependiendo del índice)
             if (!empty($acervoId)) {
@@ -318,7 +341,17 @@ class ColeccionesConsultaController extends Controller
                         }
 
                         if (isset($formatted['metadata']) && is_array($formatted['metadata'])) {
-                            foreach ($formatted['metadata'] as $clave => $valorFormateado) {
+                            // Primero revisamos los campos que el usuario eligió explícitamente
+                            // en la búsqueda avanzada (ej. "titulo"), antes de aceptar cualquier
+                            // otro campo de metadata que también haya resultado resaltado.
+                            $ordenCampos = !empty($camposPrioritarios)
+                                ? array_intersect_key(
+                                    $formatted['metadata'],
+                                    array_flip($camposPrioritarios)
+                                ) + $formatted['metadata']
+                                : $formatted['metadata'];
+
+                            foreach ($ordenCampos as $clave => $valorFormateado) {
                                 if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
                                     $snippet = 'Valor encontrado en: <br/> ' . ucfirst($clave) . ': ' . $this->resaltarCoincidencia($valorFormateado);
                                     break;
@@ -381,7 +414,7 @@ class ColeccionesConsultaController extends Controller
 
         return view('respuestas', [
             'resultados' => $paginados,
-            'term' => $term,
+            'term' => $terminoMostrar ?? $term,
             'title' => $tituloVista,
         ]);
     }

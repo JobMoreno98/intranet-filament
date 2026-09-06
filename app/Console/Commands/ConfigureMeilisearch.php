@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\TipoAcervo;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -32,12 +33,47 @@ class ConfigureMeilisearch extends Command
 
         // Configuración de Recursos
         $this->line('Configurando índice: recursos...');
+
+        // Los campos de metadata son dinámicos: uno por cada "variable" definida
+        // en el esquema de cada TipoAcervo (Recuperable o Adicional).
+        $camposMetadata = TipoAcervo::whereNotNull('esquema')
+            ->pluck('esquema')
+            ->flatMap(function ($esquema) {
+                $decodificado = is_string($esquema) ? json_decode($esquema, true) : $esquema;
+                return $decodificado ?? [];
+            })
+            ->filter(fn($campo) => in_array(data_get($campo, 'visible'), ['Recuperable', 'Adicional'])
+                && !empty(data_get($campo, 'variable')))
+            ->pluck('variable')
+            ->unique()
+            ->map(fn($variable) => "metadata.{$variable}")
+            ->values()
+            ->all();
+
+        $this->line('Campos de metadata detectados: ' . implode(', ', $camposMetadata));
+
         $client->index('recursos')->updateSettings([
-            'searchableAttributes' => ['titulo', 'autor', 'metadata', 'coleccion_nombre', 'parent_names', 'fondo'],
-            'filterableAttributes' => ['id', 'coleccion_id', 'tipo_media', 'anio', 'status', 'claveFondo'],
-            'sortableAttributes' => ['anio', 'claveFondo', 'titulo']
+            'searchableAttributes' => array_merge(
+                ['metadata_text', 'acervo', 'coleccion', 'coleccion_nombre', 'parent_names'],
+                $camposMetadata
+            ),
+            'filterableAttributes' => array_merge(
+                ['id', 'coleccion_id', 'acervo_id', 'acervo', 'coleccion', 'status', 'archivos'],
+                $camposMetadata
+            ),
+            'sortableAttributes' => ['coleccion_nombre', 'acervo'],
         ]);
 
+        // Habilita el operador CONTAINS para coincidencias parciales en filtros de metadata
+        try {
+            $client->updateExperimentalFeatures(['containsFilter' => true]);
+            $this->line('containsFilter habilitado.');
+        } catch (\Throwable $e) {
+            $this->warn('No se pudo habilitar containsFilter automáticamente: ' . $e->getMessage());
+            $this->warn('Actívalo manualmente con: PATCH /experimental-features { "containsFilter": true }');
+        }
+
         $this->info('¡Meilisearch se ha configurado correctamente para la intranet!');
+        $this->warn('Recuerda reindexar: php artisan scout:flush "App\\Models\\Recursos" && php artisan scout:import "App\\Models\\Recursos"');
     }
 }
