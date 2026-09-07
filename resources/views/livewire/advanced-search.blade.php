@@ -136,7 +136,7 @@ new class extends VoltComponent {
             <div class="space-y-3">
                 <div class="space-y-3">
                     @foreach($filas as $index => $fila)
-                        <div class="flex items-center space-x-3">
+                        <div class="flex flex-col md:flex-row items-center space-x-3">
 
                             @if($index > 0)
                                 <select wire:model="filas.{{ $index }}.operador"
