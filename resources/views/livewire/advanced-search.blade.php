@@ -42,7 +42,7 @@ new class extends VoltComponent {
         $this->filas[] = [
             'operador' => 'AND',
             'campo' => 'all',
-            'termino' => ''
+            'termino' => '',
         ];
     }
 
@@ -83,8 +83,9 @@ new class extends VoltComponent {
     {
         return Cache::remember('campos_recuperables_union_global', 3600, function () {
             $esquemasRaw = TipoAcervo::whereNotNull('esquema')->pluck('esquema');
-            if ($esquemasRaw->isEmpty())
+            if ($esquemasRaw->isEmpty()) {
                 return [];
+            }
 
             return $esquemasRaw
                 ->flatMap(function ($esquema) {
@@ -135,10 +136,10 @@ new class extends VoltComponent {
             <!-- Filas Dinámicas de Búsqueda -->
             <div class="space-y-3">
                 <div class="space-y-3">
-                    @foreach($filas as $index => $fila)
+                    @foreach ($filas as $index => $fila)
                         <div class="flex flex-col md:flex-row items-center space-x-3">
 
-                            @if($index > 0)
+                            @if ($index > 0)
                                 <select wire:model="filas.{{ $index }}.operador"
                                     class="dark:text-white dark:bg-zinc-700 border border-gray-300 text-gray-600 font-bold uppercase text-xs rounded-md px-3 py-2 w-32 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all bg-gray-50">
                                     <option value="AND">Y (AND)</option>
@@ -152,16 +153,17 @@ new class extends VoltComponent {
                             <select wire:model="filas.{{ $index }}.campo"
                                 class="dark:text-white  dark:bg-zinc-700 border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
                                 <option value="all">--- Todos los campos ---</option>
-                                @foreach($configuracion as $campo)
+                                @foreach ($configuracion as $campo)
                                     <option value="{{ $campo['variable'] }}">{{ $campo['label'] ?? $campo['variable'] }}
                                     </option>
                                 @endforeach
                             </select>
 
-                            <input type="text" wire:model="filas.{{ $index }}.termino" placeholder="Ingresa el término..."
+                            <input type="text" wire:model="filas.{{ $index }}.termino"
+                                placeholder="Ingresa el término..."
                                 class="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400">
 
-                            @if($loop->last)
+                            @if ($loop->last)
                                 <button type="button" wire:click="agregarFila"
                                     class="w-9 h-9 rounded-md border border-gray-300 text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +175,8 @@ new class extends VoltComponent {
                                 <button type="button" wire:click="removerFila({{ $index }})"
                                     class="w-9 h-9 rounded-md border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 12H4">
                                         </path>
                                     </svg>
                                 </button>
@@ -191,13 +194,15 @@ new class extends VoltComponent {
                             En tipo documental
                         </label>
                         <div class="grid grid-cols-2 gap-2">
-                            <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                            <label
+                                class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                 <input type="checkbox" wire:model="tiposSeleccionados" value="Todos"
                                     class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                 <span>Todos</span>
                             </label>
-                            @foreach($tiposDocumentales as $tipo)
-                                <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                            @foreach ($tiposDocumentales as $tipo)
+                                <label
+                                    class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                     <input type="checkbox" wire:model="tiposSeleccionados" value="{{ $tipo }}"
                                         class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                     <span>{{ $tipo }}</span>
@@ -212,13 +217,15 @@ new class extends VoltComponent {
                             En fondo
                         </label>
                         <div class="grid grid-cols-1 gap-2">
-                            <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                            <label
+                                class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                 <input type="checkbox" wire:model="fondosSeleccionados" value="Todos"
                                     class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                 <span>Todos</span>
                             </label>
-                            @foreach($fondosDisponibles as $fondo)
-                                <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                            @foreach ($fondosDisponibles as $fondo)
+                                <label
+                                    class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                     <input type="checkbox" wire:model="fondosSeleccionados" value="{{ $fondo }}"
                                         class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                     <span>{{ $fondo }}</span>
@@ -230,7 +237,7 @@ new class extends VoltComponent {
 
                 <!-- Botones de Acción -->
                 <div class="mt-8 flex justify-end space-x-3 border-t pt-4 border-gray-100">
-                    @if(request()->anyFilled(['q', 'tipos', 'fondos']))
+                    @if (request()->anyFilled(['q', 'tipos', 'fondos']))
                         <a href="{{ url()->current() }}"
                             class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
                             Limpiar criterios
@@ -249,3 +256,5 @@ new class extends VoltComponent {
 
             </div>
         </div>
+    </div>
+</div>
