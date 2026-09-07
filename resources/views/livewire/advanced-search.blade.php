@@ -102,9 +102,9 @@ new class extends VoltComponent {
     }
 }; ?>
 
-<div class="bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100 font-sans">
+<div class="bg-white dark:bg-zinc-700 dark:text-white p-6 rounded-b-lg shadow-sm border-t border-gray-100 font-sans">
 
-    <h4 class="text-sm font-bold mb-6 text-gray-700 uppercase tracking-wider flex items-center gap-2">
+    <h4 class="text-sm font-bold dark:text-white mb-6 text-gray-700 uppercase tracking-wider flex items-center gap-2">
         <svg class="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
             stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -134,15 +134,13 @@ new class extends VoltComponent {
 
             <!-- Filas Dinámicas de Búsqueda -->
             <div class="space-y-3">
-                <!-- ... (código del foreach de tus filas) ... -->
-                <!-- Filas Dinámicas de Búsqueda -->
                 <div class="space-y-3">
                     @foreach($filas as $index => $fila)
                         <div class="flex items-center space-x-3">
 
                             @if($index > 0)
                                 <select wire:model="filas.{{ $index }}.operador"
-                                    class="border border-gray-300 text-gray-600 font-bold uppercase text-xs rounded-md px-3 py-2 w-32 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all bg-gray-50">
+                                    class="dark:text-white dark:bg-zinc-700 border border-gray-300 text-gray-600 font-bold uppercase text-xs rounded-md px-3 py-2 w-32 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all bg-gray-50">
                                     <option value="AND">Y (AND)</option>
                                     <option value="OR">O (OR)</option>
                                     <option value="NOT">NO (NOT)</option>
@@ -152,7 +150,7 @@ new class extends VoltComponent {
                             @endif
 
                             <select wire:model="filas.{{ $index }}.campo"
-                                class="border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
+                                class="dark:text-white  dark:bg-zinc-700 border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
                                 <option value="all">--- Todos los campos ---</option>
                                 @foreach($configuracion as $campo)
                                     <option value="{{ $campo['variable'] }}">{{ $campo['label'] ?? $campo['variable'] }}
@@ -185,21 +183,21 @@ new class extends VoltComponent {
                 </div>
 
                 <!-- Contenedores de Checkboxes (Estilo Colecciones) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 border-t pt-6 border-gray-100">
+                <div class="dark:text-white  grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 border-t pt-6 border-gray-100">
 
                     <!-- Tipo Documental -->
                     <div class="flex flex-col">
-                        <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
+                        <label class="dark:text-white  text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
                             En tipo documental
                         </label>
                         <div class="grid grid-cols-2 gap-2">
-                            <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                            <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                 <input type="checkbox" wire:model="tiposSeleccionados" value="Todos"
                                     class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                 <span>Todos</span>
                             </label>
                             @foreach($tiposDocumentales as $tipo)
-                                <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                                <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                     <input type="checkbox" wire:model="tiposSeleccionados" value="{{ $tipo }}"
                                         class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                     <span>{{ $tipo }}</span>
@@ -210,17 +208,17 @@ new class extends VoltComponent {
 
                     <!-- Fondo -->
                     <div class="flex flex-col border-l border-gray-100 pl-6">
-                        <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
+                        <label class="dark:text-white  text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
                             En fondo
                         </label>
                         <div class="grid grid-cols-1 gap-2">
-                            <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                            <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                 <input type="checkbox" wire:model="fondosSeleccionados" value="Todos"
                                     class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                 <span>Todos</span>
                             </label>
                             @foreach($fondosDisponibles as $fondo)
-                                <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                                <label class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                     <input type="checkbox" wire:model="fondosSeleccionados" value="{{ $fondo }}"
                                         class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
                                     <span>{{ $fondo }}</span>

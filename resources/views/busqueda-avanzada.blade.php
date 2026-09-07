@@ -23,7 +23,7 @@
 @section('content')
     <section class="">
         <div class="sm:px-7 px-2 w-full py-20 flex flex-col gap-6">
-                <div class="p-4 bg-gray-100/50 dark:bg-neutral-600">
+                <div class="p-4 bg-gray-100/50 dark:bg-zinc-700">
                     <livewire:advanced-search />
                 </div>
             </div>

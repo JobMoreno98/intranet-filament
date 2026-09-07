@@ -301,14 +301,14 @@
                         </div>
                     @endif
                 @else
-                    <div class="  bg-white p-10 text-center  h-full">
-                        <x-heroicon-o-lock-closed class="w-12 h-12 mx-auto text-zinc-400 mb-4" />
+                    <div class="dark:bg-zinc-700  bg-white p-10 text-center  h-full">
+                        <x-heroicon-o-lock-closed class="w-12 h-12 mx-auto text-zinc-400 mb-4 dark:text-white" />
 
-                        <h3 class="text-lg font-bold text-zinc-800">
+                        <h3 class="text-lg font-bold text-zinc-800 dark:text-white">
                             Inicia sesión para visualizar el contenido
                         </h3>
 
-                        <p class="text-sm text-zinc-500 mt-2">
+                        <p class="text-sm text-zinc-500 mt-2 dark:text-white">
                             Debes autenticarte para acceder al visor digital.
                         </p>
                         @section('js')
