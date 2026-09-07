@@ -212,11 +212,11 @@ new class extends VoltComponent {
                     </div>
 
                     <!-- Fondo -->
-                    <div class="flex flex-col border-l border-gray-100 pl-6">
+                    <div class="flex flex-col md:border-l border-gray-100 md:pl-6 border-t md:border-t-0 pt-6 md:pt-0 pl-0">
                         <label class="dark:text-white  text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
                             En fondo
                         </label>
-                        <div class="grid grid-cols-1 gap-2">
+                        <div class="grid grid-cols-2 gap-2">
                             <label
                                 class="dark:text-white  flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                                 <input type="checkbox" wire:model="fondosSeleccionados" value="Todos"
