@@ -101,7 +101,7 @@
 <body class="antialiased">
 
     <nav x-data="{ mobileMenuOpen: false }"
-        class="bg-white border-b border-gray-200 dark:border-neutral-700 dark:bg-neutral-600">
+        class="bg-white dark:bg-neutral-600">
 
         <div class="flex items-center justify-between w-full h-16 px-4 mx-auto">
 
