@@ -22,10 +22,10 @@ class RecursosTable
         return $table
             ->columns([
                 TextColumn::make("id")->sortable(),
-                TextColumn::make('metadata_indicador') // Nombre inventado para la columna
-                    ->label('Título')
+                TextColumn::make('metadata_identificador') // Nombre inventado para la columna
+                    ->label('Identificador')
                     ->getStateUsing(function ($record) {
-                        return $record->metadata['indicador'] ?? 'Sin indicador';
+                        return $record->metadata['identificador'] ?? 'Sin identificador';
                     })->sortable()->searchable(),
                 TextColumn::make('metadata_titulo') // Nombre inventado para la columna
                     ->label('Título')
