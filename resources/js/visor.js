@@ -366,7 +366,8 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
 
             canvas.width = bitmap.width;
             canvas.height = bitmap.height;
-
+            canvas.style.width = `${bitmap.width}px`;
+            canvas.style.height = `${bitmap.height}px`;
             // Aseguramos que el contenedor tenga el mismo tamaño exacto del canvas
             panzoomContent.style.width = `${bitmap.width}px`;
             panzoomContent.style.height = `${bitmap.height}px`;
@@ -393,7 +394,7 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
             // 4. Actualizamos Panzoom para que permita esta nueva escala
             panzoom.setOptions({
                 minScale: initialScale * 0.5,
-                startScale: initialScale
+                startScale: initialScale,
             });
 
             // 5. Aplicamos el zoom calculado instantáneamente y lo centramos
@@ -499,7 +500,8 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
 
     function limpiarResaltado() {
         ocrSpans.forEach((span) => {
-            if (span) span.classList.remove(...HIGHLIGHT_CLASSES, ...ACTIVE_CLASSES);
+            if (span)
+                span.classList.remove(...HIGHLIGHT_CLASSES, ...ACTIVE_CLASSES);
         });
     }
 
@@ -552,7 +554,8 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
                 // encadenar palabras que casualmente quedaron seguidas en el
                 // arreglo pero pertenecen a líneas o bloques distintos.
                 if (prevItem) {
-                    const prevCenterY = (prevItem.Box.Min.Y + prevItem.Box.Max.Y) / 2;
+                    const prevCenterY =
+                        (prevItem.Box.Min.Y + prevItem.Box.Max.Y) / 2;
                     const curCenterY = (item.Box.Min.Y + item.Box.Max.Y) / 2;
                     const lineHeight = item.Box.Max.Y - item.Box.Min.Y || 1;
 
@@ -643,7 +646,8 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
 
         words.forEach((item) => {
             if (prevItem) {
-                const prevCenterY = (prevItem.Box.Min.Y + prevItem.Box.Max.Y) / 2;
+                const prevCenterY =
+                    (prevItem.Box.Min.Y + prevItem.Box.Max.Y) / 2;
                 const curCenterY = (item.Box.Min.Y + item.Box.Max.Y) / 2;
                 const lineHeight = item.Box.Max.Y - item.Box.Min.Y || 1;
 
@@ -679,7 +683,11 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
 
         const seleccionadas = [];
         ocrSpans.forEach((span, idx) => {
-            if (span && selection.containsNode(span, true) && currentWords[idx]) {
+            if (
+                span &&
+                selection.containsNode(span, true) &&
+                currentWords[idx]
+            ) {
                 seleccionadas.push(currentWords[idx]);
             }
         });

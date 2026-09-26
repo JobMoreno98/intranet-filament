@@ -100,8 +100,7 @@
 
 <body class="antialiased">
 
-    <nav x-data="{ mobileMenuOpen: false }"
-        class="bg-white dark:bg-neutral-600">
+    <nav x-data="{ mobileMenuOpen: false }" class="bg-white dark:bg-neutral-600">
 
         <div class="flex items-center justify-between w-full h-16 px-4 mx-auto">
 
@@ -180,10 +179,10 @@
                 <li>
                     <a href="{{ route('home') }}"
                         class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Inicio</a>
-                </li>
-                <li>
-                    <a href="{{ route('home') }}"
+                    <a href="{{ route('fondos.index') }}"
                         class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
+                    <a href="{{ route('blog.index') }}"
+                        class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Blog</a>
                 </li>
 
                 <li class="pt-4 mt-2 border-t border-gray-200 dark:border-neutral-700">
@@ -217,7 +216,8 @@
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                     <x-heroicon-o-magnifying-glass class="w-4 h-4" />
                                 </div>
-                                <input type="text" name="q" placeholder="Buscar contenido..." class="dark:bg-stone-700 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border  bg-white 
+                                <input type="text" name="q" placeholder="Buscar contenido..."
+                                    class="dark:bg-stone-700 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border  bg-white 
                                      focus:ring-red-100 focus:border-red-700 outline-none transition">
                             </div>
                         </div>
@@ -238,8 +238,10 @@
                     <div class="w-full overflow-x-auto scrollbar-none mt-1 bg-white rounded-xl mt-3 dark:bg-stone-700">
                         <div class="relative flex min-w-max items-stretch h-12">
 
-                            <input type="radio" id="d-todas" class="hidden" checked @click="activeIndexDesktop = 0">
-                            <label for="d-todas" class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 
+                            <input type="radio" id="d-todas" class="hidden" checked
+                                @click="activeIndexDesktop = 0">
+                            <label for="d-todas"
+                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 
                                 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexDesktop === 0 ? 'text-white' : 'text-zinc-600'">
                                 Todas
@@ -296,7 +298,8 @@
                     <div
                         class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white dark:bg-stone-700 dark:text-white rounded-xl shadow-sm">
                         <div class="relative flex min-w-max items-stretch h-12">
-                            <input type="radio" id="m-todas" class="hidden" checked @click="activeIndexMobile = 0">
+                            <input type="radio" id="m-todas" class="hidden" checked
+                                @click="activeIndexMobile = 0">
                             <label for="m-todas"
                                 class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
                                 :class="activeIndexMobile === 0 ? 'text-white' : 'text-zinc-600'">
