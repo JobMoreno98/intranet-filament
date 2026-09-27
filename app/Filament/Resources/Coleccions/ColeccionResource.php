@@ -22,10 +22,10 @@ class ColeccionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingLibrary;
 
-    protected static ?string $recordTitleAttribute = 'Colecciones';
-    protected static ?string $title = 'Colecciones';
-    protected static ?string $navigationLabel = 'Colecciones';
-    protected static ?string $pluralModelLabel = 'Colecciones';
+    protected static ?string $recordTitleAttribute = 'Fondos';
+    protected static ?string $title = 'Fondos';
+    protected static ?string $navigationLabel = 'Fondos';
+    protected static ?string $pluralModelLabel = 'Fondos';
     protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string

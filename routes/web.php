@@ -9,6 +9,7 @@ use App\Models\Area;
 use App\Models\Blog;
 use App\Models\ColeccionesConsulta;
 use App\Models\RecursosArchivos;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Filament\Facades\Filament;
@@ -32,14 +33,26 @@ Route::get('/coleccion/{tabla}/{id}', [RecursosController::class, 'publico'])->n
 
 
 Route::get('/blog', function () {
+
     $tagsDisponibles = Blog::pluck('tags')
         ->flatten()
         ->unique()
         ->values();
 
+    $archivos = Blog::selectRaw('YEAR(created_at) as anio, MONTH(created_at) as mes, COUNT(*) as cantidad')
+        ->groupBy('anio', 'mes')
+        ->orderBy('anio', 'desc')
+        ->orderBy('mes', 'desc')
+        ->get()
+        ->map(function ($item) {
+            $item->nombre_mes = Carbon::create()->month($item->mes)->translatedFormat('F');
+            return $item;
+        });
+
     return view('blogs.index', [
         'tagsDisponibles' => $tagsDisponibles,
         'recientes' => Blog::latest()->take(4)->get(),
+        'archivos' => $archivos
     ]);
 })->name('blog.index');
 
@@ -248,4 +261,3 @@ Route::middleware(['web', Authenticate::class])
             ->name('api.chunks.upload')
             ->middleware(Authenticate::class);
     });
-

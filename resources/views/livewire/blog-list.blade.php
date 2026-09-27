@@ -11,15 +11,34 @@ state([
 ]);
 
 with(function () {
-    if (!empty(request('q'))) {
-        $publicaciones = Blog::search(request('q'))
-            ->when(!empty($this->tag), fn ($search) => $search->where('tags', $this->tag))
+    // 1. Capturamos todos los posibles filtros de la URL
+    $tag = request('tag') ?? $this->tag;
+    $mes = request('mes');
+    $anio = request('anio');
+    $q = request('q');
+
+    if (!empty($q)) {
+        $publicaciones = Blog::search($q)
+            ->when(!empty($tag), fn ($search) => $search->where('tags', $tag))
+            // 2. Usamos ->query() para inyectar condiciones de Eloquent en Laravel Scout
+            ->query(function ($builder) use ($mes, $anio) {
+                $builder->when(!empty($mes) && !empty($anio), function ($query) use ($mes, $anio) {
+                    $query->whereMonth('created_at', $mes)
+                          ->whereYear('created_at', $anio);
+                });
+            })
             ->paginate(6);
     } else {
         $query = Blog::query()->orderBy('created_at', 'DESC');
 
-        if (!empty($this->tag)) {
-            $query->whereJsonContains('tags', $this->tag);
+        if (!empty($tag)) {
+            $query->whereJsonContains('tags', $tag);
+        }
+
+        // 3. Aplicamos el filtro de fechas en la consulta estándar
+        if (!empty($mes) && !empty($anio)) {
+            $query->whereMonth('created_at', $mes)
+                  ->whereYear('created_at', $anio);
         }
 
         $publicaciones = $query->paginate(6);
@@ -81,7 +100,7 @@ with(function () {
     @empty
         <div class="w-full text-center py-16">
             <h4 class="text-lg font-medium text-zinc-500">Aún no hay
-                publicaciones{{ request('q') ? ' que coincidan con tu búsqueda' : '' }}</h4>
+                publicaciones{{ request('q') || request('mes') ? ' que coincidan con tu búsqueda' : '' }}</h4>
         </div>
     @endforelse
 

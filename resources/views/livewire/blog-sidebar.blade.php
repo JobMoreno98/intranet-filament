@@ -60,3 +60,32 @@
         @endforeach
     </ul>
 </div>
+
+<div class="bg-white rounded-lg border border-zinc-200 p-5 shadow-sm mt-6 dark:bg-zinc-700 dark:border-zinc-600">
+    <h4 class="text-sm font-bold text-zinc-800 uppercase tracking-wide mb-3 dark:text-white">
+        Archivo
+    </h4>
+    
+    <div class="flex flex-wrap gap-2">
+        <a href="{{ route('blog.index') }}"
+            class="text-xs rounded-full px-3 py-1 transition-colors {{ !request('mes') ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
+            Todos
+        </a>
+
+        @foreach ($archivos as $archivo)
+            @php
+                $isActive = request('mes') == $archivo->mes && request('anio') == $archivo->anio;
+            @endphp
+            
+            <a href="{{ route('blog.index', ['mes' => $archivo->mes, 'anio' => $archivo->anio]) }}"
+                class="text-xs rounded-full px-3 py-1 transition-colors flex items-center gap-1 {{ $isActive ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
+                
+                {{ ucfirst($archivo->nombre_mes) }} {{ $archivo->anio }}
+                
+                <span class="opacity-70 text-[10px]">
+                    ({{ $archivo->cantidad }})
+                </span>
+            </a>
+        @endforeach
+    </div>
+</div>

@@ -39,8 +39,14 @@
         <div class="sm:px-7 px-3 w-full py-12 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
 
             {{-- Columna principal: listado de artículos --}}
+            {{-- Columna principal: listado de artículos --}}
             <div class="lg:col-span-2 flex flex-col gap-8">
-                <livewire:blog-list :tag="request('tag')" :key="'blog-' . request('tag', 'todas')" />
+                <livewire:blog-list :tag="request('tag')" :key="'blog-' .
+                    request('tag', 'todas') .
+                    '-' .
+                    request('mes', 'all') .
+                    '-' .
+                    request('anio', 'all')" />
             </div>
 
             {{-- Sidebar --}}

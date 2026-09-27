@@ -197,7 +197,7 @@ class RecursosForm
                         ->columnSpanFull(),
 
                 ]),
-            ])->columnSpanFull(),
+            ])->columnSpanFull()->startOnStep(fn (string $operation): int => $operation === 'edit' ? 3 : 1),
 
         ]);
     }

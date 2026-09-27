@@ -38,9 +38,6 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/vnd.microsoft.icon" />
 
     <style>
-        :root {
-            font-family: 'Inter', sans-serif;
-        }
 
         body,
         html {
@@ -98,14 +95,14 @@
 
 </head>
 
-<body class="antialiased">
+<body class="antialiased font-titillium">
 
     <nav x-data="{ mobileMenuOpen: false }" class="bg-white dark:bg-neutral-600">
 
         <div class="flex items-center justify-between w-full h-16 px-4 mx-auto">
 
             <a href="{{ route('home') }}" class="flex items-center font-bold text-xl h-full py-2">
-                <img src="{{ asset('img/logo.svg') }}" class="h-6 mr-3 sm:h-9"
+                <img src="{{ asset('img/arreola-blanco.svg') }}" class="h-6 mr-3 sm:h-9"
                     alt="{{ config('app.name', 'Laravel') }} Logo">
                 <span class="dark:text-white text-guinda">{{ config('app.name', 'Laravel') }}</span>
             </a>
@@ -205,7 +202,7 @@
 
     <section class="relative flex flex-col dark:bg-gray-200">
         <div id="img-bpej" style="width: 100%;" class="hidden lg:block">
-            <div class="flex flex-col h-full " style="max-height: 300px">
+            <div class="flex flex-col h-full " style="max-height: 200px">
                 <form action="{{ route('buscador') }}" method="GET"
                     class="mt-auto mx-auto w-full md:w-fit mb-3 px-3 sm:px-7 pt-9" x-data="{ activeIndexDesktop: 0 }"
                     :style="'--active-index: ' + activeIndexDesktop + '; --tab-width: 140px;'">

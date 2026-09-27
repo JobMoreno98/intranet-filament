@@ -18,17 +18,12 @@ class BlogForm
                 Section::make('')
                     ->description('Contenido del blog')
                     ->schema([
-                        RichEditor::make('contenido')->required()->columnSpanFull(),
-                    ]),
-                Section::make('')
-                    ->description('Información')
-                    ->schema([
                         FileUpload::make('portada')->required()->image()->disk('public')->directory('blogs')->acceptedFileTypes(['image/*']),
                         TextInput::make('nombre')->required(),
-
-                        TagsInput::make('tags')
+                        TagsInput::make('tags'),
+                        RichEditor::make('contenido')->required()->columnSpanFull()
                     ]),
 
-            ])->columns(2);
+            ])->columns(1);
     }
 }

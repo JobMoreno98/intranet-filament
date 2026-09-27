@@ -18,7 +18,7 @@
         "Noto Color Emoji";
 
     /*  Color de BPEJ */
-    --color-guinda: #86212b;
+    --color-guinda: #1d1d1b;
     --color-guinda-dark: #6b1a22;
 
     /* Tus colores Zinc personalizados */
@@ -40,14 +40,15 @@
     --color-accent-foreground: var(--color-white);
 }
 
-/* LA SOLUCIÓN AQUÍ: 
-  Escribimos la mutación de las variables para Flux en un bloque nativo 
-  afuera de @theme, usando el selector .dark que inyecta Alpine.
-*/
 .dark {
     --color-accent: var(--color-white);
     --color-accent-content: var(--color-white);
     --color-accent-foreground: var(--color-neutral-800);
+}
+@layer utilities {
+    .font-titillium {
+        font-family: 'Titillium', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
 }
 
 @layer base {
@@ -64,6 +65,41 @@
     .dark ::after,
     .dark ::before {
         border-color: var(--color-zinc-700, currentColor);
+    }
+
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-Regular.otf") format("opentype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    /* Regular Italic */
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-RegularItalic.otf") format("opentype");
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+
+    /* SemiBold */
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-SemiBold.otf") format("opentype");
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    /* Bold */
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-Bold.otf") format("opentype");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
     }
 }
 
