@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script>
-        // 1. Tema blanco por defecto (nuestra base)
         let theme = 'light';
 
         // 2. LocalStorage: ¿El usuario ya eligió algo antes?
@@ -38,7 +37,6 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/vnd.microsoft.icon" />
 
     <style>
-
         body,
         html {
             scroll-behavior: smooth !important;
@@ -67,25 +65,6 @@
             max-height: 200px;
             width: 100%;
         }
-
-        #indicatorDesktop {
-            transform: translateX(calc(var(--active-index, 0) * var(--tab-width)));
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);
-        }
-
-        #indicatorMoviile {
-            transform: translateX(calc(var(--active-index, 0) * var(--tab-width)));
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);
-        }
-
-        .scrollbar-none::-webkit-scrollbar {
-            display: none;
-        }
-
-        .scrollbar-none {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
     </style>
 
     @fluxAppearance
@@ -102,8 +81,15 @@
         <div class="flex items-center justify-between w-full h-16 px-4 mx-auto">
 
             <a href="{{ route('home') }}" class="flex items-center font-bold text-xl h-full py-2">
-                <img src="{{ asset('img/arreola-blanco.svg') }}" class="h-6 mr-3 sm:h-9"
-                    alt="{{ config('app.name', 'Laravel') }} Logo">
+
+                <!-- SVG Claro: Se oculta cuando el modo oscuro está activo -->
+                <img src="{{ asset('img/arreola-blanco.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
+                    class="block dark:hidden h-6 mr-3 sm:h-9">
+
+                <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
+                <img src="{{ asset('img/arreola-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
+                    class="hidden dark:block h-6 mr-3 sm:h-9">
+
                 <span class="dark:text-white text-guinda">{{ config('app.name', 'Laravel') }}</span>
             </a>
 
@@ -199,139 +185,77 @@
             </ul>
         </div>
     </nav>
-
     <section class="relative flex flex-col dark:bg-gray-200">
-        <div id="img-bpej" style="width: 100%;" class="hidden lg:block">
-            <div class="flex flex-col h-full " style="max-height: 200px">
-                <form action="{{ route('buscador') }}" method="GET"
-                    class="mt-auto mx-auto w-full md:w-fit mb-3 px-3 sm:px-7 pt-9" x-data="{ activeIndexDesktop: 0 }"
-                    :style="'--active-index: ' + activeIndexDesktop + '; --tab-width: 140px;'">
 
-                    <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
-                        <div class="flex-1">
-                            <div class="relative">
-                                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                    <x-heroicon-o-magnifying-glass class="w-4 h-4" />
-                                </div>
-                                <input type="text" name="q" placeholder="Buscar contenido..."
-                                    class="dark:bg-stone-700 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border  bg-white 
-                                     focus:ring-red-100 focus:border-red-700 outline-none transition">
-                            </div>
-                        </div>
+        {{-- Contenedor principal (Usa el Azul Oscuro #131f30 de tu paleta) --}}
+        <div
+            class="relative w-full bg-[#131f30] pt-14 pb-10 px-4 overflow-hidden flex flex-col items-center justify-center min-h-[220px]">
 
-                        <div class="flex gap-2 w-full lg:w-auto">
-                            <flux:button type="submit" variant="primary" size="sm"
-                                class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl h-10 bg-red-800 hover:bg-red-900 text-white transition shadow-sm">
-                                <x-heroicon-o-magnifying-glass class="w-5 h-5" />
-                            </flux:button>
+            {{-- SVG Ondas de fondo con los colores de tu marca --}}
+            <svg class="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none"
+                preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
 
-                            <flux:button href="{{ route('busqueda.avanzada') }}" variant="primary" size="sm"
-                                class="dark:bg-stone-700 dark:text-white w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
-                                <x-heroicon-o-funnel class="w-5 h-5" />
-                            </flux:button>
-                        </div>
-                    </div>
+                {{-- Grupo de líneas Naranja/Rojo (RGB: 233, 79, 53) --}}
+                <path fill="none" stroke="rgb(233, 79, 53)" stroke-width="1.5"
+                    d="M0,160 C320,300 420,0 720,120 C1020,240 1120,60 1440,160" opacity="0.8" />
+                <path fill="none" stroke="rgb(233, 79, 53)" stroke-width="2"
+                    d="M0,180 C300,320 400,20 720,140 C1040,260 1140,80 1440,180" opacity="0.5" />
+                <path fill="none" stroke="rgb(233, 79, 53)" stroke-width="1.5"
+                    d="M0,140 C340,280 440,-20 720,100 C1000,220 1100,40 1440,140" opacity="0.3" />
 
-                    <div class="w-full overflow-x-auto scrollbar-none mt-1 bg-white rounded-xl mt-3 dark:bg-stone-700">
-                        <div class="relative flex min-w-max items-stretch h-12">
+                {{-- Grupo de líneas Blancas (#ffffff) para contraste --}}
+                <path fill="none" stroke="#ffffff" stroke-width="1.2"
+                    d="M0,200 C400,100 500,300 800,200 C1100,100 1200,250 1440,200" opacity="0.3" />
+                <path fill="none" stroke="#ffffff" stroke-width="2"
+                    d="M0,220 C380,120 480,320 800,220 C1120,120 1220,270 1440,220" opacity="0.2" />
+                <path fill="none" stroke="#ffffff" stroke-width="0.4"
+                    d="M0,180 C420,80 520,280 800,180 C1080,80 1180,230 1440,180" opacity="0.1" />
+            </svg>
 
-                            <input type="radio" id="d-todas" class="hidden" checked
-                                @click="activeIndexDesktop = 0">
-                            <label for="d-todas"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 
-                                font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                :class="activeIndexDesktop === 0 ? 'text-white' : 'text-zinc-600'">
-                                Todas
-                            </label>
-                            @foreach ($tiposAcervo as $index => $item)
-                                <input type="radio" id="d-{{ $item->nombre }}" name="acervo_id" class="hidden"
-                                    value="{{ $item->id }}" @click="activeIndexDesktop = {{ $index + 1 }}">
-
-                                <label for="d-{{ $item->nombre }}"
-                                    class=" dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                    :class="activeIndexDesktop === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
-                                    <flux:icon name="{{ $item->icono }}" class="mx-1 size-4" />
-                                    {{ $item->nombre }}
-                                </label>
-                            @endforeach
-                            <div id="indicatorDesktop" class="absolute bg-guinda-dark rounded-md z-10 top-0 bottom-0"
-                                style="width: var(--tab-width); transform: translateX(calc(var(--active-index, 0) * var(--tab-width))); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);">
-                            </div>
-                        </div>
-                    </div>
-                </form>
+            {{-- Overlay sutil usando el Azul Oscuro para difuminar los bordes --}}
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-[#131f30] via-transparent to-[#131f30] opacity-90 pointer-events-none">
             </div>
-        </div>
 
-        <div class="mt-auto mx-auto lg:hidden w-full sm:px-7 pt-6 dark:bg-neutral-800">
-            <form action="{{ route('buscador') }}" method="GET" class="bg-transparent" x-data="{ activeIndexMobile: 0 }"
-                :style="'--active-index: ' + activeIndexMobile + '; --tab-width: 140px;'">
+            {{-- Título --}}
+            <div class="relative z-10 w-full max-w-6xl mx-auto text-center flex flex-col gap-3 mb-8">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white uppercase tracking-wide">
+                    {{ config('app.name', 'Laravel') }}
+                </h1>
+            </div>
 
-                <div class="flex flex-col gap-3 p-4 bg-transparent">
-                    <div class="w-full">
-                        <div class="relative">
+            {{-- Buscador Integrado --}}
+            <form action="{{ route('buscador') }}" method="GET"
+                class="relative z-20 mx-auto w-full max-w-5xl sm:px-7">
+                <div class="w-full flex flex-col lg:flex-row gap-3 lg:items-end">
+
+                    {{-- Input de Búsqueda --}}
+                    <div class="flex-1">
+                        <div class="relative shadow-lg rounded-xl">
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                <x-heroicon-o-magnifying-glass class="w-4 h-4" />
+                                <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                             </div>
-                            <input type="text" name="q" placeholder="Buscar colección..."
-                                class="dark:text-zinc-900 w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-100 focus:border-red-700 outline-none transition">
+                            <input type="text" name="q" placeholder="Buscar contenido..."
+                                class="dark:bg-stone-700 dark:text-white w-full pl-10 pr-3 py-3 text-sm rounded-xl border-none bg-white focus:ring-2 focus:ring-red-700 outline-none transition">
                         </div>
                     </div>
 
-                    <div class="flex gap-2 w-full">
+                    {{-- Botones (El primario usa el naranja/rojo) --}}
+                    <div class="flex gap-2 w-full lg:w-auto shadow-sm rounded-xl">
                         <flux:button type="submit" variant="primary" size="sm"
-                            class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl h-10 bg-red-800 hover:bg-red-900 text-white transition shadow-sm">
+                            class="hover:bg-red-900 dark:bg-red-700 w-full inline-flex items-center justify-center gap-1.5 px-6 py-3 text-sm font-medium rounded-xl h-[44px] bg-[rgb(233,79,53)] hover:bg-opacity-90 text-white transition border-none">
                             <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                         </flux:button>
 
-                        <flux:button href="{{ route('busqueda.avanzada') }}" variant="ghost" size="sm"
-                            class="dark:bg-zinc-700 dark:text-white w-full inline-flex items-center justify-center gap-1.5 h-10 px-4 py-2 text-sm font-medium rounded-xl bg-white hover:bg-gray-200 text-gray-700 border border-gray-200 transition">
+                        <flux:button href="{{ route('busqueda.avanzada') }}" variant="primary" size="sm"
+                            class="dark:bg-stone-700 dark:text-white dark:border-stone-600 dark:hover:bg-stone-600 w-full inline-flex items-center justify-center gap-1.5 h-[44px] px-4 py-3 text-sm font-medium rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition backdrop-blur-sm">
                             <x-heroicon-o-funnel class="w-5 h-5" />
                         </flux:button>
                     </div>
                 </div>
-
-                <div class="flex flex-col px-2" id="img-bpej">
-                    <div
-                        class="my-auto mx-auto w-full overflow-x-auto scrollbar-none bg-white dark:bg-stone-700 dark:text-white rounded-xl shadow-sm">
-                        <div class="relative flex min-w-max items-stretch h-12">
-                            <input type="radio" id="m-todas" class="hidden" checked
-                                @click="activeIndexMobile = 0">
-                            <label for="m-todas"
-                                class="dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                :class="activeIndexMobile === 0 ? 'text-white' : 'text-zinc-600'">
-                                Todas
-                            </label>
-                            @foreach ($tiposAcervo as $index => $item)
-                                <input type="radio" id="m-{{ $item->nombre }}" name="acervo_id" class="hidden"
-                                    value="{{ $item->id }}" @click="activeIndexMobile = {{ $index + 1 }}">
-                                <label for="m-{{ $item->nombre }}"
-                                    class="boder boder-guinda dark:text-white h-full flex items-center justify-center text-center cursor-pointer z-20 font-bold text-sm transition-colors duration-300 w-[var(--tab-width)]"
-                                    :class="activeIndexMobile === {{ $index + 1 }} ? 'text-white' : 'text-zinc-600'">
-                                    <flux:icon name="{{ $item->icono }}" class="mx-1 size-4" />
-                                    {{ $item->nombre }}
-                                </label>
-                            @endforeach
-
-
-                            <div id="indicatorMovile" class="absolute bg-red-800 rounded-md z-10 top-0 bottom-0"
-                                style="width: var(--tab-width); transform: translateX(calc(var(--active-index, 0) * var(--tab-width))); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.26, 1.55);">
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
             </form>
         </div>
-
-        {{--
-        <div class="-z-10 absolute top-0 w-full h-[200px] bg-gradiant">
-
-        </div>
-        --}}
     </section>
-
 
     <div class=" bg-white border-gray-200  dark:bg-neutral-800">
         @yield('content')

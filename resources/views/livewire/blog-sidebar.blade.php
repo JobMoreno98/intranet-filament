@@ -52,7 +52,7 @@
                             {{ $post->nombre }}
                         </span>
                         <span class="text-xs text-zinc-400 mt-1">
-                            {{ $post->created_at->format('d M, Y') }}
+                            {{ $post->created_at->translatedFormat('d M, Y')  }}
                         </span>
                     </div>
                 </a>

@@ -25,14 +25,9 @@
         {{-- Hero del blog --}}
         <div class="w-full bg-[#86212b] py-8 px-4">
             <div class="max-w-6xl mx-auto text-center flex flex-col gap-3">
-                <span class="text-red-200 text-md uppercase tracking-[0.2em] font-bold">
-                    Arreola Histórica
+                <span class="text-white text-md uppercase tracking-[0.2em] font-bold">
+                    Blogs
                 </span>
-                {{--  
-                <h1 class="text-3xl md:text-4xl font-bold text-white">
-                    Blog del Archivo
-                </h1>
-                --}}
             </div>
         </div>
 

@@ -65,7 +65,7 @@ with(function () {
             <div class="p-5 flex flex-col gap-2 flex-1">
                 <div class="flex items-center gap-2 text-xs">
                     <span class="text-zinc-400">
-                        {{ $post->created_at->format('d M, Y') }}
+                        {{ $post->created_at->translatedFormat('d M, Y') }}
                     </span>
                 </div>
 

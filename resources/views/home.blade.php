@@ -2,32 +2,63 @@
 
 @section('content')
     <section>
-        <div class="mx-auto sm:px-7 px-2 max-w-screen-xl py-10 flex gap-10 flex-col items-center w-full">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 w-full">
-                @foreach ($tiposAcervo as $categoria)
-                    @php
-                        // Comprobamos si la iteración actual corresponde a las tarjetas anchas
-                        $esAncho = in_array($loop->iteration, [1, 4, 6]);
-                    @endphp
-
-                    <a href="#"
-                        class="dark:bg-zinc-700  group rounded-xl border bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition 
-                                           {{ $esAncho ? 'flex flex-col lg:col-span-2 flex items-center justify-start gap-4 text-left' : 'lg:col-span-1 text-center flex flex-col items-center justify-center' }}">
-
-                        {{-- El componente dinámico carga el icono correspondiente --}}
-                        <x-dynamic-component :component="'heroicon-o-' . $categoria->icono"
-                            class="dark:text-white {{ $esAncho ? 'w-12 h-12 shrink-0' : 'w-10 h-10 mb-3' }} {{ $categoria->color ?? 'text-guinda' }}" />
-
-                        <h4 class="dark:text-white font-semibold text-gray-900 {{ $esAncho ? 'text-lg' : '' }}">
-                            {{ $categoria->nombre }}
-                        </h4>
-                    </a>
-                @endforeach
-            </div>
-        </div>
 
         <div
             class="mx-auto sm:px-7 px-2 md:max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center max-w-[300px] sm:max-w-[340px]">
+
+            <article
+                class="relative w-full rounded-2xl bg-gradient-to-br from-[#131f30] via-[#1a2a40] to-[#0f172a] text-white p-6 sm:p-8 md:p-10 shadow-xl overflow-hidden border border-white/10 my-6">
+
+                {{-- Malla/Patrón sutil de fondo para dar textura --}}
+                <div
+                    class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none">
+                </div>
+
+                {{-- Destello de color Naranja/Rojo decorativo en la esquina inferior --}}
+                <div
+                    class="absolute -bottom-12 -right-12 w-48 h-48 bg-[rgb(233,79,53)] rounded-full blur-3xl opacity-25 pointer-events-none">
+                </div>
+
+                <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+
+                    {{-- Contenido principal del texto --}}
+                    <div class="flex flex-col gap-3 max-w-2xl">
+
+                        {{-- Badge o Etiqueta superior --}}
+                        <div class="inline-flex items-center gap-2 self-start">
+                            <span class="flex h-2 w-2 rounded-full bg-[rgb(233,79,53)] animate-pulse"></span>
+                            <span class="text-xs font-bold uppercase tracking-widest text-zinc-300">
+                                Bienvenido a Arreola Histórica
+                            </span>
+                        </div>
+
+                        {{-- Título de Bienvenida --}}
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                            Un espacio dedicado a la <span class="text-[rgb(233,79,53)]">memoria</span> y el patrimonio.
+                        </h2>
+
+                        {{-- Parrafo descriptivo --}}
+                        <p class="text-sm sm:text-base text-zinc-300 leading-relaxed">
+                            Lorem ipsum
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full md:w-auto flex-shrink-0 pt-2 md:pt-0">
+                        <a href="{{ route('busqueda.avanzada') }}"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all duration-200 backdrop-blur-sm">
+                            Búsqueda avanzada
+                        </a>
+                    </div>
+
+                </div>
+            </article>
+        </div>
+
+    </section>
+    <section>
+        <div
+            class="mx-auto sm:px-7 px-2 md:max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center max-w-[300px] sm:max-w-[340px]">
+
             <div class="flex flex-col gap-8 w-full">
                 @forelse ($areas as $index => $item)
                     <div data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">

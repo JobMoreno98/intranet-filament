@@ -79,20 +79,13 @@
 
 @section('content')
     <article>
-
-        {{-- Cabecera del artículo --}}
-        <header class="w-full max-w-3xl mx-auto px-4 pt-16 pb-8 flex flex-col gap-4 text-center">
-            <a href="{{ route('blog.index') }}"
-                class="text-xs uppercase tracking-[0.15em] font-bold text-custom-wine hover:underline w-fit mx-auto">
-                Blog del Archivo
-            </a>
-
+        <header class="w-full max-w-3xl mx-auto px-4 pt-5 pb-8 flex flex-col gap-4 text-center">
             <h1 class="text-3xl md:text-[2.75rem] leading-tight font-bold text-zinc-900 dark:text-white">
                 {{ $post->nombre }}
             </h1>
 
             <div class="flex items-center justify-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-                <span>{{ $post->created_at->format('d \d\e F, Y') }}</span>
+               <span>{{ $post->created_at->translatedFormat('d \d\e F, Y') }}</span>
             </div>
 
             @if (!empty($post->tags))
