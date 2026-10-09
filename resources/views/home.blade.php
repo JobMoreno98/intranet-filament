@@ -55,6 +55,49 @@
         </div>
 
     </section>
+    <section class="py-10 bg-[#ffffff]">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            @if ($novedades->isNotEmpty())
+                <!-- Grid de 2 filas exactas de 5 elementos en desktop (lg:grid-cols-5) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    @foreach ($novedades as $index => $item)
+                        <div data-aos="fade-up" data-aos-duration="400" data-aos-delay="{{ ($index % 10) * 40 }}"
+                            class="group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
+                            <!-- Tipo de Acervo (Badge con el tono naranja #1d1d1b) -->
+                            <div>
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">
+                                    <svg class="w-3 h-3 text-[#1d1d1b] flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                        </path>
+                                    </svg>
+                                    <span class="truncate"> {{ $item->acervo->nombre ?? 'General' }}</span>
+                                </span>
+                            </div>
+
+                            <!-- Título del elemento (Usando el azul marino oscuro #131f30 y hovers en #1d1d1b) -->
+                            <h3 class="text-sm font-semibold text-[#131f30] group-hover:text-[#1d1d1b] line-clamp-2 leading-snug transition-colors duration-150"
+                                title="{{ $item->metadata['titulo'] }}">
+                                {{ $item->metadata['titulo'] }}
+                            </h3>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <!-- Estado Vacío -->
+                <div
+                    class="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl border border-dashed border-[#131f30]/20 bg-[#ffffff]">
+                    <h4 class="text-base font-semibold text-[#131f30]">Aún no hay datos disponibles</h4>
+                </div>
+            @endif
+
+        </div>
+    </section>
+
+
     <section>
         <div
             class="mx-auto sm:px-7 px-2 md:max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center max-w-[300px] sm:max-w-[340px]">

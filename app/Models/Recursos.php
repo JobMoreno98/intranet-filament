@@ -18,6 +18,8 @@ class Recursos extends Model
         'metadata' => 'array',
         'assets_procesados' => 'array',
         'path_original' => 'array',
+        'visible' => 'boolean',
+        'fiajdo' => 'boolean'
 
     ];
 
@@ -83,7 +85,7 @@ class Recursos extends Model
             $array['metadata'] = [];
             $array['metadata_text'] = '';
         }
-        
+
         return $array;
     }
 }

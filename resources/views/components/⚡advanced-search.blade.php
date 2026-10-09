@@ -10,7 +10,12 @@ new class extends VoltComponent {
     public string $urlBase;
 
     public array $filas = [];
-    public array $tiposSeleccionados = [];
+
+    // Id (string, vacío = "Todos los tipos") del TipoAcervo elegido. Al cambiar,
+    // se recargan los campos de esquema específicos de ese acervo.
+    public string $acervoSeleccionado = '';
+    public array $camposEsquema = [];
+
     public array $fondosSeleccionados = [];
 
     public function mount()
@@ -18,7 +23,13 @@ new class extends VoltComponent {
         // 1. Definimos la URL base limpia (sin parámetros) para el redireccionamiento posterior
         $this->urlBase = route('busqueda.resultado');
 
-        // 2. Recuperamos las filas de búsqueda dinámica si existen en la URL
+        // 2. Recuperamos el tipo de acervo elegido, si viene en la URL
+        if (request()->filled('acervo')) {
+            $this->acervoSeleccionado = (string) request()->input('acervo');
+        }
+        $this->cargarCamposEsquema();
+
+        // 3. Recuperamos las filas de búsqueda dinámica si existen en la URL
         if (request()->has('q') && is_array(request()->input('q'))) {
             $this->filas = request()->input('q');
         } else {
@@ -26,14 +37,22 @@ new class extends VoltComponent {
             $this->agregarFila();
         }
 
-        // 3. Recuperamos los checkboxes de Tipos Documentales
-        if (request()->has('tipos') && is_array(request()->input('tipos'))) {
-            $this->tiposSeleccionados = request()->input('tipos');
-        }
-
         // 4. Recuperamos los checkboxes de Fondos
         if (request()->has('fondos') && is_array(request()->input('fondos'))) {
             $this->fondosSeleccionados = request()->input('fondos');
+        }
+    }
+
+    // Se dispara automáticamente cuando cambia el <select> de tipo de acervo
+    // (wire:model.live="acervoSeleccionado").
+    public function updatedAcervoSeleccionado(): void
+    {
+        $this->cargarCamposEsquema();
+
+        // Los campos elegidos en cada fila pueden no existir en el nuevo esquema,
+        // así que reseteamos a "Todos los campos" para evitar un valor inválido.
+        foreach ($this->filas as $i => $fila) {
+            $this->filas[$i]['campo'] = 'all';
         }
     }
 
@@ -57,18 +76,30 @@ new class extends VoltComponent {
         // Limpiamos los términos vacíos
         $filasValidas = array_filter($this->filas, fn($fila) => !empty(trim($fila['termino'])));
 
-        // Validación Livewire: Exigir al menos un término o un filtro
-        if (empty($filasValidas) && empty($this->tiposSeleccionados) && empty($this->fondosSeleccionados)) {
-            $this->addError('busqueda_vacia', 'Por favor, ingresa al menos un término de búsqueda o selecciona un filtro para continuar.');
+        // Validación Livewire: Exigir al menos un término, un tipo de acervo o un fondo
+        if (empty($filasValidas) && empty($this->acervoSeleccionado) && empty($this->fondosSeleccionados)) {
+            $this->addError('busqueda_vacia', 'Por favor, selecciona un tipo de acervo, ingresa un término de búsqueda o elige un fondo para continuar.');
             return; // Detiene la ejecución aquí, no hace el redirect
         }
 
         // Si pasa la validación, limpiamos cualquier error previo
         $this->resetValidation();
 
+        // El controlador (ColeccionesConsultaController) espera "tipos" como un
+        // arreglo de nombres de acervo; aquí siempre es como máximo uno, ya que
+        // ahora se elige un solo tipo a la vez.
+        $tipos = [];
+        if (!empty($this->acervoSeleccionado)) {
+            $nombreAcervo = TipoAcervo::find($this->acervoSeleccionado)?->nombre;
+            if ($nombreAcervo) {
+                $tipos = [$nombreAcervo];
+            }
+        }
+
         $parametros = [
             'q' => $filasValidas,
-            'tipos' => $this->tiposSeleccionados,
+            'acervo' => $this->acervoSeleccionado,
+            'tipos' => $tipos,
             'fondos' => $this->fondosSeleccionados,
         ];
 
@@ -78,15 +109,46 @@ new class extends VoltComponent {
     public function with()
     {
         return [
-            'configuracion' => $this->obtenerEsquemasComunes(),
-            // Ajusta 'nombre' a la columna real de tu base de datos (ej. 'titulo', 'descripcion')
-            'tiposDocumentales' => TipoAcervo::pluck('nombre')->toArray(),
+            'camposEsquema' => $this->camposEsquema,
+            'tiposDocumentales' => TipoAcervo::orderBy('nombre')->get(['id', 'nombre']),
 
             // Si Fondo es otro modelo:
             // 'fondosDisponibles' => Fondo::pluck('nombre')->toArray(),
             // Si el fondo viene de un campo específico en otra tabla, ajusta la consulta aquí:
             'fondosDisponibles' => Coleccion::pluck('nombre')->toArray(), // Reemplazar con consulta real
         ];
+    }
+
+    // Carga los campos "Recuperable" del esquema del acervo elegido. Si no hay
+    // ninguno elegido ("Todos los tipos"), cae de vuelta a la unión global de
+    // todos los esquemas, igual que el comportamiento anterior.
+    private function cargarCamposEsquema(): void
+    {
+        if (empty($this->acervoSeleccionado)) {
+            $this->camposEsquema = $this->obtenerEsquemasComunes();
+            return;
+        }
+
+        $this->camposEsquema = Cache::remember(
+            "campos_recuperables_acervo_{$this->acervoSeleccionado}",
+            3600,
+            function () {
+                $tipo = TipoAcervo::find($this->acervoSeleccionado);
+                if (!$tipo || empty($tipo->esquema)) {
+                    return [];
+                }
+
+                $esquema = is_string($tipo->esquema) ? json_decode($tipo->esquema, true) : $tipo->esquema;
+
+                return collect($esquema ?? [])
+                    ->filter(function ($campo) {
+                        $visible = trim(strtolower(data_get($campo, 'visible', '')));
+                        return $visible === 'recuperable' && !empty(data_get($campo, 'variable'));
+                    })
+                    ->values()
+                    ->toArray();
+            }
+        );
     }
 
     private function obtenerEsquemasComunes()
@@ -144,7 +206,7 @@ new class extends VoltComponent {
                     <select wire:model="filas.{{ $index }}.campo"
                         class="border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
                         <option value="all">--- Todos los campos ---</option>
-                        @foreach($configuracion as $campo)
+                        @foreach($camposEsquema as $campo)
                             <option value="{{ $campo['variable'] }}">{{ $campo['label'] ?? $campo['variable'] }}</option>
                         @endforeach
                     </select>
@@ -175,25 +237,23 @@ new class extends VoltComponent {
         <!-- Contenedores de Checkboxes (Estilo Colecciones) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 border-t pt-6 border-gray-100">
 
-            <!-- Tipo Documental -->
+            <!-- Tipo Documental: ahora se elige uno solo, y define qué campos aparecen arriba -->
             <div class="flex flex-col">
                 <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
-                    En tipo documental
+                    Tipo de acervo
                 </label>
-                <div class="grid grid-cols-2 gap-2">
-                    <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                        <input type="checkbox" wire:model="tiposSeleccionados" value="Todos"
-                            class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
-                        <span>Todos</span>
-                    </label>
+                <select wire:model.live="acervoSeleccionado"
+                    class="border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-full focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
+                    <option value="">--- Todos los tipos ---</option>
                     @foreach($tiposDocumentales as $tipo)
-                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                            <input type="checkbox" wire:model="tiposSeleccionados" value="{{ $tipo }}"
-                                class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
-                            <span>{{ $tipo }}</span>
-                        </label>
+                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                     @endforeach
-                </div>
+                </select>
+                @if(empty($acervoSeleccionado))
+                    <p class="text-xs text-gray-400 italic mt-2">
+                        Mostrando campos comunes a todos los tipos. Elige uno específico para ver sus campos propios.
+                    </p>
+                @endif
             </div>
 
             <!-- Fondo -->
@@ -220,7 +280,7 @@ new class extends VoltComponent {
 
         <!-- Botones de Acción -->
         <div class="mt-8 flex justify-end space-x-3 border-t pt-4 border-gray-100">
-            @if(request()->anyFilled(['q', 'tipos', 'fondos']))
+            @if(request()->anyFilled(['q', 'acervo', 'tipos', 'fondos']))
                 <a href="{{ url()->current() }}"
                     class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
                     Limpiar criterios

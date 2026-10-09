@@ -34,7 +34,8 @@ class ColeccionesConsultaController extends Controller
     public function index(Request $request)
     {
         $areas = Area::paginate(6);
-        return view('home', compact('areas'))->with(['title' => 'Inicio']);
+        $novedades = Recursos::with('acervo')->where('fijado', true)->get()->take(10);
+        return view('home', compact('areas','novedades'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, Coleccion $coleccion)

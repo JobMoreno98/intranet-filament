@@ -11,6 +11,7 @@ use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -35,6 +36,8 @@ class RecursosTable
 
                 TextColumn::make('coleccion.nombre')->label('Fondo')->sortable()->searchable(),
                 TextColumn::make('acervo.nombre')->label('Tipo Acervo')->sortable()->searchable(),
+                ToggleColumn::make('visible')->label('Público'),
+                ToggleColumn::make('fijado')->label('Fijado')
 
             ])
             ->filters([
@@ -55,9 +58,9 @@ class RecursosTable
                 ViewAction::make(),
                 EditAction::make(),
             ])->headerActions([
-                    ImportAction::make()
-                        ->importer(RecursoImporter::class)
-                ])
+                ImportAction::make()
+                    ->importer(RecursoImporter::class)
+            ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
