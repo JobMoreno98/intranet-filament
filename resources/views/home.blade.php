@@ -34,13 +34,14 @@
 
                         {{-- Título de Bienvenida --}}
                         <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                            Un espacio dedicado a la <span class="text-[rgb(233,79,53)]">memoria</span> y el patrimonio.
+                            Un espacio dedicado a la <span class="text-[rgb(233,79,53)]">memoria</span>.
                         </h2>
 
-                        {{-- Parrafo descriptivo --}}
+                        {{-- Parrafo descriptivo 
                         <p class="text-sm sm:text-base text-zinc-300 leading-relaxed">
                             Lorem ipsum
                         </p>
+                        --}}
                     </div>
 
                     <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full md:w-auto flex-shrink-0 pt-2 md:pt-0">

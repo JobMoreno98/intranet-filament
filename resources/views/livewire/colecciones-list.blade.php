@@ -22,19 +22,23 @@ with(function () {
 
 ?>
 
-<div wire:loading.class="opacity-50" class="transition-opacity duration-300 flex flex-col gap-4">
+<div wire:loading.class="opacity-50" class="flex flex-col gap-6 transition-opacity duration-300">
 
-    @forelse ($colecciones as $index => $item)
-        <div data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
-            <livewire:parent-collection :collection="$item" :key="'col-' . $item->id" />
+    @if ($colecciones->count())
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach ($colecciones as $index => $item)
+                <div class="h-full" data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
+                    <livewire:parent-collection :collection="$item" :key="'col-' . $item->id" />
+                </div>
+            @endforeach
         </div>
-    @empty
-        <div class="w-full text-center py-12">
+    @else
+        <div class="w-full py-12 text-center">
             <h4 class="text-lg font-medium text-zinc-500">No hay colecciones disponibles</h4>
         </div>
-    @endforelse
+    @endif
 
-    <div class="mt-4 flex justify-center">
+    <div class="mt-2 flex justify-center">
         {{ $colecciones->links() }}
     </div>
 
