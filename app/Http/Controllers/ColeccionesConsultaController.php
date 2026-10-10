@@ -35,7 +35,7 @@ class ColeccionesConsultaController extends Controller
     {
         $areas = Area::paginate(6);
         $novedades = Recursos::with('acervo')->where('fijado', true)->get()->take(10);
-        return view('home', compact('areas','novedades'))->with(['title' => 'Inicio']);
+        return view('home', compact('areas', 'novedades'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, Coleccion $coleccion)
@@ -65,10 +65,7 @@ class ColeccionesConsultaController extends Controller
                 // Decodificamos de forma segura
                 $esquema = is_string($esquemaCacheado) ? json_decode($esquemaCacheado, true) : (array) $esquemaCacheado;
 
-                $camposAtributos = collect($esquema)
-                    ->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')
-                    ->pluck('variable')
-                    ->toArray();
+                $camposAtributos = collect($esquema)->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')->pluck('variable')->toArray();
 
                 // Mapeamos los filtros extras de la URL si el usuario los escribió
                 foreach ($request->only($camposAtributos) as $campo => $valor) {
@@ -96,7 +93,7 @@ class ColeccionesConsultaController extends Controller
             $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
 
             foreach ($results as $indexResult) {
-                $totalHits = $indexResult['estimatedTotalHits'] ?? $indexResult['totalHits'] ?? count($indexResult['hits'] ?? []);
+                $totalHits = $indexResult['estimatedTotalHits'] ?? ($indexResult['totalHits'] ?? count($indexResult['hits'] ?? []));
                 $hits = $indexResult['hits'] ?? [];
                 foreach ($hits as $hit) {
                     $resultados[] = (object) [
@@ -136,10 +133,7 @@ class ColeccionesConsultaController extends Controller
             'coleccion' => $coleccion,
             'acervosDisponibles' => $acervosDisponibles,
             'title' => $coleccion->nombre ?? 'Colección',
-            'header' => collect($esquema)
-                ->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')
-                ->pluck('variable')
-                ->toArray(),
+            'header' => collect($esquema)->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')->pluck('variable')->toArray(),
         ]);
     }
 
@@ -160,35 +154,24 @@ class ColeccionesConsultaController extends Controller
     {
         $cleanValue = htmlspecialchars($valorFormateado, ENT_QUOTES, 'UTF-8');
 
-        return str_replace(
-            ['&lt;em&gt;', '&lt;/em&gt;'],
-            ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'],
-            $cleanValue
-        );
+        return str_replace(['&lt;em&gt;', '&lt;/em&gt;'], ['<em class="bg-amber-200 text-black font-semibold px-0.5 rounded">', '</em>'], $cleanValue);
     }
     public function buscador(Request $request)
     {
-
         $request->validate([
             'q' => ['required', 'string', 'min:1'],
             'acervo_id' => ['nullable', 'exists:tipo_acervos,id'],
         ]);
 
-        return $this->procesarMultiSearch(
-            term: $request->input('q'),
-            filtrosBase: [],
-            request: $request,
-            tituloVista: 'Búsqueda General',
-            acervoId: $request->input('acervo_id')
-        );
+        return $this->procesarMultiSearch(term: $request->input('q'), filtrosBase: [], request: $request, tituloVista: 'Búsqueda General', acervoId: $request->input('acervo_id'));
     }
 
     // 2. Nuevo Método Exclusivo para Búsqueda Avanzada
     public function busquedaAvanzada(Request $request)
     {
         $request->validate([
+            'acervo' => ['required', 'exists:tipo_acervos,id'], 
             'q' => ['nullable', 'array'],
-            'tipos' => ['nullable', 'array'],
             'fondos' => ['nullable', 'array'],
         ]);
 
@@ -198,23 +181,19 @@ class ColeccionesConsultaController extends Controller
         $camposPrioritarios = [];
         $terminosDescriptivos = [];
 
-        // Filtros de Tipos Documentales
-        if ($request->filled('tipos') && !in_array('Todos', $request->input('tipos'))) {
-            $tipos = array_map(fn($t) => "acervo = \"" . $this->escaparFiltroMeili($t) . "\"", $request->input('tipos'));
-            $filtrosAvanzados[] = "(" . implode(" OR ", $tipos) . ")";
-        }
-
         // Filtros de Fondos
         if ($request->filled('fondos') && !in_array('Todos', $request->input('fondos'))) {
             $fondos = array_map(fn($f) => "coleccion = \"" . $this->escaparFiltroMeili($f) . "\"", $request->input('fondos'));
-            $filtrosAvanzados[] = "(" . implode(" OR ", $fondos) . ")";
+            $filtrosAvanzados[] = '(' . implode(' OR ', $fondos) . ')';
         }
 
         // Procesar TODAS las filas (sin ignorar la 0)
-        $stringFilas = "";
+        $stringFilas = '';
+
         foreach ($filas as $fila) {
-            if (empty($fila['termino']))
+            if (empty($fila['termino'])) {
                 continue;
+            }
 
             if ($fila['campo'] === 'all') {
                 // Se acumulan para la búsqueda global (Full-Text)
@@ -245,20 +224,21 @@ class ColeccionesConsultaController extends Controller
             $filtrosAvanzados[] = "({$stringFilas})";
         }
 
-        // Unimos múltiples términos globales con un espacio (si eligieron 'all' varias veces)
-        $term = implode(" ", $terminosGlobales);
+        $term = implode(' ', $terminosGlobales);
 
         return $this->procesarMultiSearch(
             term: $term,
             filtrosBase: $filtrosAvanzados,
             request: $request,
             tituloVista: 'Búsqueda Avanzada',
+            acervoId: $request->input('acervo'), // ← nuevo
             camposPrioritarios: array_unique($camposPrioritarios),
-            terminoMostrar: implode(', ', $terminosDescriptivos)
+            terminoMostrar: implode(', ', $terminosDescriptivos),
+            indices: ['recursos'], // ← nuevo
         );
     }
     // 3. Motor Centralizado (Privado) que ejecuta Meilisearch para ambos métodos
-    private function procesarMultiSearch(string $term, array $filtrosBase, Request $request, string $tituloVista, $acervoId = null, array $camposPrioritarios = [], ?string $terminoMostrar = null)
+    private function procesarMultiSearch(string $term, array $filtrosBase, Request $request, string $tituloVista, $acervoId = null, array $camposPrioritarios = [], ?string $terminoMostrar = null, array $indices = ['coleccions', 'recursos', 'paginas_index'])
     {
         $resultados = [];
 
@@ -266,14 +246,11 @@ class ColeccionesConsultaController extends Controller
         // sentido consultar "coleccions" ni "paginas_index": con query vacía y sin
         // filtro aplicable ahí, Meilisearch entra en "modo browse" y devuelve
         // documentos sin relación con la búsqueda. Solo "recursos" entiende metadata.*.
-        $coleccionesMeta = trim($term) !== ''
-            ? ['coleccions', 'recursos', 'paginas_index']
-            : ['recursos'];
-
+        $coleccionesMeta = $indices;
         $queries = [];
 
         foreach ($coleccionesMeta as $meta) {
-            $searchQuery = (new SearchQuery())
+            $searchQuery = new SearchQuery()
                 ->setIndexUid($meta)
                 ->setQuery($term) // Funciona incluso si $term es un string vacío ""
                 ->setLimit(150)
@@ -290,9 +267,9 @@ class ColeccionesConsultaController extends Controller
             // Inyectar el filtro de acervo si existe (dependiendo del índice)
             if (!empty($acervoId)) {
                 if ($meta === 'recursos') {
-                    $filtrosLocales[] = "acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
+                    $filtrosLocales[] = 'acervo_id = ' . $this->escaparFiltroMeili((string) $acervoId);
                 } elseif ($meta === 'paginas_index') {
-                    $filtrosLocales[] = "libro_acervo_id = " . $this->escaparFiltroMeili((string) $acervoId);
+                    $filtrosLocales[] = 'libro_acervo_id = ' . $this->escaparFiltroMeili((string) $acervoId);
                 }
             }
 
@@ -322,8 +299,9 @@ class ColeccionesConsultaController extends Controller
 
                     if (!empty($formatted)) {
                         foreach ($formatted as $campo => $valorFormateado) {
-                            if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden']))
+                            if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden'])) {
                                 continue;
+                            }
 
                             if ($campo === 'parent_names' && is_array($valorFormateado)) {
                                 foreach ($valorFormateado as $nombrePadre) {
@@ -345,12 +323,7 @@ class ColeccionesConsultaController extends Controller
                             // Primero revisamos los campos que el usuario eligió explícitamente
                             // en la búsqueda avanzada (ej. "titulo"), antes de aceptar cualquier
                             // otro campo de metadata que también haya resultado resaltado.
-                            $ordenCampos = !empty($camposPrioritarios)
-                                ? array_intersect_key(
-                                    $formatted['metadata'],
-                                    array_flip($camposPrioritarios)
-                                ) + $formatted['metadata']
-                                : $formatted['metadata'];
+                            $ordenCampos = !empty($camposPrioritarios) ? array_intersect_key($formatted['metadata'], array_flip($camposPrioritarios)) + $formatted['metadata'] : $formatted['metadata'];
 
                             foreach ($ordenCampos as $clave => $valorFormateado) {
                                 if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
@@ -401,7 +374,6 @@ class ColeccionesConsultaController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
         }
-
 
         $perPage = 15;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -459,9 +431,7 @@ class ColeccionesConsultaController extends Controller
         $esquema = [];
 
         if ($recurso->acervo && $recurso->acervo->esquema) {
-            $esquema = is_string($recurso->acervo->esquema)
-                ? json_decode($recurso->acervo->esquema, true)
-                : $recurso->acervo->esquema;
+            $esquema = is_string($recurso->acervo->esquema) ? json_decode($recurso->acervo->esquema, true) : $recurso->acervo->esquema;
         }
 
         $camposPermitidos = collect($esquema)
