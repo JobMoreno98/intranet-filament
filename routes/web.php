@@ -25,10 +25,10 @@ Route::get('/buscador', [ColeccionesConsultaController::class, 'buscador'])->nam
 Route::get('/buscador/recurso/{tipo}/{id}', [ColeccionesConsultaController::class, 'showRegistro'])->name('buscador.registro');
 
 
-Route::get('/coleccion/{coleccion}', [ColeccionesConsultaController::class, 'show'])->name('coleccion.show');
+Route::get('/fondo/{coleccion}', [ColeccionesConsultaController::class, 'show'])->name('coleccion.show');
 
 
-Route::get('/coleccion/{tabla}/{id}', [RecursosController::class, 'publico'])->name('coleccion.individual');
+Route::get('/fondo/{tabla}/{id}', [RecursosController::class, 'publico'])->name('coleccion.individual');
 
 
 

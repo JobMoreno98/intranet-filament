@@ -39,8 +39,7 @@ new class extends VoltComponent {
         if ($this->acervoId) {
             $filtrosActivos['acervo_id'] = $this->acervoId;
         }
-
-        dd(url()->current());
+        
         return redirect()->to(url()->current() . '?' . http_build_query($filtrosActivos));
     }
 

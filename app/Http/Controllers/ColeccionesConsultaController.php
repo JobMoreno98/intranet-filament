@@ -70,7 +70,7 @@ class ColeccionesConsultaController extends Controller
                 // Mapeamos los filtros extras de la URL si el usuario los escribió
                 foreach ($request->only($camposAtributos) as $campo => $valor) {
                     if ($valor !== null && $valor !== '') {
-                        $meiliFilters[] = "metadata.{$campo} = \"" . $this->escaparFiltroMeili($valor) . "\"";
+                        $meiliFilters[] = "metadata.{$campo} CONTAINS  \"" . $this->escaparFiltroMeili($valor) . "\"";
                     }
                 }
             }
