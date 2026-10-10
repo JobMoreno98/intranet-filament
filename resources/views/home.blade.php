@@ -55,7 +55,7 @@
         </div>
 
     </section>
-    <section class="py-10 bg-[#ffffff]">
+    <section class="py-10 bg-[#ffffff] dark:bg-neutral-800">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             @if ($novedades->isNotEmpty())
@@ -63,8 +63,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     @foreach ($novedades as $index => $item)
                         <div data-aos="fade-up" data-aos-duration="400" data-aos-delay="{{ ($index % 10) * 40 }}"
-                            class="group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
-                            <!-- Tipo de Acervo (Badge con el tono naranja #1d1d1b) -->
+                            class="dark:bg-zinc-700  group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
                             <div>
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">
@@ -74,12 +73,12 @@
                                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                                         </path>
                                     </svg>
-                                    <span class="truncate"> {{ $item->acervo->nombre ?? 'General' }}</span>
+                                    <span class="truncate dark:text-white hover:text-guinda"> {{ $item->acervo->nombre ?? 'General' }}</span>
                                 </span>
                             </div>
 
                             <!-- Título del elemento (Usando el azul marino oscuro #131f30 y hovers en #1d1d1b) -->
-                            <h3 class="text-sm font-semibold text-[#131f30] group-hover:text-[#1d1d1b] line-clamp-2 leading-snug transition-colors duration-150"
+                            <h3 class="dark:text-white hover:text-guinda text-sm font-semibold text-[#131f30] line-clamp-2 leading-snug transition-colors duration-150"
                                 title="{{ $item->metadata['titulo'] }}">
                                 {{ $item->metadata['titulo'] }}
                             </h3>
@@ -87,7 +86,6 @@
                     @endforeach
                 </div>
             @else
-                <!-- Estado Vacío -->
                 <div
                     class="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl border border-dashed border-[#131f30]/20 bg-[#ffffff]">
                     <h4 class="text-base font-semibold text-[#131f30]">Aún no hay datos disponibles</h4>

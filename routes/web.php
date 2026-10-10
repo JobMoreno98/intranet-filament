@@ -77,7 +77,7 @@ Route::get('/busqueda-avanzada', [RecursosController::class, 'avanzada'])->name(
 Route::get('/busqueda-resultado', [ColeccionesConsultaController::class, 'busquedaAvanzada'])->name('busqueda.resultado');
 
 
-Route::resource('/areas', AreaController::class)->names('area');
+Route::resource('/areas', AreaController::class)->names('areas');
 
 // routes/web.php
 Route::get('/areas/{area:slug}/colecciones', function (Area $area) {

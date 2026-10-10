@@ -67,7 +67,7 @@ new class extends VoltComponent {
         $this->filas[] = [
             'operador' => 'AND',
             'campo' => 'all',
-            'termino' => ''
+            'termino' => '',
         ];
     }
 
@@ -134,21 +134,11 @@ new class extends VoltComponent {
             return [];
         }
 
-        return Cache::remember(
-            "fondos_con_recursos_acervo_{$this->acervoSeleccionado}",
-            600,
-            function () {
-                $coleccionIds = Recursos::where('acervo_id', $this->acervoSeleccionado)
-                    ->whereNotNull('coleccion_id')
-                    ->distinct()
-                    ->pluck('coleccion_id');
+        return Cache::remember("fondos_con_recursos_acervo_{$this->acervoSeleccionado}", 600, function () {
+            $coleccionIds = Recursos::where('acervo_id', $this->acervoSeleccionado)->whereNotNull('coleccion_id')->distinct()->pluck('coleccion_id');
 
-                return Coleccion::whereIn('id', $coleccionIds)
-                    ->orderBy('nombre')
-                    ->pluck('nombre')
-                    ->toArray();
-            }
-        );
+            return Coleccion::whereIn('id', $coleccionIds)->orderBy('nombre')->pluck('nombre')->toArray();
+        });
     }
 
     // Carga los campos "Recuperable" del esquema del acervo elegido. Si no hay
@@ -161,34 +151,31 @@ new class extends VoltComponent {
             return;
         }
 
-        $this->camposEsquema = Cache::remember(
-            "campos_recuperables_acervo_{$this->acervoSeleccionado}",
-            3600,
-            function () {
-                $tipo = TipoAcervo::find($this->acervoSeleccionado);
-                if (!$tipo || empty($tipo->esquema)) {
-                    return [];
-                }
-
-                $esquema = is_string($tipo->esquema) ? json_decode($tipo->esquema, true) : $tipo->esquema;
-
-                return collect($esquema ?? [])
-                    ->filter(function ($campo) {
-                        $visible = trim(strtolower(data_get($campo, 'visible', '')));
-                        return $visible === 'recuperable' && !empty(data_get($campo, 'variable'));
-                    })
-                    ->values()
-                    ->toArray();
+        $this->camposEsquema = Cache::remember("campos_recuperables_acervo_{$this->acervoSeleccionado}", 3600, function () {
+            $tipo = TipoAcervo::find($this->acervoSeleccionado);
+            if (!$tipo || empty($tipo->esquema)) {
+                return [];
             }
-        );
+
+            $esquema = is_string($tipo->esquema) ? json_decode($tipo->esquema, true) : $tipo->esquema;
+
+            return collect($esquema ?? [])
+                ->filter(function ($campo) {
+                    $visible = trim(strtolower(data_get($campo, 'visible', '')));
+                    return $visible === 'recuperable' && !empty(data_get($campo, 'variable'));
+                })
+                ->values()
+                ->toArray();
+        });
     }
 
     private function obtenerEsquemasComunes()
     {
         return Cache::remember('campos_recuperables_union_global', 3600, function () {
             $esquemasRaw = TipoAcervo::whereNotNull('esquema')->pluck('esquema');
-            if ($esquemasRaw->isEmpty())
+            if ($esquemasRaw->isEmpty()) {
                 return [];
+            }
 
             return $esquemasRaw
                 ->flatMap(function ($esquema) {
@@ -206,9 +193,9 @@ new class extends VoltComponent {
     }
 }; ?>
 
-<div class="bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100 font-sans">
+<div class="bg-white dark:bg-neutral-600 dark:text-white p-6 rounded-b-lg shadow-sm border-t border-gray-100 font-sans">
 
-    <h4 class="text-sm font-bold mb-6 text-gray-700 uppercase tracking-wider flex items-center gap-2">
+    <h4 class="text-sm font-bold mb-6 text-gray-700 uppercase tracking-wider flex items-center gap-2 dark:text-white">
         <svg class="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
             stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -217,103 +204,112 @@ new class extends VoltComponent {
         Búsqueda Avanzada Global
     </h4>
 
-    <div wire:keydown.enter="aplicarFiltrado" class="space-y-5">
-
-        <!-- Filas Dinámicas de Búsqueda -->
-        <div class="space-y-3">
-            @foreach($filas as $index => $fila)
-                <div class="flex items-center space-x-3">
-
-                    @if($index > 0)
-                        <select wire:model="filas.{{ $index }}.operador" @disabled(empty($acervoSeleccionado))
-                            class="border border-gray-300 text-gray-600 font-bold uppercase text-xs rounded-md px-3 py-2 w-32 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <option value="AND">Y (AND)</option>
-                            <option value="OR">O (OR)</option>
-                            <option value="NOT">NO (NOT)</option>
-                        </select>
-                    @else
-                        <div class="w-32"></div>
-                    @endif
-
-                    <select wire:model="filas.{{ $index }}.campo" @disabled(empty($acervoSeleccionado))
-                        class="border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50">
-                        <option value="all">--- Todos los campos ---</option>
-                        @foreach($camposEsquema as $campo)
-                            <option value="{{ $campo['variable'] }}">{{ $campo['label'] ?? $campo['variable'] }}</option>
-                        @endforeach
-                    </select>
-
-                    <input type="text" wire:model="filas.{{ $index }}.termino" @disabled(empty($acervoSeleccionado))
-                        placeholder="{{ empty($acervoSeleccionado) ? 'Elige primero un tipo de acervo...' : 'Ingresa el término...' }}"
-                        class="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50">
-
-                    @if($loop->last)
-                        <button type="button" wire:click="agregarFila" @disabled(empty($acervoSeleccionado))
-                            class="w-9 h-9 rounded-md border border-gray-300 text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4.5v15m7.5-7.5h-15"></path>
-                            </svg>
-                        </button>
-                    @else
-                        <button type="button" wire:click="removerFila({{ $index }})" @disabled(empty($acervoSeleccionado))
-                            class="w-9 h-9 rounded-md border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                            </svg>
-                        </button>
-                    @endif
-                </div>
-            @endforeach
+    <div>
+        <div class="flex flex-col">
+            <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide dark:text-white">
+                Tipo de acervo
+            </label>
+            <select wire:model.live="acervoSeleccionado"
+                class="dark:bg-neutral-600 dark:text-white max-width-2xl  border rounded-md px-3 py-2 text-sm w-full focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all {{ empty($acervoSeleccionado) ? 'border-red-300 text-gray-400' : 'border-gray-300 text-gray-700' }}">
+                <option value="">--- Selecciona un tipo de acervo ---</option>
+                @foreach ($tiposDocumentales as $tipo)
+                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                @endforeach
+            </select>
+            @if (empty($acervoSeleccionado))
+                <p class="text-xs text-red-500 italic mt-2">
+                    Selecciona un tipo de acervo para habilitar la búsqueda.
+                </p>
+            @endif
         </div>
+
+    </div>
+
+
+    <div wire:keydown.enter="aplicarFiltrado" class="space-y-5">
 
         <!-- Contenedores de Checkboxes (Estilo Colecciones) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 border-t pt-6 border-gray-100">
 
-            <!-- Tipo Documental: ahora se elige uno solo, y define qué campos aparecen arriba -->
-            <div class="flex flex-col">
-                <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
-                    Tipo de acervo
-                </label>
-                <select wire:model.live="acervoSeleccionado"
-                    class="border rounded-md px-3 py-2 text-sm w-full focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all {{ empty($acervoSeleccionado) ? 'border-red-300 text-gray-400' : 'border-gray-300 text-gray-700' }}">
-                    <option value="">--- Selecciona un tipo de acervo ---</option>
-                    @foreach($tiposDocumentales as $tipo)
-                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
-                    @endforeach
-                </select>
-                @if(empty($acervoSeleccionado))
-                    <p class="text-xs text-red-500 italic mt-2">
-                        Selecciona un tipo de acervo para habilitar la búsqueda.
-                    </p>
-                @endif
-            </div>
-
-            <!-- Fondo -->
             <div class="flex flex-col border-l border-gray-100 pl-6">
                 <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
                     En fondo
                 </label>
                 <div class="grid grid-cols-1 gap-2 {{ empty($acervoSeleccionado) ? 'opacity-50' : '' }}">
-                    <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                        <input type="checkbox" wire:model="fondosSeleccionados" value="Todos" @disabled(empty($acervoSeleccionado))
+                    <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer dark:text-white">
+                        <input type="checkbox" wire:model="fondosSeleccionados" value="Todos"
+                            @disabled(empty($acervoSeleccionado))
                             class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b] disabled:cursor-not-allowed">
                         <span>Todos</span>
                     </label>
-                    @foreach($fondosDisponibles as $fondo)
-                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                            <input type="checkbox" wire:model="fondosSeleccionados" value="{{ $fondo }}" @disabled(empty($acervoSeleccionado))
+                    @foreach ($fondosDisponibles as $fondo)
+                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer dark:text-white">
+                            <input type="checkbox" wire:model="fondosSeleccionados" value="{{ $fondo }}"
+                                @disabled(empty($acervoSeleccionado))
                                 class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b] disabled:cursor-not-allowed">
                             <span>{{ $fondo }}</span>
                         </label>
                     @endforeach
                 </div>
             </div>
+            <!-- Filas Dinámicas de Búsqueda -->
+            <div class="space-y-3">
+                @foreach ($filas as $index => $fila)
+                    <div class="flex items-center space-x-3">
+
+                        @if ($index > 0)
+                            <select class="dark:bg-neutral-600 dark:text-white" wire:model="filas.{{ $index }}.operador" @disabled(empty($acervoSeleccionado))
+                                class="border border-gray-300 text-gray-600 font-bold uppercase text-xs rounded-md px-3 py-2 w-32 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <option value="AND">Y (AND)</option>
+                                <option value="OR">O (OR)</option>
+                                <option value="NOT">NO (NOT)</option>
+                            </select>
+                        @else
+                            <div class="w-32"></div>
+                        @endif
+
+                        <select wire:model="filas.{{ $index }}.campo" @disabled(empty($acervoSeleccionado))
+                            class="dark:bg-neutral-600 dark:text-white border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50">
+                            <option value="all">--- Todos los campos ---</option>
+                            @foreach ($camposEsquema as $campo)
+                                <option value="{{ $campo['variable'] }}">{{ $campo['label'] ?? $campo['variable'] }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <input type="text" wire:model="filas.{{ $index }}.termino"
+                            @disabled(empty($acervoSeleccionado))
+                            placeholder="{{ empty($acervoSeleccionado) ? 'Elige primero un tipo de acervo...' : 'Ingresa el término...' }}"
+                            class="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50">
+
+                        @if ($loop->last)
+                            <button type="button" wire:click="agregarFila" @disabled(empty($acervoSeleccionado))
+                                class="w-9 h-9 rounded-md border border-gray-300 text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4.5v15m7.5-7.5h-15"></path>
+                                </svg>
+                            </button>
+                        @else
+                            <button type="button" wire:click="removerFila({{ $index }})"
+                                @disabled(empty($acervoSeleccionado))
+                                class="w-9 h-9 rounded-md border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4">
+                                    </path>
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Fondo -->
         </div>
 
         <!-- Botones de Acción -->
         <div class="mt-8 flex justify-end space-x-3 border-t pt-4 border-gray-100">
-            @if(request()->anyFilled(['q', 'acervo', 'tipos', 'fondos']))
+            @if (request()->anyFilled(['q', 'acervo', 'tipos', 'fondos']))
                 <a href="{{ url()->current() }}"
                     class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
                     Limpiar criterios
@@ -327,7 +323,7 @@ new class extends VoltComponent {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                Buscar Acervos
+                Buscar
             </button>
         </div>
 

@@ -96,6 +96,8 @@
             <div class="hidden lg:flex items-center h-full ms-6 space-x-1">
                 <a href="{{ route('home') }}"
                     class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Inicio</a>
+                <a href="{{ route('areas.index') }}"
+                    class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Áreas</a>
                 <a href="{{ route('fondos.index') }}"
                     class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
                 <a href="{{ route('blog.index') }}"
@@ -249,7 +251,7 @@
 
                         <flux:button href="{{ route('busqueda.avanzada') }}" variant="primary" size="sm"
                             class="dark:bg-stone-700 dark:text-white dark:border-stone-600 dark:hover:bg-stone-600 w-full inline-flex items-center justify-center gap-1.5 h-[44px] px-4 py-3 text-sm font-medium rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition backdrop-blur-sm">
-                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Búsqueda <br /> avanzada
                         </flux:button>
                     </div>
                 </div>
