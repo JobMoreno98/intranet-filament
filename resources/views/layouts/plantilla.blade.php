@@ -90,7 +90,18 @@
                 <img src="{{ asset('img/arreola-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="hidden dark:block h-6 mr-3 sm:h-9">
 
+
+                <img src="{{ asset('img/bpej.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
+                    class="block dark:hidden h-4 mr-3 sm:h-6">
+
+                <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
+                <img src="{{ asset('img/bpej-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
+                    class="hidden dark:block h-4 mr-3 sm:h-6">
+
+                {{-- 
                 <span class="dark:text-white text-guinda">{{ config('app.name', 'Laravel') }}</span>
+ --}}
+
             </a>
 
             <div class="hidden lg:flex items-center h-full ms-6 space-x-1">
@@ -603,10 +614,13 @@
                 <div class="text-black flex flex-col ">
                     <a href="{{ route('home') }}" class="font-bold text-xl"
                         style="display: flex; align-items: center; gap: 8px;">
-                        <img src="{{ asset('img/logo.svg') }}" alt="" width="80" height="80">
-                        <span class="" style="color:#7c2422;">
+                        <img src="{{ asset('img/bpej.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
+                            class="block dark:hidden h-4 mr-3 sm:h-8">
 
-                            {{ config('app.name', 'Laravel') }}</span>
+                        <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
+                        <img src="{{ asset('img/bpej-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
+                            class="hidden dark:block h-4 mr-3 sm:h-8">
+
                     </a>
                     <p class="mt-2 text-sm text-gray-500 lg:w-4/5 dark:text-white">
                         Biblioteca Pública del Estado de Jalisco "Juan José Arreola" <br>

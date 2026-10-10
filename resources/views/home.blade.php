@@ -73,7 +73,8 @@
                                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                                         </path>
                                     </svg>
-                                    <span class="truncate dark:text-white hover:text-guinda"> {{ $item->acervo->nombre ?? 'General' }}</span>
+                                    <span class="truncate dark:text-white hover:text-guinda">
+                                        {{ $item->acervo->nombre ?? 'General' }}</span>
                                 </span>
                             </div>
 
@@ -94,29 +95,23 @@
 
         </div>
     </section>
-
-
     <section>
-        <div
-            class="mx-auto sm:px-7 px-2 md:max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center max-w-[300px] sm:max-w-[340px]">
+        <div class="mx-auto w-full max-w-5xl px-4 sm:px-7 py-10">
 
-            <div class="flex flex-col gap-8 w-full">
-                @forelse ($areas as $index => $item)
-                    <div data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
-                        <livewire:area :area="$item" :key="$item->id" />
-                    </div>
-                @empty
-                    <div class="w-full text-center py-12">
-                        <h4 class="text-lg font-medium text-zinc-500">No hay datos aun</h4>
-                    </div>
-                @endforelse
-            </div>
+            @if ($areas->count())
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @foreach ($areas as $index => $item)
+                        <div class="h-full" data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
+                            <livewire:area :area="$item" :key="$item->id" />
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="w-full text-center py-12">
+                    <h4 class="text-lg font-medium text-zinc-500">No hay datos aun</h4>
+                </div>
+            @endif
         </div>
-
-        <div class="mx-auto max-w-7xl px-2">
-            {{ $areas->links() }}
-        </div>
-
     </section>
 @endsection
 
