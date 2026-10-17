@@ -14,7 +14,7 @@ with(function () {
     $children = $this->collection
         ->children()
         ->orderBy('nombre', 'ASC')
-        ->paginate(6, ['*'], 'page-' . $this->collection->id);
+        ->paginate(12, ['*'], 'page-' . $this->collection->id);
 
     return [
         'children' => $children,
@@ -23,102 +23,132 @@ with(function () {
 
 ?>
 
-{{-- Inicializamos Alpine en la raíz --}}
-<div class="w-full bg-white  dark:bg-zinc-700 dark:text-white" x-data="{ desplegado: false }">
+{{-- Alpine en la raíz. h-full para que la tarjeta iguale la altura de las demás en el grid --}}
+<div class="h-full w-full" x-data="{
+    abrir() {
+        this.$refs.modal.showModal();
+        document.body.classList.add('overflow-hidden');
+    },
+    cerrar() {
+        this.$refs.modal.close();
+    },
+}">
 
+    {{-- Tarjeta del fondo padre --}}
     <div
-        class="w-full rounded-md border border-zinc-200 bg-white shadow-xl grid grid-cols-1 grid-rows-1 overflow-hidden min-h-[240px] transition-all duration-300">
+        class="flex h-full w-full flex-col overflow-hidden rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-600 dark:bg-zinc-700 dark:text-white">
 
-        <div x-show="!desplegado" x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-98" {{-- El secreto: col-start-1 y row-start-1 los obliga a compartir el mismo espacio físico --}}
-            class="col-start-1 row-start-1 p-6 flex flex-col md:flex-row gap-6 items-center w-full h-full bg-white z-10 bg-white  dark:bg-zinc-700">
-
-            <div class="w-full md:w-1/6 flex-shrink-0 w-1/3 ">
-                <img style="aspect-ratio:1/1;max-width:250px;" class="mx-auto h-auto w-full object-cover rounded-base"
-                    src="{{ asset('storage/colecciones/' . $collection->foto) }}" alt="{{ $collection->nombre }}">
-            </div>
-
-            <div class="flex-1 flex flex-col w-full h-full justify-center">
-                <h2 class="text-2xl font-bold text-left mb-2 text-zinc-800 dark:text-white">
-                    {{ $collection->nombre }}
-                </h2>
-
-                <p class="text-body text-justify text-zinc-600 text-sm line-clamp-4 mb-4 dark:text-white">
-                    {{ $collection->descripcion }}
-                </p>
-
-                <div class="flex justify-end gap-3 mt-auto">
-                    <a href="{{ route('coleccion.show', $collection->slug) }}" target="_blank"
-                        class="inline-flex items-center text-xs md:text-base bg-red-800 rounded text-white font-bold py-1 px-4 hover:bg-red-950 transition-colors">
-                        Ver Fondo
-                    </a>
-
-                    @if ($collection->children()->exists())
-                        <button @click="desplegado = true"
-                            class="inline-flex items-center text-xs md:text-base bg-zinc-100 border border-zinc-300 
-                            rounded text-zinc-800 font-bold py-1 px-4 hover:bg-zinc-200 transition-colors">
-                            Ver fondos internos
-                        </button>
-                    @endif
+        {{-- Portada --}}
+        <div class="aspect-[16/9] w-full shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-600">
+            @if ($collection->foto)
+                <img src="{{ asset('storage/colecciones/' . $collection->foto) }}" alt="{{ $collection->nombre }}"
+                    class="h-full w-full object-cover" loading="lazy">
+            @else
+                <div class="flex h-full w-full items-center justify-center text-zinc-300 dark:text-zinc-400">
+                    <svg class="h-10 w-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v13.5A1.5 1.5 0 0 0 3.75 21Z" />
+                    </svg>
                 </div>
-            </div>
+            @endif
         </div>
 
-        <div x-show="desplegado" x-cloak x-transition:enter="transition ease-out duration-300 delay-100"
-            x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-98" {{-- Comparten col-start-1 y row-start-1 con la vista del padre --}}
-            class="col-start-1 row-start-1 p-6 w-full flex flex-col h-full  z-20 bg-white  dark:bg-zinc-700">
+        <div class="flex flex-1 flex-col items-center gap-3 p-4 text-center">
+            <div class="flex flex-col gap-1">
+                <h2 class="text-lg font-bold text-zinc-800 dark:text-white">
+                    {{ $collection->nombre }}
+                </h2>
+                <p class="line-clamp-3 text-xs text-zinc-500 dark:text-zinc-300">
+                    {{ $collection->descripcion }}
+                </p>
+            </div>
 
-            <div class="flex flex-row justify-between items-center mb-4 border-b border-zinc-100 pb-2 ">
-                <h3 class="text-lg font-bold text-zinc-700 flex items-center gap-2  dark:text-white">
-                    <span class="w-2 h-4 bg-red-800 inline-block rounded-sm"></span>
-                    {{ $collection->nombre }} <span class="text-zinc-400 font-normal text-sm">(Contenido)</span>
-                </h3>
+            {{-- mt-auto empuja los botones al fondo para alinear todas las tarjetas --}}
+            <div class="mt-auto flex flex-wrap justify-center gap-2 pt-1">
+                <a href="{{ route('coleccion.show', $collection->slug) }}" target="_blank"
+                    class="inline-flex items-center rounded bg-red-800 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-red-950">
+                    Ver Fondo
+                </a>
 
-                <button @click="desplegado = false"
-                    class="inline-flex items-center text-xs bg-zinc-800 text-white rounded font-bold py-1.5 px-4 hover:bg-zinc-950 transition-colors  dark:text-white">
-                    ← Volver
+                @if ($children->total() > 0)
+                    <button type="button" @click="abrir()"
+                        class="inline-flex items-center rounded border border-zinc-300 bg-zinc-100 px-3 py-1 text-xs font-bold text-zinc-800 transition-colors hover:bg-zinc-200 dark:border-zinc-500 dark:bg-zinc-600 dark:text-white dark:hover:bg-zinc-500">
+                        Ver fondos internos ({{ $children->total() }})
+                    </button>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{--
+        Modal con <dialog> nativo: se dibuja en la "top layer" del navegador, así que no lo recortan
+        el overflow-hidden de la tarjeta ni el transform que aplica AOS al contenedor.
+        wire:ignore.self evita que Livewire le quite el atributo "open" al re-renderizar al paginar,
+        pero sigue actualizando su contenido.
+    --}}
+    <dialog x-ref="modal" wire:ignore.self @click.self="cerrar()"
+        @close="document.body.classList.remove('overflow-hidden')"
+        class="m-auto w-[min(72rem,calc(100%-1.5rem))] rounded-lg bg-white p-0 text-zinc-800 shadow-2xl backdrop:bg-black/60 dark:bg-zinc-700 dark:text-white">
+
+        <div class="flex max-h-[85vh] flex-col">
+
+            <div
+                class="flex items-center justify-between gap-3 border-b border-zinc-100 px-4 py-3 sm:px-6 dark:border-zinc-600">
+                <div class="min-w-0">
+                    <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Fondos internos</p>
+                    <h3 class="truncate text-base font-bold sm:text-lg">{{ $collection->nombre }}</h3>
+                </div>
+
+                <button type="button" @click="cerrar()" aria-label="Cerrar"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
 
-            {{-- Loader asíncrono para la paginación interna --}}
-            <div wire:loading.class="opacity-50"
-                class="transition-opacity duration-300 flex-1 flex flex-col justify-between">
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+            {{-- Cuerpo con scroll propio --}}
+            <div x-ref="cuerpo" wire:loading.class="opacity-50"
+                class="flex-1 overflow-y-auto p-4 transition-opacity duration-300 sm:p-6">
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
                     @foreach ($children as $child)
                         <div
-                            class="w-full p-3 rounded-md border border-zinc-200 bg-zinc-50 flex flex-col gap-2 shadow-sm relative dark:bg-stone-700">
-                            <img style="aspect-ratio:1/1;" class="mx-auto h-40 w-auto rounded-base object-cover"
-                                src="{{ asset('storage/colecciones/' . $child->foto) }}" alt="{{ $child->nombre }}">
+                            class="flex flex-col overflow-hidden rounded-md border border-zinc-200 bg-zinc-50 shadow-sm dark:border-zinc-500 dark:bg-zinc-600">
+                            <div class="aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-500">
+                                @if ($child->foto)
+                                    <img src="{{ asset('storage/colecciones/' . $child->foto) }}"
+                                        alt="{{ $child->nombre }}" class="h-full w-full object-cover" loading="lazy">
+                                @endif
+                            </div>
 
-                            <h4 class="text-sm font-bold text-center text-zinc-800 line-clamp-1  dark:text-white">
-                                {{ $child->nombre }}
-                            </h4>
+                            <div class="flex flex-1 flex-col gap-1 p-3">
+                                <h4 class="line-clamp-2 text-sm font-bold text-zinc-800 dark:text-white">
+                                    {{ $child->nombre }}
+                                </h4>
+                                <p class="line-clamp-2 text-xs text-zinc-500 dark:text-zinc-300">
+                                    {{ $child->descripcion }}
+                                </p>
 
-                            <p class="text-zinc-600 text-xs text-justify line-clamp-2  dark:text-white">
-                                {{ $child->descripcion }}
-                            </p>
-
-                            <p class="text-right mt-auto">
-                                <a href="{{ route('coleccion.show', $child->slug) }}" target="_blank"
-                                    class="text-[11px] bg-red-800 rounded text-white font-bold py-1 px-2.5 hover:bg-red-950 transition-colors">
-                                    Ver
-                                </a>
-                            </p>
+                                <div class="mt-auto pt-2">
+                                    <a href="{{ route('coleccion.show', $child->slug) }}" target="_blank"
+                                        class="flex w-full items-center justify-center rounded bg-red-800 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-red-950">
+                                        Ver
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     @endforeach
                 </div>
-
-                <div class="mt-4 flex justify-center">
-                    {{ $children->links() }}
-                </div>
-
             </div>
-        </div>
 
-    </div>
+            @if ($children->hasPages())
+                {{-- scrollTo => false: evita que la paginación desplace la página de fondo; subimos el cuerpo del modal --}}
+                <div @click="$refs.cuerpo.scrollTo({ top: 0 })"
+                    class="flex justify-center border-t border-zinc-100 px-4 py-3 dark:border-zinc-600">
+                    {{ $children->links(data: ['scrollTo' => false]) }}
+                </div>
+            @endif
+        </div>
+    </dialog>
+
 </div>

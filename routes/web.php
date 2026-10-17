@@ -80,7 +80,7 @@ Route::get('/busqueda-resultado', [ColeccionesConsultaController::class, 'busque
 Route::resource('/areas', AreaController::class)->names('areas');
 
 // routes/web.php
-Route::get('/areas/{area:slug}/colecciones', function (Area $area) {
+Route::get('/areas/{area:slug}/fondos', function (Area $area) {
     return view('areas.colecciones', ['area' => $area]);
 })->name('area.colecciones');
 

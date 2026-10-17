@@ -58,10 +58,7 @@
             </div>
 
             @php
-                // --- PROCESAMIENTO DINÁMICO DE COLUMNAS DESDE METADATA ---
                 $firstItem = $data->first();
-
-                // Extraemos las llaves del JSON metadata del primer registro disponible
                 $metadata = [];
 
                 if ($firstItem && isset($firstItem->metadata)) {

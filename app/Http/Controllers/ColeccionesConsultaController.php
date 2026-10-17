@@ -170,7 +170,7 @@ class ColeccionesConsultaController extends Controller
     public function busquedaAvanzada(Request $request)
     {
         $request->validate([
-            'acervo' => ['required', 'exists:tipo_acervos,id'], 
+            'acervo' => ['required', 'exists:tipo_acervos,id'],
             'q' => ['nullable', 'array'],
             'fondos' => ['nullable', 'array'],
         ]);
@@ -394,8 +394,8 @@ class ColeccionesConsultaController extends Controller
 
     public function showRegistro(Request $request, $tipo, $id)
     {
-        // NUEVO: Capturamos la página solicitada desde la URL (ej. ?page=4). Si no viene, por defecto es la 1.
-        $paginaSolicitada = $request->input('page', 1);
+        // Página solicitada desde la URL (ej. ?page=4). Por defecto 1.
+        $paginaSolicitada = (int) $request->input('page', 1);
 
         $recurso = Recursos::with([
             'archivos' => function ($q) {
@@ -424,14 +424,32 @@ class ColeccionesConsultaController extends Controller
             \Illuminate\Support\Facades\Log::error('Error registrando analítica en visor: ' . $e->getMessage());
         }
 
-        $omitir = ['tipo_media', 'IdElemento', 'id', 'created_at', 'updated_at', 'usuario_id', 'carpetaContenido', 'archvios', 'deleted_at', 'vistas_count', 'hash_archivo', 'assets_procesados', 'status'];
+        $omitir = [
+            'tipo_media',
+            'IdElemento',
+            'id',
+            'created_at',
+            'updated_at',
+            'usuario_id',
+            'carpetaContenido',
+            'archivos',
+            'deleted_at',
+            'vistas_count',
+            'hash_archivo',
+            'assets_procesados',
+            'status',
+            'fijado',
+            'visible'
+        ];
 
         $recursoData = $recurso->toArray();
 
         $esquema = [];
 
         if ($recurso->acervo && $recurso->acervo->esquema) {
-            $esquema = is_string($recurso->acervo->esquema) ? json_decode($recurso->acervo->esquema, true) : $recurso->acervo->esquema;
+            $esquema = is_string($recurso->acervo->esquema)
+                ? json_decode($recurso->acervo->esquema, true)
+                : $recurso->acervo->esquema;
         }
 
         $camposPermitidos = collect($esquema)
@@ -445,6 +463,23 @@ class ColeccionesConsultaController extends Controller
 
         $recurso->metadata = $metadata;
 
+        $labels = collect($esquema)
+            ->whereIn('visible', ['Recuperable', 'Adicional'])
+            ->pluck('label', 'variable')
+            ->toArray();
+
+        // Sin archivos: mostramos solo la ficha de información, sin visor
+        if ($recurso->archivos->isEmpty()) {
+            return view('registro-info', [
+                'registro' => $recurso,
+                'coleccionNombre' => $recurso->coleccion,
+                'labels' => $labels,
+                'title' => 'Detalle del Registro',
+                'omitir' => $omitir,
+            ]);
+        }
+
+        // Con archivos: armamos las páginas del visor
         $paginas = collect($recursoData['archivos'])
             ->map(function ($archivo) {
                 $payload = [
@@ -457,23 +492,13 @@ class ColeccionesConsultaController extends Controller
 
                 return [
                     'id' => $archivo['id'],
-                    // NUEVO: Agregamos el orden (número de página real) al JSON que recibe el frontend
                     'orden' => $archivo['orden'] ?? 1,
-                    'url' => route('media.stream', [
-                        'token' => $token,
-                    ]),
+                    'url' => route('media.stream', ['token' => $token]),
                     'w' => 1200,
                     'h' => 1600,
-                    'ocrUrl' => route('visor.ocr', [
-                        'token' => $token,
-                    ]),
+                    'ocrUrl' => route('visor.ocr', ['token' => $token]),
                 ];
             })
-            ->toArray();
-
-        $labels = collect($esquema)
-            ->whereIn('visible', ['Recuperable', 'Adicional'])
-            ->pluck('label', 'variable')
             ->toArray();
 
         return view('registro-detalle', [
@@ -485,8 +510,7 @@ class ColeccionesConsultaController extends Controller
             'omitir' => $omitir,
             'paginas' => $paginas,
             'recurso' => $recursoData,
-            // NUEVO: Pasamos la variable de la página a la vista
-            'paginaSolicitada' => (int) $paginaSolicitada,
+            'paginaSolicitada' => $paginaSolicitada,
         ]);
     }
 }

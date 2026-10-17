@@ -62,9 +62,9 @@
                                             {{ $res['titulo_resultado'] ?? '---' }}
                                         @endif
                                     </td>
-
                                     <td class="p-4 dark:text-white"> 
-                                        {{ ($res['coleccion']) }}
+                             
+                                        {{ $res['coleccion'] ?? '---' }}
                                     </td>
 
                                     <!-- Coincidencia -->
@@ -107,9 +107,6 @@
                     </table>
                 </div>
 
-                <!-- ========================================== -->
-                <!-- 2. VISTA CARDS (Pantallas Móviles)         -->
-                <!-- ========================================== -->
                 <div class="block md:hidden divide-y divide-gray-100 flex flex-col gap-4">
                     @foreach ($resultados as $res)
                         <div class="p-5 my-2 shadow-md border border-gray-200 bg-white">
@@ -150,6 +147,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        
                     @endforeach
 
                     @if ($resultados->isEmpty())
@@ -165,12 +164,11 @@
                 </div>
 
             </div>
-
-            <!-- Paginación con Tailwind -->
             <div class="mt-6">
                 {{ $resultados->links() }}
             </div>
         </div>
+        
     </section>
 
 

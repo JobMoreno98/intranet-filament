@@ -47,18 +47,18 @@ class Recursos extends Model
             'id' => (int) $this->id,
             'acervo' => $this->acervo->nombre ?? null,
             'acervo_id' => $this->acervo_id,
-            'coleccion' => $this->coleccion->nombre ?? null,
+            'fondo' => $this->coleccion->nombre ?? null,
             'status' => $this->status,
             'archivos' => $paginas->isNotEmpty(),
         ];
 
         if ($this->coleccion) {
             $array['coleccion_id'] = (int) $this->coleccion_id;
-            $array['coleccion_nombre'] = $this->coleccion->nombre;
+            $array['fondo_nombre'] = $this->coleccion->nombre;
             $array['parent_names'] = $this->coleccion->toSearchableArray()['parent_names'] ?? [];
         } else {
             $array['coleccion_id'] = null;
-            $array['coleccion_nombre'] = null;
+            $array['fondo_nombre'] = null;
             $array['parent_names'] = [];
         }
 

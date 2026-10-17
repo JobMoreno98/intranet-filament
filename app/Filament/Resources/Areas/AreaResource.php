@@ -24,6 +24,11 @@ class AreaResource extends Resource
     protected static ?string $title = 'Áreas';
     protected static ?string $navigationLabel = 'Áreas';
     protected static ?string $pluralModelLabel = 'Áreas';
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenidos';
+    }
 
     public static function form(Schema $schema): Schema
     {
