@@ -39,7 +39,7 @@ with(function () {
         class="flex h-full w-full flex-col overflow-hidden rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-600 dark:bg-zinc-700 dark:text-white">
 
         {{-- Portada --}}
-        <div class="aspect-[16/9] w-full shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-600">
+        <div class="aspect-[4/3] w-full shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-600">
             @if ($collection->foto)
                 <img src="{{ asset('storage/colecciones/' . $collection->foto) }}" alt="{{ $collection->nombre }}"
                     class="h-full w-full object-cover" loading="lazy">

@@ -19,7 +19,7 @@ class Recursos extends Model
         'assets_procesados' => 'array',
         'path_original' => 'array',
         'visible' => 'boolean',
-        'fiajdo' => 'boolean'
+        'fijado' => 'boolean'
 
     ];
 
