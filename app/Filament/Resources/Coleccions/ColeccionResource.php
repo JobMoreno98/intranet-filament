@@ -32,6 +32,7 @@ class ColeccionResource extends Resource
     {
         return 'Contenidos';
     }
+    
     public static function form(Schema $schema): Schema
     {
         return ColeccionForm::configure($schema);
