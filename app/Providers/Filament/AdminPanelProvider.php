@@ -43,7 +43,8 @@ class AdminPanelProvider extends PanelProvider
                 'Contenidos',
                 'Administrativo',
                 'Seguridad',
-                'Análisis'
+                'Análisis',
+                'General'
             ])->collapsibleNavigationGroups(false)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -92,16 +93,15 @@ class AdminPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ])
-                    ->navigationLabel('Roles y permisos')                  // string|Closure|null
-                    ->navigationIcon('heroicon-o-lock-closed')         // string|Closure|null  
-                    ->activeNavigationIcon('heroicon-s-lock-closed')   // string|Closure|null
+                    ->navigationLabel('Roles y permisos')                 
+                    ->navigationIcon('heroicon-o-lock-closed')         
+                    ->activeNavigationIcon('heroicon-s-lock-closed')   
                     ->navigationGroup('Seguridad')
-                    ->navigationSort(2)               // string|Closure|null
+                    ->navigationSort(2)               
                     ->registerNavigation(true),
 
             ])->viteTheme('resources/css/filament/admin/theme.css')
             ->assets([
-                // Cargamos Resumable.js de forma global y segura en el panel
                 Js::make('resumable-js', 'https://cdn.jsdelivr.net/npm/resumablejs@1.1.0/resumable.min.js'),
 
                 // Si tienes un CSS específico para tus formularios custom que compilaste con Vite:
