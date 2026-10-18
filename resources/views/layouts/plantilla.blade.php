@@ -10,25 +10,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script>
-        let theme = 'light';
 
-        // 2. LocalStorage: ¿El usuario ya eligió algo antes?
-        if (localStorage.getItem('theme')) {
-            theme = localStorage.getItem('theme');
-        }
-        // 3. Sistema: Si no hay LocalStorage, ¿qué prefiere su sistema operativo?
-        else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            theme = 'dark';
-        }
-
-        // Finalmente, aplicamos el resultado de ese análisis a la página
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
@@ -37,6 +19,14 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/vnd.microsoft.icon" />
 
     <style>
+        html {
+            background-color: #fff;
+        }
+
+        html.dark {
+            background-color: #1d1d1b;
+        }
+
         body,
         html {
             scroll-behavior: smooth !important;
@@ -116,26 +106,18 @@
             </div>
 
             <div class="flex items-center gap-2 md:gap-4">
-
-                <div x-data="{
-                    darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-                }" x-init="darkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
-                $watch('darkMode', val => {
-                    val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
-                    localStorage.setItem('theme', val ? 'dark' : 'light');
-                });" class="flex items-center">
-                    <button @click="darkMode = !darkMode" type="button"
+                <div x-data class="flex items-center">
+                    <button x-on:click="$flux.dark = ! $flux.dark" type="button"
                         class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
-                        <span x-show="!darkMode" x-cloak>
+                        <span x-show="! $flux.dark" x-cloak>
                             <x-heroicon-o-moon class="w-5 h-5 group-hover:scale-110 transition-transform" />
                         </span>
-                        <span x-show="darkMode" x-cloak>
+                        <span x-show="$flux.dark" x-cloak>
                             <x-heroicon-o-sun
                                 class="w-5 h-5 text-amber-400 group-hover:rotate-45 transition-transform" />
                         </span>
                     </button>
                 </div>
-
                 <div class="hidden lg:flex items-center h-full">
                     @if (Auth::check())
                         <x-desktop-user-menu />
@@ -252,14 +234,16 @@
                                 <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                             </div>
                             <input type="text" name="q" placeholder="Buscar contenido..."
-                                class="dark:bg-stone-700 dark:text-white w-full pl-10 pr-3 py-3 text-sm rounded-xl border-none bg-white focus:ring-2 focus:ring-red-700 outline-none transition">
+                                class="dark:bg-stone-700 dark:text-white w-full pl-10 pr-3 py-3 
+                                text-sm rounded-xl border-none bg-white focus:ring-2 focus:ring-red-700 outline-none transition">
                         </div>
                     </div>
 
                     {{-- Botones (El primario usa el naranja/rojo) --}}
                     <div class="flex gap-2 w-full lg:w-auto shadow-sm rounded-xl">
                         <flux:button type="submit" variant="primary" size="sm"
-                            class="hover:bg-red-900 dark:bg-red-700 w-full inline-flex items-center justify-center gap-1.5 px-6 py-3 text-sm font-medium rounded-xl h-[44px] bg-[rgb(233,79,53)] hover:bg-opacity-90 text-white transition border-none">
+                            class="hover:bg-red-900 dark:bg-red-700 w-full inline-flex items-center justify-center gap-1.5 px-6 py-3 text-sm 
+                            font-medium rounded-xl h-[44px] bg-[rgb(233,79,53)] hover:bg-opacity-90 text-white transition border-none">
                             <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                         </flux:button>
 
@@ -276,340 +260,6 @@
     <div class=" bg-white border-gray-200  dark:bg-neutral-800">
         @yield('content')
     </div>
-
-    {{--
-    <section class="px-6 md:px-2">
-        <div data-aos="fade-up"
-            class="relative mx-auto sm:px-7 px-4 max-w-screen-xl py-10 flex items-center aos-init aos-animate">
-            <img src="./imgs/hero.png" class="mx-auto w-full max-w-[1000px] rounded shadow-2xl" alt="">
-        </div>
-    </section>
-    <section class="bg-gray-50">
-        <div class="flex flex-col gap-8 mx-auto sm:px-7 px-4 max-w-screen-xl py-20 mt-20">
-            <div class="flex flex-col gap-4">
-                <h2 class="text-4xl font-bold text-center">
-                    Lorem ipsum dolor
-                </h2>
-                <p class="text-base md:text-lg text-center">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Neque autem eos magnam alias, dolorum...
-                </p>
-            </div>
-            <ul class="flex flex-row gap-5 justify-center flex-wrap mx-auto items-center">
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1200px-Google_2015_logo.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/2560px-Coinbase.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/2560px-Stripe_Logo%2C_revised_2016.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Firebase_Logo.svg/1280px-Firebase_Logo.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1200px-Google_2015_logo.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/2560px-Coinbase.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/2560px-Stripe_Logo%2C_revised_2016.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Firebase_Logo.svg/1280px-Firebase_Logo.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1200px-Google_2015_logo.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/2560px-Coinbase.svg.png"
-                        alt="">
-                </li>
-                <li>
-                    <img class="grayscale max-w-[140px]"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/2560px-Stripe_Logo%2C_revised_2016.svg.png"
-                        alt="">
-                </li>
-            </ul>
-        </div>
-    </section>
-    <section>
-        <div class="mx-auto sm:px-7 px-4 max-w-screen-xl py-20 flex flex-col gap-10">
-            <div class="flex flex-col gap-4">
-                <h2 class="text-4xl font-bold text-center">
-                    Lorem ipsum dolor
-                </h2>
-                <p class="text-base md:text-lg text-center max-w-[600px] mx-auto">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Neque autem eos magnam alias, dolorum...
-                </p>
-            </div>
-            <div class="flex flex-row gap-5 justify-center flex-wrap mx-auto items-center">
-                <div class="flex flex-col text-center max-w-[340px]">
-                    <div
-                        class="border-2 border-orange-50 bg-orange-100 mx-auto rounded-full text-orange-600 w-12 h-12 flex">
-                        <i class="bi bi-badge-8k-fill text-2xl my-auto mx-auto"></i>
-                    </div>
-                    <h2 class="mt-4 text-xl font-semibold text-gray-800">Lorem ipsum et</h2>
-                    <p class="mt-2 text-gray-500 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim
-                        fusce tortor, ac sed malesuada blandit. Et mi gravida sem feugiat.
-                    </p>
-                </div>
-                <div class="flex flex-col text-center max-w-[340px]">
-                    <div
-                        class="border-2 border-orange-50 bg-orange-100 mx-auto rounded-full text-orange-600 w-12 h-12 flex">
-                        <i class="bi bi-badge-8k-fill text-2xl my-auto mx-auto"></i>
-                    </div>
-                    <h2 class="mt-4 text-xl font-semibold text-gray-800">Fully ready</h2>
-                    <p class="mt-2 text-gray-500 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim
-                        fusce tortor, ac sed malesuada blandit. Et mi gravida sem feugiat.
-                    </p>
-                </div>
-                <div class="flex flex-col text-center max-w-[340px]">
-                    <div
-                        class="border-2 border-orange-50 bg-orange-100 mx-auto rounded-full text-orange-600 w-12 h-12 flex">
-                        <i class="bi bi-badge-8k-fill text-2xl my-auto mx-auto"></i>
-                    </div>
-                    <h2 class="mt-4 text-xl font-semibold text-gray-800">Super yes</h2>
-                    <p class="mt-2 text-gray-500 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim
-                        fusce tortor, ac sed malesuada blandit. Et mi gravida sem feugiat.
-                    </p>
-                </div>
-                <div class="flex flex-col text-center max-w-[340px]">
-                    <div
-                        class="border-2 border-orange-50 bg-orange-100 mx-auto rounded-full text-orange-600 w-12 h-12 flex">
-                        <i class="bi bi-badge-8k-fill text-2xl my-auto mx-auto"></i>
-                    </div>
-                    <h2 class="mt-4 text-xl font-semibold text-gray-800">Lorem ipsum et</h2>
-                    <p class="mt-2 text-gray-500 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim
-                        fusce tortor, ac sed malesuada blandit. Et mi gravida sem feugiat.
-                    </p>
-                </div>
-                <div class="flex flex-col text-center max-w-[340px]">
-                    <div
-                        class="border-2 border-orange-50 bg-orange-100 mx-auto rounded-full text-orange-600 w-12 h-12 flex">
-                        <i class="bi bi-badge-8k-fill text-2xl my-auto mx-auto"></i>
-                    </div>
-                    <h2 class="mt-4 text-xl font-semibold text-gray-800">Fully ready</h2>
-                    <p class="mt-2 text-gray-500 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim
-                        fusce tortor, ac sed malesuada blandit. Et mi gravida sem feugiat.
-                    </p>
-                </div>
-                <div class="flex flex-col text-center max-w-[340px]">
-                    <div
-                        class="border-2 border-orange-50 bg-orange-100 mx-auto rounded-full text-orange-600 w-12 h-12 flex">
-                        <i class="bi bi-badge-8k-fill text-2xl my-auto mx-auto"></i>
-                    </div>
-                    <h2 class="mt-4 text-xl font-semibold text-gray-800">Super yes</h2>
-                    <p class="mt-2 text-gray-500 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dignissim
-                        fusce tortor, ac sed malesuada blandit. Et mi gravida sem feugiat.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <section>
-        <div class="px-2 py-20 mx-auto max-w-7xl">
-            <div class="grid grid-cols-1 gap-6 lg:gap-12 lg:grid-cols-3">
-                <div class="text-center lg:text-left">
-                    <div>
-                        <h2 class="text-2xl font-bold">
-                            Lorem ipsum dolor sit
-                        </h2>
-                        <p class="text-gray-600 text-base">
-                            Dolorem cupiditate voluptatem veniam reprehenderit.
-                        </p>
-                    </div>
-                </div>
-                <div class="relative w-full mx-auto font-normal lg:col-span-2" x-data="{
-                    activeAccordion: '',
-                    setActiveAccordion(id) {
-                        this.activeAccordion = (this.activeAccordion == id) ? '' : id
-                    }
-                }">
-                    <div class="cursor-pointer group text-gray-600 hover:text-zinc-500"
-                        x-data="{ id: $id('accordion') }" :class="{
-                            'text-zinc-900': activeAccordion ==
-                                id,
-                            'text-gray-600 hover:text-zinc-500': activeAccordion != id
-                        }">
-                        <button
-                            class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
-                            @click="setActiveAccordion(id)">
-                            <span>How does bookme work?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
-                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
-                                <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </button>
-                        <div x-collapse="" x-show="activeAccordion==id"
-                            style="height: 0px; overflow: hidden; display: none;" hidden="">
-                            <div class="p-4 pt-2 text-sm text-gray-500">
-                                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Excepturi laboriosam vitae
-                                reiciendis corrupti! Explicabo, libero reiciendis iste ipsa voluptatem, cupiditate ab
-                                culpa expedita asperiores at quasi laborum tempore magnam corrupti.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
-                        x-data="{ id: $id('accordion') }" :class="{
-                            'text-zinc-900': activeAccordion ==
-                                id,
-                            'text-gray-600 hover:text-zinc-500': activeAccordion != id
-                        }">
-                        <button
-                            class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
-                            @click="setActiveAccordion(id)">
-                            <span>What type of bookme?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
-                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
-                                <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </button>
-                        <div x-collapse="" x-show="activeAccordion==id"
-                            style="display: none; height: 0px; overflow: hidden;" hidden="">
-                            <div class="p-4 pt-2 text-sm text-gray-500">
-                                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nostrum ratione expedita
-                                possimus inventore in. Explicabo, quasi repellendus a dolore totam laudantium, molestias
-                                quis reiciendis rerum vero, numquam sint earum voluptatum?
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
-                        x-data="{ id: $id('accordion') }" :class="{
-                            'text-zinc-900': activeAccordion ==
-                                id,
-                            'text-gray-600 hover:text-zinc-500': activeAccordion != id
-                        }">
-                        <button
-                            class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
-                            @click="setActiveAccordion(id)">
-                            <span>Can I cancel my subscription?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
-                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
-                                <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </button>
-                        <div x-collapse="" x-show="activeAccordion==id"
-                            style="display: none; height: 0px; overflow: hidden;" hidden="">
-                            <div class="p-4 pt-2 text-sm text-gray-500">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum ex cum repellendus
-                                eligendi maxime magni molestiae saepe beatae, excepturi id dolores recusandae ea
-                                perferendis repudiandae? Ea deleniti blanditiis quae iusto!
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
-                        x-data="{ id: $id('accordion') }" :class="{
-                            'text-zinc-900': activeAccordion ==
-                                id,
-                            'text-gray-600 hover:text-zinc-500': activeAccordion != id
-                        }">
-                        <button
-                            class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
-                            @click="setActiveAccordion(id)">
-                            <span>is bookme safe?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
-                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
-                                <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </button>
-                        <div x-collapse="" x-show="activeAccordion==id"
-                            style="display: none; height: 0px; overflow: hidden;" hidden="">
-                            <div class="p-4 pt-2 text-sm text-gray-500">
-                                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat aspernatur iste ab
-                                optio magni veritatis voluptatibus quaerat. Error ipsam dolore, explicabo consequatur
-                                incidunt rem culpa, est corporis nihil necessitatibus cum!
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
-                        x-data="{ id: $id('accordion') }" :class="{
-                            'text-zinc-900': activeAccordion ==
-                                id,
-                            'text-gray-600 hover:text-zinc-500': activeAccordion != id
-                        }">
-                        <button
-                            class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
-                            @click="setActiveAccordion(id)">
-                            <span>Can I use 2 account?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
-                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
-                                <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </button>
-                        <div x-collapse="" x-show="activeAccordion==id"
-                            style="display: none; height: 0px; overflow: hidden;" hidden="">
-                            <div class="p-4 pt-2 text-sm text-gray-500">
-                                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Est placeat veritatis ex
-                                perspiciatis, incidunt, quos quia accusantium recusandae aspernatur inventore nulla,
-                                esse aut expedita numquam rem! Quibusdam deleniti magni rerum.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-gray-600 cursor-pointer group hover:text-zinc-500"
-                        x-data="{ id: $id('accordion') }" :class="{
-                            'text-zinc-900': activeAccordion ==
-                                id,
-                            'text-gray-600 hover:text-zinc-500': activeAccordion != id
-                        }">
-                        <button
-                            class="flex items-center justify-between w-full p-4 pb-1 text-sm text-left select-none lg:text-base"
-                            @click="setActiveAccordion(id)">
-                            <span>Is bookme a free service?</span>
-                            <svg class="w-5 h-5 duration-300 ease-out text-zinc-500" fill="none" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5"
-                                :class="{ '-rotate-[45deg]': activeAccordion == id }">
-                                <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </button>
-                        <div x-collapse="" x-show="activeAccordion==id"
-                            style="display: none; height: 0px; overflow: hidden;" hidden="">
-                            <div class="p-4 pt-2 text-sm text-gray-500">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut, consequuntur optio tempore
-                                voluptatibus quae commodi voluptate excepturi pariatur vitae odit eius placeat dicta
-                                cum, culpa quod similique, incidunt delectus est.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    --}}
 
     <footer class="dark:bg-neutral-600">
         <div class="px-2 pt-10 mx-auto max-w-7xl ">
@@ -632,24 +282,6 @@
                         Teléfono 33 3836 4530
                     </p>
                 </div>
-                {{--
-                <nav class="ml-0 md:ml-auto">
-                    <ul class="flex flex-row gap-4">
-                        <li>
-                            <a href="" class="hover:text-orange-500">Inicio</a>
-                        </li>
-                        <li>
-                            <a href="" class="hover:text-orange-500">Acerca</a>
-                        </li>
-                        <li>
-                            <a href="" class="hover:text-orange-500">Acer</a>
-                        </li>
-                        <li>
-                            <a href="" class="hover:text-orange-500">Demo</a>
-                        </li>
-                    </ul>
-                </nav>
-                --}}
             </div>
 
             <div class="flex flex-col pt-12 ">

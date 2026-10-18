@@ -134,7 +134,7 @@ class ColeccionesConsultaController extends Controller
             'tablaNombre' => 'recursos',
             'coleccion' => $coleccion,
             'acervosDisponibles' => $acervosDisponibles,
-            'title' => $coleccion->nombre ?? 'Colección',
+            'title' => $coleccion->ruta ?? 'Colección',
             'header' => collect($esquema)->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')->pluck('variable')->toArray(),
         ]);
     }

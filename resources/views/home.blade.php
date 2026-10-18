@@ -69,8 +69,8 @@
                             <div>
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">
-                                    <svg class="w-3 h-3 text-[#1d1d1b] flex-shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-3 h-3 dark:text-white text-[#1d1d1b] flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                                         </path>
@@ -84,7 +84,7 @@
                                 {{ $item->metadata['titulo'] }}
                             </h3>
                             <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $item->id]) }}"
-                                class="text-right mt-1  w-fit items-center gap-1 text-xs font-bold uppercase tracking-wide text-guinda 
+                                class="dark:text-white text-right mt-1  w-fit items-center gap-1 text-xs font-bold uppercase tracking-wide text-guinda 
                                 border-b-2 border-[#86212b] pb-0.5">
                                 Leer más
                             </a>
@@ -102,6 +102,13 @@
     </section>
     <section>
         <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10" data-aos="fade-up" data-aos-duration="500">
+            <div class="w-full bg-[var(--color-guinda)] py-2 px-4 my-2 rounded-md dark:bg-red-700">
+                <div class="max-w-6xl mx-auto text-center flex flex-col gap-3">
+                    <span class="text-white text-md uppercase tracking-[0.2em] font-bold">
+                        SALA ARREOLA
+                    </span>
+                </div>
+            </div>
             <x-slider :posts="$blogs" />
         </div>
     </section>

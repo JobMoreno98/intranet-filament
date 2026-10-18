@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class Coleccion extends Model
 {
@@ -78,6 +79,9 @@ class Coleccion extends Model
                 $model->slug = static::generateUniqueSlug($model->nombre, $model->id);
             }
         });
+
+        static::saved(fn() => Cache::forget('colecciones.mapa_rutas'));
+        static::deleted(fn() => Cache::forget('colecciones.mapa_rutas'));
     }
 
 
@@ -114,5 +118,33 @@ class Coleccion extends Model
     public function items(): HasMany
     {
         return $this->hasMany(Recursos::class);
+    }
+
+    protected static function mapaRutas(): array
+    {
+        return Cache::remember('colecciones.mapa_rutas', 600, function () {
+            return static::query()
+                ->get(['id', 'nombre', 'parent_id'])
+                ->mapWithKeys(fn($c) => [
+                    $c->id => ['nombre' => $c->nombre, 'parent_id' => $c->parent_id],
+                ])
+                ->all();
+        });
+    }
+
+    public function getRutaAttribute(): string
+    {
+        $mapa = static::mapaRutas();
+        $partes = [];
+        $visitados = [];
+        $id = $this->id;
+        
+        while ($id && isset($mapa[$id]) && !isset($visitados[$id])) {
+            $visitados[$id] = true;
+            array_unshift($partes, $mapa[$id]['nombre']);
+            $id = $mapa[$id]['parent_id'];
+        }
+
+        return implode(' > ', $partes);
     }
 }
