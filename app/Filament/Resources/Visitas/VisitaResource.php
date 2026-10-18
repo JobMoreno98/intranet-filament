@@ -26,7 +26,7 @@ class VisitaResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Analisis';
+        return 'Análisis';
     }
 
     public static function getEloquentQuery(): Builder
