@@ -18,12 +18,15 @@ use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Artisan;
+use UnitEnum;
 
 class Dashboard extends Page
 {
     protected static string $routePath = '/';
 
     protected static ?int $navigationSort = -2;
+
+    protected static string|UnitEnum|null $navigationGroup = 'General';
 
     public static function getNavigationLabel(): string
     {
@@ -92,7 +95,7 @@ class Dashboard extends Page
     public function getWidgetsContentComponent(): Component
     {
         return Grid::make($this->getColumns())
-            ->schema(fn (): array => $this->getWidgetsSchemaComponents($this->getWidgets()));
+            ->schema(fn(): array => $this->getWidgetsSchemaComponents($this->getWidgets()));
     }
     protected function getHeaderActions(): array
     {
@@ -101,7 +104,7 @@ class Dashboard extends Page
                 ->label('Sincronizar Visitas')
                 ->icon('heroicon-m-arrow-path')
                 // Color rojo oscuro para que resalte con estilo institucional
-                ->color('danger') 
+                ->color('danger')
                 // Mensaje de confirmación para evitar clics accidentales
                 ->requiresConfirmation()
                 ->modalHeading('¿Forzar sincronización de analíticas?')
@@ -118,7 +121,6 @@ class Dashboard extends Page
                             ->body('Los datos de Redis se han transferido a SQL correctamente.')
                             ->success()
                             ->send();
-
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title('Error de Sincronización')
