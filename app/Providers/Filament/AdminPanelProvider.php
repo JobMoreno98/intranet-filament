@@ -40,12 +40,13 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#7c2422'),
             ])->navigationGroups([
+                'General',
                 'Contenidos',
                 'Administrativo',
                 'Seguridad',
-                'Análisis',
-                'General'
-            ])->collapsibleNavigationGroups(false)
+                'Análisis'
+            ])
+            //->collapsibleNavigationGroups(false)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -93,11 +94,11 @@ class AdminPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ])
-                    ->navigationLabel('Roles y permisos')                 
-                    ->navigationIcon('heroicon-o-lock-closed')         
-                    ->activeNavigationIcon('heroicon-s-lock-closed')   
+                    ->navigationLabel('Roles y permisos')
+                    ->navigationIcon('heroicon-o-lock-closed')
+                    ->activeNavigationIcon('heroicon-s-lock-closed')
                     ->navigationGroup('Seguridad')
-                    ->navigationSort(2)               
+                    ->navigationSort(2)
                     ->registerNavigation(true),
 
             ])->viteTheme('resources/css/filament/admin/theme.css')
