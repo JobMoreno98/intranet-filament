@@ -56,6 +56,7 @@
         </div>
 
     </section>
+
     <section class="py-10 bg-[#ffffff] dark:bg-neutral-800">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
@@ -97,7 +98,13 @@
         </div>
     </section>
     <section>
-        <div class="mx-auto w-full max-w-5xl px-4 sm:px-7 py-10">
+        <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10"  data-aos="fade-up" data-aos-duration="500">
+            <x-slider :posts="$blogs" />
+        </div>
+    </section>
+
+    <section>
+        <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10">
 
             @if ($areas->count())
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

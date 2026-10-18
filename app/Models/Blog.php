@@ -15,6 +15,7 @@ class Blog extends Model
     {
         return [
             'tags' => 'array',
+            'fijado' =>'boolean'
         ];
     }
 

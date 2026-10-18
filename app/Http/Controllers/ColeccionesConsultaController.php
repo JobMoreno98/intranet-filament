@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Area;
 use App\Models\Coleccion;
+use App\Models\Blog;
 use App\Models\ColeccionesConsulta;
 use App\Models\Recursos;
 use App\Models\TipoAcervo;
@@ -34,8 +35,9 @@ class ColeccionesConsultaController extends Controller
     public function index(Request $request)
     {
         $areas = Area::paginate(6);
+        $blogs = Blog::where('fijado', true)->get()->take(10);
         $novedades = Recursos::with('acervo')->where('fijado', true)->get()->take(10);
-        return view('home', compact('areas', 'novedades'))->with(['title' => 'Inicio']);
+        return view('home', compact('areas', 'novedades', 'blogs'))->with(['title' => 'Inicio']);
     }
 
     public function show(Request $request, Coleccion $coleccion)

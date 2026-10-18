@@ -172,9 +172,12 @@
         <div x-show="mobileMenuOpen" x-transition x-cloak
             class="lg:hidden w-full bg-white dark:bg-neutral-600 border-t border-gray-200 dark:border-neutral-700 pb-4">
             <ul class="flex flex-col font-medium px-4 pt-2 space-y-1">
+
                 <li>
                     <a href="{{ route('home') }}"
                         class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Inicio</a>
+                    <a href="{{ route('areas.index') }}"
+                        class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
                     <a href="{{ route('fondos.index') }}"
                         class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
                     <a href="{{ route('blog.index') }}"
