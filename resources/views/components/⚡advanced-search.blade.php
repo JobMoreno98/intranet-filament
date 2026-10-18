@@ -1,163 +1,256 @@
 <?php
-
+ 
 use Livewire\Volt\Component as VoltComponent;
 use App\Models\TipoAcervo;
 use App\Models\Coleccion;
-// use App\Models\Fondo; // Descomenta o ajusta si tienes un modelo para Fondos
+use App\Models\Recursos;
 use Illuminate\Support\Facades\Cache;
-
+ 
 new class extends VoltComponent {
+    private const MAX_FILAS = 3;
+ 
     public string $urlBase;
-
+ 
     public array $filas = [];
-
-    // Id (string, vacío = "Todos los tipos") del TipoAcervo elegido. Al cambiar,
-    // se recargan los campos de esquema específicos de ese acervo.
+ 
+    // Flujo: 1) fondo  ->  2) tipo de acervo (o "todos")  ->  3) campos de búsqueda
+    // '' = sin elegir | 'Todos' = todos los fondos | id de Coleccion (incluye sus subcolecciones)
+    public string $fondoSeleccionado = '';
+    // '' = sin elegir | 'todos' = todos los tipos de acervo | id numérico = un tipo
     public string $acervoSeleccionado = '';
     public array $camposEsquema = [];
-
-    public array $fondosSeleccionados = [];
-
+ 
     public function mount()
     {
-        // 1. Definimos la URL base limpia (sin parámetros) para el redireccionamiento posterior
         $this->urlBase = route('busqueda.resultado');
-
-        // 2. Recuperamos el tipo de acervo elegido, si viene en la URL
-        if (request()->filled('acervo')) {
+ 
+        // Recuperamos el fondo: el primer nombre de "fondos" es el elegido (los demás son sus subcolecciones)
+        if (request()->has('fondos') && is_array(request()->input('fondos'))) {
+            $primero = (string) (request()->input('fondos')[0] ?? '');
+            $this->fondoSeleccionado = $primero === 'Todos' ? 'Todos' : (string) (Coleccion::where('nombre', $primero)->value('id') ?? '');
+        }
+ 
+        // Recuperamos el tipo de acervo, solo si ya hay fondo
+        if ($this->fondoSeleccionado !== '' && request()->filled('acervo')) {
             $this->acervoSeleccionado = (string) request()->input('acervo');
         }
+ 
         $this->cargarCamposEsquema();
-
-        // 3. Recuperamos las filas de búsqueda dinámica si existen en la URL
+ 
+        // Recuperamos las filas de búsqueda dinámica si existen en la URL
         if (request()->has('q') && is_array(request()->input('q'))) {
-            $this->filas = request()->input('q');
+            $this->filas = array_slice(array_values(request()->input('q')), 0, self::MAX_FILAS);
         } else {
-            // Solo creamos la fila vacía si no hay parámetros en la URL
             $this->agregarFila();
         }
-
-        // 4. Recuperamos los checkboxes de Fondos
-        if (request()->has('fondos') && is_array(request()->input('fondos'))) {
-            $this->fondosSeleccionados = request()->input('fondos');
-        }
     }
-
-    // Se dispara automáticamente cuando cambia el <select> de tipo de acervo
-    // (wire:model.live="acervoSeleccionado").
+ 
+    // wire:model.live="fondoSeleccionado": al cambiar el fondo, los acervos
+    // disponibles cambian, así que se reinicia todo lo que depende de él.
+    public function updatedFondoSeleccionado(): void
+    {
+        $this->acervoSeleccionado = '';
+        $this->camposEsquema = [];
+        $this->filas = [];
+        $this->agregarFila();
+    }
+ 
+    // wire:model.live="acervoSeleccionado"
     public function updatedAcervoSeleccionado(): void
     {
         $this->cargarCamposEsquema();
-
-        // Los campos elegidos en cada fila pueden no existir en el nuevo esquema,
-        // así que reseteamos a "Todos los campos" para evitar un valor inválido.
+ 
+        // El campo elegido en cada fila puede no existir en el nuevo esquema.
         foreach ($this->filas as $i => $fila) {
             $this->filas[$i]['campo'] = 'all';
         }
     }
-
+ 
     public function agregarFila()
     {
+        if (count($this->filas) >= self::MAX_FILAS) {
+            return;
+        }
+ 
         $this->filas[] = [
             'operador' => 'AND',
             'campo' => 'all',
-            'termino' => ''
+            'termino' => '',
         ];
     }
-
+ 
     public function removerFila(int $index)
     {
         unset($this->filas[$index]);
         $this->filas = array_values($this->filas);
     }
-
+ 
     public function aplicarFiltrado()
     {
-        // Limpiamos los términos vacíos
-        $filasValidas = array_filter($this->filas, fn($fila) => !empty(trim($fila['termino'])));
-
-        // Validación Livewire: Exigir al menos un término, un tipo de acervo o un fondo
-        if (empty($filasValidas) && empty($this->acervoSeleccionado) && empty($this->fondosSeleccionados)) {
-            $this->addError('busqueda_vacia', 'Por favor, selecciona un tipo de acervo, ingresa un término de búsqueda o elige un fondo para continuar.');
-            return; // Detiene la ejecución aquí, no hace el redirect
+        // Respaldo en servidor de lo que ya oculta la UI.
+        if ($this->fondoSeleccionado === '') {
+            $this->addError('busqueda_vacia', 'Debes seleccionar un fondo antes de buscar.');
+            return;
         }
-
-        // Si pasa la validación, limpiamos cualquier error previo
+ 
+        if ($this->acervoSeleccionado === '') {
+            $this->addError('busqueda_vacia', 'Debes seleccionar un tipo de acervo (o "Todos") antes de buscar.');
+            return;
+        }
+ 
         $this->resetValidation();
-
-        // El controlador (ColeccionesConsultaController) espera "tipos" como un
-        // arreglo de nombres de acervo; aquí siempre es como máximo uno, ya que
-        // ahora se elige un solo tipo a la vez.
-        $tipos = [];
-        if (!empty($this->acervoSeleccionado)) {
+ 
+        // Limpiamos los términos vacíos
+        $filasValidas = array_filter($this->filas, fn($fila) => !empty(trim($fila['termino'] ?? '')));
+ 
+        // El controlador espera "tipos" como arreglo de nombres de acervo.
+        if ($this->acervoSeleccionado === 'todos') {
+            $tipos = collect($this->obtenerAcervosDisponibles())->pluck('nombre')->all();
+        } else {
             $nombreAcervo = TipoAcervo::find($this->acervoSeleccionado)?->nombre;
-            if ($nombreAcervo) {
-                $tipos = [$nombreAcervo];
-            }
+            $tipos = $nombreAcervo ? [$nombreAcervo] : [];
         }
-
+ 
         $parametros = [
             'q' => $filasValidas,
             'acervo' => $this->acervoSeleccionado,
             'tipos' => $tipos,
-            'fondos' => $this->fondosSeleccionados,
+            'fondos' => $this->nombresFondosParaBusqueda(),
         ];
-
+ 
         return redirect()->to($this->urlBase . '?' . http_build_query($parametros));
     }
-
+ 
     public function with()
     {
         return [
             'camposEsquema' => $this->camposEsquema,
-            'tiposDocumentales' => TipoAcervo::orderBy('nombre')->get(['id', 'nombre']),
-
-            // Si Fondo es otro modelo:
-            // 'fondosDisponibles' => Fondo::pluck('nombre')->toArray(),
-            // Si el fondo viene de un campo específico en otra tabla, ajusta la consulta aquí:
-            'fondosDisponibles' => Coleccion::pluck('nombre')->toArray(), // Reemplazar con consulta real
+            'maxFilas' => self::MAX_FILAS,
+            'fondosDisponibles' => $this->obtenerFondosDisponibles(),
+            'acervosDisponibles' => $this->fondoSeleccionado !== '' ? $this->obtenerAcervosDisponibles() : [],
         ];
     }
-
-    // Carga los campos "Recuperable" del esquema del acervo elegido. Si no hay
-    // ninguno elegido ("Todos los tipos"), cae de vuelta a la unión global de
-    // todos los esquemas, igual que el comportamiento anterior.
+ 
+    // Todas las colecciones sin padre/hijo mezclados: id, nombre y parent_id (una sola consulta).
+    private function coleccionesPlanas(): array
+    {
+        return Cache::remember('colecciones_planas', 600, fn() => Coleccion::orderBy('nombre')->get(['id', 'nombre', 'parent_id'])->toArray());
+    }
+ 
+    // Árbol aplanado en orden jerárquico, con profundidad para indentar en el select.
+    private function obtenerFondosDisponibles(): array
+    {
+        $porPadre = collect($this->coleccionesPlanas())->groupBy(fn($c) => $c['parent_id'] ?? 0);
+        $salida = [];
+ 
+        $recorrer = function ($padreId, int $depth) use (&$recorrer, $porPadre, &$salida) {
+            if ($depth > 20) {
+                return; // protección contra ciclos
+            }
+            foreach ($porPadre->get($padreId, []) as $c) {
+                $salida[] = ['id' => $c['id'], 'nombre' => $c['nombre'], 'depth' => $depth];
+                $recorrer($c['id'], $depth + 1);
+            }
+        };
+        $recorrer(0, 0);
+ 
+        return $salida;
+    }
+ 
+    // El id de la colección más los de todas sus subcolecciones.
+    private function idsConDescendientes(int $id): array
+    {
+        $porPadre = collect($this->coleccionesPlanas())->groupBy('parent_id');
+        $ids = [$id];
+        $pendientes = [$id];
+ 
+        while ($pendientes) {
+            $actual = array_pop($pendientes);
+            foreach ($porPadre->get($actual, []) as $hijo) {
+                if (!in_array($hijo['id'], $ids, true)) {
+                    $ids[] = $hijo['id'];
+                    $pendientes[] = $hijo['id'];
+                }
+            }
+        }
+ 
+        return $ids;
+    }
+ 
+    // Nombres que se mandan al controlador: el fondo elegido primero y luego sus subcolecciones.
+    private function nombresFondosParaBusqueda(): array
+    {
+        if ($this->fondoSeleccionado === 'Todos') {
+            return ['Todos'];
+        }
+ 
+        $ids = $this->idsConDescendientes((int) $this->fondoSeleccionado);
+        $nombres = collect($this->coleccionesPlanas())->whereIn('id', $ids)->sortBy(fn($c) => $c['id'] === (int) $this->fondoSeleccionado ? 0 : 1)->pluck('nombre');
+ 
+        return $nombres->unique()->values()->all();
+    }
+ 
+    // Tipos de acervo con recursos dentro del fondo elegido (incluyendo sus subcolecciones).
+    // Con "Todos" los fondos, se listan todos los tipos de acervo.
+    private function obtenerAcervosDisponibles(): array
+    {
+        if ($this->fondoSeleccionado === '') {
+            return [];
+        }
+ 
+        if ($this->fondoSeleccionado === 'Todos') {
+            return Cache::remember('acervos_todos', 600, fn() => TipoAcervo::orderBy('nombre')->get(['id', 'nombre'])->toArray());
+        }
+ 
+        $ids = $this->idsConDescendientes((int) $this->fondoSeleccionado);
+ 
+        return Cache::remember('acervos_en_fondos_' . md5(implode(',', $ids)), 600, function () use ($ids) {
+            $acervoIds = Recursos::whereIn('coleccion_id', $ids)->whereNotNull('acervo_id')->distinct()->pluck('acervo_id');
+ 
+            return TipoAcervo::whereIn('id', $acervoIds)->orderBy('nombre')->get(['id', 'nombre'])->toArray();
+        });
+    }
+ 
+    // Campos "Recuperable" del esquema del acervo elegido. Con "todos" se usa la
+    // unión global; sin acervo no se muestran campos.
     private function cargarCamposEsquema(): void
     {
-        if (empty($this->acervoSeleccionado)) {
+        if ($this->acervoSeleccionado === '') {
+            $this->camposEsquema = [];
+            return;
+        }
+ 
+        if ($this->acervoSeleccionado === 'todos') {
             $this->camposEsquema = $this->obtenerEsquemasComunes();
             return;
         }
-
-        $this->camposEsquema = Cache::remember(
-            "campos_recuperables_acervo_{$this->acervoSeleccionado}",
-            3600,
-            function () {
-                $tipo = TipoAcervo::find($this->acervoSeleccionado);
-                if (!$tipo || empty($tipo->esquema)) {
-                    return [];
-                }
-
-                $esquema = is_string($tipo->esquema) ? json_decode($tipo->esquema, true) : $tipo->esquema;
-
-                return collect($esquema ?? [])
-                    ->filter(function ($campo) {
-                        $visible = trim(strtolower(data_get($campo, 'visible', '')));
-                        return $visible === 'recuperable' && !empty(data_get($campo, 'variable'));
-                    })
-                    ->values()
-                    ->toArray();
+ 
+        $this->camposEsquema = Cache::remember("campos_recuperables_acervo_{$this->acervoSeleccionado}", 3600, function () {
+            $tipo = TipoAcervo::find($this->acervoSeleccionado);
+            if (!$tipo || empty($tipo->esquema)) {
+                return [];
             }
-        );
+ 
+            $esquema = is_string($tipo->esquema) ? json_decode($tipo->esquema, true) : $tipo->esquema;
+ 
+            return collect($esquema ?? [])
+                ->filter(function ($campo) {
+                    $visible = trim(strtolower(data_get($campo, 'visible', '')));
+                    return $visible === 'recuperable' && !empty(data_get($campo, 'variable'));
+                })
+                ->values()
+                ->toArray();
+        });
     }
-
+ 
     private function obtenerEsquemasComunes()
     {
         return Cache::remember('campos_recuperables_union_global', 3600, function () {
             $esquemasRaw = TipoAcervo::whereNotNull('esquema')->pluck('esquema');
-            if ($esquemasRaw->isEmpty())
+            if ($esquemasRaw->isEmpty()) {
                 return [];
-
+            }
+ 
             return $esquemasRaw
                 ->flatMap(function ($esquema) {
                     $decodificado = is_string($esquema) ? json_decode($esquema, true) : $esquema;
@@ -173,129 +266,3 @@ new class extends VoltComponent {
         });
     }
 }; ?>
-
-<div class="bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100 font-sans">
-
-    <h4 class="text-sm font-bold mb-6 text-gray-700 uppercase tracking-wider flex items-center gap-2">
-        <svg class="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-            stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-        </svg>
-        Búsqueda Avanzada Global
-    </h4>
-
-    <div wire:keydown.enter="aplicarFiltrado" class="space-y-5">
-
-        <!-- Filas Dinámicas de Búsqueda -->
-        <div class="space-y-3">
-            @foreach($filas as $index => $fila)
-                <div class="flex items-center space-x-3">
-
-                    @if($index > 0)
-                        <select wire:model="filas.{{ $index }}.operador"
-                            class="border border-gray-300 text-gray-600 font-bold uppercase text-xs rounded-md px-3 py-2 w-32 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all bg-gray-50">
-                            <option value="AND">Y (AND)</option>
-                            <option value="OR">O (OR)</option>
-                            <option value="NOT">NO (NOT)</option>
-                        </select>
-                    @else
-                        <div class="w-32"></div>
-                    @endif
-
-                    <select wire:model="filas.{{ $index }}.campo"
-                        class="border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
-                        <option value="all">--- Todos los campos ---</option>
-                        @foreach($camposEsquema as $campo)
-                            <option value="{{ $campo['variable'] }}">{{ $campo['label'] ?? $campo['variable'] }}</option>
-                        @endforeach
-                    </select>
-
-                    <input type="text" wire:model="filas.{{ $index }}.termino" placeholder="Ingresa el término..."
-                        class="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400">
-
-                    @if($loop->last)
-                        <button type="button" wire:click="agregarFila"
-                            class="w-9 h-9 rounded-md border border-gray-300 text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4.5v15m7.5-7.5h-15"></path>
-                            </svg>
-                        </button>
-                    @else
-                        <button type="button" wire:click="removerFila({{ $index }})"
-                            class="w-9 h-9 rounded-md border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                            </svg>
-                        </button>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-
-        <!-- Contenedores de Checkboxes (Estilo Colecciones) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 border-t pt-6 border-gray-100">
-
-            <!-- Tipo Documental: ahora se elige uno solo, y define qué campos aparecen arriba -->
-            <div class="flex flex-col">
-                <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
-                    Tipo de acervo
-                </label>
-                <select wire:model.live="acervoSeleccionado"
-                    class="border border-gray-300 text-gray-700 rounded-md px-3 py-2 text-sm w-full focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
-                    <option value="">--- Todos los tipos ---</option>
-                    @foreach($tiposDocumentales as $tipo)
-                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
-                    @endforeach
-                </select>
-                @if(empty($acervoSeleccionado))
-                    <p class="text-xs text-gray-400 italic mt-2">
-                        Mostrando campos comunes a todos los tipos. Elige uno específico para ver sus campos propios.
-                    </p>
-                @endif
-            </div>
-
-            <!-- Fondo -->
-            <div class="flex flex-col border-l border-gray-100 pl-6">
-                <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide">
-                    En fondo
-                </label>
-                <div class="grid grid-cols-1 gap-2">
-                    <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                        <input type="checkbox" wire:model="fondosSeleccionados" value="Todos"
-                            class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
-                        <span>Todos</span>
-                    </label>
-                    @foreach($fondosDisponibles as $fondo)
-                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                            <input type="checkbox" wire:model="fondosSeleccionados" value="{{ $fondo }}"
-                                class="rounded border-gray-300 text-[#86212b] focus:ring-[#86212b]">
-                            <span>{{ $fondo }}</span>
-                        </label>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <!-- Botones de Acción -->
-        <div class="mt-8 flex justify-end space-x-3 border-t pt-4 border-gray-100">
-            @if(request()->anyFilled(['q', 'acervo', 'tipos', 'fondos']))
-                <a href="{{ url()->current() }}"
-                    class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
-                    Limpiar criterios
-                </a>
-            @endif
-
-            <button type="button" wire:click="aplicarFiltrado"
-                class="text-xs font-bold uppercase tracking-widest bg-[#86212b] hover:bg-[#6d1b23] text-white px-8 py-2.5 rounded-md transition duration-200 shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Buscar Acervos
-            </button>
-        </div>
-
-    </div>
-</div>

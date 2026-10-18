@@ -68,7 +68,7 @@
                             class="dark:bg-zinc-700  group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
                             <div>
                                 <span
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">
+                                    class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">
                                     <svg class="w-3 h-3 text-[#1d1d1b] flex-shrink-0" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -79,12 +79,15 @@
                                         {{ $item->acervo->nombre ?? 'General' }}</span>
                                 </span>
                             </div>
-
-                            <!-- Título del elemento (Usando el azul marino oscuro #131f30 y hovers en #1d1d1b) -->
                             <h3 class="dark:text-white hover:text-guinda text-sm font-semibold text-[#131f30] line-clamp-2 leading-snug transition-colors duration-150"
                                 title="{{ $item->metadata['titulo'] }}">
                                 {{ $item->metadata['titulo'] }}
                             </h3>
+                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $item->id]) }}"
+                                class="text-right mt-1  w-fit items-center gap-1 text-xs font-bold uppercase tracking-wide text-guinda 
+                                border-b-2 border-[#86212b] pb-0.5">
+                                Leer más
+                            </a>
                         </div>
                     @endforeach
                 </div>
@@ -98,7 +101,7 @@
         </div>
     </section>
     <section>
-        <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10"  data-aos="fade-up" data-aos-duration="500">
+        <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10" data-aos="fade-up" data-aos-duration="500">
             <x-slider :posts="$blogs" />
         </div>
     </section>

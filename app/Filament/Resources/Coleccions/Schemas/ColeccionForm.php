@@ -80,7 +80,8 @@ class ColeccionForm
                 })
                 ->columnSpanFull(),
 
-            Textarea::make('descripcion')
+            
+                Textarea::make('descripcion')
                 ->autosize()->label('Descripción'),
             FileUpload::make('foto')->disk('colecciones')->acceptedFileTypes(['image/*'])
         ]);
