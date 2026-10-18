@@ -23,11 +23,7 @@ class BlogResource extends Resource
     protected static ?string $recordTitleAttribute = 'Blogs';
 
 
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Contenidos';
-    }
-    
+
     public static function form(Schema $schema): Schema
     {
         return BlogForm::configure($schema);
