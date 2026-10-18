@@ -256,8 +256,18 @@ Route::get('/videos/{recursoId}/{filename}', function ($recursoId, $filename) {
 Route::middleware(['web', Authenticate::class])
     ->prefix('chunks')
     ->group(function () {
-        // routes/web.php
         Route::match(['get', 'post'], '/chunks/upload', [ChunkUploadController::class, 'handle'])
             ->name('api.chunks.upload')
             ->middleware(Authenticate::class);
     });
+Route::get('/nuestra-historia', function () {
+    return view('historia', [
+        'title' => 'Nuestra Historia',
+    ]);
+})->name('nuestra.historia');
+
+Route::get('/fondos-historicos', function () {
+    return view('fondos-historicos', [
+        'title' => 'NUESTROS FONDOS HISTÓRICOS',
+    ]);
+})->name('fondos.historicos');

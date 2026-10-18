@@ -9,6 +9,7 @@
     </title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -66,11 +67,23 @@
 
 <body class="antialiased font-titillium">
 
-    <nav x-data="{ mobileMenuOpen: false }" class="bg-white dark:bg-neutral-600">
+    @php
+        $enlaces = [
+            ['INICIO', 'home'],
+            ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
+            ['NUESTROS FONDOS HISTÓRICOS','fondos.historicos'],
+            ['ÁREAS', 'areas.index'],
+            ['FODNOS', 'fondos.index'],
+            ['SALA ARREOLA (BLOG)', 'blog.index'],
+        ];
+    @endphp
 
-        <div class="flex items-center justify-between w-full h-16 px-4 mx-auto">
+    <nav x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false"
+        x-effect="document.body.classList.toggle('overflow-hidden', menuOpen)" class="bg-white dark:bg-neutral-600">
 
-            <a href="{{ route('home') }}" class="flex items-center font-bold text-xl h-full py-2">
+        <div class="flex flex-wrap items-center justify-between w-full min-h-16 gap-x-4 gap-y-2 px-4 py-2 mx-auto">
+
+            <a href="{{ route('home') }}" class="flex items-center font-bold text-xl shrink-0">
 
                 <!-- SVG Claro: Se oculta cuando el modo oscuro está activo -->
                 <img src="{{ asset('img/arreola-blanco.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
@@ -80,30 +93,20 @@
                 <img src="{{ asset('img/arreola-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="hidden dark:block h-6 mr-3 sm:h-9">
 
-
                 <img src="{{ asset('img/bpej.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="block dark:hidden h-4 mr-3 sm:h-6">
 
-                <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
                 <img src="{{ asset('img/bpej-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="hidden dark:block h-4 mr-3 sm:h-6">
 
-                {{-- 
-                <span class="dark:text-white text-guinda">{{ config('app.name', 'Laravel') }}</span>
- --}}
-
             </a>
 
-            <div class="hidden lg:flex items-center h-full ms-6 space-x-1">
-                <a href="{{ route('home') }}"
-                    class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Inicio</a>
-                <a href="{{ route('areas.index') }}"
-                    class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Áreas</a>
-                <a href="{{ route('fondos.index') }}"
-                    class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
-                <a href="{{ route('blog.index') }}"
-                    class="h-full flex items-center px-4 text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Blog</a>
-            </div>
+            {{-- Texto siempre visible: en móvil baja a su propia fila (order-last), en lg va entre logo y botones --}}
+            <p
+                class="order-last w-full text-center text-sm leading-snug text-zinc-700 dark:text-zinc-200 lg:order-none lg:w-auto lg:flex-1 lg:min-w-0">
+                Arreola Histórica es el buscador y repositorio digital de los acervos históricos de la Biblioteca
+                Pública del Estado de Jalisco de la Universidad de Guadalajara.
+            </p>
 
             <div class="flex items-center gap-2 md:gap-4">
                 <div x-data class="flex items-center">
@@ -118,6 +121,7 @@
                         </span>
                     </button>
                 </div>
+
                 <div class="hidden lg:flex items-center h-full">
                     @if (Auth::check())
                         <x-desktop-user-menu />
@@ -129,60 +133,72 @@
                     @endif
                 </div>
 
-                <button @click="mobileMenuOpen = !mobileMenuOpen" type="button"
-                    class="inline-flex lg:hidden items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700"
-                    aria-controls="mobile-menu" :aria-expanded="mobileMenuOpen">
+                <button @click="menuOpen = true" type="button"
+                    class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700"
+                    aria-controls="menu-principal" :aria-expanded="menuOpen">
                     <span class="sr-only">Abrir menú principal</span>
-
-                    <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd"
                             d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
                             clip-rule="evenodd"></path>
                     </svg>
-
-                    <svg x-show="mobileMenuOpen" x-cloak class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd"></path>
-                    </svg>
                 </button>
+
             </div>
-        </div>
 
-        <div x-show="mobileMenuOpen" x-transition x-cloak
-            class="lg:hidden w-full bg-white dark:bg-neutral-600 border-t border-gray-200 dark:border-neutral-700 pb-4">
-            <ul class="flex flex-col font-medium px-4 pt-2 space-y-1">
+            {{-- Fondo oscuro --}}
+            <div x-show="menuOpen" x-cloak @click="menuOpen = false" x-transition.opacity.duration.300ms
+                class="fixed inset-0 z-40 bg-black/60" aria-hidden="true"></div>
 
-                <li>
-                    <a href="{{ route('home') }}"
-                        class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Inicio</a>
-                    <a href="{{ route('areas.index') }}"
-                        class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
-                    <a href="{{ route('fondos.index') }}"
-                        class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Fondos</a>
-                    <a href="{{ route('blog.index') }}"
-                        class="block py-2 px-3 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-guinda hover:text-white transition-colors duration-200">Blog</a>
-                </li>
+            {{-- Cajón lateral --}}
+            <aside id="menu-principal" x-show="menuOpen" x-cloak role="dialog" aria-modal="true"
+                aria-label="Menú principal" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0"
+                x-transition:leave-end="translate-x-full"
+                class="fixed inset-y-0 right-0 z-50 flex w-72 max-w-[85vw] flex-col overflow-y-auto bg-white shadow-2xl dark:bg-neutral-600">
 
-                <li class="pt-4 mt-2 border-t border-gray-200 dark:border-neutral-700">
-                    @if (Auth::check())
-                        <div class="px-3">
-                            <x-desktop-user-menu />
-                        </div>
-                    @else
-                        <div class="flex flex-col gap-2 px-3">
-                            <a href="{{ route('login') }}"
-                                class="text-center rounded-md text-white py-2 px-4 bg-red-800 hover:bg-red-900 transition shadow-sm w-full">
-                                {{ __('Log In') }}
+                {{-- Encabezado con botón de cerrar --}}
+                <div
+                    class="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 px-4 dark:border-neutral-700">
+                    <span
+                        class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-300">Menú</span>
+                    <button @click="menuOpen = false" type="button" aria-label="Cerrar menú"
+                        class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <ul class="flex flex-col space-y-1 px-4 pt-4 font-medium">
+                    @foreach ($enlaces as [$etiqueta, $ruta])
+                        <li>
+                            <a href="{{ route($ruta) }}"
+                                class="block rounded-md px-3 py-2.5 transition-colors duration-200 hover:bg-guinda hover:text-white
+                    {{ request()->routeIs($ruta) ? 'bg-guinda text-white' : 'text-zinc-700 dark:text-zinc-200' }}">
+                                {{ $etiqueta }}
                             </a>
-                        </div>
+                        </li>
+                    @endforeach
+                </ul>
+
+                {{-- Sesión: debajo de lg (en lg ya está en la barra). mt-auto la empuja al fondo del cajón --}}
+                <div class="mt-auto border-t border-gray-200 p-4 dark:border-neutral-700 lg:hidden">
+                    @if (Auth::check())
+                        <x-desktop-user-menu />
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="block w-full rounded-md bg-red-800 px-4 py-2 text-center text-white shadow-sm transition hover:bg-red-900">
+                            {{ __('Log In') }}
+                        </a>
                     @endif
-                </li>
-            </ul>
-        </div>
+                </div>
+            </aside>
     </nav>
+
     <section class="relative flex flex-col dark:bg-gray-200">
 
         {{-- Contenedor principal (Usa el Azul Oscuro #131f30 de tu paleta) --}}
@@ -235,7 +251,7 @@
                             </div>
                             <input type="text" name="q" placeholder="Buscar contenido..."
                                 class="dark:bg-stone-700 dark:text-white w-full pl-10 pr-3 py-3 
-                                text-sm rounded-xl border-none bg-white focus:ring-2 focus:ring-red-700 outline-none transition">
+                            text-sm rounded-xl border-none bg-white focus:ring-2 focus:ring-red-700 outline-none transition">
                         </div>
                     </div>
 
@@ -243,7 +259,7 @@
                     <div class="flex gap-2 w-full lg:w-auto shadow-sm rounded-xl">
                         <flux:button type="submit" variant="primary" size="sm"
                             class="hover:bg-red-900 dark:bg-red-700 w-full inline-flex items-center justify-center gap-1.5 px-6 py-3 text-sm 
-                            font-medium rounded-xl h-[44px] bg-[rgb(233,79,53)] hover:bg-opacity-90 text-white transition border-none">
+                        font-medium rounded-xl h-[44px] bg-[rgb(233,79,53)] hover:bg-opacity-90 text-white transition border-none">
                             <x-heroicon-o-magnifying-glass class="w-5 h-5" />
                         </flux:button>
 
@@ -298,7 +314,7 @@
 
         </div>
     </footer>
-    <script src="https://unpkg.com/flowbite@1.4.1/dist/flowbite.js"></script>
+
     @fluxScripts
     @livewireScripts
     @yield('js')
