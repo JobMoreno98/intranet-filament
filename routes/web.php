@@ -260,6 +260,7 @@ Route::middleware(['web', Authenticate::class])
             ->name('api.chunks.upload')
             ->middleware(Authenticate::class);
     });
+    
 Route::get('/nuestra-historia', function () {
     return view('historia', [
         'title' => 'Nuestra Historia',

@@ -87,11 +87,11 @@
 
                 <!-- SVG Claro: Se oculta cuando el modo oscuro está activo -->
                 <img src="{{ asset('img/arreola-blanco.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="block dark:hidden h-6 mr-3 sm:h-9">
+                    class="block dark:hidden h-12 mr-3 sm:h-12">
 
                 <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
                 <img src="{{ asset('img/arreola-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="hidden dark:block h-6 mr-3 sm:h-9">
+                    class="hidden dark:block h-12 mr-3 sm:h-12">
 
                 <img src="{{ asset('img/bpej.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="block dark:hidden h-4 mr-3 sm:h-6">

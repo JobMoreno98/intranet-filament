@@ -132,6 +132,7 @@
                             {{ $titulo }}
                         </h1>
                     </div>
+                    {{--  
                     <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">
                         <span>Ficha del registro</span>
 
@@ -141,6 +142,7 @@
                             </span>
                         @endif
                     </div>
+                    --}}
                 </header>
 
                 <div class="p-6 lg:p-8 space-y-8">
@@ -157,8 +159,10 @@
                                     --}}
                                     <dd class="mt-1  text-xl text-zinc-800 break-words dark:text-zinc-100">
                                         @if ($item['valor'] === '')
-                                            <span class="text-zinc-400 italic  text-xl dark:text-zinc-600">Sin
-                                                información</span>
+                                            <span class="text-zinc-400 italic  text-xl dark:text-zinc-600">
+                                                Sin
+                                                información
+                                            </span>
                                         @else
                                             {{ $item['valor'] }}
                                         @endif
@@ -168,7 +172,6 @@
                         </dl>
                     @endif
 
-                    <!-- TEXTOS LARGOS -->
                     @foreach ($largos as $item)
                         <div class="pt-6 border-t border-zinc-200 dark:border-zinc-800">
                             <h2 class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">
@@ -179,11 +182,9 @@
                                 {{ $item['valor'] }}</p>
                         </div>
                     @endforeach
-
                 </div>
             </div>
 
-            <!-- ============ PARTE INFERIOR: metadata ============ -->
             @if (count($metadata))
                 <section>
                     <div class="flex items-center gap-4 mb-4">
@@ -207,7 +208,12 @@
                     </div>
                 </section>
             @endif
-
+            <div>
+                Vez algun error en la información, rerpota este registro dando clic
+                <a href="#" target="_blank" class="text-red-900">
+                    aqui
+                </a>
+            </div>
         </div>
     </section>
 @endsection
