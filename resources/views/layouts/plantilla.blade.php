@@ -72,6 +72,7 @@
             ['INICIO', 'home'],
             ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
             ['NUESTROS FONDOS HISTÓRICOS','fondos.historicos'],
+            ['ARREOLA HISTÓRICA','arreola.historica'],
             ['ÁREAS', 'areas.index'],
             ['FODNOS', 'fondos.index'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
@@ -87,23 +88,23 @@
 
                 <!-- SVG Claro: Se oculta cuando el modo oscuro está activo -->
                 <img src="{{ asset('img/arreola-blanco.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="block dark:hidden h-12 mr-3 sm:h-12">
+                    class="block dark:hidden h-15 mr-3 sm:h-15">
 
                 <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
                 <img src="{{ asset('img/arreola-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="hidden dark:block h-12 mr-3 sm:h-12">
+                    class="hidden dark:block h-15 mr-3 sm:h-15">
 
                 <img src="{{ asset('img/bpej.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="block dark:hidden h-4 mr-3 sm:h-6">
+                    class="block dark:hidden h-8 mr-3 sm:h-8">
 
                 <img src="{{ asset('img/bpej-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="hidden dark:block h-4 mr-3 sm:h-6">
+                    class="hidden dark:block h-8 mr-3 sm:h-8">
 
             </a>
 
             {{-- Texto siempre visible: en móvil baja a su propia fila (order-last), en lg va entre logo y botones --}}
             <p
-                class="order-last w-full text-center text-sm leading-snug text-zinc-700 dark:text-zinc-200 lg:order-none lg:w-auto lg:flex-1 lg:min-w-0">
+                class="order-last w-full text-center text-md leading-snug text-zinc-700 dark:text-zinc-200 lg:order-none lg:w-auto lg:flex-1 lg:min-w-0">
                 Arreola Histórica es el buscador y repositorio digital de los acervos históricos de la Biblioteca
                 Pública del Estado de Jalisco de la Universidad de Guadalajara.
             </p>
@@ -231,13 +232,13 @@
                 class="absolute inset-0 bg-gradient-to-r from-[#131f30] via-transparent to-[#131f30] opacity-90 pointer-events-none">
             </div>
 
-            {{-- Título --}}
+            {{-- Título
             <div class="relative z-10 w-full max-w-6xl mx-auto text-center flex flex-col gap-3 mb-8">
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white uppercase tracking-wide">
                     {{ config('app.name', 'Laravel') }}
                 </h1>
             </div>
-
+ --}}
             {{-- Buscador Integrado --}}
             <form action="{{ route('buscador') }}" method="GET"
                 class="relative z-20 mx-auto w-full max-w-5xl sm:px-7">

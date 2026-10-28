@@ -272,3 +272,9 @@ Route::get('/fondos-historicos', function () {
         'title' => 'NUESTROS FONDOS HISTÓRICOS',
     ]);
 })->name('fondos.historicos');
+
+Route::get('/arreola-historica', function () {
+    return view('arreola-historica', [
+        'title' => 'ARREOLA HISTÓRICA',
+    ]);
+})->name('arreola.historica');
