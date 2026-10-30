@@ -74,7 +74,7 @@
             ['NUESTROS FONDOS HISTÓRICOS','fondos.historicos'],
             ['ARREOLA HISTÓRICA','arreola.historica'],
             ['ÁREAS', 'areas.index'],
-            ['FODNOS', 'fondos.index'],
+            ['FONDOS', 'fondos.index'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
         ];
     @endphp
