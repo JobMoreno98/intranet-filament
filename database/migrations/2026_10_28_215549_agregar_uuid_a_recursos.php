@@ -11,12 +11,10 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('recursos', function (Blueprint $table) {
-            // 1. Columna nullable para poder rellenar los registros existentes
             Schema::table('recursos', function (Blueprint $table) {
                 $table->uuid('uuid')->nullable()->after('id');
             });
 
-            // 2. Rellenar los registros que ya existen
             DB::table('recursos')->orderBy('id')->chunkById(500, function ($filas) {
                 foreach ($filas as $fila) {
                     DB::table('recursos')
@@ -25,7 +23,6 @@ return new class extends Migration {
                 }
             });
 
-            // 3. Obligatoria y única
             Schema::table('recursos', function (Blueprint $table) {
                 $table->uuid('uuid')->nullable(false)->unique()->change();
             });

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,8 +20,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reportes', function (Blueprint $table) {    
-        $table->dropColumn('recursos_id');
+        Schema::table('reportes', function (Blueprint $table) {
+           $table->dropForeign(['recursos_id']);
+    
+    // 2. Elimina la columna
+    $table->dropColumn('recursos_id');
         });
     }
 };
