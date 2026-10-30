@@ -28,7 +28,8 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel->topNavigation()
+        return $panel
+        //->topNavigation()
             ->default()
             ->id('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
@@ -40,7 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#7c2422'),
             ])->navigationGroups([
-                'General',
+                //'General',
                 'Contenidos',
                 'Administrativo',
                 'Seguridad',
