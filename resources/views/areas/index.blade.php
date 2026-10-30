@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <div class="max-w-5xl mx-auto">
+            <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full ">
                     @forelse ($areas as $index => $item)
                         <div data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">

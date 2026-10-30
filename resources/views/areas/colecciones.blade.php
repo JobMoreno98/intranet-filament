@@ -59,7 +59,7 @@
 
             <!-- CONTENIDO: mismo ancho máximo que el grid del index de áreas -->
             <div class="max-w-7xl w-full" data-aos="fade-up" data-aos-duration="500">
-                <livewire:area-colecciones-list :area="$area" />
+               <livewire:colecciones-list :areaId="$area->id" />
             </div>
 
         </div>

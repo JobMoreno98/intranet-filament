@@ -22,7 +22,20 @@ with(function () {
     }
 
     if (!empty($this->areaId)) {
-        $query->where('areaS_id', $this->areaId);
+        $areaId = $this->areaId;
+        $mostrarHijos = $this->mostrarHijos;
+
+        $query->where(function ($q) use ($areaId, $mostrarHijos) {
+            $q->where('areaS_id', $areaId);
+
+            // Los internos heredan el área de su fondo padre
+            if ($mostrarHijos) {
+                $q->orWhereIn(
+                    'parent_id',
+                    \App\Models\Coleccion::where('areaS_id', $areaId)->select('id')
+                );
+            }
+        });
     }
 
     return [
