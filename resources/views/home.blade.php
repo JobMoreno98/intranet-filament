@@ -83,7 +83,7 @@
                                 title="{{ $item->metadata['titulo'] }}">
                                 {{ $item->metadata['titulo'] }}
                             </h3>
-                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $item->id]) }}"
+                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $item]) }}"
                                 class="dark:text-white text-right mt-1  w-fit items-center gap-1 text-xs font-bold uppercase tracking-wide text-guinda 
                                 border-b-2 border-[#86212b] pb-0.5">
                                 Leer más

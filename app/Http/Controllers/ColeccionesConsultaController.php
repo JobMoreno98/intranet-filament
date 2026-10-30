@@ -115,6 +115,18 @@ class ColeccionesConsultaController extends Controller
             Log::error('Error en búsqueda automática por Acervo en Meilisearch: ' . $e->getMessage());
         }
 
+        // UUID: los hits de Meilisearch solo traen el id numérico. Para armar el enlace
+        // público (buscador.registro) necesitamos el uuid, así que lo consultamos UNA sola
+        // vez para los (máx. 14) resultados de esta página, en vez de una consulta por fila.
+        if (!empty($resultados)) {
+            $uuids = Recursos::whereIn('id', collect($resultados)->pluck('id'))->pluck('uuid', 'id');
+
+            foreach ($resultados as $item) {
+                // En el Blade de la colección se usa: $item->uuid
+                $item->uuid = $uuids[$item->id] ?? null;
+            }
+        }
+
         // $resultados ya es solo la página actual, no hace falta array_slice
         $data = new LengthAwarePaginator($resultados, $totalHits, $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
@@ -361,7 +373,9 @@ class ColeccionesConsultaController extends Controller
                     } elseif ($indexUid === 'paginas_index') {
                         $resultados[] = [
                             'index' => $indexUid,
-                            'tipo' => 'página',
+                            // BUG CORREGIDO: antes era 'página' (con tilde) y el Blade compara con
+                            // 'pagina', por eso el botón "Ir a Pág." nunca se mostraba.
+                            'tipo' => 'pagina',
                             'titulo_resultado' => 'Coincidencia en el texto del documento',
                             'coincidencia' => $snippet,
                             'registro_id' => $hit['recursos_id'] ?? null,
@@ -381,6 +395,28 @@ class ColeccionesConsultaController extends Controller
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $currentItems = array_slice($resultados, ($currentPage - 1) * $perPage, $perPage);
 
+        // UUID: agregamos 'registro_uuid' a los resultados de esta página (máx. 15) con UNA
+        // sola consulta. Solo aplica a 'documento' y 'pagina', cuyo registro_id es un recurso;
+        // en las colecciones el registro_id es de otra tabla y se enlaza por slug.
+        $idsRecursos = collect($currentItems)
+            ->whereIn('tipo', ['documento', 'pagina'])
+            ->pluck('registro_id')
+            ->filter()
+            ->unique();
+
+        $uuids = $idsRecursos->isNotEmpty()
+            ? Recursos::whereIn('id', $idsRecursos)->pluck('uuid', 'id')
+            : collect();
+
+        $currentItems = array_map(function ($res) use ($uuids) {
+            if (in_array($res['tipo'], ['documento', 'pagina'], true)) {
+                // En el Blade del buscador se usa: $res['registro_uuid']
+                $res['registro_uuid'] = $uuids[$res['registro_id']] ?? null;
+            }
+
+            return $res;
+        }, $currentItems);
+
         $paginados = new LengthAwarePaginator($currentItems, count($resultados), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
@@ -394,18 +430,26 @@ class ColeccionesConsultaController extends Controller
         ]);
     }
 
-    public function showRegistro(Request $request, $tipo, $id)
+    /**
+     * UUID: el recurso llega resuelto por route model binding.
+     * Requisitos para que funcione:
+     *  - Ruta:   Route::get('/buscador/recurso/{tipo}/{recurso}', ...)->whereUuid('recurso')
+     *  - Modelo: Recursos con el trait HasUuids, uniqueIds() => ['uuid'] y getRouteKeyName() => 'uuid'
+     * Si el uuid no existe, Laravel devuelve 404 solo (ya no hace falta findOrFail).
+     */
+    public function showRegistro(Request $request, $tipo, Recursos $recurso)
     {
         // Página solicitada desde la URL (ej. ?page=4). Por defecto 1.
         $paginaSolicitada = (int) $request->input('page', 1);
 
-        $recurso = Recursos::with([
+        // Como el modelo ya viene resuelto se usa load() en lugar de with()
+        $recurso->load([
             'archivos' => function ($q) {
                 $q->orderBy('orden');
             },
             'acervo',
             'coleccion',
-        ])->findOrFail($id);
+        ]);
 
         try {
             Redis::hincrby('analytics:recursos_vistas', $recurso->id, 1);
@@ -430,6 +474,7 @@ class ColeccionesConsultaController extends Controller
             'tipo_media',
             'IdElemento',
             'id',
+            'uuid', // UUID: es un identificador interno, no debe verse como un campo más en la ficha
             'created_at',
             'updated_at',
             'usuario_id',

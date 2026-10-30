@@ -5,6 +5,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ChunkUploadController;
 use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\RecursosController;
+use App\Http\Controllers\ReportesController;
 use App\Models\Area;
 use App\Models\Blog;
 use App\Models\ColeccionesConsulta;
@@ -22,7 +23,7 @@ Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
 Route::get('/buscador', [ColeccionesConsultaController::class, 'buscador'])->name('buscador');
 
 
-Route::get('/buscador/recurso/{tipo}/{id}', [ColeccionesConsultaController::class, 'showRegistro'])->name('buscador.registro');
+Route::get('/buscador/recurso/{tipo}/{recurso}', [ColeccionesConsultaController::class, 'showRegistro'])->name('buscador.registro');
 
 
 Route::get('/fondo/{coleccion}', [ColeccionesConsultaController::class, 'show'])->name('coleccion.show');
@@ -278,3 +279,7 @@ Route::get('/arreola-historica', function () {
         'title' => 'ARREOLA HISTÓRICA',
     ]);
 })->name('arreola.historica');
+
+Route::post('/registros/{registro}/reporte', [ReportesController::class, 'store'])
+    ->middleware('throttle:5,1') // 5 intentos por minuto por IP
+    ->name('reporte.recurso');

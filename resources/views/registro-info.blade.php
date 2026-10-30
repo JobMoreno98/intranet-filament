@@ -208,12 +208,106 @@
                     </div>
                 </section>
             @endif
-            <div>
-                Vez algun error en la información, rerpota este registro dando clic
-                <a href="#" target="_blank" class="text-red-900">
-                    aqui
-                </a>
-            </div>
+            @auth
+
+                <div x-data="{ open: {{ $errors->any() ? 'true' : 'false' }} }" class="text-sm text-zinc-600 dark:text-zinc-400">
+                    ¿Ves algún error en la información? Reporta este registro dando clic
+                    <a href="#" @click.prevent="open = true"
+                        class="font-medium text-red-900 underline underline-offset-2 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                        aquí
+                    </a>
+
+                    {{-- Modal --}}
+                    <div x-show="open" x-cloak x-transition.opacity @keydown.escape.window="open = false"
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/60 p-4 backdrop-blur-sm">
+
+                        <div @click.outside="open = false"
+                            class="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-gradient-to-b dark:from-zinc-900 dark:to-zinc-950">
+
+                            {{-- Encabezado --}}
+                            <div
+                                class="flex items-start justify-between gap-4 border-b border-zinc-200 p-6 dark:border-zinc-800">
+                                <div>
+                                    <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Reportar un error</h2>
+                                    <p class="mt-1 text-xs text-zinc-500">Cuéntanos qué información debería corregirse.</p>
+                                </div>
+                                <button type="button" @click="open = false" aria-label="Cerrar"
+                                    class="rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200">
+                                    <x-heroicon-o-x-mark class="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            <form method="POST" action="{{ route('reporte.recurso', $registro) }}" class="space-y-5 p-6">
+                                @csrf
+
+                                {{-- Honeypot --}}
+                                <div style="position:absolute; left:-9999px;" aria-hidden="true">
+                                    <label for="sitio_web">Sitio web</label>
+                                    <input type="text" name="sitio_web" id="sitio_web" tabindex="-1" autocomplete="off">
+                                </div>
+
+                                {{-- Marca de tiempo --}}
+                                <input type="hidden" name="cargado_en" value="{{ now()->timestamp }}">
+
+                                <div>
+                                    <label for="correo"
+                                        class="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                                        Correo
+                                    </label>
+                                    <input type="email" name="correo" id="correo" required value="{{ old('correo') }}"
+                                        placeholder="tucorreo@ejemplo.com"
+                                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-800 placeholder-zinc-400 focus:border-red-900 focus:outline-none focus:ring-1 focus:ring-red-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-600">
+                                    @error('correo')
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label for="observaciones"
+                                        class="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                                        Observaciones
+                                    </label>
+                                    <textarea name="observaciones" id="observaciones" rows="4" required maxlength="1000"
+                                        placeholder="Describe el error que encontraste..."
+                                        class="w-full resize-none rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm leading-relaxed text-zinc-800 placeholder-zinc-400 focus:border-red-900 focus:outline-none focus:ring-1 focus:ring-red-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-600">{{ old('observaciones') }}</textarea>
+                                    @error('observaciones')
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Turnstile --}}
+                                <div>
+                                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"
+                                        data-theme="auto"></div>
+                                    @error('cf-turnstile-response')
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="flex justify-end gap-2 border-t border-zinc-200 pt-5 dark:border-zinc-800">
+                                    <button type="button" @click="open = false"
+                                        class="rounded-lg bg-zinc-100 px-4 py-2 text-xs font-medium text-zinc-700 transition hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit"
+                                        class="rounded-lg bg-red-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-red-800">
+                                        Enviar reporte
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endauth
+
+            @once
+                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+                <style>
+                    [x-cloak] {
+                        display: none !important
+                    }
+                </style>
+            @endonce
         </div>
     </section>
 @endsection

@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        return $panel->topNavigation()
             ->default()
             ->id('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -11,6 +13,7 @@ class Recursos extends Model
 {
     use SoftDeletes;
     use Searchable;
+    use HasUuids;
 
     protected $guarded = [];
 
@@ -87,5 +90,18 @@ class Recursos extends Model
         }
 
         return $array;
+    }
+    public function reportes(): HasMany
+    {
+        return $this->hasMany(Reportes::class);
+    }
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
     }
 }

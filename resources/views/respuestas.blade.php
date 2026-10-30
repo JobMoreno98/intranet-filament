@@ -20,13 +20,16 @@
         <div class="mx-auto sm:px-7 px-3 max-w-screen-xl py-6">
             <div class="mb-4">
                 <!-- Título dinámico enviado desde el controlador -->
-                <h2 class="text-xl font-bold text-gray-800 mb-2 dark:text-white">{{ $title ?? 'Resultados de Búsqueda' }}</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-2 dark:text-white">{{ $title ?? 'Resultados de Búsqueda' }}
+                </h2>
 
                 <p class="text-sm text-gray-500 dark:text-white">
-                    Se encontraron <span class="font-bold text-gray-800 dark:text-white">{{ $resultados->total() }}</span> registros
+                    Se encontraron <span class="font-bold text-gray-800 dark:text-white">{{ $resultados->total() }}</span>
+                    registros
 
-                    @if(!empty(trim($term)))
-                        coincidentes para "<span class="font-semibold text-red-800 dark:text-white">{{ $term }}</span>".
+                    @if (!empty(trim($term)))
+                        coincidentes para "<span
+                            class="font-semibold text-red-800 dark:text-white">{{ $term }}</span>".
                     @else
                         coincidentes con los filtros seleccionados.
                     @endif
@@ -51,7 +54,8 @@
                                 <tr>
                                     <!-- Tipo -->
                                     <td class="p-4 pl-6">
-                                        <span class="font-bold text-gray-900 block dark:text-white">{{ ucfirst($res['tipo']) }}</span>
+                                        <span
+                                            class="font-bold text-gray-900 block dark:text-white">{{ ucfirst($res['tipo']) }}</span>
                                     </td>
 
                                     <!-- Acervo o Nombre de Colección -->
@@ -62,8 +66,8 @@
                                             {{ $res['titulo_resultado'] ?? '---' }}
                                         @endif
                                     </td>
-                                    <td class="p-4 dark:text-white"> 
-                             
+                                    <td class="p-4 dark:text-white">
+
                                         {{ $res['coleccion'] ?? '---' }}
                                     </td>
 
@@ -122,14 +126,15 @@
                                     <span
                                         class="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Coincidencia:</span>
                                     <div class="line-clamp-3 text-xs leading-relaxed text-gray-500">
-                                        {!! $res['coincidencia'] !!} <!-- CORRECCIÓN: Antes decías {!! $res['tipo'] !!} aquí -->
+                                        {!! $res['coincidencia'] !!}
+                                        <!-- CORRECCIÓN: Antes decías {!! $res['tipo'] !!} aquí -->
                                     </div>
                                 </div>
 
                                 <!-- Acción de la Card (CORREGIDA CON EL IF/ELSEIF/ELSEIF) -->
                                 <div class="mt-1">
-                                    @if ($res['tipo'] === 'documento' && $res['registro_id'])
-                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id']]) }}"
+                                    @if ($res['tipo'] === 'documento' && !empty($res['registro_uuid']))
+                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res['registro_uuid']]) }}"
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
                                             Ver información
                                         </a>
@@ -138,8 +143,8 @@
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
                                             Ver colección
                                         </a>
-                                    @elseif ($res['tipo'] === 'pagina' && $res['registro_id'])
-                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id'], 'page' => $res['orden_pagina'] ?? 1]) }}"
+                                    @elseif ($res['tipo'] === 'pagina' && !empty($res['registro_uuid']))
+                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res['registro_uuid'], 'page' => $res['orden_pagina'] ?? 1]) }}"
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition shadow-sm">
                                             Ir a Pág. {{ $res['orden_pagina'] ?? 1 }}
                                         </a>
@@ -147,8 +152,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        
                     @endforeach
 
                     @if ($resultados->isEmpty())
@@ -168,8 +171,6 @@
                 {{ $resultados->links() }}
             </div>
         </div>
-        
+
     </section>
-
-
 @endsection
