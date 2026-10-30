@@ -14,26 +14,33 @@ state([
 updated(['mostrarHijos' => fn() => $this->resetPage()]);
 
 with(function () {
-    $query = \App\Models\Coleccion::query()->orderBy('nombre', 'ASC');
+    $tabla = new \App\Models\Coleccion()->getTable();
 
-    // Por defecto solo fondos padres; con el interruptor activo entran también los internos
+    $query = \App\Models\Coleccion::query()->select("{$tabla}.*");
+
     if (!$this->mostrarHijos) {
-        $query->whereNull('parent_id'); // ajusta al nombre real de tu columna
+        // Solo fondos padres: orden alfabético normal
+        $query->whereNull("{$tabla}.parent_id")->orderBy("{$tabla}.nombre", 'ASC');
+    } else {
+        // Jerarquía: cada padre seguido de sus internos
+        $query
+            ->leftJoin("{$tabla} as padre", 'padre.id', '=', "{$tabla}.parent_id")
+            ->orderByRaw("COALESCE(padre.nombre, {$tabla}.nombre) ASC") // agrupa por padre
+            ->orderByRaw("COALESCE({$tabla}.parent_id, {$tabla}.id) ASC") // desempata padres con el mismo nombre
+            ->orderByRaw("({$tabla}.parent_id IS NOT NULL) ASC") // el padre va antes que sus hijos
+            ->orderBy("{$tabla}.nombre", 'ASC'); // hijos en orden alfabético
     }
 
     if (!empty($this->areaId)) {
         $areaId = $this->areaId;
         $mostrarHijos = $this->mostrarHijos;
 
-        $query->where(function ($q) use ($areaId, $mostrarHijos) {
-            $q->where('areaS_id', $areaId);
+        $query->where(function ($q) use ($areaId, $mostrarHijos, $tabla) {
+            $q->where("{$tabla}.areaS_id", $areaId);
 
             // Los internos heredan el área de su fondo padre
             if ($mostrarHijos) {
-                $q->orWhereIn(
-                    'parent_id',
-                    \App\Models\Coleccion::where('areaS_id', $areaId)->select('id')
-                );
+                $q->orWhereIn("{$tabla}.parent_id", \App\Models\Coleccion::where('areaS_id', $areaId)->select('id'));
             }
         });
     }
