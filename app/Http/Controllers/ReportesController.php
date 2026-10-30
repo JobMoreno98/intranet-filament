@@ -46,7 +46,7 @@ class ReportesController extends Controller
         // Guarda el reporte (ajusta a tu modelo/tabla)
         $registro->reportes()->create([
             'correo' => $datos['correo'],
-            'obseravciones' => $datos['observaciones'],
+            'observaciones' => $datos['observaciones'],
             'recursos_id' => $registro->id,
             'users_id'       => Auth::id(), 
         ]);
