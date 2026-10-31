@@ -4,6 +4,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ChunkUploadController;
 use App\Http\Controllers\ColeccionesConsultaController;
+use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\RecursosController;
 use App\Http\Controllers\ReportesController;
 use App\Models\Area;
@@ -261,7 +262,7 @@ Route::middleware(['web', Authenticate::class])
             ->name('api.chunks.upload')
             ->middleware(Authenticate::class);
     });
-    
+
 Route::get('/nuestra-historia', function () {
     return view('historia', [
         'title' => 'Nuestra Historia',
@@ -283,3 +284,11 @@ Route::get('/arreola-historica', function () {
 Route::post('/registros/{registro}/reporte', [ReportesController::class, 'store'])
     ->middleware('throttle:5,1') // 5 intentos por minuto por IP
     ->name('reporte.recurso');
+
+Route::middleware(['auth'])->group(function () {
+    // Ruta principal para ver la página con la lista de favoritos
+    Route::get('/mis-favoritos', [FavoritoController::class, 'index'])->name('favoritos.index');
+
+    // Ruta POST (Solo necesaria si mantienes el formulario tradicional de Blade)
+    Route::post('/mis-favoritos/toggle', [FavoritoController::class, 'toggle'])->name('favoritos.toggle');
+});

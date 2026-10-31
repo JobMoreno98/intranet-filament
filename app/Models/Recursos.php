@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 use Laravel\Scout\Searchable;
 
 class Recursos extends Model
@@ -95,6 +96,19 @@ class Recursos extends Model
     {
         return $this->hasMany(Reportes::class);
     }
+
+    // Modelo principal
+    public function scopeConReportesPendientes(Builder $query): Builder
+    {
+        return $query->whereHas('reportes', fn($q) => $q->pendiente());
+    }
+
+    public function scopeSinReportesPendientes(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('reportes', fn($q) => $q->pendiente());
+    }
+
+
     public function uniqueIds(): array
     {
         return ['uuid'];

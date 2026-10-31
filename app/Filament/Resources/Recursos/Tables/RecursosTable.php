@@ -10,18 +10,26 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Actions\Action;
 
 class RecursosTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->withExists([
+                'reportes as tiene_reportes_pendientes' => fn($q) => $q->pendiente(),
+            ]))->recordClasses(fn($record) => $record->tiene_reportes_pendientes
+                ? 'bg-danger-50 dark:bg-danger-950/20'
+                : null)
             ->columns([
                 TextColumn::make("id")->sortable(),
                 TextColumn::make('metadata_identificador')
@@ -47,7 +55,24 @@ class RecursosTable
                 TextColumn::make('coleccion.nombre')->label('Fondo')->sortable()->searchable(),
                 TextColumn::make('acervo.nombre')->label('Tipo Acervo')->sortable()->searchable(),
                 ToggleColumn::make('visible')->label('Público'),
-                ToggleColumn::make('fijado')->label('Fijado')
+                ToggleColumn::make('fijado')->label('Fijado'),
+                IconColumn::make('tiene_reportes_pendientes')
+                    ->label('Reporte')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-exclamation-triangle')
+                    ->falseIcon('heroicon-o-check-circle')
+                    ->trueColor('danger')
+                    ->falseColor('success')
+                    ->action(
+                        Action::make('verReportes')
+                            ->modalHeading(fn($record) => 'Reportes del recurso #' . $record->id)
+                            ->modalContent(fn($record) => view('filament.modals.reportes-pendientes', [
+                                'reportes' => $record->reportes()->pendiente()->with('user:id,name')->latest()->get(),
+                            ]))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Cerrar')
+                    )
+                    ->tooltip(fn($state) => $state ? 'Tiene reportes sin atender' : 'Sin reportes pendientes'),
 
             ])
             ->filters([
@@ -63,6 +88,16 @@ class RecursosTable
                     ->label('Fondo')
                     ->searchable()
                     ->preload(),
+                TernaryFilter::make('reportes_pendientes')
+                    ->label('Reportes sin atender')
+                    ->placeholder('Todos')
+                    ->trueLabel('Con reportes pendientes')
+                    ->falseLabel('Sin reportes pendientes')
+                    ->queries(
+                        true: fn(Builder $query) => $query->conReportesPendientes(),
+                        false: fn(Builder $query) => $query->sinReportesPendientes(),
+                        blank: fn(Builder $query) => $query,
+                    ),
             ])
             ->recordActions([
                 ViewAction::make(),

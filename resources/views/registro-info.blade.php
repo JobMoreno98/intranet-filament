@@ -131,6 +131,9 @@
                             class="mt-6 text-2xl lg:text-3xl font-bold text-zinc-900 leading-snug break-words dark:text-white">
                             {{ $titulo }}
                         </h1>
+                        @auth
+                            <livewire:boton-favorito :recursoId="$registro->id" :key="'fav-' . $registro->id" />
+                        @endauth
                     </div>
                     {{--  
                     <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">

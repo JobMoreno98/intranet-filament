@@ -48,7 +48,7 @@ class ReportesController extends Controller
             'correo' => $datos['correo'],
             'observaciones' => $datos['observaciones'],
             'recursos_id' => $registro->id,
-            'users_id'       => Auth::id(), 
+            'user_id'       => Auth::id(), 
         ]);
 
         return back()->with('success', 'Gracias por tu reporte.');

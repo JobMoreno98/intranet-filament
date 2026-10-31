@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class Reportes extends Model
 {
     protected $guarded = [];
+    
     public function recurso(): BelongsTo
     {
         return $this->belongsTo(Recursos::class, 'recursos_id');
@@ -15,6 +17,13 @@ class Reportes extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'users_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function scopePendiente(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->whereNull('resuelto')->orWhere('resuelto', '');
+        });
     }
 }

@@ -71,8 +71,8 @@
         $enlaces = [
             ['INICIO', 'home'],
             ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
-            ['NUESTROS FONDOS HISTÓRICOS','fondos.historicos'],
-            ['ARREOLA HISTÓRICA','arreola.historica'],
+            ['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
+            ['ARREOLA HISTÓRICA', 'arreola.historica'],
             ['ÁREAS', 'areas.index'],
             ['FONDOS', 'fondos.index'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
@@ -82,7 +82,7 @@
     <nav x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false"
         x-effect="document.body.classList.toggle('overflow-hidden', menuOpen)" class="bg-white dark:bg-neutral-600">
 
-        <div class="flex flex-wrap items-center justify-between w-full min-h-16 gap-x-4 gap-y-2 px-4 py-2 mx-auto">
+        <div class="flex flex-wrap items-center justify-end md:justify-between w-full min-h-16 gap-x-4 gap-y-2 px-4 py-2 mx-auto">
 
             <a href="{{ route('home') }}" class="flex items-center font-bold text-xl shrink-0">
 
@@ -99,7 +99,6 @@
 
                 <img src="{{ asset('img/bpej-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="hidden dark:block h-8 mr-3 sm:h-8">
-
             </a>
 
             {{-- Texto siempre visible: en móvil baja a su propia fila (order-last), en lg va entre logo y botones --}}
@@ -109,7 +108,7 @@
                 Pública del Estado de Jalisco de la Universidad de Guadalajara.
             </p>
 
-            <div class="flex items-center gap-2 md:gap-4">
+            <div class="flex items-center gap-2 md:gap-4 order-first md:order-none">
                 <div x-data class="flex items-center">
                     <button x-on:click="$flux.dark = ! $flux.dark" type="button"
                         class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
@@ -121,17 +120,6 @@
                                 class="w-5 h-5 text-amber-400 group-hover:rotate-45 transition-transform" />
                         </span>
                     </button>
-                </div>
-
-                <div class="hidden lg:flex items-center h-full">
-                    @if (Auth::check())
-                        <x-desktop-user-menu />
-                    @else
-                        <a href="{{ route('login') }}"
-                            class="inline-flex items-center text-sm font-medium rounded-md bg-red-800 hover:bg-red-900 text-white transition shadow-sm h-9 px-4">
-                            {{ __('Log In') }}
-                        </a>
-                    @endif
                 </div>
 
                 <button @click="menuOpen = true" type="button"
@@ -187,7 +175,7 @@
                 </ul>
 
                 {{-- Sesión: debajo de lg (en lg ya está en la barra). mt-auto la empuja al fondo del cajón --}}
-                <div class="mt-auto border-t border-gray-200 p-4 dark:border-neutral-700 lg:hidden">
+                <div class="mt-auto border-t border-gray-200 p-4 dark:border-neutral-700 ">
                     @if (Auth::check())
                         <x-desktop-user-menu />
                     @else
