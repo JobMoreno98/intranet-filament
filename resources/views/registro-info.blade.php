@@ -1,118 +1,6 @@
 @extends('layouts.plantilla')
 
 @section('content')
-    @php
-        use Illuminate\Database\Eloquent\Model;
-
-        $omitir = $omitir ?? [];
-        $labels = $labels ?? [];
-
-        $camposLargos = ['descripcion', 'contenido', 'notas', 'resumen', 'observaciones'];
-        $camposCompactos = [
-            'anio',
-            'fecha',
-            'paginas',
-            'tomo',
-            'volumen',
-            'idioma',
-            'isbn',
-            'clave',
-            'folio',
-            'numero',
-        ];
-        $umbralLargo = 80; // cualquier campo que supere estos caracteres se considera largo
-        $minimoLargo = 50; // un campo "largo" por nombre (contenido, notas...) solo lo es si llega a este mínimo
-
-        // Decide si un valor es largo, tanto para campos generales como para metadatos
-        $esLargo = function ($clave, $texto) use ($camposCompactos, $camposLargos, $umbralLargo, $minimoLargo) {
-            if (in_array($clave, $camposCompactos)) {
-                return false;
-            }
-
-            $largoTexto = mb_strlen($texto);
-
-            return $largoTexto > $umbralLargo || (in_array($clave, $camposLargos) && $largoTexto >= $minimoLargo);
-        };
-        $camposTitulo = ['titulo', 'nombre', 'title'];
-
-        $datos = $registro instanceof Model ? $registro->getAttributes() : (array) $registro;
-        $datos = array_filter($datos, fn($v, $k) => !in_array($k, $omitir), ARRAY_FILTER_USE_BOTH);
-
-        $aTexto = fn($v) => is_scalar($v) ? trim(strip_tags((string) $v)) : json_encode($v, JSON_UNESCAPED_UNICODE);
-        $etiqueta = fn($k) => $labels[$k] ?? ucwords(str_replace(['_', '-'], ' ', str_replace('_id', '', $k)));
-
-        // Metadata decodificada (puede llegar como JSON string o como array)
-        $metaCrudo = $datos['metadata'] ?? [];
-        $metaArray = is_string($metaCrudo) ? json_decode($metaCrudo, true) : (array) $metaCrudo;
-        $metaArray = is_array($metaArray) ? $metaArray : [];
-
-        // Título principal: se busca primero dentro de metadata (sin importar mayúsculas)
-        // y, si no está ahí, en las columnas del registro.
-        $claveTituloMeta = collect(array_keys($metaArray))->first(
-            fn($k) => in_array(mb_strtolower(trim((string) $k)), $camposTitulo) && !empty($metaArray[$k]),
-        );
-
-        $campoTitulo = null;
-
-        if ($claveTituloMeta !== null) {
-            $titulo = $aTexto($metaArray[$claveTituloMeta]);
-        } else {
-            $campoTitulo = collect($camposTitulo)->first(fn($c) => !empty($datos[$c] ?? null));
-            $titulo = $campoTitulo ? $aTexto($datos[$campoTitulo]) : 'Registro sin título';
-        }
-
-        // Clasificamos los campos en tres grupos
-        $generales = [];
-        $largos = [];
-        $metadata = [];
-
-        foreach ($datos as $columna => $valor) {
-            if ($columna === $campoTitulo) {
-                continue;
-            }
-
-            $vacio = is_null($valor) || $valor === '' || $valor === [];
-
-            if ($columna === 'metadata') {
-                foreach ($metaArray as $k => $v) {
-                    // El título ya se muestra en el encabezado
-                    if ($k === $claveTituloMeta || is_null($v) || $v === '') {
-                        continue;
-                    }
-                    $textoMeta = $aTexto($v);
-
-                    $largoMeta = $esLargo($k, $textoMeta);
-
-                    $metadata[] = ['label' => $etiqueta($k), 'valor' => $textoMeta, 'largo' => $largoMeta];
-                }
-
-                // Cortos primero, largos al final, para que la cuadrícula no quede con huecos
-                usort($metadata, fn($a, $b) => $a['largo'] <=> $b['largo']);
-                continue;
-            }
-
-            $valorFinal = $valor;
-
-            // Relaciones (xxx_id): mostramos el nombre del modelo relacionado
-            if (str_ends_with($columna, '_id') && !is_null($valor) && $registro instanceof Model) {
-                $relacion = str_replace('_id', '', $columna);
-                $relacionado = $registro->$relacion ?? null;
-
-                if ($relacionado) {
-                    $valorFinal = $relacionado->nombre ?? $relacionado->id;
-                }
-            }
-
-            $texto = $vacio ? '' : $aTexto($valorFinal);
-            if ($esLargo($columna, $texto)) {
-                if (!$vacio) {
-                    $largos[] = ['label' => $etiqueta($columna), 'valor' => $texto];
-                }
-            } else {
-                $generales[] = ['label' => $etiqueta($columna), 'valor' => $texto];
-            }
-        }
-    @endphp
     <section class="dark:bg-zinc-950">
         <div class="max-w-5xl mx-auto px-4 py-6 lg:py-10 space-y-10">
             <a href="{{ url()->previous() }}"
@@ -131,7 +19,7 @@
                             {{ $titulo }}
                         </h1>
                         @auth
-                            <livewire:boton-favorito :recursoId="$registro->id" :key="'fav-' . $registro->id" />
+                            <livewire:boton-favorito :recursoId="$recurso->id" :key="'fav-' . $recurso->id" />
                         @endauth
                     </div>
                     {{--  
@@ -239,7 +127,7 @@
                                 </button>
                             </div>
 
-                            <form method="POST" action="{{ route('reporte.recurso', $registro) }}" class="space-y-5 p-6">
+                            <form method="POST" action="{{ route('reporte.recurso', $recurso) }}" class="space-y-5 p-6">
                                 @csrf
 
                                 {{-- Honeypot --}}
