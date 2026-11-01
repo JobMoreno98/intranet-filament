@@ -60,7 +60,7 @@ class RegistroViewModel extends ViewModel
         return $this->paginasProcesadas;
     }
 
-    // --- MÉTODOS PRIVADOS (Ocultos para Blade, manejan la lógica interna) ---
+
 
     private function configurarVistaYArchivos(): void
     {
