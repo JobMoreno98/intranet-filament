@@ -1,6 +1,20 @@
 @extends('layouts.plantilla')
 
 @section('content')
+    @php
+        $camposTitulo = ['titulo', 'nombre', 'title'];
+
+        $campoTitulo = null;
+
+        if ($claveTituloMeta !== null) {
+            $titulo = $aTexto($metaArray[$claveTituloMeta]);
+        } else {
+            $campoTitulo = collect($camposTitulo)->first(fn($c) => !empty($datos[$c] ?? null));
+            $titulo = $campoTitulo ? $aTexto($datos[$campoTitulo]) : 'Recurso sin título';
+        }
+
+
+    @endphp
     <section class="dark:bg-zinc-950">
         <div class="max-w-5xl mx-auto px-4 py-6 lg:py-10 space-y-10">
             <a href="{{ url()->previous() }}"
@@ -24,7 +38,7 @@
                     </div>
                     {{--  
                     <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">
-                        <span>Ficha del registro</span>
+                        <span>Ficha del recurso</span>
 
                         @if (isset($paginas) && count($paginas))
                             <span class="text-zinc-500 dark:text-zinc-400">
@@ -101,7 +115,7 @@
             @auth
 
                 <div x-data="{ open: {{ $errors->any() ? 'true' : 'false' }} }" class="text-sm text-zinc-600 dark:text-zinc-400">
-                    ¿Ves algún error en la información? Reporta este registro dando clic
+                    ¿Ves algún error en la información? Reporta este recurso dando clic
                     <a href="#" @click.prevent="open = true"
                         class="font-medium text-red-900 underline underline-offset-2 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
                         aquí
