@@ -32,7 +32,7 @@ class ChunkUploadController extends Controller
             return response()->json(['status' => 'exists'], 200); // Resumable lo salta
         }
 
-        return response()->json(['status' => 'not_found'], 204); // Resumable lo sube
+        return response()->json(['status' => 'not_found'], 404); // Resumable lo sube
     }
 
     /**
