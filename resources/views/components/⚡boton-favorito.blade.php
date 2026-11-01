@@ -24,15 +24,21 @@ new class extends Component {
             return redirect()->route('login');
         }
 
+        $agregado = true; 
         if ($this->esFavorito) {
             Auth::user()->favoritos()->where('recursos_id', $this->recursoId)->delete();
             $this->esFavorito = false;
+            $agregado = false; 
         } else {
             Auth::user()
                 ->favoritos()
                 ->create(['recursos_id' => $this->recursoId]);
             $this->esFavorito = true;
         }
+
+        $mensaje = $agregado ? 'Añadido a favoritos' : 'Eliminado de favoritos';
+
+        $this->dispatch('mostrar-toast', mensaje: $mensaje);
     }
 
     public function render()

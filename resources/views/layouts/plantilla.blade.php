@@ -82,7 +82,8 @@
     <nav x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false"
         x-effect="document.body.classList.toggle('overflow-hidden', menuOpen)" class="bg-white dark:bg-neutral-600">
 
-        <div class="flex flex-wrap items-center justify-end md:justify-between w-full min-h-16 gap-x-4 gap-y-2 px-4 py-2 mx-auto">
+        <div
+            class="flex flex-wrap items-center justify-end md:justify-between w-full min-h-16 gap-x-4 gap-y-2 px-4 py-2 mx-auto">
 
             <a href="{{ route('home') }}" class="flex items-center font-bold text-xl shrink-0">
 
@@ -307,6 +308,7 @@
     @fluxScripts
     @livewireScripts
     @yield('js')
+    <x-toast />
 
 </body>
 

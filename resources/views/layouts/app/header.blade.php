@@ -17,8 +17,8 @@
                 {{ __('Dashboard') }}
             </flux:navbar.item>
 
-            <flux:navbar.item icon="star" :href="route('favoritos.index')" :current="request()->routeIs('favoritos.index')"
-                wire:navigate>
+            <flux:navbar.item icon="star" :href="route('favoritos.index')"
+                :current="request()->routeIs('favoritos.index')" wire:navigate>
                 Favoritos
             </flux:navbar.item>
 
@@ -62,6 +62,8 @@
     @endpersist
 
     @fluxScripts
+
+    <x-toast />
 </body>
 
 </html>
