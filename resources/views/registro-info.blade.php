@@ -12,7 +12,7 @@
 
             <!-- CONTENEDOR PRINCIPAL -->
             <div class="rounded-2xl border border-zinc-800 bg-zinc-900 overflow-hidden shadow-none">
-                
+
                 <!-- ENCABEZADO -->
                 <header class="p-6 lg:p-8 border-b border-zinc-800">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -30,29 +30,38 @@
                         <!-- 1. Datos Generales -->
                         @foreach ($generales as $item)
                             <div class="lg:col-span-1">
-                                <div class="h-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition">
-                                    <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">{{ $item['label'] }}</div>
-                                    <div class="text-sm text-zinc-200 break-words leading-relaxed">{{ $item['valor'] }}</div>
+                                <div
+                                    class="h-full rounded-xl border border-zinc-800 dark:bg-zinc-950 p-4 hover:border-zinc-700 transition">
+                                    <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                        {{ $item['label'] }}</div>
+                                    <div class="text-sm text-zinc-200 break-words leading-relaxed">{{ $item['valor'] }}
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
-                    
+
                         <!-- 2. Metadatos -->
                         @foreach ($metadataList as $item)
                             <div class="{{ $item['largo'] ? 'lg:col-span-2' : 'lg:col-span-1' }}">
-                                <div class="h-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition">
-                                    <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">{{ $item['label'] }}</div>
-                                    <div class="text-sm text-zinc-200 break-words leading-relaxed whitespace-pre-wrap">{{ $item['valor'] }}</div>
+                                <div
+                                    class="h-full rounded-xl border border-zinc-800 dark:bg-zinc-950 p-4 hover:border-zinc-700 transition">
+                                    <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                        {{ $item['label'] }}</div>
+                                    <div class="text-sm text-zinc-200 break-words leading-relaxed whitespace-pre-wrap">
+                                        {{ $item['valor'] }}</div>
                                 </div>
                             </div>
                         @endforeach
-                    
+
                         <!-- 3. Datos Largos -->
                         @foreach ($largos as $item)
                             <div class="lg:col-span-2">
-                                <div class="h-full rounded-xl border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-700 transition">
-                                    <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">{{ $item['label'] }}</div>
-                                    <div class="text-sm text-zinc-200 break-words leading-relaxed whitespace-pre-wrap">{{ $item['valor'] }}</div>
+                                <div
+                                    class="h-full rounded-xl border border-zinc-800 dark:bg-zinc-950 p-4 hover:border-zinc-700 transition">
+                                    <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                                        {{ $item['label'] }}</div>
+                                    <div class="text-sm text-zinc-200 break-words leading-relaxed whitespace-pre-wrap">
+                                        {{ $item['valor'] }}</div>
                                 </div>
                             </div>
                         @endforeach
@@ -94,24 +103,30 @@
                                 </div>
                                 <input type="hidden" name="cargado_en" value="{{ now()->timestamp }}">
                                 <div>
-                                    <label for="observaciones" class="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Observaciones</label>
-                                    <textarea name="observaciones" id="observaciones" rows="4" required maxlength="1000" placeholder="Describe el error que encontraste..."
-                                        class="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm leading-relaxed text-zinc-100 placeholder-zinc-600 focus:border-red-900 focus:outline-none focus:ring-1 focus:ring-red-900">{{ old('observaciones') }}</textarea>
+                                    <label for="observaciones"
+                                        class="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Observaciones</label>
+                                    <textarea name="observaciones" id="observaciones" rows="4" required maxlength="1000"
+                                        placeholder="Describe el error que encontraste..."
+                                        class="w-full resize-none rounded-lg border border-zinc-700 dark:bg-zinc-950 px-3 py-2 text-sm leading-relaxed text-zinc-100 placeholder-zinc-600 focus:border-red-900 focus:outline-none focus:ring-1 focus:ring-red-900">{{ old('observaciones') }}</textarea>
                                     @error('observaciones')
                                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <div>
-                                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="dark"></div>
+                                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"
+                                        data-theme="dark"></div>
                                     @error('cf-turnstile-response')
                                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <div class="flex justify-end gap-2 border-t border-zinc-800 pt-5">
-                                    <button type="button" @click="open = false" class="rounded-lg bg-zinc-800 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:bg-zinc-700">Cancelar</button>
-                                    <button type="submit" class="rounded-lg bg-red-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-red-800">Enviar reporte</button>
+                                    <button type="button" @click="open = false"
+                                        class="rounded-lg bg-zinc-800 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:bg-zinc-700">Cancelar</button>
+                                    <button type="submit"
+                                        class="rounded-lg bg-red-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-red-800">Enviar
+                                        reporte</button>
                                 </div>
                             </form>
                         </div>
@@ -121,7 +136,11 @@
 
             @once
                 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-                <style>[x-cloak] { display: none !important }</style>
+                <style>
+                    [x-cloak] {
+                        display: none !important
+                    }
+                </style>
             @endonce
         </div>
     </section>
