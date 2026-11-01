@@ -1,20 +1,6 @@
 @extends('layouts.plantilla')
 
 @section('content')
-    @php
-        $camposTitulo = ['titulo', 'nombre', 'title'];
-
-        $campoTitulo = null;
-
-        if ($claveTituloMeta !== null) {
-            $titulo = $aTexto($metaArray[$claveTituloMeta]);
-        } else {
-            $campoTitulo = collect($camposTitulo)->first(fn($c) => !empty($datos[$c] ?? null));
-            $titulo = $campoTitulo ? $aTexto($datos[$campoTitulo]) : 'Recurso sin título';
-        }
-
-
-    @endphp
     <section class="dark:bg-zinc-950">
         <div class="max-w-5xl mx-auto px-4 py-6 lg:py-10 space-y-10">
             <a href="{{ url()->previous() }}"
@@ -30,7 +16,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <h1
                             class="mt-6 text-2xl lg:text-3xl font-bold text-zinc-900 leading-snug break-words dark:text-white">
-                            {{ $titulo }}
+                            {{ $recurso->metadata['titulo'] }}
                         </h1>
                         @auth
                             <livewire:boton-favorito :recursoId="$recurso->id" :key="'fav-' . $recurso->id" />
