@@ -64,8 +64,7 @@ class RegistroViewModel extends ViewModel
 
     private function configurarVistaYArchivos(): void
     {
-        // Determinamos la vista dinámicamente usando el método nativo de Spatie
-        if ($this->recurso->archivos->isEmpty() && !$this->recurso->visible) {
+        if ($this->recurso->archivos->isEmpty() || !$this->recurso->visible) {
             $this->view('registro-info');
         } else {
             $this->view('registro-detalle');
