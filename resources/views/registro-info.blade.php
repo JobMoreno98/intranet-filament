@@ -1,7 +1,7 @@
 @extends('layouts.plantilla')
 
 @section('content')
-    <section class="bg-zinc-950 min-h-screen">
+    <section class=" dark:bg-zinc-950">
         <div class="max-w-5xl mx-auto px-4 py-6 lg:py-10 space-y-10">
             <!-- BOTÓN VOLVER -->
             <a href="{{ url()->previous() }}"
