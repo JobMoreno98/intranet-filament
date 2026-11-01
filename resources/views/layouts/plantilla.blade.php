@@ -82,8 +82,7 @@
     <nav x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false"
         x-effect="document.body.classList.toggle('overflow-hidden', menuOpen)" class="bg-white dark:bg-neutral-600">
 
-        <div
-            class="flex flex-wrap items-center justify-end md:justify-between w-full min-h-16 gap-x-4 gap-y-2 px-4 py-2 mx-auto">
+        <div class="flex flex-wrap items-center justify-between w-full min-h-16 gap-x-4 gap-y-2 px-4 py-2 mx-auto">
 
             <a href="{{ route('home') }}" class="flex items-center font-bold text-xl shrink-0">
 
@@ -103,7 +102,7 @@
                 Pública del Estado de Jalisco de la Universidad de Guadalajara.
             </p>
 
-            <div class="flex items-center gap-2 md:gap-4 order-first md:order-none">
+            <div class="flex items-center gap-2 md:gap-4">
                 <div x-data class="flex items-center">
                     <button x-on:click="$flux.dark = ! $flux.dark" type="button"
                         class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition shadow-sm group">
@@ -263,18 +262,49 @@
 
     <footer class="dark:bg-neutral-600">
         <div class="px-2 pt-10 mx-auto max-w-7xl ">
-            <div class="pt-12 border-t border-gray-300 flex flex-col md:flex-row gap-10 items-center ">
+            <div class="pt-6 border-t border-gray-300 flex flex-col md:flex-row gap-10 items-center ">
+
                 <div class="text-black flex flex-col ">
-                    <a href="{{ route('home') }}" class="font-bold text-xl"
-                        style="display: flex; align-items: center; gap: 8px;">
-                        <img src="{{ asset('img/bpej.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                            class="block dark:hidden h-4 mr-3 sm:h-8">
+                    <div class="w-full">
+                        <div
+                            class="max-w-7xl mx-auto  flex flex-col md:flex-row items-center justify-between gap-6">
 
-                        <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
-                        <img src="{{ asset('img/bpej-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                            class="hidden dark:block h-4 mr-3 sm:h-8">
+                            <!-- Contenedor de los logos -->
+                            <a href="{{ route('home') }}"
+                                class="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6">
+                                <!-- 1. Logo UdeG -->
+                                <img src="{{ asset('img/udeg_negro.svg') }}" alt="Universidad de Guadalajara"
+                                    class="block dark:hidden h-13 sm:h-13 w-auto object-contain">
+                                <img src="{{ asset('img/udeg_blanco.svg') }}" alt="Universidad de Guadalajara"
+                                    class="hidden dark:block h-13 sm:h-13 w-auto object-contain">
 
-                    </a>
+                                <!-- Divisor vertical (se oculta en móviles pequeños para evitar amontonamiento) -->
+                                <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
+                                    aria-hidden="true"></span>
+
+                                <!-- 2. Logo BPEJ -->
+                                <img src="{{ asset('img/bpej.svg') }}" alt="Biblioteca Pública del Estado de Jalisco"
+                                    class="block dark:hidden h-8 sm:h-10 w-auto object-contain">
+                                <img src="{{ asset('img/bpej-oscuro.svg') }}"
+                                    alt="Biblioteca Pública del Estado de Jalisco"
+                                    class="hidden dark:block h-8 sm:h-10 w-auto object-contain">
+
+                                <!-- Divisor vertical -->
+                                <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
+                                    aria-hidden="true"></span>
+
+                                <!-- 3. Logo SIUBIUDG -->
+                                <img src="{{ asset('img/siubi_negro.svg') }}"
+                                    alt="Sistema Universitario de Bibliotecas"
+                                    class="block dark:hidden h-13 sm:h-12 w-auto object-contain">
+
+                                <img src="{{ asset('img/siubi_blanco.svg') }}"
+                                    alt="Sistema Universitario de Bibliotecas"
+                                    class="hidden dark:block h-13 sm:h-12 w-auto object-contain">
+                            </a>
+                        </div>
+                    </div>
+
                     <p class="mt-2 text-sm text-gray-500 lg:w-4/5 dark:text-white">
                         Biblioteca Pública del Estado de Jalisco "Juan José Arreola" <br>
                         Periférico Norte Manuel Gómez Morín no. 1695, Colonia Belenes C.P. 45150 <br>

@@ -1,10 +1,24 @@
 @extends('layouts.plantilla')
 
+@section('css')
+    <style>
+        /* Ocultar scrollbar para Chrome, Safari y Opera */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Ocultar scrollbar para IE, Edge y Firefox */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+@endsection
+
 @section('content')
     <section>
-
         <div
-            class="mx-auto sm:px-7 px-2 md:max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center max-w-[300px] sm:max-w-[340px]">
+            class="mx-auto sm:px-7 px-2 md:max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center max-w-[400px] sm:max-w-[340px]">
 
             <article
                 class="relative w-full rounded-2xl bg-gradient-to-br from-[#131f30] via-[#1a2a40] to-[#0f172a] text-white p-6 sm:p-8 md:p-10 shadow-xl overflow-hidden border border-white/10 my-6">
@@ -57,49 +71,42 @@
 
     </section>
 
-    <section class="py-10 bg-[#ffffff] dark:bg-neutral-800">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section class="py-10 bg-[#ffffff] dark:bg-neutral-800 max-w-7xl mx-auto ">
+        <!-- Se cambió de flex a grid con grid-flow-col y grid-rows-2 para forzar las dos filas en móvil -->
+        <div
+            class="mx-2 grid grid-rows-2 grid-flow-col auto-cols-[85vw] overflow-x-auto gap-4 snap-x snap-mandatory pb-4 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:auto-cols-auto 
+            sm:grid-rows-none sm:grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:pb-0 sm:overflow-visible">
+            @foreach ($novedades as $index => $item)
+                <!-- La tarjeta ya no necesita w-[85vw], el ancho lo dicta la clase auto-cols-[85vw] del contenedor padre -->
+                <div data-aos="fade-up" data-aos-duration="400" data-aos-delay="{{ ($index % 10) * 40 }}"
+                    class="snap-center dark:bg-zinc-700 group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
 
-            @if ($novedades->isNotEmpty())
-                <!-- Grid de 2 filas exactas de 5 elementos en desktop (lg:grid-cols-5) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    @foreach ($novedades as $index => $item)
-                        <div data-aos="fade-up" data-aos-duration="400" data-aos-delay="{{ ($index % 10) * 40 }}"
-                            class="dark:bg-zinc-700  group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
-                            <div>
-                                <span
-                                    class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">
-                                    <svg class="w-3 h-3 dark:text-white text-[#1d1d1b] flex-shrink-0" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                                        </path>
-                                    </svg>
-                                    <span class="truncate dark:text-white hover:text-guinda">
-                                        {{ $item->acervo->nombre ?? 'General' }}</span>
-                                </span>
-                            </div>
-                            <h3 class="dark:text-white hover:text-guinda text-sm font-semibold text-[#131f30] line-clamp-2 leading-snug transition-colors duration-150"
-                                title="{{ $item->metadata['titulo'] }}">
-                                {{ $item->metadata['titulo'] }}
-                            </h3>
-                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $item]) }}"
-                                class="dark:text-white text-right mt-1  w-fit items-center gap-1 text-xs font-bold uppercase tracking-wide text-guinda 
-                                border-b-2 border-[#86212b] pb-0.5">
-                                Leer más
-                            </a>
-                        </div>
-                    @endforeach
+                    <div>
+                        <span
+                            class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">
+                            <svg class="w-3 h-3 dark:text-white text-[#1d1d1b] flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                </path>
+                            </svg>
+                            <span
+                                class="truncate dark:text-white hover:text-guinda">{{ $item->acervo->nombre ?? 'General' }}</span>
+                        </span>
+                    </div>
+                    <h3 class="dark:text-white hover:text-guinda text-sm font-semibold text-[#131f30] line-clamp-2 leading-snug transition-colors duration-150"
+                        title="{{ $item->metadata['titulo'] }}">
+                        {{ $item->metadata['titulo'] }}
+                    </h3>
+                    <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $item]) }}"
+                        class="dark:text-white text-right mt-1 w-fit items-center gap-1 text-xs font-bold uppercase tracking-wide text-guinda border-b-2 border-[#86212b] pb-0.5">
+                        Leer más
+                    </a>
                 </div>
-            @else
-                <div
-                    class="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl border border-dashed border-[#131f30]/20 bg-[#ffffff]">
-                    <h4 class="text-base font-semibold text-[#131f30]">Aún no hay datos disponibles</h4>
-                </div>
-            @endif
-
+            @endforeach
         </div>
     </section>
+
     <section>
         <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10" data-aos="fade-up" data-aos-duration="500">
             <div class="w-full bg-[var(--color-guinda)] py-2 px-4 my-2 rounded-md dark:bg-red-700">
@@ -115,11 +122,13 @@
 
     <section>
         <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10">
-
             @if ($areas->count())
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div
+                    class="flex overflow-x-auto gap-4 snap-x snap-mandatory pb-6 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-8 sm:pb-0 sm:overflow-visible hide-scrollbar px-4 sm:px-0">
                     @foreach ($areas as $index => $item)
-                        <div class="h-full" data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
+                        <!-- flex-none evita que se aplasten, w-[85vw] muestra un "vistazo" de la siguiente tarjeta -->
+                        <div class="flex-none w-[85vw] sm:w-auto snap-center h-full" data-aos="fade-up"
+                            data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
                             <livewire:area :area="$item" :key="$item->id" />
                         </div>
                     @endforeach
