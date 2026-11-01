@@ -8,6 +8,7 @@ use App\Models\Blog;
 use App\Models\ColeccionesConsulta;
 use App\Models\Recursos;
 use App\Models\TipoAcervo;
+use App\ViewModels\RegistroViewModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -399,9 +400,7 @@ class ColeccionesConsultaController extends Controller
             ->filter()
             ->unique();
 
-        $uuids = $idsRecursos->isNotEmpty()
-            ? Recursos::whereIn('id', $idsRecursos)->pluck('uuid', 'id')
-            : collect();
+        $uuids = $idsRecursos->isNotEmpty() ? Recursos::whereIn('id', $idsRecursos)->pluck('uuid', 'id') : collect();
 
         $currentItems = array_map(function ($res) use ($uuids) {
             if (in_array($res['tipo'], ['documento', 'pagina'], true)) {
@@ -434,21 +433,16 @@ class ColeccionesConsultaController extends Controller
      */
     public function showRegistro(Request $request, $tipo, Recursos $recurso)
     {
-        // Página solicitada desde la URL (ej. ?page=4). Por defecto 1.
         $paginaSolicitada = (int) $request->input('page', 1);
 
-        // Como el modelo ya viene resuelto se usa load() en lugar de with()
         $recurso->load([
-            'archivos' => function ($q) {
-                $q->orderBy('orden');
-            },
+            'archivos' => fn($q) => $q->orderBy('orden'),
             'acervo',
             'coleccion',
         ]);
 
         try {
             Redis::hincrby('analytics:recursos_vistas', $recurso->id, 1);
-
             $payload = json_encode([
                 'ip' => $request->ip() ?? $request->header('X-Forwarded-For'),
                 'user_agent' => $request->userAgent(),
@@ -456,103 +450,12 @@ class ColeccionesConsultaController extends Controller
                 'user_id' => auth()->id(),
                 'created_at' => now()->toDateTimeString(),
             ]);
-
             Redis::rpush('analytics:visitas_queue', $payload);
-
-            $hoy = now()->format('Y-m-d');
-            Redis::incr("analytics:recursos_vistas:{$hoy}");
+            Redis::incr('analytics:recursos_vistas:{' . now()->format('Y-m-d') . '}');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error registrando analítica en visor: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error registrando analítica: ' . $e->getMessage());
         }
 
-        $omitir = [
-            'tipo_media',
-            'IdElemento',
-            'id',
-            'uuid', // UUID: es un identificador interno, no debe verse como un campo más en la ficha
-            'created_at',
-            'updated_at',
-            'usuario_id',
-            'carpetaContenido',
-            'archivos',
-            'deleted_at',
-            'vistas_count',
-            'hash_archivo',
-            'assets_procesados',
-            'status',
-            'fijado',
-            'visible'
-        ];
-
-        $recursoData = $recurso->toArray();
-
-        $esquema = [];
-
-        if ($recurso->acervo && $recurso->acervo->esquema) {
-            $esquema = is_string($recurso->acervo->esquema)
-                ? json_decode($recurso->acervo->esquema, true)
-                : $recurso->acervo->esquema;
-        }
-
-        $camposPermitidos = collect($esquema)
-            ->whereIn('visible', ['Recuperable', 'Adicional'])
-            ->pluck('variable')
-            ->toArray();
-
-        $metadata = collect($recursoData['metadata'] ?? [])
-            ->only($camposPermitidos)
-            ->toArray();
-
-        $recurso->metadata = $metadata;
-
-        $labels = collect($esquema)
-            ->whereIn('visible', ['Recuperable', 'Adicional'])
-            ->pluck('label', 'variable')
-            ->toArray();
-
-        // Sin archivos: mostramos solo la ficha de información, sin visor
-        if ($recurso->archivos->isEmpty()) {
-            return view('registro-info', [
-                'registro' => $recurso,
-                'coleccionNombre' => $recurso->coleccion,
-                'labels' => $labels,
-                'title' => 'Detalle del Registro',
-                'omitir' => $omitir,
-            ]);
-        }
-
-        // Con archivos: armamos las páginas del visor
-        $paginas = collect($recursoData['archivos'])
-            ->map(function ($archivo) {
-                $payload = [
-                    'a' => $archivo['id'],
-                    'u' => auth()->id(),
-                    'e' => now()->timestamp + 300,
-                ];
-
-                $token = encrypt(json_encode($payload));
-
-                return [
-                    'id' => $archivo['id'],
-                    'orden' => $archivo['orden'] ?? 1,
-                    'url' => route('media.stream', ['token' => $token]),
-                    'w' => 1200,
-                    'h' => 1600,
-                    'ocrUrl' => route('visor.ocr', ['token' => $token]),
-                ];
-            })
-            ->toArray();
-
-        return view('registro-detalle', [
-            'registro' => $recurso,
-            'tablaNombre' => $recurso->coleccion,
-            'coleccionNombre' => $recurso->coleccion,
-            'labels' => $labels,
-            'title' => 'Detalle del Registro',
-            'omitir' => $omitir,
-            'paginas' => $paginas,
-            'recurso' => $recursoData,
-            'paginaSolicitada' => $paginaSolicitada,
-        ]);
+        return new RegistroViewModel($recurso, $paginaSolicitada);
     }
 }
