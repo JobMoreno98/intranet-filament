@@ -74,7 +74,7 @@ with(function () {
         </div>
     @else
         <div class="w-full py-12 text-center">
-            <h4 class="text-lg font-medium text-zinc-500">No hay colecciones disponibles</h4>
+            <h4 class="text-lg font-medium text-zinc-500">No hay fondos disponibles</h4>
         </div>
     @endif
 

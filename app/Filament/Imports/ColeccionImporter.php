@@ -43,7 +43,7 @@ class ColeccionImporter extends Importer
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'La importación de colecciones terminó correctamente.';
+        $body = 'La importación de fondos  terminó correctamente.';
 
         $successfulRows = $import->successful_rows;
 

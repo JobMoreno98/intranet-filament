@@ -4,7 +4,7 @@
     @php
         $color = Auth::check() ? 'bg-zinc-950' : 'bg-white';
         // Puedes mover esto también al ViewModel si lo deseas, por ahora se queda:
-        $esVideo = $esVideo ?? $registro->tipo_media === 'video' || $registro->tipo_media === 'audio';
+        $esVideo = $esVideo ?? $recurso->tipo_media === 'video' || $recurso->tipo_media === 'audio';
     @endphp
     <section class="{{ $color }} min-h-screen">
         <div class="flex flex-col lg:flex-row h-screen">
@@ -161,7 +161,7 @@
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 window.initVideoVisor({
-                    src: "/videos/{{ $registro->id }}/{{ $registro->id }}.m3u8"
+                    src: "/videos/{{ $recurso->id }}/{{ $recurso->id }}.m3u8"
                 });
             });
         </script>
@@ -171,7 +171,7 @@
                 const paginaSolicitada = {{ $paginaSolicitada ?? 1 }};
                 window.initVisor({
                     paginas: @json($paginas),
-                    recursoId: {{ $registro->id }},
+                    recursoId: {{ $recurso->id }},
                     paginaInicial: paginaSolicitada,
                     startIndex: paginaSolicitada > 0 ? paginaSolicitada - 1 : 0
                 });

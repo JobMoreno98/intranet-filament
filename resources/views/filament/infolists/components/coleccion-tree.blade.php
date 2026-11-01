@@ -2,7 +2,7 @@
     @php $record = $getRecord(); @endphp
 
     @if($record->children->isEmpty())
-        <p class="text-sm text-zinc-500 italic">Esta colección no tiene subcolecciones descendientes.</p>
+        <p class="text-sm text-zinc-500 italic">Este fondo no tiene subfondos descendientes.</p>
     @else
         <ul class="space-y-2">
             @foreach($record->children()->orderBy('nombre')->get() as $child)
