@@ -22,7 +22,7 @@ class RegistroViewModel extends ViewModel
 
     public function coleccionNombre(): string
     {
-        return $this->recurso->coleccion ?? '';
+        return $this->recurso->coleccion->nombre ?? '';
     }
 
     public function tablaNombre(): string
