@@ -24,7 +24,6 @@ class ReportesController extends Controller
         }
 
         $datos = $request->validate([
-            'correo' => ['required', 'email:rfc', 'max:255'],
             'observaciones' => ['required', 'string', 'min:10', 'max:1000'],
             'cf-turnstile-response' => ['required'],
         ], [
@@ -45,7 +44,7 @@ class ReportesController extends Controller
 
         // Guarda el reporte (ajusta a tu modelo/tabla)
         $registro->reportes()->create([
-            'correo' => $datos['correo'],
+            'correo' => Auth::user()->email,
             'observaciones' => $datos['observaciones'],
             'recursos_id' => $registro->id,
             'user_id'       => Auth::id(), 
