@@ -35,10 +35,10 @@ class ReportesForm
                     ->disabled(),
 
 
-                DateTimePicker::make('created_at')
+                DateTimePicker::make('Reportado')
                     ->disabled(),
 
-                DateTimePicker::make('updated_at')
+                DateTimePicker::make('Cerrado')
                     ->disabled(),
 
                 Toggle::make('resuelto')

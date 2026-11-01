@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('reportes', function (Blueprint $table) {
-            $table->foreignId('admin_id')->constrained('admin')->onDelete('cascade')->nullable();
+            $table->foreignId('admin_id')->nullable()->constrained('admin')->onDelete('set null');
         });
     }
 
