@@ -89,22 +89,16 @@
 
                 <!-- SVG Claro: Se oculta cuando el modo oscuro está activo -->
                 <img src="{{ asset('img/arreola-blanco.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="block dark:hidden h-15 mr-3 sm:h-15">
+                    class="block dark:hidden h-16 mr-3 sm:h-16">
 
                 <!-- SVG Oscuro: Permanece oculto hasta que el modo oscuro se activa -->
                 <img src="{{ asset('img/arreola-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="hidden dark:block h-15 mr-3 sm:h-15">
-
-                <img src="{{ asset('img/bpej.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="block dark:hidden h-8 mr-3 sm:h-8">
-
-                <img src="{{ asset('img/bpej-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
-                    class="hidden dark:block h-8 mr-3 sm:h-8">
+                    class="hidden dark:block h-16 mr-3 sm:h-16">
             </a>
 
             {{-- Texto siempre visible: en móvil baja a su propia fila (order-last), en lg va entre logo y botones --}}
             <p
-                class="order-last w-full text-center text-md leading-snug text-zinc-700 dark:text-zinc-200 lg:order-none lg:w-auto lg:flex-1 lg:min-w-0">
+                class="hidden md:block order-last w-full text-center text-md leading-snug text-zinc-700 dark:text-zinc-200 lg:order-none lg:w-auto lg:flex-1 lg:min-w-0">
                 Arreola Histórica es el buscador y repositorio digital de los acervos históricos de la Biblioteca
                 Pública del Estado de Jalisco de la Universidad de Guadalajara.
             </p>

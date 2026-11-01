@@ -96,14 +96,14 @@ func processImage(task ProcessingTask) {
 
 	thumbPath := filepath.Join(outputDir, "thumb.webp")
 	mainPath := filepath.Join(outputDir, "main.webp")
-	watermark := "/var/www/html/bpej/public/img/logo.svg" // Definición de tu marca de agua
+	//watermark := "/var/www/html/bpej/public/img/logo.svg" // Definición de tu marca de agua
 
 	// Construimos los argumentos de Magick integrando la marca de agua
 	args := []string{
 		cleanPath,
 		"-resize", "2500x>", // Redimensiona primero
 		"-background", "none",
-		"-size", "150x", watermark, // Carga la marca de agua
+		//"-size", "150x", watermark, // Carga la marca de agua
 		"-gravity", "south-east", "-geometry", "+50+50", // La posiciona
 		"-composite", // Las fusiona
 		"-quality", "80",
@@ -580,7 +580,7 @@ func extractPages(info string) int {
 
 func processPdf(task ProcessingTask) {
 	log.Printf("--- Iniciando PDF: %s ---", task.Path)
-	watermark := "/var/www/html/bpej/public/img/logo.svg"
+	//watermark := "/var/www/html/bpej/public/img/logo.svg"
 
 	// 1. Obtener total de páginas
 	cmdInfo := exec.Command("pdfinfo", task.Path)
@@ -627,7 +627,7 @@ func processPdf(task ProcessingTask) {
 		// Usamos el PNG como fuente y guardamos directamente en .webp
 		watermarkCmd := exec.Command(binary,
 			actualPng,
-			"-background", "none", "-size", "150x", watermark,
+			//"-background", "none", "-size", "150x", watermark,
 			"-gravity", "south-east", "-geometry", "+50+50",
 			"-composite",
 			"-quality", "80",

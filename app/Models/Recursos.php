@@ -54,6 +54,7 @@ class Recursos extends Model
             'fondo' => $this->coleccion->nombre ?? null,
             'status' => $this->status,
             'archivos' => $paginas->isNotEmpty(),
+            'publico' => $this->visible,
         ];
 
         if ($this->coleccion) {

@@ -271,11 +271,6 @@ class ColeccionesConsultaController extends Controller
                 ->setAttributesToHighlight(['*'])
                 ->setAttributesToCrop(['descripcion', 'texto', 'biografia', 'ocr'])
                 ->setCropLength(25);
-
-            // Los filtros avanzados (tipos, fondos, metadata.*) usan campos que
-            // solo existen en el esquema del índice "recursos". Aplicarlos a
-            // "coleccions" o "paginas_index" rompe el multiSearch completo,
-            // porque Meilisearch valida todo el batch antes de ejecutar nada.
             $filtrosLocales = $meta === 'recursos' ? $filtrosBase : [];
 
             // Inyectar el filtro de acervo si existe (dependiendo del índice)
