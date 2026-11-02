@@ -69,7 +69,8 @@ class ReportesTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ])->defaultSort('created_at', 'desc')
+            ])
+            ->defaultSort('created_at', 'desc')
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([10, 25, 50])
             ->deferLoading()

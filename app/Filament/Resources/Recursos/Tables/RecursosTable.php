@@ -112,6 +112,9 @@ class RecursosTable
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->deferLoading()
+            ->emptyStateHeading('Sin recursos')
+            ->emptyStateDescription('Aún no hay contenido.');
     }
 }
