@@ -62,13 +62,12 @@
                                     <!-- Acervo o Nombre de Colección -->
                                     <td class="p-4 dark:text-white">
                                         @if ($res['tipo'] === 'documento')
-                                            {{ $res['acervo'] ?? '---' }}
+                                            {{ $res['fondo'] ?? '---' }}
                                         @elseif ($res['tipo'] === 'coleccion')
                                             {{ $res['titulo_resultado'] ?? '---' }}
                                         @endif
                                     </td>
                                     <td class="p-4 dark:text-white">
-
                                         {{ $res['coleccion'] ?? '---' }}
                                     </td>
 
@@ -113,7 +112,9 @@
                                 <!-- Encabezado de la Card -->
                                 <div>
                                     <span
-                                        class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider font-semibold inline-block mt-1">{{ $res['tipo'] }}</span>
+                                        class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider font-semibold inline-block mt-1">
+                                        {{ $res['tipo'] }}
+                                    </span>
                                 </div>
 
                                 <!-- Contenido / Extracto -->

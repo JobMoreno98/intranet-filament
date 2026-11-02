@@ -18,7 +18,7 @@
 @section('content')
     <section>
         <div
-            class="mx-auto sm:px-7 px-2 md:max-w-screen-xl py-10 flex gap-10 flex flex-col lg:flex-row items-center max-w-[400px] sm:max-w-[340px]">
+            class="mx-auto sm:px-7 px-2 md:max-w-screen-xl flex gap-10 flex flex-col lg:flex-row items-center max-w-[400px] sm:max-w-[340px]">
 
             <article
                 class="relative w-full rounded-2xl bg-gradient-to-br from-[#131f30] via-[#1a2a40] to-[#0f172a] text-white p-6 sm:p-8 md:p-10 shadow-xl overflow-hidden border border-white/10 my-6">
@@ -33,13 +33,9 @@
                     class="absolute -bottom-12 -right-12 w-48 h-48 bg-[rgb(233,79,53)] rounded-full blur-3xl opacity-25 pointer-events-none">
                 </div>
 
-                <div
-                    class="relative w-full z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-
+                <div class=" w-full">
                     {{-- Contenido principal del texto --}}
                     <div class="flex flex-col gap-3 max-w-7xl">
-
-
                         {{-- Badge o Etiqueta superior --}}
                         <div class="inline-flex items-center gap-2 self-start">
                             <span class="flex h-2 w-2 rounded-full bg-[rgb(233,79,53)] animate-pulse"></span>
@@ -50,11 +46,9 @@
 
                         {{-- Título de Bienvenida --}}
                         <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                            <div class="w-full bg-[var(--color-guinda)] py-2 px-4 my-2 rounded-md dark:bg-red-700">
-                                <div class="max-w-6xl mx-auto text-center flex flex-col gap-3">
-                                    <span class="text-white text-md uppercase tracking-[0.2em] font-bold">
-                                        SALA ARREOLA
-                                    </span>
+                            <div class="w-full py-2 my-2 rounded-md ">
+                                <div class="max-full mx-auto flex flex-col">
+                                    SALA ARREOLA
                                 </div>
                             </div>
                             Un espacio dedicado a la <span class="text-[rgb(233,79,53)]">memoria</span>.
@@ -78,7 +72,7 @@
             </article>
         </div>
         <section>
-            <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10" data-aos="fade-up" data-aos-duration="500">
+            <div class="mx-auto w-full max-w-7xl px-4 sm:px-7" data-aos="fade-up" data-aos-duration="500">
                 <x-slider :posts="$blogs" />
             </div>
         </section>
