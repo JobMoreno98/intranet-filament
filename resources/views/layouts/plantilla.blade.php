@@ -251,12 +251,14 @@
                             Búsqueda <br /> avanzada
                         </flux:button>
                     </div>
-                    @php $alcance = request('alcance', 'todos'); @endphp
 
-                    <div class="mt-3 flex flex-wrap items-center gap-2">
-                        <span class="text-xs uppercase tracking-wide text-white/70">Mostrar:</span>
+                </div>
+                @php $alcance = request('alcance', 'todos'); @endphp
 
-                        <label class="cursor-pointer">
+                <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <span class="text-xs uppercase tracking-wide text-white/70">Mostrar:</span>
+
+                    <div> <label class="cursor-pointer">
                             <input type="radio" name="alcance" value="todos" class="peer sr-only"
                                 @checked($alcance === 'todos')>
                             <span
@@ -273,7 +275,9 @@
                                 Solo con material digitalizado
                             </span>
                         </label>
+
                     </div>
+
                 </div>
             </form>
         </div>
