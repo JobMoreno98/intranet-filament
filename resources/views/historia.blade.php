@@ -1,11 +1,9 @@
 @php
-    // REEMPLAZA con los datos reales
-    $direccion = 'Periférico Norte Manuel Gómez Morín no. 1695, Col. Belenes, 
-C.P. 45100, Zapopan, Jalisco, México';
-    $telefono = '33 0000 0000';
+    $direccion = 'Periférico Norte Manuel Gómez Morín no. 1695, Col. Belenes,  C.P. 45100, Zapopan, Jalisco, México';
+    $telefono = '33 3836 4530';
     $correo = 'arreola.historica@udg.mx';
 
-    // Clave = día ISO (1 = lunes ... 7 = domingo). Usa null para "Cerrado".
+    // Clave = día ISO (1 = lunes ... 7 = domingo), null para "Cerrado".
     $bibliotecas = [
         [
             'nombre' => 'Biblioteca Histórica',
