@@ -6,78 +6,67 @@ use App\Models\Admin;
 use App\Models\Reportes;
 use App\Notifications\NewReportCreatedNotification;
 use App\Notifications\ReportResolvedNotification;
-use Illuminate\Support\Facades\Notification;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
+use Illuminate\Support\Facades\Notification;
 
 class ReportObserver
 {
     /**
-     * Handle the Reportes "created" event.
+     * Se ejecuta al crear el reporte.
      */
     public function created(Reportes $reportes): void
     {
-        // 1. Enviar CORREO al usuario que reportó
-        if ($reportes->user) {
+        // 1. Enviar CORREO a quien reportó (Usuario registrado o columna 'correo')
+        if ($reportes->user && filled($reportes->user->email)) {
             $reportes->user->notify(new NewReportCreatedNotification($reportes));
+        } elseif (filled($reportes->correo)) {
+            Notification::route('mail', $reportes->correo)
+                ->notify(new NewReportCreatedNotification($reportes));
         }
 
-        // 2. Enviar NOTIFICACIÓN INTERNA (Campanita) a los admins con permiso de editar
+        // 2. Enviar NOTIFICACIÓN INTERNA (Campanita) a los admins con permiso o Super Admin
         $admins = Admin::permission('update:reportes')
-            ->orWhereHas('roles', fn($q) => $q->where('name', 'super_admin'))
+            ->orWhereHas('roles', fn($q) => $q->whereIn('name', ['super_admin', 'Super Admin']))
             ->get();
 
-        \Log::info('Enviando notificación a IDs: ' . $admins->pluck('id')->implode(', '));
-
         if ($admins->isNotEmpty()) {
-            FilamentNotification::make()
+            $nombreUsuario = $reportes->user?->name ?? $reportes->correo ?? 'Anónimo';
+            $tituloRecurso = $reportes->recurso?->metadata['titulo'] ?? "Recurso #{$reportes->recursos_id}";
+
+            $notification = FilamentNotification::make()
                 ->title("Nuevo reporte recibido (#{$reportes->id})")
-                ->body("Usuario: {$reportes->user?->name} - Motivo: " . ($reportes->observaciones ?? $reportes->motivo ?? 'Sin especificar'))
+                ->body("De: {$nombreUsuario} — Recurso: {$tituloRecurso}")
                 ->icon('heroicon-o-exclamation-triangle')
                 ->warning()
                 ->actions([
                     Action::make('view')
-                        ->label('Atender reporte')
-                        ->url("/admin/reportes/{$reportes->id}/edit")
+                        ->label('Ver reportes')
+                        // Como desactivaste EditAction y resuelves en la tabla, apunta al listado:
+                        ->url("/admin/reportes")
                         ->markAsRead(),
                 ])
-                ->sendToDatabase($admins);
-        }
-    }
+                ->toDatabase();
 
-    /**
-     * Handle the Reportes "updated" event.
-     */
-    public function updated(Reportes $reportes): void
-    {
-        if ($reportes->wasChanged('status') && $reportes->status === 'resolved') {
-            if ($reportes->user) {
-                $reportes->user->notify(new ReportResolvedNotification($reportes));
+            foreach ($admins as $admin) {
+                $admin->notifyNow($notification);
             }
         }
     }
 
     /**
-     * Handle the Reportes "deleted" event.
+     * Se ejecuta cuando el admin da clic en "Marcar como resuelto" en ReportesTable.
      */
-    public function deleted(Reportes $reportes): void
+    public function updated(Reportes $reportes): void
     {
-        //
-    }
-
-    /**
-     * Handle the Reportes "restored" event.
-     */
-    public function restored(Reportes $reportes): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Reportes "force deleted" event.
-     */
-    public function forceDeleted(Reportes $reportes): void
-    {
-        //
+        // Verificamos que el campo 'resuelto' haya pasado de vacío a tener contenido
+        if ($reportes->wasChanged('resuelto') && filled($reportes->resuelto)) {
+            if ($reportes->user && filled($reportes->user->email)) {
+                $reportes->user->notify(new ReportResolvedNotification($reportes));
+            } elseif (filled($reportes->correo)) {
+                Notification::route('mail', $reportes->correo)
+                    ->notify(new ReportResolvedNotification($reportes));
+            }
+        }
     }
 }

@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Admin extends Authenticatable  implements FilamentUser
+class Admin extends Authenticatable implements FilamentUser
 {
     use Notifiable;
     use HasRoles;
+
     protected string $guard_name = 'admin';
 
     protected $table = 'admin';
@@ -33,27 +34,14 @@ class Admin extends Authenticatable  implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') {
-            return $this->hasRole('admin') || $this->hasRole('super_admin');
+            return $this->hasRole('admin') || $this->hasRole('super_admin') || $this->hasRole('Super Admin');
         }
 
         return true;
     }
+
     public function receivesBroadcastNotificationsOn(): string
     {
-        return 'App.Models.User.' . $this->getKey();
-    }
-    public function getFilamentDatabaseNotificationType(): string
-    {
-        return 'App\Models\User';
-    }
-    public function notifications()
-    {
-        return $this->hasMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable_id')
-            ->whereIn('notifiable_type', [
-                'App\Models\User',
-                'App\Models\Admin',
-                'admin'
-            ])
-            ->latest();
+        return 'App.Models.Admin.' . $this->getKey();
     }
 }

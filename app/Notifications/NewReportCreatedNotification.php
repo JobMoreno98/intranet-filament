@@ -7,29 +7,30 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Filament\Notifications\Notification as FilamentNotification;
-use Filament\Actions\Action;
 
-class NewReportCreatedNotification extends Notification
+class NewReportCreatedNotification extends Notification implements ShouldQueue
 {
-
     use Queueable;
 
-    public function __construct(public Reportes $reportes) {}
+    public function __construct(public Reportes $reportes)
+    {}
 
     public function via(object $notifiable): array
     {
-        return ['mail']; // Solo correo para el usuario
+        return ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
+        $saludo = isset($notifiable->name) ? "¡Hola {$notifiable->name}!" : '¡Hola!';
+        $tituloRecurso = $this->reportes->recurso?->metadata['titulo'] ?? 'un recurso de la plataforma';
+
         return (new MailMessage)
             ->subject("Hemos recibido tu reporte")
-            ->greeting("¡Hola {$notifiable->name}!")
-            ->line("Te confirmamos que hemos recibido tu reporte.")
-            ->line("Motivo registrado: " . ($this->reportes->observaciones ?? $this->reportes->motivo ?? 'Sin especificar'))
-            ->line('Nuestro equipo revisará la situación y te notificaremos por este medio en cuanto haya sido resuelta.')
+            ->greeting($saludo)
+            ->line("Confirmamos la recepción de tu reporte referente a **{$tituloRecurso}**.")
+            ->line("**Observaciones registradas:** {$this->reportes->observaciones}")
+            ->line('Nuestro equipo revisará la información y te notificaremos por este medio en cuanto quede resuelto.')
             ->salutation('Saludos cordiales.');
     }
 }

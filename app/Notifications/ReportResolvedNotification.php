@@ -22,14 +22,17 @@ class ReportResolvedNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        // Si es un usuario registrado toma su nombre; si se envió por Notification::route('mail', $correo), dice 'Hola'
+        $saludo = isset($notifiable->name) ? "¡Hola {$notifiable->name}!" : '¡Hola!';
+        $tituloRecurso = $this->reportes->recurso?->metadata['titulo'] ?? 'el recurso reportado';
+
         return (new MailMessage)
-            ->subject("Tu reporte #{$this->reportes->id} ha sido resuelto")
-            ->greeting("¡Hola {$notifiable->name}!")
-            ->line("Te informamos que el reporte #{$this->reportes->id} que realizaste en la plataforma ya fue atendido y resuelto.")
-            ->when($this->reportes->admin_notes ?? null, function (MailMessage $mail, string $notas) {
-                return $mail->line("Respuesta del administrador: {$notas}");
-            })
-            ->line('Agradecemos mucho tu colaboración para mejorar la plataforma.')
+            ->subject("Tu reporte ha sido resuelto")
+            ->greeting($saludo)
+            ->line("Te informamos que hemos atendido y resuelto el reporte que realizaste sobre **{$tituloRecurso}**.")
+            ->line("**Tu reporte:** {$this->reportes->observaciones}")
+            ->line("**Resolución del equipo:** {$this->reportes->resuelto}")
+            ->line('Agradecemos tu colaboración para mejorar la calidad de nuestro acervo.')
             ->salutation('Saludos cordiales.');
     }
 }

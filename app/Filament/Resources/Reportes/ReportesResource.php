@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ReportesResource extends Resource
 {
@@ -53,7 +54,16 @@ class ReportesResource extends Resource
         return [
             'index' => ListReportes::route('/'),
             //'create' => CreateReportes::route('/create'),
-            'edit' => EditReportes::route('/{record}/edit'),
+            //'edit' => EditReportes::route('/{record}/edit'),
         ];
+    }
+    public static function canEdit(Model $record): bool
+    {
+        return blank($record->resuelto);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return blank($record->resuelto);
     }
 }

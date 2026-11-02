@@ -47,9 +47,12 @@ class ReportesController extends Controller
             'correo' => Auth::user()->email,
             'observaciones' => $datos['observaciones'],
             'recursos_id' => $registro->id,
-            'user_id'       => Auth::id(), 
+            'user_id'       => Auth::id(),
         ]);
-        
+
+        $mensaje = 'Gracias por tu reporte.';
+
+        return redirect()->route('buscador.registro', ['tipo' => 'documento', 'recurso' => $registro])->with('success', $mensaje);
 
         return back()->with('success', 'Gracias por tu reporte.');
     }

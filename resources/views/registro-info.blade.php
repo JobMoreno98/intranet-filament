@@ -1,6 +1,8 @@
 @extends('layouts.plantilla')
 
+
 @section('content')
+
     <section class="dark:bg-zinc-950">
         <div class="max-w-5xl mx-auto px-4 py-6 lg:py-10 space-y-10">
             <a href="{{ url()->previous() }}"
@@ -9,7 +11,27 @@
                 <x-heroicon-o-arrow-left class="w-4 h-4" />
                 Volver
             </a>
+            @if (session('success'))
+                <div x-data="{ open: true }" x-show="open" x-transition
+                    class="mb-4 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+                    role="alert">
+                    <div class="flex items-center gap-3">
+                        <svg class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" fill="none"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-sm font-medium">{{ session('success') }}</span>
+                    </div>
 
+                    <button type="button" @click="open = false"
+                        class="rounded-md p-1 text-emerald-600 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:bg-emerald-900/50">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            @endif
             <div
                 class="rounded-2xl border bg-white 
                 shadow-sm overflow-hidden dark:bg-zinc-900 dark:shadow-none">

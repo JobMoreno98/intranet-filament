@@ -38,7 +38,7 @@ class ReportesForm
                 DateTimePicker::make('Cerrado')
                     ->disabled(),
                     
-                Textarea::make('resuelto')->required(),
+                Textarea::make('resuelto')->required()->disabled(fn(?Model $record) => $record && $record->admin_id !== null),
 
                 Toggle::make('status')
                     ->label('Atender reporte')

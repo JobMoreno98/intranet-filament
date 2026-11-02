@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reportes', function (Blueprint $table) {
-            $table->tinyInteger('status')->default(1)->nullable();
+            $table->tinyInteger('status')->default(0)->nullable();
 
         });
     }

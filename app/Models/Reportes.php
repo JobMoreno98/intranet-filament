@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 class Reportes extends Model
 {
     protected $guarded = [];
-    
+
     public function recurso(): BelongsTo
     {
         return $this->belongsTo(Recursos::class, 'recursos_id');
@@ -28,5 +28,9 @@ class Reportes extends Model
         return $query->where(function (Builder $q) {
             $q->whereNull('resuelto')->orWhere('resuelto', '');
         });
+    }
+    public static function canEdit(Model $record): bool
+    {
+        return blank($record->resuelto) || filament()->auth()->user()?->isSuperAdmin(); // ajusta a tu sistema de roles
     }
 }
