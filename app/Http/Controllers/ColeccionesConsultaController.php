@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Meilisearch\Contracts\SearchQuery;
 use Illuminate\Validation\Rule;
-
+use App\Support\FiltroAvanzado;
 
 class ColeccionesConsultaController extends Controller
 {
@@ -25,12 +25,7 @@ class ColeccionesConsultaController extends Controller
      * Cliente Meilisearch compartido por los métodos que hacen búsquedas,
      * en vez de instanciar uno nuevo en cada método.
      */
-    protected MeilisearchClient $meili;
-
-    public function __construct()
-    {
-        $this->meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
-    }
+    public function __construct(protected MeilisearchClient $meili) {}
 
     public function index(Request $request)
     {
@@ -193,72 +188,20 @@ class ColeccionesConsultaController extends Controller
     // 2. Nuevo Método Exclusivo para Búsqueda Avanzada
     public function busquedaAvanzada(Request $request)
     {
-        $request->validate([
-            'acervo' => ['required', 'exists:tipo_acervos,id'],
-            'q' => ['nullable', 'array'],
-            'fondos' => ['nullable', 'array'],
-        ]);
-
-        $filas = $request->input('q') ?? [];
-        $filtrosAvanzados = [];
-        $terminosGlobales = [];
-        $camposPrioritarios = [];
-        $terminosDescriptivos = [];
-
-        // Filtros de Fondos
-        if ($request->filled('fondos') && !in_array('Todos', $request->input('fondos'))) {
-            $fondos = array_map(fn($f) => "fondo = \"" . $this->escaparFiltroMeili($f) . "\"", $request->input('fondos'));
-            $filtrosAvanzados[] = '(' . implode(' OR ', $fondos) . ')';
-        }
-
-        // Procesar TODAS las filas (sin ignorar la 0)
-        $stringFilas = '';
-
-        foreach ($filas as $fila) {
-            if (empty($fila['termino'])) {
-                continue;
-            }
-
-            if ($fila['campo'] === 'all') {
-                // Se acumulan para la búsqueda global (Full-Text)
-                $terminosGlobales[] = $fila['termino'];
-                $terminosDescriptivos[] = $fila['termino'];
-            } else {
-                // Se envían como filtros específicos de Meilisearch
-                $campo = "metadata.{$fila['campo']}";
-                $condicion = "{$campo} CONTAINS \"" . $this->escaparFiltroMeili($fila['termino']) . "\"";
-
-                // Los filtros no generan highlighting (<em>) en Meilisearch, solo la
-                // búsqueda de texto lo hace. Mandamos el mismo término como texto
-                // libre para que el snippet muestre en qué campo se encontró.
-                $terminosGlobales[] = $fila['termino'];
-                $camposPrioritarios[] = $fila['campo'];
-                $terminosDescriptivos[] = ucfirst($fila['campo']) . ': ' . $fila['termino'];
-
-                if (empty($stringFilas)) {
-                    $stringFilas = $fila['operador'] === 'NOT' ? "NOT {$condicion}" : $condicion;
-                } else {
-                    $operador = $fila['operador'] === 'NOT' ? 'AND NOT' : $fila['operador'];
-                    $stringFilas .= " {$operador} {$condicion}";
-                }
-            }
-        }
-
-        if (!empty($stringFilas)) {
-            $filtrosAvanzados[] = "({$stringFilas})";
-        }
-
-        $term = implode(' ', $terminosGlobales);
+        $r = FiltroAvanzado::construir(
+            $request->input('q') ?? [],
+            $request->input('fondos') ?? []
+        );
 
         return $this->procesarMultiSearch(
-            term: $term,
-            filtrosBase: $filtrosAvanzados,
+            term: $r['termino'],
+            filtrosBase: $r['filtros'],
             request: $request,
             tituloVista: 'Búsqueda Avanzada',
-            acervoId: $request->input('acervo'), // ← nuevo
-            camposPrioritarios: array_unique($camposPrioritarios),
-            terminoMostrar: implode(', ', $terminosDescriptivos),
-            indices: ['recursos'], // ← nuevo
+            acervoId: $request->input('acervo'),
+            camposPrioritarios: $r['campos'],
+            terminoMostrar: $r['descripcion'],
+            indices: ['recursos'],
         );
     }
     // 3. Motor Centralizado (Privado) que ejecuta Meilisearch para ambos métodos

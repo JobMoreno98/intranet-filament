@@ -20,6 +20,7 @@ use App\Filament\Imports\RecursoImporter;
 use App\Jobs\IndexarRecursosImportados;
 use Filament\Actions\Imports\Events\ImportCompleted;
 use Illuminate\Support\Facades\Event;
+use Meilisearch\Client as MeilisearchClient;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,8 +29,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(MeilisearchClient::class, fn() => new MeilisearchClient(
+            config('scout.meilisearch.host'),
+            config('scout.meilisearch.key'),
+        ));
     }
+
 
     /**
      * Bootstrap any application services.

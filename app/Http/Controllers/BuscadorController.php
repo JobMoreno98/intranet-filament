@@ -11,13 +11,7 @@ use Meilisearch\Client as MeilisearchClient;
 class BuscadorController extends Controller
 {
 
-    protected MeilisearchClient $meili;
-
-    public function __construct()
-    {
-        $this->meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
-    }
-
+    public function __construct(protected MeilisearchClient $meili) {}
     public function buscarEnRecurso(Request $request, Recursos $recurso)
     {
         abort_unless($recurso->visible, 404);

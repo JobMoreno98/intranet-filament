@@ -1,6 +1,6 @@
 <?php
 
-namespace Filament\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
 use Filament\Actions\Action;
@@ -19,6 +19,7 @@ use Filament\Widgets\WidgetConfiguration;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Artisan;
 use UnitEnum;
+use Filament\Pages\Page;
 
 class Dashboard extends Page
 {

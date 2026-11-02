@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Visitas;
 
 use App\Models\Visita;
 use App\Filament\Resources\Visitas\Pages\ManageVisitas;
