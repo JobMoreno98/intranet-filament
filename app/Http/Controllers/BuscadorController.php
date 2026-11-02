@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Recursos;
+use Illuminate\Support\Facades\Log;
 use Meilisearch\Contracts\SearchQuery;
 
 class BuscadorController extends Controller
