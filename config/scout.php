@@ -170,7 +170,8 @@ return [
                     'metada_text',
                     'archivos',
                     'fondo',
-                    ''
+                    'metadata',        // incluye todos los subcampos: metadata.titulo, etc.
+                    'status',
                 ],
             ],
 
