@@ -102,10 +102,10 @@ func processImage(task ProcessingTask) {
 	args := []string{
 		cleanPath,
 		"-resize", "2500x>", // Redimensiona primero
-		"-background", "none",
+		//"-background", "none",
 		//"-size", "150x", watermark, // Carga la marca de agua
-		"-gravity", "south-east", "-geometry", "+50+50", // La posiciona
-		"-composite", // Las fusiona
+		//"-gravity", "south-east", "-geometry", "+50+50", // La posiciona
+		//"-composite", // Las fusiona
 		"-quality", "80",
 	}
 
@@ -628,8 +628,8 @@ func processPdf(task ProcessingTask) {
 		watermarkCmd := exec.Command(binary,
 			actualPng,
 			//"-background", "none", "-size", "150x", watermark,
-			"-gravity", "south-east", "-geometry", "+50+50",
-			"-composite",
+			//"-gravity", "south-east", "-geometry", "+50+50",
+			//"-composite",
 			"-quality", "80",
 			finalWebp)
 
