@@ -168,7 +168,9 @@ return [
                     'coleccion_id',
                     'status',
                     'metada_text',
-                    'archivos'
+                    'archivos',
+                    'fondo',
+                    ''
                 ],
             ],
 
