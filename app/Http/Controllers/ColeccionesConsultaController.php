@@ -402,6 +402,7 @@ class ColeccionesConsultaController extends Controller
 
         $uuids = $idsRecursos->isNotEmpty() ? Recursos::whereIn('id', $idsRecursos)->pluck('uuid', 'id') : collect();
 
+
         $currentItems = array_map(function ($res) use ($uuids) {
             if (in_array($res['tipo'], ['documento', 'pagina'], true)) {
                 // En el Blade del buscador se usa: $res['registro_uuid']

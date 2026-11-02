@@ -55,6 +55,7 @@ class Recursos extends Model
             'status' => $this->status,
             'archivos' => $paginas->isNotEmpty(),
             'publico' => $this->visible,
+            'registro_uuid' => $this->uuid
         ];
 
         if ($this->coleccion) {
