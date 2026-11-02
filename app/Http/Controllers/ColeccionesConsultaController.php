@@ -5,20 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Coleccion;
 use App\Models\Blog;
-use App\Models\ColeccionesConsulta;
 use App\Models\Recursos;
 use App\Models\TipoAcervo;
 use App\ViewModels\RegistroViewModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Meilisearch\Client as MeilisearchClient;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Schema;
 use Meilisearch\Contracts\SearchQuery;
+use Illuminate\Validation\Rule;
+
 
 class ColeccionesConsultaController extends Controller
 {
@@ -176,17 +175,21 @@ class ColeccionesConsultaController extends Controller
         $request->validate([
             'q' => ['required', 'string', 'min:1'],
             'acervo_id' => ['nullable', 'exists:tipo_acervos,id'],
+            'alcance' => ['nullable', Rule::in(['todos', 'digitalizados'])],
         ]);
+
+        $soloDigitalizados = $request->input('alcance') === 'digitalizados';
 
         return $this->procesarMultiSearch(
             term: $request->input('q'),
-            filtrosBase: [],
+            filtrosBase: $soloDigitalizados ? ['archivos = true'] : [],
             request: $request,
             tituloVista: 'Búsqueda General',
-            acervoId: $request->input('acervo_id')
+            acervoId: $request->input('acervo_id'),
+            // Las colecciones no tienen material digitalizado: se excluyen con este filtro
+            indices: $soloDigitalizados ? ['recursos'] : ['coleccions', 'recursos'],
         );
     }
-
     // 2. Nuevo Método Exclusivo para Búsqueda Avanzada
     public function busquedaAvanzada(Request $request)
     {
@@ -472,5 +475,4 @@ class ColeccionesConsultaController extends Controller
 
         return new RegistroViewModel($recurso, $paginaSolicitada);
     }
-
 }

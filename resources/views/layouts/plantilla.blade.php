@@ -251,6 +251,29 @@
                             Búsqueda <br /> avanzada
                         </flux:button>
                     </div>
+                    @php $alcance = request('alcance', 'todos'); @endphp
+
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <span class="text-xs uppercase tracking-wide text-white/70">Mostrar:</span>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="alcance" value="todos" class="peer sr-only"
+                                @checked($alcance === 'todos')>
+                            <span
+                                class="inline-flex items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/10 peer-checked:border-transparent peer-checked:bg-[rgb(233,79,53)] peer-focus-visible:ring-2 peer-focus-visible:ring-white">
+                                Todos los registros
+                            </span>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="alcance" value="digitalizados" class="peer sr-only"
+                                @checked($alcance === 'digitalizados')>
+                            <span
+                                class="inline-flex items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/10 peer-checked:border-transparent peer-checked:bg-[rgb(233,79,53)] peer-focus-visible:ring-2 peer-focus-visible:ring-white">
+                                Solo con material digitalizado
+                            </span>
+                        </label>
+                    </div>
                 </div>
             </form>
         </div>

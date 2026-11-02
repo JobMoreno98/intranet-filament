@@ -167,7 +167,8 @@ return [
                     'acervo_id',
                     'coleccion_id',
                     'status',
-                    'metada_text'
+                    'metada_text',
+                    'archivos'
                 ],
             ],
 

@@ -23,7 +23,8 @@ class Recursos extends Model
         'assets_procesados' => 'array',
         'path_original' => 'array',
         'visible' => 'boolean',
-        'fijado' => 'boolean'
+        'fijado' => 'boolean',
+        'publico' => 'boolean'
 
     ];
 
@@ -55,7 +56,8 @@ class Recursos extends Model
             'status' => $this->status,
             'archivos' => $paginas->isNotEmpty(),
             'publico' => $this->visible,
-            'registro_uuid' => $this->uuid
+            'registro_uuid' => $this->uuid,
+            'digitalizado' => $paginas->isNotEmpty() || ! empty($this->assets_procesados),
         ];
 
         if ($this->coleccion) {
