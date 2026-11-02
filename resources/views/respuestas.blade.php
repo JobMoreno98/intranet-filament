@@ -18,6 +18,7 @@
     <section class="bg-gray-50 min-h-screen dark:bg-zinc-700 dark:text-white">
         <!-- Tabla de Resultados Coincidentes -->
         <div class="mx-auto sm:px-7 px-3 max-w-screen-xl py-6">
+
             <div class="mb-4">
                 <!-- Título dinámico enviado desde el controlador -->
                 <h2 class="text-xl font-bold text-gray-800 mb-2 dark:text-white">{{ $title ?? 'Resultados de Búsqueda' }}
@@ -62,7 +63,7 @@
                                     <td class="p-4 dark:text-white">
                                         @if ($res['tipo'] === 'documento')
                                             {{ $res['acervo'] ?? '---' }}
-                                        @elseif ($res['tipo'] === 'coleccion' || $res['tipo'] === 'pagina')
+                                        @elseif ($res['tipo'] === 'coleccion')
                                             {{ $res['titulo_resultado'] ?? '---' }}
                                         @endif
                                     </td>
@@ -87,12 +88,6 @@
                                             <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-guinda hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver colección
-                                            </a>
-                                        @elseif ($res['tipo'] === 'pagina' && $res['registro_id'])
-                                            <!-- Enviamos la variable 'page' en la URL -->
-                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res['registro_uuid'], 'page' => $res['orden_pagina'] ?? 1]) }}"
-                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-guinda hover:bg-green-700 rounded-lg transition shadow-sm whitespace-nowrap">
-                                                Ir a Pág. {{ $res['orden_pagina'] ?? 1 }}
                                             </a>
                                         @endif
                                     </td>
@@ -142,11 +137,6 @@
                                         <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
                                             class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
                                             Ver colección
-                                        </a>
-                                    @elseif ($res['tipo'] === 'pagina' && !empty($res['registro_uuid']))
-                                        <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res['registro_uuid'], 'page' => $res['orden_pagina'] ?? 1]) }}"
-                                            class="w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition shadow-sm">
-                                            Ir a Pág. {{ $res['orden_pagina'] ?? 1 }}
                                         </a>
                                     @endif
                                 </div>

@@ -266,8 +266,7 @@
 
                 <div class="text-black flex flex-col ">
                     <div class="w-full">
-                        <div
-                            class="max-w-7xl mx-auto  flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="max-w-7xl mx-auto  flex flex-col md:flex-row items-center justify-between gap-6">
 
                             <!-- Contenedor de los logos -->
                             <a href="{{ route('home') }}"
@@ -282,17 +281,6 @@
                                 <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
                                     aria-hidden="true"></span>
 
-                                <!-- 2. Logo BPEJ -->
-                                <img src="{{ asset('img/bpej.svg') }}" alt="Biblioteca Pública del Estado de Jalisco"
-                                    class="block dark:hidden h-8 sm:h-10 w-auto object-contain">
-                                <img src="{{ asset('img/bpej-oscuro.svg') }}"
-                                    alt="Biblioteca Pública del Estado de Jalisco"
-                                    class="hidden dark:block h-8 sm:h-10 w-auto object-contain">
-
-                                <!-- Divisor vertical -->
-                                <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
-                                    aria-hidden="true"></span>
-
                                 <!-- 3. Logo SIUBIUDG -->
                                 <img src="{{ asset('img/siubi_negro.svg') }}"
                                     alt="Sistema Universitario de Bibliotecas"
@@ -301,6 +289,21 @@
                                 <img src="{{ asset('img/siubi_blanco.svg') }}"
                                     alt="Sistema Universitario de Bibliotecas"
                                     class="hidden dark:block h-13 sm:h-12 w-auto object-contain">
+
+
+
+                                <!-- Divisor vertical -->
+                                <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
+                                    aria-hidden="true"></span>
+
+
+
+                                <!-- 2. Logo BPEJ -->
+                                <img src="{{ asset('img/bpej.svg') }}" alt="Biblioteca Pública del Estado de Jalisco"
+                                    class="block dark:hidden h-8 sm:h-10 w-auto object-contain">
+                                <img src="{{ asset('img/bpej-oscuro.svg') }}"
+                                    alt="Biblioteca Pública del Estado de Jalisco"
+                                    class="hidden dark:block h-8 sm:h-10 w-auto object-contain">
                             </a>
                         </div>
                     </div>

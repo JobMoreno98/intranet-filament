@@ -100,7 +100,8 @@
                                             class="flex items-center gap-2 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full sm:w-64">
                                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-gray-400 ml-2 shrink-0" />
                                             <input id="ocr-search-input" type="text"
-                                                placeholder="Buscar en esta página..."
+                                                data-url="{{ route('recursos.buscar-ocr', $recurso) }}"
+                                                placeholder="Buscar en este documento..."
                                                 class="flex-1 min-w-0 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent" />
                                             <button id="ocr-search-btn"
                                                 class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition shrink-0">Buscar</button>
@@ -121,6 +122,15 @@
                                     <button id="btn-reset-zoom"
                                         class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition text-xs border border-gray-200 h-8 flex items-center">Reiniciar</button>
                                 </div>
+                            </div>
+                            <div id="ocr-results"
+                                class="hidden absolute inset-y-0 right-0 w-72 max-w-[85%] z-20 flex-col bg-zinc-900/95 border-l border-zinc-700 shadow-2xl">
+                                <div class="flex items-center justify-between px-3 py-2 border-b border-zinc-700">
+                                    <span class="text-xs font-semibold text-zinc-200">Resultados en el documento</span>
+                                    <button id="ocr-results-close" type="button"
+                                        class="text-zinc-400 hover:text-white text-lg leading-none">×</button>
+                                </div>
+                                <ul id="ocr-results-list" class="flex-1 overflow-y-auto divide-y divide-zinc-800"></ul>
                             </div>
                         </div>
                     @endif
@@ -175,6 +185,94 @@
                     paginaInicial: paginaSolicitada,
                     startIndex: paginaSolicitada > 0 ? paginaSolicitada - 1 : 0
                 });
+                (() => {
+                    const input = document.getElementById('ocr-search-input');
+                    const btn = document.getElementById('ocr-search-btn');
+                    const count = document.getElementById('ocr-search-count');
+                    const panel = document.getElementById('ocr-results');
+                    const lista = document.getElementById('ocr-results-list');
+                    const cerrar = document.getElementById('ocr-results-close');
+                    if (!input || !btn || !panel) return;
+
+                    let controlador = null;
+
+                    const cerrarPanel = () => {
+                        panel.classList.add('hidden');
+                        panel.classList.remove('flex');
+                    };
+
+                    const abrirPanel = () => {
+                        panel.classList.remove('hidden');
+                        panel.classList.add('flex');
+                    };
+
+                    async function buscarEnDocumento() {
+                        const termino = input.value.trim();
+                        if (termino.length < 2) {
+                            cerrarPanel();
+                            return;
+                        }
+
+                        controlador?.abort();
+                        controlador = new AbortController();
+                        count.textContent = 'Buscando en el documento...';
+
+                        try {
+                            const resp = await fetch(`${input.dataset.url}?q=${encodeURIComponent(termino)}`, {
+                                headers: {
+                                    'Accept': 'application/json'
+                                },
+                                signal: controlador.signal,
+                            });
+                            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                            const data = await resp.json();
+
+                            lista.innerHTML = '';
+
+                            data.paginas.forEach((p) => {
+                                const li = document.createElement('li');
+                                const boton = document.createElement('button');
+                                boton.type = 'button';
+                                boton.className =
+                                    'w-full text-left px-3 py-2 hover:bg-zinc-800 transition';
+
+                                const etiqueta = document.createElement('span');
+                                etiqueta.className = 'block text-[11px] font-semibold text-indigo-400';
+                                etiqueta.textContent = 'Página ' + p.orden;
+
+                                const fragmento = document.createElement('span');
+                                fragmento.className =
+                                    'block text-xs text-zinc-300 [&_em]:not-italic [&_em]:bg-yellow-300 [&_em]:text-black';
+                                fragmento.innerHTML = p.snippet; // el servidor ya escapó el texto
+
+                                boton.append(etiqueta, fragmento);
+                                boton.addEventListener('click', () => {
+                                    window.visor?.irAPagina(p.orden);
+                                    window.visor?.resaltar(termino);
+                                });
+
+                                li.appendChild(boton);
+                                lista.appendChild(li);
+                            });
+
+                            count.textContent = data.total === 0 ?
+                                'Sin coincidencias en el documento' :
+                                `${data.total} página(s) con coincidencias`;
+
+                            data.total === 0 ? cerrarPanel() : abrirPanel();
+                        } catch (e) {
+                            if (e.name !== 'AbortError') {
+                                count.textContent = 'No se pudo buscar en el documento';
+                            }
+                        }
+                    }
+
+                    btn.addEventListener('click', buscarEnDocumento);
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') buscarEnDocumento();
+                    });
+                    cerrar?.addEventListener('click', cerrarPanel);
+                })();
             });
         </script>
     @endif

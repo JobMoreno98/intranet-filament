@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BuscadorController;
 use App\Http\Controllers\ChunkUploadController;
 use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\FavoritoController;
@@ -292,3 +293,8 @@ Route::middleware(['auth'])->group(function () {
     // Ruta POST (Solo necesaria si mantienes el formulario tradicional de Blade)
     Route::post('/mis-favoritos/toggle', [FavoritoController::class, 'toggle'])->name('favoritos.toggle');
 });
+
+
+Route::get('/recursos/{recurso}/buscar-ocr', [BuscadorController::class, 'buscarEnRecurso'])
+    ->middleware(['auth', 'throttle:60,1'])
+    ->name('recursos.buscar-ocr');

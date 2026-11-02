@@ -178,7 +178,13 @@ class ColeccionesConsultaController extends Controller
             'acervo_id' => ['nullable', 'exists:tipo_acervos,id'],
         ]);
 
-        return $this->procesarMultiSearch(term: $request->input('q'), filtrosBase: [], request: $request, tituloVista: 'Búsqueda General', acervoId: $request->input('acervo_id'));
+        return $this->procesarMultiSearch(
+            term: $request->input('q'),
+            filtrosBase: [],
+            request: $request,
+            tituloVista: 'Búsqueda General',
+            acervoId: $request->input('acervo_id')
+        );
     }
 
     // 2. Nuevo Método Exclusivo para Búsqueda Avanzada
@@ -253,8 +259,16 @@ class ColeccionesConsultaController extends Controller
         );
     }
     // 3. Motor Centralizado (Privado) que ejecuta Meilisearch para ambos métodos
-    private function procesarMultiSearch(string $term, array $filtrosBase, Request $request, string $tituloVista, $acervoId = null, array $camposPrioritarios = [], ?string $terminoMostrar = null, array $indices = ['coleccions', 'recursos', 'paginas_index'])
-    {
+    private function procesarMultiSearch(
+        string $term,
+        array $filtrosBase,
+        Request $request,
+        string $tituloVista,
+        $acervoId = null,
+        array $camposPrioritarios = [],
+        ?string $terminoMostrar = null,
+        array $indices = ['coleccions', 'recursos']
+    ) {
         $resultados = [];
 
         // Si no hay texto libre (búsqueda puramente por campo/metadata), no tiene
@@ -279,10 +293,9 @@ class ColeccionesConsultaController extends Controller
             if (!empty($acervoId)) {
                 if ($meta === 'recursos') {
                     $filtrosLocales[] = 'acervo_id = ' . $this->escaparFiltroMeili((string) $acervoId);
-                } elseif ($meta === 'paginas_index') {
-                    $filtrosLocales[] = 'libro_acervo_id = ' . $this->escaparFiltroMeili((string) $acervoId);
                 }
             }
+
 
             if (!empty($filtrosLocales)) {
                 // Unimos todos los bloques (checkboxes, filas dinámicas y acervo) con AND
@@ -396,7 +409,7 @@ class ColeccionesConsultaController extends Controller
         // sola consulta. Solo aplica a 'documento' y 'pagina', cuyo registro_id es un recurso;
         // en las colecciones el registro_id es de otra tabla y se enlaza por slug.
         $idsRecursos = collect($currentItems)
-            ->whereIn('tipo', ['documento', 'pagina'])
+            ->whereIn('tipo', ['documento'])
             ->pluck('registro_id')
             ->filter()
             ->unique();
@@ -405,8 +418,7 @@ class ColeccionesConsultaController extends Controller
 
 
         $currentItems = array_map(function ($res) use ($uuids) {
-            if (in_array($res['tipo'], ['documento', 'pagina'], true)) {
-                // En el Blade del buscador se usa: $res['registro_uuid']
+            if ($res['tipo'] === 'documento') {
                 $res['registro_uuid'] = $uuids[$res['registro_id']] ?? null;
             }
 
@@ -460,4 +472,5 @@ class ColeccionesConsultaController extends Controller
 
         return new RegistroViewModel($recurso, $paginaSolicitada);
     }
+
 }

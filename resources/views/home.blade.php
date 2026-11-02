@@ -33,10 +33,12 @@
                     class="absolute -bottom-12 -right-12 w-48 h-48 bg-[rgb(233,79,53)] rounded-full blur-3xl opacity-25 pointer-events-none">
                 </div>
 
-                <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div
+                    class="relative w-full z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
 
                     {{-- Contenido principal del texto --}}
-                    <div class="flex flex-col gap-3 max-w-2xl">
+                    <div class="flex flex-col gap-3 max-w-7xl">
+
 
                         {{-- Badge o Etiqueta superior --}}
                         <div class="inline-flex items-center gap-2 self-start">
@@ -48,14 +50,20 @@
 
                         {{-- Título de Bienvenida --}}
                         <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                            <div class="w-full bg-[var(--color-guinda)] py-2 px-4 my-2 rounded-md dark:bg-red-700">
+                                <div class="max-w-6xl mx-auto text-center flex flex-col gap-3">
+                                    <span class="text-white text-md uppercase tracking-[0.2em] font-bold">
+                                        SALA ARREOLA
+                                    </span>
+                                </div>
+                            </div>
                             Un espacio dedicado a la <span class="text-[rgb(233,79,53)]">memoria</span>.
                         </h2>
-
                         {{-- Parrafo descriptivo 
                         <p class="text-sm sm:text-base text-zinc-300 leading-relaxed">
                             Lorem ipsum
                         </p>
-                        --}}
+                        
                     </div>
 
                     <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full md:w-auto flex-shrink-0 pt-2 md:pt-0">
@@ -64,10 +72,17 @@
                             Búsqueda avanzada
                         </a>
                     </div>
+                    --}}
 
-                </div>
+                    </div>
             </article>
         </div>
+        <section>
+            <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10" data-aos="fade-up" data-aos-duration="500">
+                <x-slider :posts="$blogs" />
+            </div>
+        </section>
+
 
     </section>
 
@@ -107,18 +122,6 @@
         </div>
     </section>
 
-    <section>
-        <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10" data-aos="fade-up" data-aos-duration="500">
-            <div class="w-full bg-[var(--color-guinda)] py-2 px-4 my-2 rounded-md dark:bg-red-700">
-                <div class="max-w-6xl mx-auto text-center flex flex-col gap-3">
-                    <span class="text-white text-md uppercase tracking-[0.2em] font-bold">
-                        SALA ARREOLA
-                    </span>
-                </div>
-            </div>
-            <x-slider :posts="$blogs" />
-        </div>
-    </section>
 
     <section>
         <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10">

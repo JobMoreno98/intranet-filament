@@ -140,20 +140,21 @@ return [
     |
     */
 
-'meilisearch' => [
+    'meilisearch' => [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
-            
+
             // Configuramos el índice de las páginas (RecursosArchivos)
             RecursosArchivos::class => [
                 'filterableAttributes' => [
-                    'recursos_id', 
-                    'libro_coleccion_id', 
-                    'libro_acervo_id', 
+                    'recursos_id',
+                    'libro_coleccion_id',
+                    'libro_acervo_id',
                     'status',
                     'libro_status'
                 ],
+                'sortableAttributes' => ['orden'],
                 'searchableAttributes' => [
                     'ocr',
                     // Si agregas herencia de metadata al array, añádelo aquí
@@ -163,13 +164,13 @@ return [
             // Configuramos el índice del catálogo general (Recursos)
             Recursos::class => [
                 'filterableAttributes' => [
-                    'acervo_id', 
-                    'coleccion_id', 
+                    'acervo_id',
+                    'coleccion_id',
                     'status',
                     'metada_text'
                 ],
             ],
-            
+
             // Blog ya funciona bien, pero es buena práctica declararlo
             Blog::class => [
                 'filterableAttributes' => ['tags'],
