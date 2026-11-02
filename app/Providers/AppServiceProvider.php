@@ -14,10 +14,12 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
+use App\Filament\Imports\RecursoImporter;
+use App\Jobs\IndexarRecursosImportados;
+use Filament\Actions\Imports\Events\ImportCompleted;
+use Illuminate\Support\Facades\Event;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -59,9 +61,19 @@ class AppServiceProvider extends ServiceProvider
         Import::resolveRelationUsing('user', function ($importModel) {
             return $importModel->belongsTo(Admin::class, 'user_id');
         });
-        
+
         View::composer('*', function ($view) {
             $view->with('tiposAcervo', TipoAcervo::orderBy('nombre')->get());
+        });
+
+        Event::listen(ImportCompleted::class, function (ImportCompleted $event) {
+            $import = $event->getImport();
+
+            if ($import->importer !== RecursoImporter::class) {
+                return;
+            }
+
+            IndexarRecursosImportados::dispatch($import->created_at->toDateTimeString());
         });
     }
 

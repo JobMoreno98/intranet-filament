@@ -272,6 +272,7 @@ class ColeccionesConsultaController extends Controller
                 ->setAttributesToHighlight(['*'])
                 ->setAttributesToCrop(['descripcion', 'texto', 'biografia', 'ocr'])
                 ->setCropLength(25);
+
             $filtrosLocales = $meta === 'recursos' ? $filtrosBase : [];
 
             // Inyectar el filtro de acervo si existe (dependiendo del índice)
@@ -287,7 +288,7 @@ class ColeccionesConsultaController extends Controller
                 // Unimos todos los bloques (checkboxes, filas dinámicas y acervo) con AND
                 $filtroFinalString = implode(' AND ', $filtrosLocales);
 
-                // Lo enviamos envuelto en un array para satisfacer el requerimiento de la librería
+                // Lo enviamos envuelto en un array
                 $searchQuery->setFilter([$filtroFinalString]);
             }
 
