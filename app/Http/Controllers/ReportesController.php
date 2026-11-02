@@ -49,6 +49,7 @@ class ReportesController extends Controller
             'recursos_id' => $registro->id,
             'user_id'       => Auth::id(), 
         ]);
+        
 
         return back()->with('success', 'Gracias por tu reporte.');
     }

@@ -9,9 +9,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Set;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 
 class ReportesForm
@@ -40,10 +37,12 @@ class ReportesForm
 
                 DateTimePicker::make('Cerrado')
                     ->disabled(),
+                    
+                Textarea::make('resuelto')->required(),
 
-                Toggle::make('resuelto')
-                    ->label('Atender reporte (Asignar a mi usuario)')
-                    ->live() 
+                Toggle::make('status')
+                    ->label('Atender reporte')
+                    ->live()
                     ->disabled(fn(?Model $record) => $record && $record->admin_id !== null)
                     ->afterStateUpdated(function ($set, $state) {
                         $set('admin_id', $state ? filament()->auth()->id() : null);

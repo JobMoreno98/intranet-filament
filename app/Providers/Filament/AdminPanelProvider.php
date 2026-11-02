@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-        //->topNavigation()
+            //->topNavigation()
             ->default()
             ->id('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
@@ -111,6 +111,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])->maxContentWidth(Width::Full);
+            ])->maxContentWidth(Width::Full)
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s');;
     }
 }
