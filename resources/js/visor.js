@@ -144,6 +144,23 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
         await renderPage(currentPage - 1);
     }
 
+    // Salta directo a una página por su número "orden" (el mismo que indexa
+    // Meilisearch). Si el visor está renderizando otra página espera a que
+    // termine, en vez de descartar el salto como hace renderPage().
+    async function irAPagina(orden) {
+        let indice = paginas.findIndex((p) => Number(p.orden) === Number(orden));
+        if (indice < 0) indice = Number(orden) - 1; // respaldo: orden = posición + 1
+        if (!paginas[indice]) return false;
+
+        for (let i = 0; i < 60 && rendering; i++) {
+            await new Promise((r) => setTimeout(r, 50));
+        }
+        if (rendering) return false;
+
+        if (indice !== currentPage) await renderPage(indice);
+        return true;
+    }
+
     // =========================
     // KEYBOARD
     // =========================
@@ -592,13 +609,21 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
         return { total: matches.length, matches };
     }
 
-    // -- Conectar con el input de búsqueda (si existe en el Blade) --
+    // -- Búsqueda: resalta en la página actual Y busca en todo el documento --
     const searchInput = document.getElementById("ocr-search-input");
     const searchBtn = document.getElementById("ocr-search-btn");
+
+    // Panel con las páginas que coinciden. "Ir a la página" salta con
+    // irAPagina() y, cuando la página ya cargó, vuelve a resaltar el término.
+    const busquedaDocumento = initBusquedaDocumento({
+        irAPagina,
+        resaltar: (termino) => buscarEnPaginaActual(termino),
+    });
 
     function ejecutarBusqueda() {
         if (!searchInput) return;
         buscarEnPaginaActual(searchInput.value);
+        busquedaDocumento?.buscar(searchInput.value);
     }
 
     if (searchBtn) {
@@ -613,11 +638,12 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
             }
         });
 
-        // Si borra el texto, limpia el resaltado de inmediato
+        // Si borra el texto, limpia el resaltado y cierra el panel
         searchInput.addEventListener("input", () => {
             if (searchInput.value.trim() === "") {
                 limpiarResaltado();
                 actualizarContadorBusqueda(null);
+                busquedaDocumento?.cerrar();
             }
         });
     }
@@ -726,4 +752,124 @@ export function initVisor({ paginas, recursoId = 0, startIndex = null }) {
             }
         });
     }
+}
+
+/**
+ * Panel de resultados de la búsqueda en TODO el documento (Meilisearch).
+ * No registra listeners en el input ni toca #ocr-search-count: initVisor
+ * decide cuándo buscar. Devuelve { buscar, cerrar }.
+ */
+function initBusquedaDocumento({ irAPagina, resaltar }) {
+    const input = document.getElementById("ocr-search-input");
+    const panel = document.getElementById("ocr-results");
+    const titulo = document.getElementById("ocr-results-title");
+    const lista = document.getElementById("ocr-results-list");
+    const cerrarBtn = document.getElementById("ocr-results-close");
+    if (!input || !panel || !lista || !input.dataset.url) return null;
+
+    let controlador = null;
+
+    const mostrarPanel = (texto) => {
+        if (titulo) titulo.textContent = texto;
+        panel.classList.remove("hidden");
+        panel.classList.add("flex");
+    };
+
+    const cerrar = () => {
+        controlador?.abort();
+        panel.classList.add("hidden");
+        panel.classList.remove("flex");
+    };
+
+    const marcarActivo = (li) => {
+        lista
+            .querySelectorAll("li")
+            .forEach((el) => el.classList.remove("bg-zinc-800"));
+        li.classList.add("bg-zinc-800");
+    };
+
+    function crearItem(p, termino) {
+        const li = document.createElement("li");
+        li.className = "flex items-center gap-3 px-4 py-2 transition";
+
+        const info = document.createElement("div");
+        info.className = "flex-1 min-w-0";
+
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "block text-[11px] font-semibold text-indigo-400";
+        etiqueta.textContent = "Página " + p.orden;
+
+        const fragmento = document.createElement("span");
+        fragmento.className =
+            "block text-xs text-zinc-300 break-words [&_em]:not-italic [&_em]:bg-yellow-300 [&_em]:text-black";
+        fragmento.innerHTML = p.snippet; // el servidor ya escapó el texto
+
+        info.append(etiqueta, fragmento);
+
+        const ir = document.createElement("button");
+        ir.type = "button";
+        ir.textContent = "Ir a la página";
+        ir.className =
+            "shrink-0 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition";
+        ir.addEventListener("click", async () => {
+            marcarActivo(li);
+            const ok = await irAPagina(Number(p.orden));
+            if (ok) resaltar?.(termino); // la página ya cargó y su OCR también
+        });
+
+        li.append(info, ir);
+        return li;
+    }
+
+    async function buscar(texto) {
+        const termino = (texto ?? input.value).trim();
+        if (termino.length < 2) {
+            cerrar();
+            return;
+        }
+
+        controlador?.abort();
+        controlador = new AbortController();
+
+        lista.replaceChildren();
+        mostrarPanel("Buscando en el documento...");
+
+        try {
+            const resp = await fetch(
+                `${input.dataset.url}?q=${encodeURIComponent(termino)}`,
+                {
+                    headers: { Accept: "application/json" },
+                    credentials: "include",
+                    signal: controlador.signal,
+                },
+            );
+
+            if (resp.status === 429) {
+                mostrarPanel("Demasiadas búsquedas, espera un momento");
+                return;
+            }
+            if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+            const data = await resp.json();
+
+            if (!data.total) {
+                mostrarPanel("Sin coincidencias en el documento");
+                return;
+            }
+
+            lista.replaceChildren(
+                ...data.paginas.map((p) => crearItem(p, termino)),
+            );
+            mostrarPanel(`${data.total} página(s) con coincidencias`);
+        } catch (e) {
+            if (e.name !== "AbortError") {
+                console.error("Búsqueda en documento", e);
+                mostrarPanel("No se pudo buscar en el documento");
+            }
+        }
+    }
+
+    cerrarBtn?.addEventListener("click", cerrar);
+
+    return { buscar, cerrar };
 }
