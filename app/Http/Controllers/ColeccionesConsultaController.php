@@ -375,7 +375,7 @@ class ColeccionesConsultaController extends Controller
                         $resultados[] = [
                             'index' => $indexUid,
                             'acervo' => $hit['acervo'] ?? null,
-                            'coleccion' => $hit['coleccion'] ?? null,
+                            'fondo' => $hit['fondo'] ?? null,
                             'tipo' => 'documento',
                             'titulo_resultado' => $hit['titulo'] ?? ($hit['nombre'] ?? 'Registro sin título'),
                             'coincidencia' => $snippet,
