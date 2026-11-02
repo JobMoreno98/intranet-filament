@@ -6,9 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\Recursos;
 use Illuminate\Support\Facades\Log;
 use Meilisearch\Contracts\SearchQuery;
+use Meilisearch\Client as MeilisearchClient;
 
 class BuscadorController extends Controller
 {
+
+    protected MeilisearchClient $meili;
+
+    public function __construct()
+    {
+        $this->meili = new MeilisearchClient(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
+    }
 
     public function buscarEnRecurso(Request $request, Recursos $recurso)
     {
