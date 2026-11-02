@@ -79,7 +79,7 @@
                                     <!-- Acción (CORREGIDA PARA SOPORTAR PÁGINAS) -->
                                     <td class="p-4 text-center">
                                         @if ($res['tipo'] === 'documento' && $res['registro_id'])
-                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id']]) }}"
+                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res]) }}"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-guinda hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver información
                                             </a>
@@ -90,7 +90,7 @@
                                             </a>
                                         @elseif ($res['tipo'] === 'pagina' && $res['registro_id'])
                                             <!-- Enviamos la variable 'page' en la URL -->
-                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'id' => $res['registro_id'], 'page' => $res['orden_pagina'] ?? 1]) }}"
+                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res, 'page' => $res['orden_pagina'] ?? 1]) }}"
                                                 class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-guinda hover:bg-green-700 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ir a Pág. {{ $res['orden_pagina'] ?? 1 }}
                                             </a>
