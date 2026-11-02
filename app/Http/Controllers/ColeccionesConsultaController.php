@@ -207,7 +207,7 @@ class ColeccionesConsultaController extends Controller
 
         // Filtros de Fondos
         if ($request->filled('fondos') && !in_array('Todos', $request->input('fondos'))) {
-            $fondos = array_map(fn($f) => "coleccion = \"" . $this->escaparFiltroMeili($f) . "\"", $request->input('fondos'));
+            $fondos = array_map(fn($f) => "fondo = \"" . $this->escaparFiltroMeili($f) . "\"", $request->input('fondos'));
             $filtrosAvanzados[] = '(' . implode(' OR ', $fondos) . ')';
         }
 
