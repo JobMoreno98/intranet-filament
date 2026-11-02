@@ -62,13 +62,17 @@
                                     <!-- Acervo o Nombre de Colección -->
                                     <td class="p-4 dark:text-white">
                                         @if ($res['tipo'] === 'documento')
-                                            {{ $res['fondo'] ?? '---' }}
+                                            {{ $res['acervo'] ?? '---' }}
                                         @elseif ($res['tipo'] === 'coleccion')
                                             {{ $res['titulo_resultado'] ?? '---' }}
                                         @endif
                                     </td>
                                     <td class="p-4 dark:text-white">
-                                        {{ $res['coleccion'] ?? '---' }}
+                                        @if ($res['tipo'] === 'documento')
+                                            {{ $res['fondo'] ?? '---' }}
+                                        @elseif ($res['tipo'] === 'coleccion')
+                                            {{ $res['coleccion'] ?? '---' }}
+                                        @endif
                                     </td>
 
                                     <!-- Coincidencia -->
