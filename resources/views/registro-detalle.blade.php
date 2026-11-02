@@ -187,18 +187,7 @@
                     recursoId: {{ $recurso->id }},
                     paginaInicial: paginaSolicitada,
                     startIndex: paginaSolicitada > 0 ? paginaSolicitada - 1 : 0
-
-                    initBusquedaDocumento({
-
-                        irAPagina: (orden) => {
-                            const indice = config.paginas.findIndex((p) => Number(p.orden) === orden);
-                            if (indice >= 0) goToPage(
-                                indice);
-                        },
-                        resaltar: (termino) => highlightOcr(termino),
-                    });
                 });
-
             });
         </script>
     @endif
