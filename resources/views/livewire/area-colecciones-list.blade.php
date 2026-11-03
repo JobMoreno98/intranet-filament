@@ -51,7 +51,7 @@ with(function () {
             @endforeach
         </div>
     @else
-        <div class="w-full py-12 text-center">
+        <div class="w-full py-12 text-center mx-auto">
             <h4 class="text-lg font-medium text-zinc-500">Esta área aún no tiene colecciones</h4>
         </div>
     @endif
