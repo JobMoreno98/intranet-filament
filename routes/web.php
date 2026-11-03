@@ -60,7 +60,7 @@ Route::get('/solicitud-reproduccion', function () {
 })->name('arreola.solicitud');
 
 Route::get('/creditos', function () {
-    return view('acerca.creditos', ['title' => 'CREDITOS']);
+    return view('acerca.creditos', ['title' => 'CRÉDITOS']);
 })->name('arreola.creditos');
 
 Route::view('/memoria-udg', 'acerca.memoria', [
