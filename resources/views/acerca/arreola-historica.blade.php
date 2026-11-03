@@ -4,7 +4,7 @@
     <div class="min-h-screen">
 
         <!-- Encabezado -->
-        <header class="w-full bg-[#86212b] px-4 py-10">
+        <header class="w-full bg-[#86212b] px-4 py-8">
             <div class="mx-auto max-w-6xl text-center">
                 <h1 class="text-xl font-bold uppercase tracking-[0.15em] text-white md:text-2xl">
                     {{ $title }}
