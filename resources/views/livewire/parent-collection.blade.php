@@ -1,3 +1,27 @@
+<?php
+
+use function Livewire\Volt\{state, with, usesPagination};
+
+usesPagination();
+
+state(['collection', 'mostrarHijos' => false]);
+
+with(function () {
+    // Con los internos visibles en la lista no hace falta el modal ni la consulta
+    if ($this->mostrarHijos) {
+        return ['children' => null];
+    }
+
+    return [
+        'children' => $this->collection
+            ->children()
+            ->orderBy('nombre', 'ASC')
+            ->paginate(12, ['*'], 'page-' . $this->collection->id),
+    ];
+});
+
+?>
+
 {{-- Alpine en la raíz. h-full para que la tarjeta iguale la altura de las demás en el grid --}}
 <div class="h-full w-full" x-data="{
     abrir() {

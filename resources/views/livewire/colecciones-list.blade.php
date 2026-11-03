@@ -1,3 +1,57 @@
+<?php
+
+use Livewire\Volt\Component;
+use function Livewire\Volt\{state, with, usesPagination, updated};
+
+usesPagination();
+
+state([
+    'areaId' => null,
+    'mostrarHijos' => false,
+]);
+
+// Al cambiar el interruptor cambia el total de resultados: volvemos a la página 1
+updated(['mostrarHijos' => fn() => $this->resetPage()]);
+
+with(function () {
+    $tabla = new \App\Models\Coleccion()->getTable();
+
+    $query = \App\Models\Coleccion::query()->select("{$tabla}.*");
+
+    if (!$this->mostrarHijos) {
+        // Solo fondos padres: orden alfabético normal
+        $query->whereNull("{$tabla}.parent_id")->orderBy("{$tabla}.nombre", 'ASC');
+    } else {
+        // Jerarquía: cada padre seguido de sus internos
+        $query
+            ->leftJoin("{$tabla} as padre", 'padre.id', '=', "{$tabla}.parent_id")
+            ->orderByRaw("COALESCE(padre.nombre, {$tabla}.nombre) ASC") // agrupa por padre
+            ->orderByRaw("COALESCE({$tabla}.parent_id, {$tabla}.id) ASC") // desempata padres con el mismo nombre
+            ->orderByRaw("({$tabla}.parent_id IS NOT NULL) ASC") // el padre va antes que sus hijos
+            ->orderBy("{$tabla}.nombre", 'ASC'); // hijos en orden alfabético
+    }
+
+    if (!empty($this->areaId)) {
+        $areaId = $this->areaId;
+        $mostrarHijos = $this->mostrarHijos;
+
+        $query->where(function ($q) use ($areaId, $mostrarHijos, $tabla) {
+            $q->where("{$tabla}.areaS_id", $areaId);
+
+            // Los internos heredan el área de su fondo padre
+            if ($mostrarHijos) {
+                $q->orWhereIn("{$tabla}.parent_id", \App\Models\Coleccion::where('areaS_id', $areaId)->select('id'));
+            }
+        });
+    }
+
+    return [
+        'colecciones' => $query->paginate(5),
+    ];
+});
+
+?>
+
 <div wire:loading.class="opacity-50" class="flex flex-col gap-6 transition-opacity duration-300">
 
     {{-- Interruptor: solo fondos / fondos con internos --}}
@@ -19,7 +73,7 @@
             @endforeach
         </div>
     @else
-        <div class="w-full py-12 text-center mx-auto">
+        <div class="w-full py-12 text-center">
             <h4 class="text-lg font-medium text-zinc-500">No hay fondos disponibles</h4>
         </div>
     @endif
