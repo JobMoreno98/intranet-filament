@@ -5,7 +5,7 @@
         <div class="w-full bg-[#86212b] py-8 px-4">
             <div class="max-w-6xl mx-auto text-center">
                 <h1 class="text-white text-base uppercase tracking-[0.2em] font-bold">
-                    SOLICITUD DE REPRODUCCIONES
+                    {{ $title }}
                 </h1>
             </div>
         </div>
