@@ -73,6 +73,7 @@
             ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
             ['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
             ['ARREOLA HISTÓRICA', 'arreola.historica'],
+            ['CONTACTO','arreola.contacto'],
             ['ÁREAS', 'areas.index'],
             ['FONDOS', 'fondos.index'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
@@ -262,7 +263,10 @@
                             <input type="radio" name="alcance" value="todos" class="peer sr-only"
                                 @checked($alcance === 'todos')>
                             <span
-                                class="inline-flex items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/10 peer-checked:border-transparent peer-checked:bg-[rgb(233,79,53)] peer-focus-visible:ring-2 peer-focus-visible:ring-white">
+                                class="inline-flex items-center rounded-full border border-white/20 px-3 py-1.5 
+                                text-xs font-medium text-white transition hover:bg-white/10 
+                                peer-checked:border-transparent peer-checked:bg-red-900
+                                peer-focus-visible:ring-2 peer-focus-visible:ring-white">
                                 Todos los registros
                             </span>
                         </label>
@@ -271,7 +275,10 @@
                             <input type="radio" name="alcance" value="digitalizados" class="peer sr-only"
                                 @checked($alcance === 'digitalizados')>
                             <span
-                                class="inline-flex items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/10 peer-checked:border-transparent peer-checked:bg-[rgb(233,79,53)] peer-focus-visible:ring-2 peer-focus-visible:ring-white">
+                                class="inline-flex items-center rounded-full border border-white/20 
+                                px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/10 
+                                peer-checked:border-transparent peer-checked:bg-red-900 
+                                peer-focus-visible:ring-2 peer-focus-visible:ring-white">
                                 Solo con material digitalizado
                             </span>
                         </label>
@@ -363,6 +370,77 @@
     @livewireScripts
     @yield('js')
     <x-toast />
+    <div x-data="{
+        showPopup: false,
+        dontShowAgain: false,
+        init() {
+            // Verificamos si el usuario ya guardó la preferencia de no volver a verlo
+            if (!localStorage.getItem('hide_announcement_popup')) {
+                // Pequeño retraso opcional para que aparezca suavemente al cargar la página
+                setTimeout(() => { this.showPopup = true; }, 1000);
+            }
+        },
+        closePopup() {
+            if (this.dontShowAgain) {
+                localStorage.setItem('hide_announcement_popup', 'true');
+            }
+            this.showPopup = false;
+        }
+    }" x-show="showPopup" x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <!-- Contenedor del Modal -->
+        <div @click.away="closePopup()"
+            class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800 dark:text-gray-100"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100">
+            <!-- Icono o Encabezado -->
+            <div class="flex items-center justify-between pb-3 border-b dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-6 h-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    Aviso importante
+                </h3>
+                <button @click="closePopup()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Cuerpo del Mensaje -->
+            <div class="py-4 text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                <p>Arreola Histórica es un trabajo en proceso y que apenas inicia. En esta primera etapa, ponemos a tu
+                    disposición un buscador que permite la exploración de una buena parte de los fondos históricos que
+                    se resguardan en la Biblioteca Pública del Estado de Jalisco de la Universidad de Guadalajara. Sin
+                    embargo, en este momento, sólo un porcentaje de estos registros ya puede ser consultado en línea.
+                    Por supuesto, todos los días trabajamos para seguir alimentando nuestro repositorio..</p>
+            </div>
+
+            <!-- Opción de "No volver a mostrar" -->
+            <div class="flex items-center gap-2 py-2">
+                <input type="checkbox" id="dont_show" x-model="dontShowAgain"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
+                <label for="dont_show" class="text-xs text-gray-500 dark:text-gray-400 select-none cursor-pointer">
+                    No quiero volver a ver este aviso
+                </label>
+            </div>
+
+            <!-- Botón de Acción -->
+            <div class="mt-4 flex justify-end">
+                <button @click="closePopup()"
+                    class="w-full rounded-lg bg-guinda px-4 py-2.5 text-center text-sm font-semibold text-white shadow-md hover:bg-red-900 
+                    focus:outline-none focus:ring-2 focus:ring-red-800">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
 
 </body>
 
