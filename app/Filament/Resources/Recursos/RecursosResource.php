@@ -24,7 +24,7 @@ class RecursosResource extends Resource
 {
     protected static ?string $model = Recursos::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
 
     protected static ?string $recordTitleAttribute = 'Contenidos';
     protected static ?string $title = 'Contenidos';

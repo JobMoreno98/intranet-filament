@@ -19,7 +19,7 @@ class ReportesResource extends Resource
 {
     protected static ?string $model = Reportes::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
 
     protected static ?string $recordTitleAttribute = 'Reportes';
     protected static ?string $title = 'Reportes';
