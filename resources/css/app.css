@@ -3,8 +3,44 @@
 @import "photoswipe/style.css";
 @import "aos/dist/aos.css";
 
+/* 1. Fuentes (declaradas al principio para evitar repintados y carga lenta) */
+@layer base {
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-Regular.otf") format("opentype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-RegularItalic.otf") format("opentype");
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-SemiBold.otf") format("opentype");
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "Titillium";
+        src: url("../fonts/Titillium-Bold.otf") format("opentype");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+}
+
+/* 2. Fuentes de escaneo estrictas para Tailwind v4 (Evita escanear node_modules) */
 @source '../views';
-@source '../../app/Filament/**/*.php';
+@source '../../app/**/*.php';
 @source '../../vendor/filament/**/*.blade.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
@@ -19,7 +55,7 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
 
-    /*  Color de BPEJ */
+    /* Color de BPEJ */
     --color-guinda: #1d1d1b;
     --color-guinda-dark: #6b1a22;
 
@@ -46,6 +82,7 @@
     --color-accent-content: var(--color-white);
     --color-accent-foreground: var(--color-neutral-800);
 }
+
 @layer utilities {
     .font-titillium {
         font-family: 'Titillium', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -67,53 +104,27 @@
     .dark ::before {
         border-color: var(--color-zinc-700, currentColor);
     }
-
-    @font-face {
-        font-family: "Titillium";
-        src: url("../fonts/Titillium-Regular.otf") format("opentype");
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-    }
-
-    /* Regular Italic */
-    @font-face {
-        font-family: "Titillium";
-        src: url("../fonts/Titillium-RegularItalic.otf") format("opentype");
-        font-weight: 400;
-        font-style: italic;
-        font-display: swap;
-    }
-
-    /* SemiBold */
-    @font-face {
-        font-family: "Titillium";
-        src: url("../fonts/Titillium-SemiBold.otf") format("opentype");
-        font-weight: 600;
-        font-style: normal;
-        font-display: swap;
-    }
-
-    /* Bold */
-    @font-face {
-        font-family: "Titillium";
-        src: url("../fonts/Titillium-Bold.otf") format("opentype");
-        font-weight: 700;
-        font-style: normal;
-        font-display: swap;
-    }
 }
 
+/* Reglas CSS directas (reemplazan a @apply para procesamiento instantáneo) */
 [data-flux-field]:not(ui-radio, ui-checkbox) {
-    @apply grid gap-2;
+    display: grid;
+    gap: 0.5rem;
 }
 
 [data-flux-label] {
-    @apply !mb-0 !leading-tight;
+    margin-bottom: 0 !important;
+    line-height: 1.25 !important;
 }
 
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    --tw-ring-color: var(--color-accent);
+    --tw-ring-offset-color: var(--color-accent-foreground);
 }

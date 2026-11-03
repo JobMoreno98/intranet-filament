@@ -80,7 +80,7 @@
 
     </section>
 
-    <section class="py-10 bg-[#ffffff] dark:bg-neutral-800 max-w-7xl mx-auto ">
+    <section class="py-10 px-4 sm:px-7 bg-[#ffffff] dark:bg-neutral-800 max-w-7xl mx-auto ">
         <!-- Se cambió de flex a grid con grid-flow-col y grid-rows-2 para forzar las dos filas en móvil -->
         <div
             class="mx-2 grid grid-rows-2 grid-flow-col auto-cols-[85vw] overflow-x-auto gap-4 snap-x snap-mandatory pb-4 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:auto-cols-auto 

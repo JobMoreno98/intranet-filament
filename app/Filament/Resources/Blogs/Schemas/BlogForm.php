@@ -18,7 +18,11 @@ class BlogForm
                 Section::make('')
                     ->description('Contenido del blog')
                     ->schema([
-                        FileUpload::make('portada')->required()->image()->disk('public')->directory('blogs')->acceptedFileTypes(['image/*']),
+                        FileUpload::make('portada')
+                            ->required()->image()->disk('public')
+                            ->directory('blogs')->acceptedFileTypes(['image/*'])
+                            ->imageEditor()->imageAspectRatio('2:1')
+                            ->automaticallyOpenImageEditorForAspectRatio(),
                         TextInput::make('nombre')->required(),
                         TagsInput::make('tags'),
                         RichEditor::make('contenido')->required()->columnSpanFull()
