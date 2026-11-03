@@ -51,6 +51,14 @@ Route::get('/contacto', function () {
     return view('contacto', ['title' => 'CONTACTO']);
 })->name('arreola.contacto');
 
+Route::get('/como-usar', function () {
+    return view('como-usar', ['title' => 'COMO USAR']);
+})->name('arreola.uso');
+
+Route::get('/solicitud-reproduccion', function () {
+    return view('solicitud', ['title' => 'SOLICITUD DE REPRODUCCIONES']);
+})->name('arreola.solicitud');
+
 // ==========================================
 // 2. BUSCADOR Y RECURSOS PÚBLICOS
 // ==========================================

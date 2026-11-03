@@ -74,6 +74,8 @@
             ['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
             ['ARREOLA HISTÓRICA', 'arreola.historica'],
             ['CONTACTO','arreola.contacto'],
+            ['COMO USAR','arreola.uso'],
+            ['SOLICITUD DE REPRODUCCIONES','arreola.solicitud'],
             ['ÁREAS', 'areas.index'],
             ['FONDOS', 'fondos.index'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
