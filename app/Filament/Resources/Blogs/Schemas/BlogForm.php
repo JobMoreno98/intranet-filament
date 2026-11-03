@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Blogs\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
@@ -25,7 +26,8 @@ class BlogForm
                             ->automaticallyOpenImageEditorForAspectRatio(),
                         TextInput::make('nombre')->required(),
                         TagsInput::make('tags'),
-                        RichEditor::make('contenido')->required()->columnSpanFull()
+                        RichEditor::make('contenido')->required()->columnSpanFull(),
+                        Hidden::make('fiajdo')->default(true),
                     ]),
 
             ])->columns(1);
