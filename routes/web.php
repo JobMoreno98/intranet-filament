@@ -36,7 +36,7 @@ use App\Models\RecursosArchivos;
 Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
 
 Route::get('/nuestra-historia', function () {
-    return view(acerca.'historia', ['title' => 'Nuestra Historia']);
+    return view('acerca.historia', ['title' => 'Nuestra Historia']);
 })->name('nuestra.historia');
 
 Route::get('/fondos-historicos', function () {

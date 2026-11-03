@@ -27,7 +27,7 @@ class BlogForm
                         TextInput::make('nombre')->required(),
                         TagsInput::make('tags'),
                         RichEditor::make('contenido')->required()->columnSpanFull(),
-                        Hidden::make('fiajdo')->default(true),
+                        Hidden::make('fijado')->default(true),
                     ]),
 
             ])->columns(1);

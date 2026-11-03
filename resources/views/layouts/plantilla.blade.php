@@ -193,11 +193,18 @@
         <div
             class="relative w-full bg-[#131f30] pt-14 pb-10 px-4 overflow-hidden flex flex-col items-center justify-center min-h-[220px]">
 
-            {{-- SVG Ondas de fondo con los colores de tu marca --}}
-            <svg class="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none"
-                preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
 
-                {{-- Grupo de líneas Naranja/Rojo (RGB: 233, 79, 53) --}}
+            <div
+                class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none">
+            </div>
+
+            {{-- SVG Ondas de fondo con los colores de tu marca
+            <svg class="absolute inset-0 w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"
+                preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+            </svg>
+
+           
+                Grupo de líneas Naranja/Rojo (RGB: 233, 79, 53) 
                 <path fill="none" stroke="rgb(233, 79, 53)" stroke-width="1.5"
                     d="M0,160 C320,300 420,0 720,120 C1020,240 1120,60 1440,160" opacity="0.8" />
                 <path fill="none" stroke="rgb(233, 79, 53)" stroke-width="2"
@@ -205,18 +212,19 @@
                 <path fill="none" stroke="rgb(233, 79, 53)" stroke-width="1.5"
                     d="M0,140 C340,280 440,-20 720,100 C1000,220 1100,40 1440,140" opacity="0.3" />
 
-                {{-- Grupo de líneas Blancas (#ffffff) para contraste --}}
+                Grupo de líneas Blancas (#ffffff) para contraste 
                 <path fill="none" stroke="#ffffff" stroke-width="1.2"
                     d="M0,200 C400,100 500,300 800,200 C1100,100 1200,250 1440,200" opacity="0.3" />
                 <path fill="none" stroke="#ffffff" stroke-width="2"
                     d="M0,220 C380,120 480,320 800,220 C1120,120 1220,270 1440,220" opacity="0.2" />
                 <path fill="none" stroke="#ffffff" stroke-width="0.4"
                     d="M0,180 C420,80 520,280 800,180 C1080,80 1180,230 1440,180" opacity="0.1" />
-            </svg>
+           
+            --}}
 
             {{-- Overlay sutil usando el Azul Oscuro para difuminar los bordes --}}
             <div
-                class="absolute inset-0 bg-gradient-to-r from-[#131f30] via-transparent to-[#131f30] opacity-90 pointer-events-none">
+                class="absolute -bottom-12 -right-12 w-48 h-48 bg-[rgb(233,79,53)] rounded-full blur-3xl opacity-25 pointer-events-none">
             </div>
 
             {{-- Título

@@ -16,27 +16,31 @@
 @endsection
 
 @section('content')
+
     <section>
+        {{-- 
+
         <div
             class="mx-auto sm:px-7 px-2 md:max-w-screen-xl flex gap-10 flex flex-col lg:flex-row items-center max-w-[400px] sm:max-w-[340px]">
 
             <article
                 class="relative w-full rounded-2xl bg-gradient-to-br from-[#131f30] via-[#1a2a40] to-[#0f172a] text-white p-6 sm:p-8 md:p-10 shadow-xl overflow-hidden border border-white/10 my-6">
 
-                {{-- Malla/Patrón sutil de fondo para dar textura --}}
+                
+                Malla/Patrón sutil de fondo para dar textura 
                 <div
                     class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none">
                 </div>
 
-                {{-- Destello de color Naranja/Rojo decorativo en la esquina inferior --}}
+                Destello de color Naranja/Rojo decorativo en la esquina inferior 
                 <div
                     class="absolute -bottom-12 -right-12 w-48 h-48 bg-[rgb(233,79,53)] rounded-full blur-3xl opacity-25 pointer-events-none">
                 </div>
-
+ 
                 <div class=" w-full">
-                    {{-- Contenido principal del texto --}}
+                    {{-- Contenido principal del texto 
                     <div class="flex flex-col gap-3 max-w-7xl">
-                        {{-- Badge o Etiqueta superior --}}
+                        {{-- Badge o Etiqueta superior 
                         <div class="inline-flex items-center gap-2 self-start">
                             <span class="flex h-2 w-2 rounded-full bg-[rgb(233,79,53)] animate-pulse"></span>
                             <span class="text-xs font-bold uppercase tracking-widest text-zinc-300">
@@ -44,16 +48,8 @@
                             </span>
                         </div>
 
-                        {{-- Título de Bienvenida --}}
-                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                            <div class="w-full py-2 my-2 rounded-md ">
-                                <div class="max-full mx-auto flex flex-col">
-                                    SALA ARREOLA
-                                </div>
-                            </div>
-                            Un espacio dedicado a la <span class="text-[rgb(233,79,53)]">memoria</span>.
-                        </h2>
-                        {{-- Parrafo descriptivo 
+
+        Parrafo descriptivo 
                         <p class="text-sm sm:text-base text-zinc-300 leading-relaxed">
                             Lorem ipsum
                         </p>
@@ -66,10 +62,25 @@
                             Búsqueda avanzada
                         </a>
                     </div>
-                    --}}
+                    
 
                     </div>
             </article>
+            
+        </div>
+        --}}
+        <div class="flex flex-col gap-3 max-w-7xl mx-auto px-4 sm:px-7 ">
+            <h2
+                class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-guinda dark:text-white leading-tight">
+                <div class="w-full py-2 my-2 rounded-md ">
+                    <div class="max-full mx-auto flex flex-col text-center">
+                        SALA ARREOLA
+                    </div>
+                </div>
+                {{-- 
+                            Un espacio dedicado a la <span class="text-[rgb(233,79,53)]">memoria</span>.
+                             --}}
+            </h2>
         </div>
         <section>
             <div class="mx-auto w-full max-w-7xl px-4 sm:px-7" data-aos="fade-up" data-aos-duration="500">
