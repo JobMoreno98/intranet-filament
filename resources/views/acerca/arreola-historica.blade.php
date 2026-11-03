@@ -36,26 +36,22 @@
                 <div class="space-y-5 text-justify text-base leading-8 text-zinc-600 dark:text-zinc-300">
                     <p
                         class="first-letter:float-left first-letter:mr-3 first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.85] first-letter:text-[#86212b] dark:first-letter:text-[#d98b91]">
-                        Arreola Histórica es un trabajo en proceso y que apenas inicia.
-                        En esta primera etapa, ponemos a tu disposición un buscador
-                        que permite la exploración de una buena parte de los fondos
-                        históricos que se resguardan en la Biblioteca Pública del
-                        Estado de Jalisco de la Universidad de Guadalajara. Sin
-                        embargo, en este momento, sólo un porcentaje de estos
-                        registros ya puede ser consultado en línea. Por supuesto,
-                        todos los días trabajamos para seguir alimentando nuestro
-                        repositorio.
+                        Arreola Histórica es el buscador y repositorio digital de los fondos históricos de la Biblioteca
+                        Pública del Estado de Jalisco de la Universidad de Guadalajara. Nuestro portal permite el acceso a
+                        500 años de libros, periódicos, revistas, fotografías, películas, audios, manuscritos, mapas y
+                        piezas de arte. Además de ser un portal de consulta virtual, Arreola Histórica se presenta como
+                        centro de producción de conocimiento sobre el patrimonio que resguarda la Universidad de
+                        Guadalajara, así como una herramienta para la consulta, la conservación y el rescate de la memoria
+                        de la sociedad jalisciense.
+
                     </p>
 
                     <p>
-                        Arreola Histórica permite el acceso a 500 años de libros,
-                        publicaciones seriadas, fotografías, películas, audios,
-                        manuscritos, mapas y piezas de arte. Además de ser un portal
-                        de consulta virtual, Arreola Histórica se presenta como
-                        centro de producción de conocimiento sobre el patrimonio
-                        y el pasado que resguarda la Universidad de Guadalajara,
-                        así como una herramienta para el acceso, la conservación
-                        y el rescate de la memoria de la sociedad jalisciense.
+                        Arreola Histórica es un repositorio en construcción. En esta primera etapa, ponemos a tu disposición
+                        un buscador que permite la exploración de una buena parte de los materiales antiguos que se
+                        resguardan en nuestra Biblioteca. Sólo un porcentaje de estos registros ya puede ser consultado en
+                        línea. Todos los días trabajamos para seguir alimentando nuestro repositorio.
+
                     </p>
                 </div>
 

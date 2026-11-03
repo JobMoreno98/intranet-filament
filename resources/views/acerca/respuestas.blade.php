@@ -1,11 +1,9 @@
 @extends('layouts.plantilla')
 
 @section('css')
-    <!-- Estilo para que Meilisearch pinte las palabras encontradas en color oro/amarillo -->
     <style>
         em {
             background-color: #fef08a !important;
-            /* amarillo tailwind */
             color: #854d0e !important;
             font-style: normal !important;
             font-weight: 700 !important;
@@ -16,7 +14,6 @@
 @endsection
 @section('content')
     <section class="bg-gray-50 min-h-screen dark:bg-zinc-700 dark:text-white">
-        <!-- Tabla de Resultados Coincidentes -->
         <div class="mx-auto sm:px-7 px-3 max-w-screen-xl py-6">
 
             <div class="mb-4">
@@ -127,11 +124,8 @@
                                         class="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Coincidencia:</span>
                                     <div class="line-clamp-3 text-xs leading-relaxed text-gray-500">
                                         {!! $res['coincidencia'] !!}
-                                        <!-- CORRECCIÓN: Antes decías {!! $res['tipo'] !!} aquí -->
                                     </div>
                                 </div>
-
-                                <!-- Acción de la Card (CORREGIDA CON EL IF/ELSEIF/ELSEIF) -->
                                 <div class="mt-1">
                                     @if ($res['tipo'] === 'documento' && !empty($res['registro_uuid']))
                                         <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res['registro_uuid']]) }}"

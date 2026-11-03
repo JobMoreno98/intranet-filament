@@ -72,16 +72,17 @@
             ['INICIO', 'home'],
             ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
             ['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
-            ['ARREOLA HISTÓRICA', 'arreola.historica'],
-            ['CONTACTO','arreola.contacto'],
-            ['COMO USAR','arreola.uso'],
-            ['SOLICITUD DE REPRODUCCIONES','arreola.solicitud'],
             ['ÁREAS', 'areas.index'],
             ['FONDOS', 'fondos.index'],
+            ['ARREOLA HISTÓRICA', 'arreola.historica'],
+            ['COMO USAR', 'arreola.uso'],
+            ['SOLICITUD DE REPRODUCCIONES', 'arreola.solicitud'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
+            ['MEMORIA UDG', 'arreola.memoria'],
+            ['CONTACTO', 'arreola.contacto'],
+            ['CRÉDITOS', 'arreola.creditos'],
         ];
     @endphp
-
     <nav x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false"
         x-effect="document.body.classList.toggle('overflow-hidden', menuOpen)" class="bg-white dark:bg-neutral-600">
 
@@ -101,8 +102,9 @@
             {{-- Texto siempre visible: en móvil baja a su propia fila (order-last), en lg va entre logo y botones --}}
             <p
                 class="hidden md:block order-last w-full text-center text-md leading-snug text-zinc-700 dark:text-zinc-200 lg:order-none lg:w-auto lg:flex-1 lg:min-w-0">
-                Arreola Histórica es el buscador y repositorio digital de los acervos históricos de la Biblioteca
-                Pública del Estado de Jalisco de la Universidad de Guadalajara.
+                Arreola Histórica es el buscador y repositorio digital de los fondos históricos de la Biblioteca Pública
+                del Estado de Jalisco de la Universidad de Guadalajara.
+
             </p>
 
             <div class="flex items-center gap-2 md:gap-4">
@@ -417,11 +419,11 @@
 
             <!-- Cuerpo del Mensaje -->
             <div class="py-4 text-sm text-gray-600 dark:text-gray-300 space-y-2">
-                <p>Arreola Histórica es un trabajo en proceso y que apenas inicia. En esta primera etapa, ponemos a tu
-                    disposición un buscador que permite la exploración de una buena parte de los fondos históricos que
-                    se resguardan en la Biblioteca Pública del Estado de Jalisco de la Universidad de Guadalajara. Sin
-                    embargo, en este momento, sólo un porcentaje de estos registros ya puede ser consultado en línea.
-                    Por supuesto, todos los días trabajamos para seguir alimentando nuestro repositorio..</p>
+                <p>Arreola Histórica es un repositorio en construcción. En esta primera etapa, ponemos a tu disposición
+                    un buscador que permite la exploración de una parte de los materiales antiguos que se resguardan en
+                    nuestra Biblioteca. Sólo un porcentaje de estos registros ya puede ser consultado en línea. Todos
+                    los días trabajamos para seguir alimentando nuestro repositorio.
+                </p>
             </div>
 
             <!-- Opción de "No volver a mostrar" -->

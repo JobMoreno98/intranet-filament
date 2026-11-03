@@ -47,7 +47,7 @@
                     </details>
                 </aside>
 
-                <!-- CONTENEDOR DEL VISOR (Video o PDF/IMG) -->
+                <!-- CONTENEDOR DEL VISOR -->
                 @if (Auth::check())
                     @if ($esVideo)
                         {{-- ============ VISOR DE VIDEO (HLS) ============ --}}

@@ -36,28 +36,36 @@ use App\Models\RecursosArchivos;
 Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
 
 Route::get('/nuestra-historia', function () {
-    return view('historia', ['title' => 'Nuestra Historia']);
+    return view(acerca.'historia', ['title' => 'Nuestra Historia']);
 })->name('nuestra.historia');
 
 Route::get('/fondos-historicos', function () {
-    return view('fondos-historicos', ['title' => 'NUESTROS FONDOS HISTÓRICOS']);
+    return view('acerca.fondos-historicos', ['title' => 'NUESTROS FONDOS HISTÓRICOS']);
 })->name('fondos.historicos');
 
 Route::get('/arreola-historica', function () {
-    return view('arreola-historica', ['title' => 'ARREOLA HISTÓRICA']);
+    return view('acerca.arreola-historica', ['title' => 'ARREOLA HISTÓRICA']);
 })->name('arreola.historica');
 
 Route::get('/contacto', function () {
-    return view('contacto', ['title' => 'CONTACTO']);
+    return view('acerca.contacto', ['title' => 'CONTACTO']);
 })->name('arreola.contacto');
 
 Route::get('/como-usar', function () {
-    return view('como-usar', ['title' => 'COMO USAR']);
+    return view('acerca.como-usar', ['title' => 'COMO USAR']);
 })->name('arreola.uso');
 
 Route::get('/solicitud-reproduccion', function () {
-    return view('solicitud', ['title' => 'SOLICITUD DE REPRODUCCIONES']);
+    return view('acerca.solicitud', ['title' => 'SOLICITUD DE REPRODUCCIONES']);
 })->name('arreola.solicitud');
+
+Route::get('/creditos', function () {
+    return view('acerca.creditos', ['title' => 'CREDITOS']);
+})->name('arreola.creditos');
+
+Route::view('/memoria-udg', 'acerca.memoria', [
+    'title' => 'Memoria UDG'
+])->name('arreola.memoria');
 
 // ==========================================
 // 2. BUSCADOR Y RECURSOS PÚBLICOS
