@@ -9,6 +9,7 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Validation\ValidationException;
+use Filament\Notifications\Notification;
 
 class RecursoImporter extends Importer
 {
@@ -139,8 +140,9 @@ class RecursoImporter extends Importer
         return self::$colecciones[$coleccionId]
             ??= Coleccion::whereKey($coleccionId)->exists();
     }
+// ... resto de tu código arriba (esquema, fillRecord, etc.)
 
-    public static function getCompletedNotification(Import $import): Notification
+    public static function getCompletedNotificationBody(Import $import): string
     {
         $body = 'La importación de Recursos terminó correctamente.';
 
@@ -152,10 +154,7 @@ class RecursoImporter extends Importer
             $body .= " {$failed} filas fallaron.";
         }
 
-        return Notification::make()
-            ->title('Importación finalizada')
-            ->body($body)
-            ->success() // Cambia a ->warning() o ->danger() si fallaron filas
-            ->icon('heroicon-o-document-check');
+        return $body;
     }
+}
 }

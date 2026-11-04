@@ -60,7 +60,7 @@ class AdminPanelProvider extends PanelProvider
             ])->databaseNotifications()
             ->databaseNotificationsPolling('3s')
             ->resources([
-                VisitaResource::class, // 👈 Agrégalo aquí explícitamente si tus carpetas no se auto-descubren
+                VisitaResource::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -113,6 +113,6 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])->maxContentWidth(Width::Full)
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s');;
+            ->databaseNotificationsPolling('30s');
     }
 }
