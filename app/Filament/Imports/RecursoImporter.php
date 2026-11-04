@@ -34,7 +34,7 @@ class RecursoImporter extends Importer
                 ->numeric(),
 
             ImportColumn::make('tipo_media'),
-            ImportColumn::make('visible'),
+            ImportColumn::make('visible')->numeric(),
         ];
     }
 
@@ -47,7 +47,7 @@ class RecursoImporter extends Importer
     {
         $acervoId = (int) $this->data['acervo_id'];
         $coleccionId = (int) $this->data['coleccion_id'];
-        $visible = (int) $this->data['visible'];
+        $visible = (int) isset($this->data['visible']) ? $this->data['visible'] : 1;
 
         $esquema = self::esquema($acervoId)
             ?? throw ValidationException::withMessages([
@@ -104,7 +104,7 @@ class RecursoImporter extends Importer
      */
     public function saveRecord(): void
     {
-        Recursos::withoutSyncingToSearch(fn () => $this->record->save());
+        Recursos::withoutSyncingToSearch(fn() => $this->record->save());
     }
 
     private static function esquema(int $acervoId): ?array
@@ -123,7 +123,7 @@ class RecursoImporter extends Importer
                 $esquema = json_decode($esquema, true) ?? [];
             }
 
-            self::$esquemas[$acervoId] = array_map(fn (array $campo) => [
+            self::$esquemas[$acervoId] = array_map(fn(array $campo) => [
                 'variable' => $campo['variable'],
                 'label' => $campo['label'] ?? $campo['variable'],
                 'required' => (bool) ($campo['is_required'] ?? false),
@@ -140,7 +140,7 @@ class RecursoImporter extends Importer
             ??= Coleccion::whereKey($coleccionId)->exists();
     }
 
-    public static function getCompletedNotificationBody(Import $import): string
+    public static function getCompletedNotification(Import $import): Notification
     {
         $body = 'La importación de Recursos terminó correctamente.';
 
@@ -152,6 +152,10 @@ class RecursoImporter extends Importer
             $body .= " {$failed} filas fallaron.";
         }
 
-        return $body;
+        return Notification::make()
+            ->title('Importación finalizada')
+            ->body($body)
+            ->success() // Cambia a ->warning() o ->danger() si fallaron filas
+            ->icon('heroicon-o-document-check');
     }
 }
