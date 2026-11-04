@@ -34,6 +34,7 @@ class RecursoImporter extends Importer
                 ->numeric(),
 
             ImportColumn::make('tipo_media'),
+            ImportColumn::make('visible'),
         ];
     }
 
@@ -46,6 +47,7 @@ class RecursoImporter extends Importer
     {
         $acervoId = (int) $this->data['acervo_id'];
         $coleccionId = (int) $this->data['coleccion_id'];
+        $visible = (int) $this->data['visible'];
 
         $esquema = self::esquema($acervoId)
             ?? throw ValidationException::withMessages([
@@ -92,6 +94,7 @@ class RecursoImporter extends Importer
             'coleccion_id' => $coleccionId,
             'tipo_media' => $this->data['tipo_media'] ?? null,
             'metadata' => $metadata,
+            'visible' => $visible
         ]);
     }
 
