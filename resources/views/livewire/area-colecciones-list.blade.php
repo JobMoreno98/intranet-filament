@@ -24,7 +24,7 @@ with(function () {
     }
 
     return [
-        'colecciones' => $query->paginate(5),
+        'colecciones' => $query->paginate(10),
     ];
 });
 

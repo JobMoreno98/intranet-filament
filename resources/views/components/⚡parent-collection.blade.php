@@ -24,7 +24,7 @@ with(function () {
     $children = $this->isOpen
         ? $this->collection->children()
             ->orderBy('nombre', 'ASC')
-            ->paginate(6, ['*'], 'page-' . $this->collection->id)
+            ->paginate(10, ['*'], 'page-' . $this->collection->id)
         : collect();
 
     return [

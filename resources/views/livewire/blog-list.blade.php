@@ -27,7 +27,7 @@ with(function () {
                           ->whereYear('created_at', $anio);
                 });
             })
-            ->paginate(6);
+            ->paginate(8);
     } else {
         $query = Blog::query()->orderBy('created_at', 'DESC');
 
