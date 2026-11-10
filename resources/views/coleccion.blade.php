@@ -10,6 +10,10 @@
             color: #86212b;
         }
 
+        .dark .text-custom-wine {
+            color: #fff;
+        }
+
         .hover-bg-custom-wine:hover {
             background-color: #6d1b23;
         }
@@ -31,7 +35,8 @@
                     </h3>
 
                     <div class="w-full md:w-72">
-                        <label class="block text-xs font-bold text-red-200 uppercase mb-1">Filtrar por Tipo Documental:</label>
+                        <label class="block text-xs font-bold text-red-200 uppercase mb-1">Filtrar por Tipo
+                            Documental:</label>
                         <select onchange="window.location.href = '?acervo_id=' + this.value"
                             class="dark:bg-neutral-600 dark:text-white w-full bg-white text-gray-800 text-sm rounded-md px-3 py-2  focus:outline-none focus:ring-1 focus:ring-red-400">
                             <option value="">-- Todos los Acervos --</option>
@@ -93,7 +98,8 @@
                             class="dark:bg-neutral-600 dark:text-white border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-800 focus:ring-2 
                             focus:ring-red-500 focus:border-red-500 outline-none dark:border-0">
                             @foreach ($opcionesPorPagina as $opcion)
-                                <option value="{{ $opcion }}" @selected($porPagina === $opcion)>{{ $opcion }}</option>
+                                <option value="{{ $opcion }}" @selected($porPagina === $opcion)>{{ $opcion }}
+                                </option>
                             @endforeach
                         </select>
                         <span>por página</span>
@@ -180,10 +186,11 @@
                                         class="text-white/80 hover:text-white text-4xl leading-none">&times;</button>
                                 </div>
 
-                                <div class="p-8 overflow-y-auto bg-gray-50/50 dark:bg-guinda dark:text-white">
+                                <div class="p-8 overflow-y-auto bg-gray-50/50 dark:bg-neutral-600 dark:text-white">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         @foreach ($fila['detalle'] as $campo)
-                                            <div class="bg-white p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
+                                            <div
+                                                class="bg-white dark:bg-guinda p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
                                                 <dt
                                                     class="text-[10px] font-black text-custom-wine uppercase tracking-widest mb-1">
                                                     {{ $campo['label'] }}
