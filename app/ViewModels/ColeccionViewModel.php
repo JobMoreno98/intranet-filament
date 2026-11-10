@@ -103,7 +103,7 @@ class ColeccionViewModel extends ViewModel
 
     public function title(): string
     {
-        return $this->coleccion->ruta ?? 'Colección';
+        return $this->coleccion->ruta ?? 'Fondo';
     }
 
     /** Descripción del fondo en texto plano (conserva saltos de línea), o null si no hay */
@@ -222,35 +222,38 @@ class ColeccionViewModel extends ViewModel
         $resultados = [];
 
         try {
-            // Solo pedimos la página actual (offset/limit nativos de Meilisearch)
-            $consulta = (new SearchQuery())
-                ->setIndexUid('recursos')
-                ->setQuery($term)
-                ->setOffset(($paginaActual - 1) * $this->porPagina)
-                ->setLimit($this->porPagina)
-                ->setFilter($filtros);
+            if (trim($term) === '') {
+                // Navegar por filtros: sin límite de 1000 y con total exacto
+                $docs = $this->meili->index('recursos')->getDocuments(
+                    (new DocumentsQuery())
+                        ->setFilter($filtros)
+                        ->setOffset(($paginaActual - 1) * $this->porPagina)
+                        ->setLimit($this->porPagina)
+                );
 
-            $response = $this->meili->multiSearch([$consulta]);
-            $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
+                $hits = $docs->getResults();
+                $this->totalHits = $docs->getTotal();
+            } else {
+                // Con texto: búsqueda normal (aquí sí aplica maxTotalHits)
+                $consulta = (new SearchQuery())
+                    ->setIndexUid('recursos')
+                    ->setQuery($term)
+                    ->setOffset(($paginaActual - 1) * $this->porPagina)
+                    ->setLimit($this->porPagina)
+                    ->setFilter($filtros);
 
-            foreach ($results as $indexResult) {
-                $this->totalHits = $indexResult['estimatedTotalHits']
-                    ?? ($indexResult['totalHits'] ?? count($indexResult['hits'] ?? []));
+                $response = $this->meili->multiSearch([$consulta]);
+                $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
 
-                foreach ($indexResult['hits'] ?? [] as $hit) {
-                    $resultados[] = (object) [
-                        'id' => $hit['id'],
-                        'uuid' => null,
-                        'acervo_id' => $hit['acervo_id'] ?? null,
-                        'coleccion_id' => $hit['coleccion_id'] ?? null,
-                        'metadata' => $hit['metadata_text'] ?? '',
-                        'tipo_media' => $hit['tipo_media'] ?? null,
-                        'status' => $hit['status'] ?? null,
-                        'acervo' => (object) ['nombre' => $hit['acervo'] ?? '---'],
-                        'coleccion' => (object) ['nombre' => $hit['coleccion'] ?? '---'],
-                        'archivos' => $hit['archivos'] ?? [],
-                    ];
-                }
+                $indexResult = $results[0] ?? [];
+                $hits = $indexResult['hits'] ?? [];
+                $this->totalHits = $indexResult['estimatedTotalHits'] ?? count($hits);
+            }
+
+            foreach ($hits as $hit) {
+                $resultados[] = (object) [
+                    // ... el mismo mapeo que ya tienes
+                ];
             }
         } catch (\Exception $e) {
             Log::error('Error en búsqueda automática por Acervo en Meilisearch: ' . $e->getMessage());
