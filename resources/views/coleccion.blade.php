@@ -200,7 +200,7 @@
                                         @foreach ($fila['detalle'] as $campo)
                                             <!-- Tarjetas de datos -->
                                             <div
-                                                class="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-[#86212b] shadow-sm ring-1 ring-gray-100 dark:ring-gray-700">
+                                                class="bg-white dark:bg-zinc-800 p-4 rounded-lg border-l-4 border-[#86212b] shadow-sm">
 
                                                 <!-- Etiqueta (Label) -->
                                                 <dt
