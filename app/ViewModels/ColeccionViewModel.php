@@ -253,7 +253,16 @@ class ColeccionViewModel extends ViewModel
 
             foreach ($hits as $hit) {
                 $resultados[] = (object) [
-                    // ... el mismo mapeo que ya tienes
+                    'id' => $hit['id'],
+                    'uuid' => null,
+                    'acervo_id' => $hit['acervo_id'] ?? null,
+                    'coleccion_id' => $hit['coleccion_id'] ?? null,
+                    'metadata' => $hit['metadata_text'] ?? '',
+                    'tipo_media' => $hit['tipo_media'] ?? null,
+                    'status' => $hit['status'] ?? null,
+                    'acervo' => (object) ['nombre' => $hit['acervo'] ?? '---'],
+                    'coleccion' => (object) ['nombre' => $hit['coleccion'] ?? '---'],
+                    'archivos' => $hit['archivos'] ?? [],
                 ];
             }
         } catch (\Exception $e) {
@@ -266,14 +275,16 @@ class ColeccionViewModel extends ViewModel
     /** Una sola consulta para los (máx. 14) resultados, en vez de una por fila */
     private function adjuntarUuids(array $resultados): void
     {
-        if (empty($resultados)) {
+        $ids = collect($resultados)->pluck('id')->filter()->values();
+
+        if ($ids->isEmpty()) {
             return;
         }
 
-        $uuids = Recursos::whereIn('id', collect($resultados)->pluck('id'))->pluck('uuid', 'id');
+        $uuids = Recursos::whereIn('id', $ids)->pluck('uuid', 'id');
 
         foreach ($resultados as $item) {
-            $item->uuid = $uuids[$item->id] ?? null;
+            $item->uuid = $uuids[$item->id ?? null] ?? null;
         }
     }
 
