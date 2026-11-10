@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Meilisearch\Contracts\DocumentsQuery;
 use Meilisearch\Contracts\SearchQuery;
 use Spatie\ViewModels\ViewModel;
 
