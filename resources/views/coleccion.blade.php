@@ -221,7 +221,7 @@
 
                                 <!-- Footer -->
                                 <div
-                                    class="px-8 py-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-right">
+                                    class="px-8 py-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-neutral-600 text-right">
                                     <button onclick="toggleModal('modal-{{ $fila['index'] }}', false)"
                                         class="bg-custom-wine hover:bg-opacity-90 transition-colors text-white px-6 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest shadow-sm">
                                         Cerrar
@@ -233,7 +233,7 @@
                 @endforeach
 
                 <div class="mx-auto w-full py-2">
-                    <div class="flex flex-wrap justify-center items-center gap-2">
+                    <div class="flex flex-wrap justify-center items-center gap-2 dark:text-white">
                         {{ $data->appends(request()->query())->links() }}
                     </div>
                 </div>
