@@ -169,43 +169,59 @@
                     <div id="modal-{{ $fila['index'] }}"
                         class="fixed inset-0 z-[9999] invisible opacity-0 transition-all duration-300 ease-out overflow-y-auto"
                         role="dialog" aria-modal="true">
-                        <div class="fixed inset-0 bg-black/60 backdrop-blur-md"
-                            onclick="toggleModal('modal-{{ $fila['index'] }}', false)"></div>
-                        <div class="flex items-center justify-center min-h-screen p-4 pointer-events-none">
-                            <div id="content-{{ $fila['index'] }}"
-                                class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col transform scale-90 transition-all duration-300 ease-out pointer-events-auto">
 
+                        <!-- Fondo oscuro semitransparente -->
+                        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                            onclick="toggleModal('modal-{{ $fila['index'] }}', false)"></div>
+
+                        <div class="flex items-center justify-center min-h-screen p-4 pointer-events-none">
+                            <!-- Contenedor Principal (Fondo ajustado para modo claro y oscuro) -->
+                            <div id="content-{{ $fila['index'] }}"
+                                class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col transform scale-90 transition-all duration-300 ease-out pointer-events-auto">
+
+                                <!-- Header (Se mantiene el color institucional wine) -->
                                 <div
-                                    class="px-6 py-5 bg-custom-wine text-white flex justify-between items-center shadow-lg">
+                                    class="px-6 py-5 bg-custom-wine text-white flex justify-between items-center shadow-md z-10">
                                     <div>
                                         <h3 class="text-xl font-bold tracking-tight uppercase">Información Completa</h3>
-                                        <p class="text-xs text-red-200 mt-1 uppercase tracking-widest font-medium">
-                                            Pertenece al Acervo: {{ $fila['acervo'] }}</p>
+                                        <p class="text-xs text-white/80 mt-1 uppercase tracking-widest font-medium">
+                                            Pertenece al Acervo: {{ $fila['acervo'] }}
+                                        </p>
                                     </div>
                                     <button onclick="toggleModal('modal-{{ $fila['index'] }}', false)"
-                                        class="text-white/80 hover:text-white text-4xl leading-none">&times;</button>
+                                        class="text-white/70 hover:text-white transition-colors text-4xl leading-none">&times;</button>
                                 </div>
 
-                                <div class="p-8 overflow-y-auto bg-gray-50/50 dark:bg-neutral-600 dark:text-white">
+                                <!-- Cuerpo del Modal -->
+                                <div class="p-8 overflow-y-auto bg-gray-50 dark:bg-gray-900">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         @foreach ($fila['detalle'] as $campo)
+                                            <!-- Tarjetas de datos -->
                                             <div
-                                                class="bg-white dark:bg-guinda p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
+                                                class="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-custom-wine shadow-sm ring-1 ring-gray-100 dark:ring-gray-700">
+
+                                                <!-- Etiqueta (Label) -->
                                                 <dt
-                                                    class="text-[10px] font-black text-custom-wine uppercase tracking-widest mb-1">
+                                                    class="text-[10px] font-black text-custom-wine dark:text-red-400 uppercase tracking-widest mb-1">
                                                     {{ $campo['label'] }}
                                                 </dt>
-                                                <dd class="text-sm text-gray-800 font-semibold leading-relaxed">
+
+                                                <!-- Valor (Se ajusta a gris claro en modo oscuro para contraste) -->
+                                                <dd
+                                                    class="text-sm text-gray-800 dark:text-gray-200 font-semibold leading-relaxed">
                                                     {{ $campo['valor'] }}
                                                 </dd>
+
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
 
-                                <div class="px-8 py-5 border-t bg-white text-right">
+                                <!-- Footer -->
+                                <div
+                                    class="px-8 py-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-right">
                                     <button onclick="toggleModal('modal-{{ $fila['index'] }}', false)"
-                                        class="bg-custom-wine text-white px-5 py-2 rounded-md text-xs font-bold uppercase tracking-widest">
+                                        class="bg-custom-wine hover:bg-opacity-90 transition-colors text-white px-6 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest shadow-sm">
                                         Cerrar
                                     </button>
                                 </div>
