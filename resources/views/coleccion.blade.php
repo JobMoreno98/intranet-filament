@@ -10,10 +10,6 @@
             color: #86212b;
         }
 
-        .border-custom-wine {
-            border-color: #86212b;
-        }
-
         .hover-bg-custom-wine:hover {
             background-color: #6d1b23;
         }
@@ -144,8 +140,8 @@
                                         @endif
 
                                         <button type="button" onclick="toggleModal('modal-{{ $fila['index'] }}', true)"
-                                            class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1  w-full my-1
-                                        font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white hover:bg-guinda transition-all
+                                            class="text-guinda border-2 rounded-sm px-2 py-1  w-full my-1
+                                        font-black text-xs uppercase tracking-widest hover:text-white hover:bg-guinda transition-all
                                         dark:bg-guinda dark:text-white">
                                             Detalle
                                         </button>
@@ -184,7 +180,7 @@
                                         class="text-white/80 hover:text-white text-4xl leading-none">&times;</button>
                                 </div>
 
-                                <div class="p-8 overflow-y-auto bg-gray-50/50">
+                                <div class="p-8 overflow-y-auto bg-gray-50/50 dark:bg-guinda dark:text-white">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         @foreach ($fila['detalle'] as $campo)
                                             <div class="bg-white p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
