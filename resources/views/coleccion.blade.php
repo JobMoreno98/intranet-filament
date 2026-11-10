@@ -177,7 +177,9 @@
                         <div class="flex items-center justify-center min-h-screen p-4 pointer-events-none">
                             <!-- Contenedor Principal (Fondo ajustado para modo claro y oscuro) -->
                             <div id="content-{{ $fila['index'] }}"
-                                class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col transform scale-90 transition-all duration-300 ease-out pointer-events-auto">
+                                class="relative bg-white dark:bg-neutral-600 rounded-2xl 
+                                shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col 
+                                transform scale-90 transition-all duration-300 ease-out pointer-events-auto">
 
                                 <!-- Header (Se mantiene el color institucional wine) -->
                                 <div
@@ -193,12 +195,12 @@
                                 </div>
 
                                 <!-- Cuerpo del Modal -->
-                                <div class="p-8 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+                                <div class="p-8 overflow-y-auto bg-gray-50 dark:bg-neutral-600">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         @foreach ($fila['detalle'] as $campo)
                                             <!-- Tarjetas de datos -->
                                             <div
-                                                class="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-custom-wine shadow-sm ring-1 ring-gray-100 dark:ring-gray-700">
+                                                class="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-[#86212b] shadow-sm ring-1 ring-gray-100 dark:ring-gray-700">
 
                                                 <!-- Etiqueta (Label) -->
                                                 <dt
