@@ -77,10 +77,10 @@ new class extends VoltComponent {
     }
 }; ?>
 
-<div class="bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100">
+<div class="dark:text-white p-6 rounded-b-lg shadow-sm border-t border-gray-100">
     @if ($acervoId)
         @if (count($configuracion) > 0)
-            <h4 class="text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">
+            <h4 class="dark:text-white text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 8.293A1 1 0 013 7.586V4z" />

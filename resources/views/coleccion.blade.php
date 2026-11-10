@@ -55,14 +55,10 @@
                     <div class="px-4 py-4 bg-white dark:bg-neutral-600 border-b border-gray-100 dark:border-neutral-500"
                         x-data="{ abierto: false }">
                         <h4
-                            class="text-xs font-bold uppercase tracking-wider text-custom-wine dark:text-red-200 flex items-center gap-2 mb-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            class="text-xs font-bold uppercase tracking-wider  dark:text-white flex items-center gap-2 mb-2">
                             Acerca de este fondo
                         </h4>
-                        <p class="max-w-4xl text-sm leading-relaxed text-gray-700 dark:text-gray-100 whitespace-pre-line"
+                        <p class="max-w-4xl text-sm leading-relaxed text-gray-700 dark:text-white whitespace-pre-line"
                             :class="abierto ? '' : 'line-clamp-3'">{{ $descripcionFondo }}</p>
                         @if (mb_strlen($descripcionFondo) > 280)
                             <button type="button" @click="abierto = !abierto"
@@ -98,7 +94,8 @@
 
                         <label for="per_page">Mostrar</label>
                         <select id="per_page" name="per_page" onchange="this.form.submit()"
-                            class="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none">
+                            class="dark:bg-neutral-600 dark:text-white border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-800 focus:ring-2 
+                            focus:ring-red-500 focus:border-red-500 outline-none dark:border-0">
                             @foreach ($opcionesPorPagina as $opcion)
                                 <option value="{{ $opcion }}" @selected($porPagina === $opcion)>{{ $opcion }}</option>
                             @endforeach
