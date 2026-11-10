@@ -99,7 +99,7 @@ new class extends VoltComponent {
 
                         @if ($variable)
                             <div class="flex flex-col">
-                                <label class="text-xs font-bold text-gray-600 uppercase mb-1 tracking-wide">
+                                <label class="text-xs font-bold text-gray-600 uppercase mb-1 tracking-wide dark:text-white">
                                     {{ $label }}
                                 </label>
                                 <input type="text" wire:model.blur="valores.{{ $variable }}"

@@ -107,7 +107,7 @@
                 </div>
 
                 <div
-                    class="relative overflow-x-auto shadow-2xl rounded-md border border-gray-200 bg-white dark:bg-neutral-600">
+                    class="relative overflow-x-auto shadow-2xl rounded-md  bg-white dark:bg-neutral-600">
                     <table class="min-w-full divide-y divide-gray-200 text-left">
                         <thead class="bg-custom-wine text-white">
                             <tr>
