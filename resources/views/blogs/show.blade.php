@@ -52,7 +52,7 @@
         }
 
         .post-contenido figcaption,
-        .post-contenido img + em {
+        .post-contenido img+em {
             display: block;
             font-size: 0.8rem;
             color: #71717a;
@@ -85,7 +85,7 @@
             </h1>
 
             <div class="flex items-center justify-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-               <span>{{ $post->created_at->translatedFormat('d \d\e F, Y') }}</span>
+                <span>{{ $post->created_at->translatedFormat('d \d\e F, Y') }}</span>
             </div>
 
             @if (!empty($post->tags))
@@ -135,15 +135,22 @@
             {{-- Compartir --}}
             <div class="border-t border-zinc-200 dark:border-zinc-700 pt-6 flex items-center justify-center gap-3">
                 <span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Compartir:</span>
-                <a href="https://wa.me/?text={{ urlencode($post->nombre . ' ' . url()->current()) }}"
-                    target="_blank"
+                <a href="https://wa.me/?text={{ urlencode($post->nombre . ' ' . url()->current()) }}" target="_blank"
                     class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white">
                     WhatsApp
                 </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
-                    target="_blank"
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank"
                     class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white">
                     Facebook
+                </a>
+
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank"
+                    class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white">
+                    Instagram
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank"
+                    class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white">
+                    X
                 </a>
             </div>
 
@@ -161,7 +168,8 @@
                             <a href="{{ route('blog.show', $rel->slug) }}" class="group flex flex-col gap-3">
                                 <img src="{{ asset('storage/' . $rel->portada) }}" alt="{{ $rel->nombre }}"
                                     class="w-full aspect-square object-cover rounded-md">
-                                <span class="text-sm font-semibold text-zinc-800 line-clamp-2 group-hover:text-custom-wine transition-colors dark:text-white">
+                                <span
+                                    class="text-sm font-semibold text-zinc-800 line-clamp-2 group-hover:text-custom-wine transition-colors dark:text-white">
                                     {{ $rel->nombre }}
                                 </span>
                             </a>

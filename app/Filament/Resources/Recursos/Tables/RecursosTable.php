@@ -104,7 +104,7 @@ class RecursosTable
                 EditAction::make(),
             ])->headerActions([
                 ImportAction::make()
-                    ->importer(RecursoImporter::class)
+                    ->importer(RecursoImporter::class)->chunkSize(50)
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

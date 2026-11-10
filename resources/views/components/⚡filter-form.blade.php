@@ -42,6 +42,11 @@ new class extends VoltComponent {
         if ($this->acervoId) {
             $filtrosActivos['acervo_id'] = $this->acervoId;
         }
+        // Conservamos la cantidad de registros por página elegida
+        if (request()->filled('per_page')) {
+            $filtrosActivos['per_page'] = (int) request()->input('per_page');
+        }
+
         // Redireccionamos limpiamente rompiendo el ciclo de renderizado de Livewire
         return redirect()->to($this->urlBase . '?' . http_build_query($filtrosActivos));
     }
@@ -108,7 +113,7 @@ new class extends VoltComponent {
                 <div class="mt-6 flex justify-end space-x-2 border-t pt-4 border-gray-100">
 
                     @if (request()->anyFilled(collect($configuracion)->pluck('variable')->toArray()))
-                        <a href="{{ url()->current() . '?acervo_id=' . $acervoId }}"
+                        <a href="{{ url()->current() . '?acervo_id=' . $acervoId . (request()->filled('per_page') ? '&per_page=' . (int) request('per_page') : '') }}"
                             class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
                             Limpiar criterios
                         </a>

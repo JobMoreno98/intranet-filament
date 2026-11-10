@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Redis;
 use Meilisearch\Contracts\SearchQuery;
 use Illuminate\Validation\Rule;
 use App\Support\FiltroAvanzado;
+use App\ViewModels\ColeccionViewModel;
 
 class ColeccionesConsultaController extends Controller
 {
@@ -37,98 +38,10 @@ class ColeccionesConsultaController extends Controller
 
     public function show(Request $request, Coleccion $coleccion)
     {
-        // Nota: con route-model binding tipado, Laravel ya lanza 404 automáticamente
-        // si $coleccion no existe, así que no hace falta comprobarlo aquí.
+        // Con route-model binding tipado, Laravel ya lanza 404 si $coleccion no existe.
+        $viewModel = new ColeccionViewModel($request, $coleccion, $this->meili);
 
-        $acervosDisponibles = $coleccion->items()->whereNotNull('acervo_id')->select('acervo_id')->distinct()->with('acervo')->get();
-
-        $resultados = [];
-        $term = $request->input('q', '');
-        $esquema = [];
-
-        // Filtro base obligatorio
-        $meiliFilters = ["coleccion_id = {$coleccion->id}"];
-        if ($request->filled('acervo_id')) {
-            $acervoIdActual = $request->input('acervo_id');
-            $meiliFilters[] = "acervo_id = {$acervoIdActual}";
-
-            // Cacheamos SOLO el esquema (que es un string o array), no el modelo completo
-            $esquemaCacheado = Cache::remember("tipo_acervo_esquema_{$acervoIdActual}", 3600, function () use ($acervoIdActual) {
-                $tipoAcervo = TipoAcervo::find($acervoIdActual);
-                return $tipoAcervo ? $tipoAcervo->esquema : null;
-            });
-
-            if ($esquemaCacheado) {
-                // Decodificamos de forma segura
-                $esquema = is_string($esquemaCacheado) ? json_decode($esquemaCacheado, true) : (array) $esquemaCacheado;
-
-                $camposAtributos = collect($esquema)->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')->pluck('variable')->toArray();
-
-                // Mapeamos los filtros extras de la URL si el usuario los escribió
-                foreach ($request->only($camposAtributos) as $campo => $valor) {
-                    if ($valor !== null && $valor !== '') {
-                        $meiliFilters[] = "metadata.{$campo} CONTAINS  \"" . $this->escaparFiltroMeili($valor) . "\"";
-                    }
-                }
-            }
-        }
-        $perPage = 14;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $totalHits = 0;
-
-        try {
-            // Pedimos solo la página actual a Meilisearch (offset/limit nativos)
-            // en vez de traer 300 resultados y cortarlos en PHP.
-            $searchQuery = new SearchQuery()
-                ->setIndexUid('recursos')
-                ->setQuery($term)
-                ->setOffset(($currentPage - 1) * $perPage)
-                ->setLimit($perPage)
-                ->setFilter($meiliFilters);
-
-            $response = $this->meili->multiSearch([$searchQuery]);
-            $results = is_array($response) ? $response['results'] : $response->toArray()['results'];
-
-            foreach ($results as $indexResult) {
-                $totalHits = $indexResult['estimatedTotalHits'] ?? ($indexResult['totalHits'] ?? count($indexResult['hits'] ?? []));
-                $hits = $indexResult['hits'] ?? [];
-                foreach ($hits as $hit) {
-                    $resultados[] = (object) [
-                        'id' => $hit['id'],
-                        'acervo_id' => $hit['acervo_id'] ?? null,
-                        'coleccion_id' => $hit['coleccion_id'] ?? null,
-                        'metadata' => $hit['metadata_text'] ?? [],
-                        'tipo_media' => $hit['tipo_media'] ?? null,
-                        'status' => $hit['status'] ?? null,
-                        'acervo' => (object) ['nombre' => $hit['acervo'] ?? '---'],
-                        'coleccion' => (object) ['nombre' => $hit['coleccion'] ?? '---'],
-                        'archivos' => $hit['archivos'],
-                    ];
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('Error en búsqueda automática por Acervo en Meilisearch: ' . $e->getMessage());
-        }
-
-        // UUID: los hits de Meilisearch solo traen el id numérico. Para armar el enlace
-        // público (buscador.registro) necesitamos el uuid, así que lo consultamos UNA sola
-        // vez para los (máx. 14) resultados de esta página, en vez de una consulta por fila.
-        if (!empty($resultados)) {
-            $uuids = Recursos::whereIn('id', collect($resultados)->pluck('id'))->pluck('uuid', 'id');
-
-            foreach ($resultados as $item) {
-                // En el Blade de la colección se usa: $item->uuid
-                $item->uuid = $uuids[$item->id] ?? null;
-            }
-        }
-
-        // $resultados ya es solo la página actual, no hace falta array_slice
-        $data = new LengthAwarePaginator($resultados, $totalHits, $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath(),
-        ]);
-
-        $data->appends($request->all())->onEachSide(0);
-
+        // Analítica: efecto secundario, por eso se queda en el controlador
         try {
             Redis::hincrby('analytics:coleccion_vistas', $coleccion->id, 1);
             $hoy = now()->format('Y-m-d');
@@ -136,15 +49,9 @@ class ColeccionesConsultaController extends Controller
         } catch (\Exception $e) {
         }
 
-        return view('coleccion', [
-            'data' => $data,
-            'tablaNombre' => 'recursos',
-            'coleccion' => $coleccion,
-            'acervosDisponibles' => $acervosDisponibles,
-            'title' => $coleccion->ruta ?? 'Colección',
-            'header' => collect($esquema)->filter(fn($item) => ($item['visible'] ?? null) === 'Recuperable')->pluck('variable')->toArray(),
-        ]);
+        return $viewModel;
     }
+
 
     /**
      * Escapa comillas dobles y backslashes para poder interpolar un valor

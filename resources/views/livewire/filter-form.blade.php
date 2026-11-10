@@ -5,23 +5,26 @@ use Livewire\Volt\Component as VoltComponent;
 new class extends VoltComponent {
     public $acervoId; // Permitido (Primitivo)
     public $valores = []; // Guardará únicamente strings planos
+    public $urlBase;
 
     public function mount($acervoId = null)
     {
+        $this->urlBase = request()->url();
         $this->acervoId = $acervoId ? (int) $acervoId : null;
 
         if ($this->acervoId) {
-            // 1. Obtenemos el esquema de arrays (El que nos mostraste en el dd)
+            // 1. Obtenemos el esquema de arrays
             $esquema = $this->obtenerEsquemaDeMetadata($this->acervoId);
-        
+            //dd($esquema);
 
             foreach ($esquema as $campo) {
-                // Usamos la llave 'variable' según tu estructura (ej: 'asunto', 'anio')
                 $nombreVariable = $campo['variable'] ?? null;
 
                 if ($nombreVariable) {
-                    // BLINDAJE ABSOLUTO: Forzamos que solo extraiga texto plano de la URL
+                    // Extraemos texto plano de la URL si ya se realizó una búsqueda previa
                     $valorUrl = request()->input($nombreVariable);
+
+                    // IMPORTANTE: Inicializamos explícitamente todas las llaves como strings
                     $this->valores[$nombreVariable] = is_string($valorUrl) ? $valorUrl : '';
                 }
             }
@@ -39,11 +42,16 @@ new class extends VoltComponent {
         if ($this->acervoId) {
             $filtrosActivos['acervo_id'] = $this->acervoId;
         }
-        
-        return redirect()->to(url()->current() . '?' . http_build_query($filtrosActivos));
+        // Conservamos la cantidad de registros por página elegida
+        if (request()->filled('per_page')) {
+            $filtrosActivos['per_page'] = (int) request()->input('per_page');
+        }
+
+        // Redireccionamos limpiamente rompiendo el ciclo de renderizado de Livewire
+        return redirect()->to($this->urlBase . '?' . http_build_query($filtrosActivos));
     }
 
-    // 2. Pasamos el esquema directamente a la vista sin guardarlo en propiedades públicas (Evita el Exception)
+    // Pasamos el esquema directamente a la vista evitando problemas de serialización
     public function with()
     {
         return [
@@ -51,20 +59,10 @@ new class extends VoltComponent {
         ];
     }
 
-    /**
-     * Helper para centralizar cómo obtienes ese array de 13 campos.
-     * Ajusta esta consulta a cómo obtienes realmente el JSON de tu base de datos.
-     */
     private function obtenerEsquemaDeMetadata($acervoId)
     {
-        // Ejemplo si está guardado en una tabla llamada 'acervos' o 'colecciones' en un campo JSON:
-        // $registro = DB::connection('mysql2')->table('acervos_config')->where('acervo_id', $acervoId)->first();
-        // return json_decode($registro->esquema, true) ?? [];
-
-        // Dejo esta consulta simulada apuntando a donde sea que tengas guardado el JSON de tus esquemas:
         $config = App\Models\TipoAcervo::where('id', $acervoId)->first();
 
-        // Si tu campo en base de datos ya se parsea como array o es un string JSON:
         if ($config && isset($config->esquema)) {
             $esquema = is_string($config->esquema) ? json_decode($config->esquema, true) : (array) $config->esquema;
 
@@ -74,17 +72,16 @@ new class extends VoltComponent {
                 }),
             );
         }
+
         return [];
     }
 }; ?>
 
-<div class="dark:bg-neutral-600  bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100">
+<div class="bg-white p-6 rounded-b-lg shadow-sm border-t border-gray-100">
     @if ($acervoId)
         @if (count($configuracion) > 0)
-            <h4
-                class="dark:text-white text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">
-                <svg class="w-4 h-4 text-gray-500 dark:text-guinda " fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
+            <h4 class="text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 8.293A1 1 0 013 7.586V4z" />
                 </svg>
@@ -102,13 +99,12 @@ new class extends VoltComponent {
 
                         @if ($variable)
                             <div class="flex flex-col">
-                                <label
-                                    class="text-xs font-bold text-gray-600 uppercase mb-1 tracking-wide dark:text-white">
+                                <label class="text-xs font-bold text-gray-600 uppercase mb-1 tracking-wide">
                                     {{ $label }}
                                 </label>
                                 <input type="text" wire:model.blur="valores.{{ $variable }}"
                                     placeholder="Buscar por {{ strtolower($label) }}..."
-                                    class="dark:text-white border border-gray-300 rounded-md p-2 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400">
+                                    class="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder-gray-400">
                             </div>
                         @endif
                     @endforeach
@@ -117,7 +113,7 @@ new class extends VoltComponent {
                 <div class="mt-6 flex justify-end space-x-2 border-t pt-4 border-gray-100">
 
                     @if (request()->anyFilled(collect($configuracion)->pluck('variable')->toArray()))
-                        <a href="{{ url()->current() . '?acervo_id=' . $acervoId }}"
+                        <a href="{{ url()->current() . '?acervo_id=' . $acervoId . (request()->filled('per_page') ? '&per_page=' . (int) request('per_page') : '') }}"
                             class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-red-700 flex items-center transition duration-200">
                             Limpiar criterios
                         </a>

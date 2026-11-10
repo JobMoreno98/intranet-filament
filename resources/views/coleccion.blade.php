@@ -35,8 +35,7 @@
                     </h3>
 
                     <div class="w-full md:w-72">
-                        <label class="block text-xs font-bold text-red-200 uppercase mb-1">Filtrar por Tipo de
-                            Acervo:</label>
+                        <label class="block text-xs font-bold text-red-200 uppercase mb-1">Filtrar por Tipo Documental:</label>
                         <select onchange="window.location.href = '?acervo_id=' + this.value"
                             class="dark:bg-neutral-600 dark:text-white w-full bg-white text-gray-800 text-sm rounded-md px-3 py-2  focus:outline-none focus:ring-1 focus:ring-red-400">
                             <option value="">-- Todos los Acervos --</option>
@@ -52,73 +51,62 @@
                     </div>
                 </div>
 
+                @if ($descripcionFondo)
+                    <div class="px-4 py-4 bg-white dark:bg-neutral-600 border-b border-gray-100 dark:border-neutral-500"
+                        x-data="{ abierto: false }">
+                        <h4
+                            class="text-xs font-bold uppercase tracking-wider text-custom-wine dark:text-red-200 flex items-center gap-2 mb-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Acerca de este fondo
+                        </h4>
+                        <p class="max-w-4xl text-sm leading-relaxed text-gray-700 dark:text-gray-100 whitespace-pre-line"
+                            :class="abierto ? '' : 'line-clamp-3'">{{ $descripcionFondo }}</p>
+                        @if (mb_strlen($descripcionFondo) > 280)
+                            <button type="button" @click="abierto = !abierto"
+                                class="mt-2 text-xs font-bold uppercase tracking-widest text-custom-wine dark:text-red-200 hover:underline"
+                                x-text="abierto ? 'Ver menos' : 'Ver más'">Ver más</button>
+                        @endif
+                    </div>
+                @endif
+
                 <div class="p-4 bg-gray-100/50 dark:bg-neutral-600">
                     <livewire:filter-form :acervoId="request('acervo_id')" />
                 </div>
             </div>
 
-            @php
-                $firstItem = $data->first();
-                $metadata = [];
-
-                if ($firstItem && isset($firstItem->metadata)) {
-                    $metadata = collect(explode('|', $firstItem->metadata))
-                        ->mapWithKeys(function ($item) {
-                            [$clave, $valor] = explode(':', $item, 2);
-
-                            return [
-                                trim($clave) => trim($valor),
-                            ];
-                        })
-                        ->toArray();
-                }
-
-                $allKeys = array_keys($metadata);
-                //dd($allKeys, $firstItem->metadata);
-
-                // Mapeo estético de nombres técnicos a etiquetas legibles
-                $cambios = [
-                    'anio' => 'Año',
-                    'tipoarchivo' => 'Tipo Archivo',
-                    'numpaginas' => 'No. Páginas',
-                    'numarchivos' => 'No. Archivos',
-                    'numero' => 'Número',
-                    'titulo' => 'Título',
-                    'autor' => 'Autor',
-                    'dia' => 'Día',
-                    'paginas' => 'Páginas',
-                    'epocaperiodo' => 'Epoca o Periodo',
-                    'personaje_principal' => 'Nombre de Personaje principal',
-                    'personaje_secundario' => 'Nombre de Personaje secundario',
-                    'clavefondoprincipal' => 'Clave Fondo Principal',
-                    'fondoprincipal' => 'Fondo principal',
-                    'lugar' => 'Lugar',
-                    'lugar_2' => 'Lugar 2',
-                    'anio_2' => 'Año 2',
-                    'numinventario' => 'No. Inventario',
-                    'observaciones' => 'Observaciones',
-                    'autor' => 'Autor',
-                    'volumentomoejemplar' => 'Volumen / Tomo / Ejemplar',
-                    'observaciones_2' => 'Observaciones 2',
-                    'observaciones_3' => 'Observaciones 3',
-                    'descripcion_fisica'=> 'Descripción Física',
-                ];
-                // Quitamos llaves de control internas si se colaron en la metadata
-                $ignorar = ['id', 'created_at', 'updated_at', 'deleted_at', 'estatus'];
-                $keysFiltradas = array_filter($allKeys, fn($k) => !in_array($k, $ignorar));
-
-                $headerPrimarios = $header;
-
-                $headerResto = array_diff($keysFiltradas, $headerPrimarios);
-                //dd($headerResto, $header);
-                sort($headerResto);
-
-                // Unimos y limitamos a un máximo de 6 columnas visibles para que no se rompa la vista
-                $ordenTotal = array_merge($headerPrimarios, $headerResto);
-                $columnasVisibles = array_slice($ordenTotal, 0, 6);
-                $tieneMasColumnas = count($ordenTotal) > 6;
-            @endphp
             @if (request('acervo_id'))
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-white">
+                    <p>
+                        @if ($data->total() > 0)
+                            Mostrando {{ $data->firstItem() }}–{{ $data->lastItem() }} de {{ $data->total() }} registros
+                        @else
+                            Sin registros
+                        @endif
+                    </p>
+
+                    <form method="GET" class="flex items-center gap-2">
+                        {{-- Conserva los filtros actuales, pero reinicia la página --}}
+                        @foreach (request()->except(['per_page', 'page']) as $clave => $valor)
+                            @if (is_string($valor))
+                                <input type="hidden" name="{{ $clave }}" value="{{ $valor }}">
+                            @endif
+                        @endforeach
+
+                        <label for="per_page">Mostrar</label>
+                        <select id="per_page" name="per_page" onchange="this.form.submit()"
+                            class="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-800 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none">
+                            @foreach ($opcionesPorPagina as $opcion)
+                                <option value="{{ $opcion }}" @selected($porPagina === $opcion)>{{ $opcion }}</option>
+                            @endforeach
+                        </select>
+                        <span>por página</span>
+                    </form>
+                </div>
+
                 <div
                     class="relative overflow-x-auto shadow-2xl rounded-md border border-gray-200 bg-white dark:bg-neutral-600">
                     <table class="min-w-full divide-y divide-gray-200 text-left">
@@ -126,9 +114,9 @@
                             <tr>
                                 <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest">Acervo</th>
 
-                                @foreach ($columnasVisibles as $item)
+                                @foreach ($columnas as $columna)
                                     <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest">
-                                        {{ $cambios[strtolower($item)] ?? ($cambios[$item] ?? $item) }}
+                                        {{ $columna }}
                                     </th>
                                 @endforeach
                                 <th class="px-2 py-3 text-center text-xs font-bold uppercase tracking-widest"
@@ -137,31 +125,20 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
 
-                            @forelse ($data as $index => $registro)
-                                @php
-                                    $regMeta = collect(explode('|', $registro->metadata))
-                                        ->mapWithKeys(function ($item) {
-                                            [$clave, $valor] = explode(':', $item, 2);
-
-                                            return [
-                                                trim($clave) => trim($valor),
-                                            ];
-                                        })
-                                        ->toArray();
-                                @endphp
+                            @forelse ($filas as $fila)
                                 <tr class="hover:bg-red-50/30 transition-colors">
                                     <td class="px-4 py-4 text-sm text-gray-700 font-bold dark:text-white">
-                                        {{ $registro->acervo->nombre }}
+                                        {{ $fila['acervo'] }}
                                     </td>
 
-                                    @foreach ($columnasVisibles as $item)
+                                    @foreach ($fila['celdas'] as $celda)
                                         <td class="px-4 py-4 text-sm text-gray-600 font-medium dark:text-white">
-                                            {{ isset($regMeta[$item]) && $regMeta[$item] !== '' && $regMeta[$item] !== '-' ? $regMeta[$item] : '---' }}
+                                            {{ $celda }}
                                         </td>
                                     @endforeach
                                     <td class="px-3 py-2 text-center">
-                                        @if ($registro->archivos)
-                                            <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $registro]) }}"
+                                        @if ($fila['urlVer'])
+                                            <a href="{{ $fila['urlVer'] }}"
                                                 class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1  block
                                         font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white transition-all hover:bg-guinda
                                         dark:bg-guinda dark:text-white w-full my-1">
@@ -169,7 +146,7 @@
                                             </a>
                                         @endif
 
-                                        <button type="button" onclick="toggleModal('modal-{{ $index }}', true)"
+                                        <button type="button" onclick="toggleModal('modal-{{ $fila['index'] }}', true)"
                                             class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1  w-full my-1
                                         font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white hover:bg-guinda transition-all
                                         dark:bg-guinda dark:text-white">
@@ -179,7 +156,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-8 text-gray-400 font-medium text-sm">
+                                    <td colspan="{{ count($columnas) + 2 }}"
+                                        class="text-center py-8 text-gray-400 font-medium text-sm">
                                         No se encontraron registros que coincidan con los filtros aplicados.
                                     </td>
                                 </tr>
@@ -188,60 +166,45 @@
                     </table>
                 </div>
 
-                @foreach ($data as $index => $registro)
-                    @php
-                        $regMeta = collect(explode('|', $registro->metadata))
-                            ->mapWithKeys(function ($item) {
-                                [$clave, $valor] = explode(':', $item, 2);
-
-                                return [
-                                    trim($clave) => trim($valor),
-                                ];
-                            })
-                            ->toArray();
-                    @endphp
-                    <div id="modal-{{ $index }}"
+                @foreach ($filas as $fila)
+                    <div id="modal-{{ $fila['index'] }}"
                         class="fixed inset-0 z-[9999] invisible opacity-0 transition-all duration-300 ease-out overflow-y-auto"
                         role="dialog" aria-modal="true">
                         <div class="fixed inset-0 bg-black/60 backdrop-blur-md"
-                            onclick="toggleModal('modal-{{ $index }}', false)"></div>
+                            onclick="toggleModal('modal-{{ $fila['index'] }}', false)"></div>
                         <div class="flex items-center justify-center min-h-screen p-4 pointer-events-none">
-                            <div id="content-{{ $index }}"
+                            <div id="content-{{ $fila['index'] }}"
                                 class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col transform scale-90 transition-all duration-300 ease-out pointer-events-auto">
 
                                 <div
                                     class="px-6 py-5 bg-custom-wine text-white flex justify-between items-center shadow-lg">
                                     <div>
                                         <h3 class="text-xl font-bold tracking-tight uppercase">Información Completa</h3>
-                                        <p class="text-xs text-red-200 mt-1 uppercase tracking-widest font-medium">Pertenece
-                                            al
-                                            Acervo: {{ $registro->acervo->nombre }}</p>
+                                        <p class="text-xs text-red-200 mt-1 uppercase tracking-widest font-medium">
+                                            Pertenece al Acervo: {{ $fila['acervo'] }}</p>
                                     </div>
-                                    <button onclick="toggleModal('modal-{{ $index }}', false)"
+                                    <button onclick="toggleModal('modal-{{ $fila['index'] }}', false)"
                                         class="text-white/80 hover:text-white text-4xl leading-none">&times;</button>
                                 </div>
 
                                 <div class="p-8 overflow-y-auto bg-gray-50/50">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        @foreach ($ordenTotal as $item)
-                                            @if (isset($regMeta[$item]) && $regMeta[$item] !== '' && $regMeta[$item] !== '-')
-                                                <div
-                                                    class="bg-white p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
-                                                    <dt
-                                                        class="text-[10px] font-black text-custom-wine uppercase tracking-widest mb-1">
-                                                        {{ $cambios[strtolower($item)] ?? ($cambios[$item] ?? $item) }}
-                                                    </dt>
-                                                    <dd class="text-sm text-gray-800 font-semibold leading-relaxed">
-                                                        {{ $regMeta[$item] }}
-                                                    </dd>
-                                                </div>
-                                            @endif
+                                        @foreach ($fila['detalle'] as $campo)
+                                            <div class="bg-white p-4 rounded-md border-l-4 border-custom-wine shadow-sm">
+                                                <dt
+                                                    class="text-[10px] font-black text-custom-wine uppercase tracking-widest mb-1">
+                                                    {{ $campo['label'] }}
+                                                </dt>
+                                                <dd class="text-sm text-gray-800 font-semibold leading-relaxed">
+                                                    {{ $campo['valor'] }}
+                                                </dd>
+                                            </div>
                                         @endforeach
                                     </div>
                                 </div>
 
                                 <div class="px-8 py-5 border-t bg-white text-right">
-                                    <button onclick="toggleModal('modal-{{ $index }}', false)"
+                                    <button onclick="toggleModal('modal-{{ $fila['index'] }}', false)"
                                         class="bg-custom-wine text-white px-5 py-2 rounded-md text-xs font-bold uppercase tracking-widest">
                                         Cerrar
                                     </button>
