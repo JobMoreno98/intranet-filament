@@ -122,7 +122,7 @@
             <section class="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-700">
 
                 <div
-                    class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex items-center justify-center gap-3">
+                    class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3">
                     <span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Compartir:</span>
                     <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
                         class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">

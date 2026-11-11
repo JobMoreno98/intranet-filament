@@ -165,6 +165,32 @@
                 </div>
             </aside>
         </div>
+        <div
+            class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3">
+            <span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Compartir:</span>
+            <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
+                class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                WhatsApp
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank"
+                rel="noopener"
+                class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 
+                    dark:text-white dark:hover:bg-zinc-700">
+                Facebook
+            </a>
+
+            <a href="https://x.com/intent/post?url={{ urlencode(url()->current()) }}&text={{ urlencode($titulo ?? '') }}"
+                target="_blank" rel="noopener"
+                class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                X
+            </a>
+
+            <button type="button" x-data="{ soportado: !!navigator.share }" x-show="soportado" x-cloak
+                x-on:click="navigator.share({ title: document.title, url: '{{ url()->current() }}' })"
+                class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                Más opciones
+            </button>
+        </div>
     </section>
 @endsection
 
