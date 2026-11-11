@@ -20,11 +20,14 @@ class TipoAcervoResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Tipos de Acervos';
-    protected static ?string $title = 'Tipos de Acervos';
-    protected static ?string $navigationLabel = 'Tipos de Acervos';
-    protected static ?string $pluralModelLabel = 'Tipos de Acervos';
+    protected static ?string $recordTitleAttribute = 'Tipo Documental';
+    protected static ?string $modelLabel = 'Tipo Documental';
+
+    protected static ?string $title = 'Tipo Documental';
+    protected static ?string $navigationLabel = 'Tipo Documental';
+    protected static ?string $pluralModelLabel = 'Tipo Documental';
     protected static ?int $navigationSort = 1;
+    protected static ?string $slug = 'tipo-documental';
 
     public static function getNavigationGroup(): ?string
     {

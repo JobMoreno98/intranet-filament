@@ -27,12 +27,14 @@ class ColeccionResource extends Resource
     protected static ?string $navigationLabel = 'Fondos';
     protected static ?string $pluralModelLabel = 'Fondos';
     protected static ?int $navigationSort = 2;
+    protected static ?string $slug = 'fondos';
+    protected static ?string $modelLabel = 'Fondos';
 
     public static function getNavigationGroup(): ?string
     {
         return 'Contenidos';
     }
-    
+
     public static function form(Schema $schema): Schema
     {
         return ColeccionForm::configure($schema);
