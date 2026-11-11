@@ -13,7 +13,7 @@
         <article>
             <div class="w-full max-w-4xl mx-auto px-4 py-12">
 
-                <section class="mx-auto my-10 max-w-5xl rounded-xl bg-white p-6 shadow-sm md:p-10">
+                <section class="mx-auto my-10 max-w-5xl rounded-xl bg-white p-6 shadow-sm md:p-10 dark:border dark:border-zinc-200 dark:bg-zinc-800 dark:text-white">
 
                     <!-- Encabezado -->
                     <div class="mb-6">
@@ -26,7 +26,7 @@
                             Laboratorio de Digitalización
                         </h2>
 
-                        <p class="text-base leading-7 text-gray-600">
+                        <p class="text-base leading-7 text-gray-600  dark:text-white">
                             El Laboratorio de Digitalización de la Biblioteca Pública del Estado
                             de Jalisco es uno de los mejor equipados del país. Trabajamos en la
                             reproducción de diversos materiales documentales, artísticos y
@@ -36,7 +36,7 @@
 
                     <!-- Materiales -->
                     <div class="mb-8">
-                        <h3 class="mb-4 text-lg font-bold text-gray-800">
+                        <h3 class="mb-4 text-lg font-bold text-gray-800  dark:text-white">
                             Materiales que digitalizamos
                         </h3>
 

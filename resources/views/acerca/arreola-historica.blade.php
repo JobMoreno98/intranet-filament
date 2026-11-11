@@ -20,14 +20,15 @@
             <section class="mb-14">
 
                 <div class="mb-8 max-w-3xl">
+                    {{--  
                     <span
                         class="mb-4 block text-sm font-semibold uppercase tracking-widest text-[#86212b] dark:text-[#d98b91]">
                         Arreola Histórica
                     </span>
-
+--}}
                     <h2
                         class="text-3xl font-semibold leading-tight tracking-tight text-zinc-800 dark:text-zinc-100 md:text-4xl">
-                        La memoria histórica de Jalisco al alcance de todos.
+                       Te damos la bienvenida al futuro de nuestro pasado.
                     </h2>
 
                     <div class="mt-5 h-1 w-16 bg-guinda dark:bg-[#d98b91]"></div>

@@ -35,6 +35,7 @@ class RecursoImporter extends Importer
                 ->numeric(),
 
             ImportColumn::make('tipo_media'),
+            
             ImportColumn::make('visible')->numeric(),
         ];
     }

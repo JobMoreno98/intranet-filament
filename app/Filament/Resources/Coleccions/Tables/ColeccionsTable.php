@@ -27,6 +27,8 @@ class ColeccionsTable
                 TextColumn::make('parent.nombre')->label('Padre')
                     ->badge()->searchable(),
 
+                TextColumn::make('area.nombre')->label('Área'),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -37,7 +39,7 @@ class ColeccionsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])->headerActions([
                 ImportAction::make()
-                    ->importer(ColeccionImporter::class),
+                    ->importer(ColeccionImporter::class)->chunkSize(50),
             ])
             ->filters([
                 //

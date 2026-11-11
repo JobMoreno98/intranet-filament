@@ -15,9 +15,6 @@
             
             <!-- Introducción -->
             <section class="mb-12 rounded-lg bg-guinda px-6 py-10 md:px-12 dark:bg-[#6a1a22]">
-                <p class="text-base leading-8 text-white/95 md:text-lg mb-4 text-justify">
-                    La Biblioteca Histórica cuenta con el personal especializado y las condiciones de temperatura y humedad relativa adecuadas para la preservación del patrimonio histórico de Jalisco y la región Centro-Occidente de México.
-                </p>
                 <p class="text-base leading-8 text-white/95 md:text-lg text-justify">
                     Nuestros acervos se encuentran organizados en siete áreas, que a su vez resguardan fondos archivísticos, audiovisuales, bibliográficos, hemerográficos, fotográficos y sonoros:
                 </p>

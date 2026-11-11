@@ -71,11 +71,14 @@
         $enlaces = [
             ['INICIO', 'home'],
             ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
-            ['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
-            ['ÁREAS', 'areas.index'],
-            ['FONDOS', 'fondos.index'],
+            ['ÁREAS Y FONDOS', 'areas.index'],
+
+            //['FONDOS', 'fondos.index'],
             ['ARREOLA HISTÓRICA', 'arreola.historica'],
-            ['COMO USAR', 'arreola.uso'],
+
+            //['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
+
+            ['CÓMO USAR', 'arreola.uso'],
             ['SOLICITUD DE REPRODUCCIONES', 'arreola.solicitud'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
             ['MEMORIA UDG', 'arreola.memoria'],
@@ -294,9 +297,7 @@
                                 Solo con material digitalizado
                             </span>
                         </label>
-
                     </div>
-
                 </div>
             </form>
         </div>
@@ -336,13 +337,9 @@
                                     alt="Sistema Universitario de Bibliotecas"
                                     class="hidden dark:block h-13 sm:h-12 w-auto object-contain">
 
-
-
                                 <!-- Divisor vertical -->
                                 <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
                                     aria-hidden="true"></span>
-
-
 
                                 <!-- 2. Logo BPEJ -->
                                 <img src="{{ asset('img/bpej.svg') }}" alt="Biblioteca Pública del Estado de Jalisco"
@@ -379,80 +376,21 @@
     </footer>
 
     @fluxScripts
+
     @livewireScripts
+
     @yield('js')
+
     <x-toast />
-    <div x-data="{
-        showPopup: false,
-        dontShowAgain: false,
-        init() {
-            // Verificamos si el usuario ya guardó la preferencia de no volver a verlo
-            if (!localStorage.getItem('hide_announcement_popup')) {
-                // Pequeño retraso opcional para que aparezca suavemente al cargar la página
-                setTimeout(() => { this.showPopup = true; }, 1000);
-            }
-        },
-        closePopup() {
-            if (this.dontShowAgain) {
-                localStorage.setItem('hide_announcement_popup', 'true');
-            }
-            this.showPopup = false;
-        }
-    }" x-show="showPopup" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-        <!-- Contenedor del Modal -->
-        <div @click.away="closePopup()"
-            class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800 dark:text-gray-100"
-            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
-            x-transition:enter-end="opacity-100 scale-100">
-            <!-- Icono o Encabezado -->
-            <div class="flex items-center justify-between pb-3 border-b dark:border-gray-700">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <svg class="w-6 h-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                    </svg>
-                    Aviso importante
-                </h3>
-                <button @click="closePopup()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
 
-            <!-- Cuerpo del Mensaje -->
-            <div class="py-4 text-sm text-gray-600 dark:text-gray-300 space-y-2">
-                <p>Arreola Histórica es un repositorio en construcción. En esta primera etapa, ponemos a tu disposición
-                    un buscador que permite la exploración de una parte de los materiales antiguos que se resguardan en
-                    nuestra Biblioteca. Sólo un porcentaje de estos registros ya puede ser consultado en línea. Todos
-                    los días trabajamos para seguir alimentando nuestro repositorio.
-                </p>
-            </div>
-
-            <!-- Opción de "No volver a mostrar" -->
-            <div class="flex items-center gap-2 py-2">
-                <input type="checkbox" id="dont_show" x-model="dontShowAgain"
-                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
-                <label for="dont_show" class="text-xs text-gray-500 dark:text-gray-400 select-none cursor-pointer">
-                    No quiero volver a ver este aviso
-                </label>
-            </div>
-
-            <!-- Botón de Acción -->
-            <div class="mt-4 flex justify-end">
-                <button @click="closePopup()"
-                    class="w-full rounded-lg bg-guinda px-4 py-2.5 text-center text-sm font-semibold text-white shadow-md hover:bg-red-900 
-                    focus:outline-none focus:ring-2 focus:ring-red-800">
-                    Entendido
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-announcement-popup title="Aviso importante" storage-key="hide_arreola_aviso">
+        <p>
+            Arreola Histórica es un repositorio en construcción. En esta primera etapa, ponemos a tu disposición un
+            buscador que permite la exploración de una parte de los materiales antiguos que se resguardan en nuestra
+            Biblioteca. Sólo un porcentaje de estos registros ya puede ser consultado en línea. Todos los días
+            trabajamos para seguir alimentando nuestro repositorio.
+        </p>
+    </x-announcement-popup>
 
 </body>
 

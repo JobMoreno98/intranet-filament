@@ -21,6 +21,7 @@ use App\Jobs\IndexarRecursosImportados;
 use Filament\Actions\Imports\Events\ImportCompleted;
 use Illuminate\Support\Facades\Event;
 use Meilisearch\Client as MeilisearchClient;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,8 +34,8 @@ class AppServiceProvider extends ServiceProvider
             config('scout.meilisearch.host'),
             config('scout.meilisearch.key'),
         ));
+        $this->app->bind(Authenticatable::class, Admin::class);
     }
-
 
     /**
      * Bootstrap any application services.

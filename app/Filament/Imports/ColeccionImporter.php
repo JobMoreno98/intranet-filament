@@ -10,6 +10,7 @@ use Filament\Actions\Imports\Models\Import;
 class ColeccionImporter extends Importer
 {
     protected static ?string $model = Coleccion::class;
+    protected static ?string $userModel = \App\Models\Admin::class;
 
     public static function getColumns(): array
     {
@@ -19,26 +20,19 @@ class ColeccionImporter extends Importer
                 ->requiredMapping()
                 ->rules(['required', 'max:255']),
 
-            ImportColumn::make('slug')
-                ->rules(['max:255'])
-                ->fillRecordUsing(function ($record, $state) {
-                    $record->slug = $state ?: str($record->nombre)->slug();
-                }),
+            ImportColumn::make('descripcion')->label('Descripción'),
 
-            ImportColumn::make('descripcion'),
-
-            ImportColumn::make('parent_id')
+            ImportColumn::make('parent_id')->label('Padre')
                 ->numeric()
-                ->rules(['nullable', 'exists:coleccions,id'])
+                ->rules(['nullable', 'exists:coleccions,id']),
+
+            ImportColumn::make('areas_id')->label('Área')->numeric()->rules(['nullable', 'exists:areas,id']),
         ];
     }
 
-    public function resolveRecord(): ?Coleccion
+    public function saveRecord(): void
     {
-        return Coleccion::firstOrNew([
-            'slug' => $this->data['slug']
-                ?? str($this->data['nombre'])->slug(),
-        ]);
+        Coleccion::withoutSyncingToSearch(fn() => $this->record->save());
     }
 
     public static function getCompletedNotificationBody(Import $import): string
@@ -55,5 +49,10 @@ class ColeccionImporter extends Importer
         }
 
         return $body;
+    }
+
+    public function resolveRecord(): ?Coleccion
+    {
+        return new Coleccion();
     }
 }

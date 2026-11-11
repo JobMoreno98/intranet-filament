@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <a href="https://www.arreolahistorica.udg.mx"
+                    <a href="https://arreolahistorica.bpej.udg.mx/"
                        target="_blank" rel="noopener noreferrer"
                        class="group flex h-full flex-col rounded-lg border border-zinc-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-[#86212b] hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-[#d98b91]">
                         <span class="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#86212b]/10 text-[#86212b] dark:bg-[#d98b91]/15 dark:text-[#d98b91]">
@@ -57,14 +57,14 @@
                             </svg>
                         </span>
                         <h4 class="text-lg font-semibold text-zinc-800 group-hover:text-[#86212b] dark:text-zinc-100 dark:group-hover:text-[#d98b91]">
-                            Biblioteca Pública del Estado de Jalisco
+                            Biblioteca Histórica de la Biblioteca Pública del Estado de Jalisco
                         </h4>
                         <span class="mt-auto pt-5 text-sm font-semibold text-[#86212b] dark:text-[#d98b91]">
                             Visitar sitio <span aria-hidden="true">↗</span>
                         </span>
                     </a>
 
-                    <a href="https://archivohistorico.udg.mx/pinakes_v404"
+                    <a href="https://archivohistorico.udg.mx/pinakes_v404/"
                        target="_blank" rel="noopener noreferrer"
                        class="group flex h-full flex-col rounded-lg border border-zinc-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-[#86212b] hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-[#d98b91]">
                         <span class="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#86212b]/10 text-[#86212b] dark:bg-[#d98b91]/15 dark:text-[#d98b91]">
