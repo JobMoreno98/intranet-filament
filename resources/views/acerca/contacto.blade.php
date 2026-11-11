@@ -35,12 +35,13 @@
         </header>
 
         <main class="mx-auto max-w-5xl px-5 py-12 md:px-8 md:py-16">
-            
+
             <section class="mb-12">
                 <div class="grid gap-6 md:grid-cols-2">
 
                     <!-- Tarjeta de Dirección -->
-                    <div class="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+                    <div
+                        class="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
                         <div class="mb-2 border-b border-zinc-200 pb-3 dark:border-zinc-700">
                             <h3 class="flex items-center gap-2 text-xl font-semibold text-zinc-800 dark:text-zinc-100">
                                 <x-heroicon-o-map-pin class="h-6 w-6 shrink-0 text-[#86212b] dark:text-[#d98b91]" />
@@ -56,7 +57,8 @@
                         @if (filled($telefono))
                             <p class="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-300">
                                 <x-heroicon-o-phone class="h-5 w-5 shrink-0 text-[#86212b] dark:text-[#d98b91]" />
-                                <a href="tel:{{ preg_replace('/\D/', '', $telefono) }}" class="hover:text-[#86212b] hover:underline dark:hover:text-[#d98b91] transition-colors">
+                                <a href="tel:{{ preg_replace('/\D/', '', $telefono) }}"
+                                    class="hover:text-[#86212b] hover:underline dark:hover:text-[#d98b91] transition-colors">
                                     {{ $telefono }}
                                 </a>
                             </p>
@@ -65,7 +67,8 @@
                         @if (filled($correo))
                             <p class="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-300">
                                 <x-heroicon-o-envelope class="h-5 w-5 shrink-0 text-[#86212b] dark:text-[#d98b91]" />
-                                <a href="mailto:{{ $correo }}" class="break-all hover:text-[#86212b] hover:underline dark:hover:text-[#d98b91] transition-colors">
+                                <a href="mailto:{{ $correo }}"
+                                    class="break-all hover:text-[#86212b] hover:underline dark:hover:text-[#d98b91] transition-colors">
                                     {{ $correo }}
                                 </a>
                             </p>
@@ -80,7 +83,8 @@
                     </div>
 
                     <!-- Tarjeta de Horarios -->
-                    <div class="flex flex-col gap-5 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+                    <div
+                        class="flex flex-col gap-5 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
                         <div class="mb-2 border-b border-zinc-200 pb-3 dark:border-zinc-700">
                             <h3 class="flex items-center gap-2 text-xl font-semibold text-zinc-800 dark:text-zinc-100">
                                 <x-heroicon-o-clock class="h-6 w-6 shrink-0 text-[#86212b] dark:text-[#d98b91]" />
@@ -91,13 +95,15 @@
                         <div class="space-y-6">
                             @foreach ($bibliotecas as $biblioteca)
                                 <div>
-                                    <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-[#86212b] dark:text-white">
+                                    <h4
+                                        class="mb-3 text-sm font-semibold uppercase tracking-wider text-[#86212b] dark:text-white">
                                         {{ $biblioteca['nombre'] }}
                                     </h4>
 
                                     <dl class="flex flex-col gap-2 text-sm">
                                         @foreach ($biblioteca['horarios'] as [$etiqueta, $dias, $horario])
-                                            <div class="flex items-center justify-between rounded-md px-3 py-2.5 transition-colors
+                                            <div
+                                                class="flex items-center justify-between rounded-md px-3 py-2.5 transition-colors
                                                 {{ in_array($hoy, $dias) ? 'bg-[#86212b]/10 font-medium text-[#86212b] dark:bg-[#d98b91]/10 dark:text-white' : 'text-zinc-700 dark:text-zinc-300' }}">
                                                 <dt>{{ $etiqueta }}</dt>
                                                 <dd>{{ $horario }}</dd>
@@ -114,16 +120,32 @@
 
             <!-- Botones de Compartir -->
             <section class="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-700">
-                <div class="flex items-center justify-center gap-4">
-                    <span class="text-xs font-bold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Compartir:</span>
+
+                <div
+                    class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex items-center justify-center gap-3">
+                    <span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Compartir:</span>
                     <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
-                        class="rounded-full bg-zinc-100 px-4 py-2 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">
+                        class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
                         WhatsApp
                     </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
-                        class="rounded-full bg-zinc-100 px-4 py-2 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
+                        target="_blank" rel="noopener"
+                        class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 
+                    dark:text-white dark:hover:bg-zinc-700">
                         Facebook
                     </a>
+
+                    <a href="https://x.com/intent/post?url={{ urlencode(url()->current()) }}&text={{ urlencode($titulo ?? '') }}"
+                        target="_blank" rel="noopener"
+                        class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                        X
+                    </a>
+
+                    <button type="button" x-data="{ soportado: !!navigator.share }" x-show="soportado" x-cloak
+                        x-on:click="navigator.share({ title: document.title, url: '{{ url()->current() }}' })"
+                        class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                        Más opciones
+                    </button>
                 </div>
             </section>
         </main>

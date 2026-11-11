@@ -34,19 +34,24 @@
                 <dl class="grid gap-5 sm:grid-cols-2">
                     <div>
                         <dt class="text-sm font-semibold text-[#86212b] dark:text-[#d98b91]">Rectora general</dt>
-                        <dd class="mt-1 text-base leading-7 text-zinc-700 dark:text-zinc-300">Mtra. Karla Alejandrina Planter Pérez</dd>
+                        <dd class="mt-1 text-base leading-7 text-zinc-700 dark:text-zinc-300">Mtra. Karla Alejandrina
+                            Planter Pérez</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-semibold text-[#86212b] dark:text-[#d98b91]">Vicerrector Ejecutivo</dt>
-                        <dd class="mt-1 text-base leading-7 text-zinc-700 dark:text-zinc-300">Dr. Héctor Raúl Solís Gadea</dd>
+                        <dd class="mt-1 text-base leading-7 text-zinc-700 dark:text-zinc-300">Dr. Héctor Raúl Solís Gadea
+                        </dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-semibold text-[#86212b] dark:text-[#d98b91]">Director del Sistema Universitario de Bibliotecas</dt>
+                        <dt class="text-sm font-semibold text-[#86212b] dark:text-[#d98b91]">Director del Sistema
+                            Universitario de Bibliotecas</dt>
                         <dd class="mt-1 text-base leading-7 text-zinc-700 dark:text-zinc-300">Dr. Sergio López Ruelas</dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-semibold text-[#86212b] dark:text-[#d98b91]">Director de Biblioteca Pública del Estado de Jalisco</dt>
-                        <dd class="mt-1 text-base leading-7 text-zinc-700 dark:text-zinc-300">Mtro. José Trinidad Padilla López</dd>
+                        <dt class="text-sm font-semibold text-[#86212b] dark:text-[#d98b91]">Director de Biblioteca Pública
+                            del Estado de Jalisco</dt>
+                        <dd class="mt-1 text-base leading-7 text-zinc-700 dark:text-zinc-300">Mtro. José Trinidad Padilla
+                            López</dd>
                     </div>
                 </dl>
             </section>
@@ -54,34 +59,44 @@
             <!-- Equipo -->
             <section class="mb-12">
                 <div class="mb-6 border-b border-zinc-200 pb-3 dark:border-zinc-700">
-                    <h3 class="text-xl font-semibold text-zinc-800 dark:text-zinc-100 md:text-2xl">Equipo de Arreola Histórica</h3>
+                    <h3 class="text-xl font-semibold text-zinc-800 dark:text-zinc-100 md:text-2xl">Equipo de Arreola
+                        Histórica</h3>
                 </div>
 
                 <div class="grid gap-8 md:grid-cols-2">
                     <div>
-                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">Coordinación de proyecto</h4>
-                        <p class="leading-7 text-zinc-700 dark:text-zinc-300">Rafael S. Villegas y Donají Padilla Mireles</p>
+                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
+                            Coordinación de proyecto</h4>
+                        <p class="leading-7 text-zinc-700 dark:text-zinc-300">Rafael S. Villegas y Donají Padilla Mireles
+                        </p>
                     </div>
                     <div>
-                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">Coordinación administrativa</h4>
+                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
+                            Coordinación administrativa</h4>
                         <p class="leading-7 text-zinc-700 dark:text-zinc-300">María Dolores Arias Lara</p>
                     </div>
                     <div>
-                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">Digitalización</h4>
+                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
+                            Digitalización</h4>
                         <p class="leading-7 text-zinc-700 dark:text-zinc-300">Yadira Cea y Francisco Velasco</p>
                     </div>
                     <div>
-                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">Programación y tecnología</h4>
-                        <p class="leading-7 text-zinc-700 dark:text-zinc-300">Santiago González, Job Moreno, Francisco Tomás, Roberto Barrios y Esaú Mendoza.</p>
+                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
+                            Programación y tecnología</h4>
+                        <p class="leading-7 text-zinc-700 dark:text-zinc-300">Santiago González, Job Moreno, Francisco
+                            Tomás, Roberto Barrios y Esaú Mendoza.</p>
                     </div>
                     <div>
-                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">Difusión y diseño gráfico</h4>
+                        <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
+                            Difusión y diseño gráfico</h4>
                         <p class="leading-7 text-zinc-700 dark:text-zinc-300">Josué Nolasco e Iván Sánchez</p>
                     </div>
                 </div>
 
-                <div class="mt-8 rounded-lg border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-800/60 md:p-7">
-                    <h4 class="mb-3 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">Asesoría y control intelectual</h4>
+                <div
+                    class="mt-8 rounded-lg border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-800/60 md:p-7">
+                    <h4 class="mb-3 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
+                        Asesoría y control intelectual</h4>
                     <p class="leading-8 text-zinc-700 dark:text-zinc-300">
                         Guadalupe Martínez Corona, Ángeles Domínguez, Indira Palomino, María Eugenia Barrios, Miguel Tamayo,
                         Óscar Espinoza, Hugo Salas, Cristina Meza, Mario Bernache, Fernando Gutiérrez, Mónica Jiménez,
@@ -99,24 +114,29 @@
                 <div class="space-y-5 text-justify text-base leading-8 text-zinc-600 dark:text-zinc-300">
                     <p>
                         A la familia Arreola: Sara Sánchez †; Claudia Berenice Arreola Sánchez, Fuensanta Arreola Sánchez,
-                        Orso Arreola Sánchez †, José María Arreola Velasco, Alonso Arreola Velasco, Mireya Hernández Arreola,
+                        Orso Arreola Sánchez †, José María Arreola Velasco, Alonso Arreola Velasco, Mireya Hernández
+                        Arreola,
                         Berenice Hernández Arreola, Sara Arreola Cuenca y Juan José Arreola Cuenca.
                     </p>
                     <p>
                         Rosa Beltrán y Socorro Venegas (Universidad Nacional Autónoma de México); Juan Nepote (Museo de
-                        Ciencias Ambientales); José Luis Valencia (Centro Cultural Universitario); Ana María de la O Castellanos
+                        Ciencias Ambientales); José Luis Valencia (Centro Cultural Universitario); Ana María de la O
+                        Castellanos
                         (Centro Universitario de la Costa Sur UDG); Juana Suárez (New York University); Édgar Torres y Tania
                         López Espinal (Cineteca Nacional); Mauricio Bidault y Andrés González Cosío (Cineteca UDG);
                         José Ramón Mikelajáuregui e Itzel Rangel (Departamento de Imagen y Sonido UDG); Martín Plascencia
                         (Radio UDG); Abril Ambriz, Erandi Barbosa, Víctor Ramírez y Robert Curley (Centro Universitario de
-                        Ciencias Sociales y Humanidades UDG); Ixchel Ruiz Anguiano y Mariela Bárcenas (El Colegio de Jalisco);
+                        Ciencias Sociales y Humanidades UDG); Ixchel Ruiz Anguiano y Mariela Bárcenas (El Colegio de
+                        Jalisco);
                         Guillermo Ortega (Casa Zuno – Archivo Histórico UDG); Alejandra Aguiñaga y Eduardo Camacho
                         (Laboratorio de Humanidades Digitales – Centro Universitario de los Lagos UDG); Brenda Estupiñán y
                         Roberto Díaz Mares (Sistema Universitario de Bibliotecas UDG).
                     </p>
                     <p>
-                        Alberto Gómez Barbosa, Francisco Navarro †, Amanda García Martín, Cristina Martín Sarrat, Celia Montes,
-                        Gabriela Salazar, Cielo Orozco, Gilberto López, Lorena González Medina, Amparo López, Antonio Padilla,
+                        Alberto Gómez Barbosa, Francisco Navarro †, Amanda García Martín, Cristina Martín Sarrat, Celia
+                        Montes,
+                        Gabriela Salazar, Cielo Orozco, Gilberto López, Lorena González Medina, Amparo López, Antonio
+                        Padilla,
                         Juan Pedro Hernández, Jorge María, Izcóatl Villagrana, Salma Yerenas, Evelyn Ramírez de Santiago,
                         Mayra Padilla, Víctor Hugo Carrera, Ariadna García y Juan Carlos Martínez.
                     </p>
@@ -128,10 +148,38 @@
                 <span class="mb-3 block text-xs font-semibold uppercase tracking-[0.2em] text-white/70">Dedicatoria</span>
                 <p class="text-base leading-8 text-white/95 md:text-lg">
                     Dedicamos este proyecto a las generaciones de bibliotecarios, archivistas, conservadores y estudiantes
-                    que desde 1861, con su trabajo discreto y cotidiano, han organizado, registrado, restaurado y digitalizado
+                    que desde 1861, con su trabajo discreto y cotidiano, han organizado, registrado, restaurado y
+                    digitalizado
                     las unidades documentales que hoy son accesibles al mundo a través de Arreola Histórica.
                 </p>
             </section>
+
+            <div
+                class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex items-center justify-center gap-3">
+                <span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Compartir:</span>
+                <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
+                    class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                    WhatsApp
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank"
+                    rel="noopener"
+                    class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 
+                    dark:text-white dark:hover:bg-zinc-700">
+                    Facebook
+                </a>
+
+                <a href="https://x.com/intent/post?url={{ urlencode(url()->current()) }}&text={{ urlencode($titulo ?? '') }}"
+                    target="_blank" rel="noopener"
+                    class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                    X
+                </a>
+
+                <button type="button" x-data="{ soportado: !!navigator.share }" x-show="soportado" x-cloak
+                    x-on:click="navigator.share({ title: document.title, url: '{{ url()->current() }}' })"
+                    class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
+                    Más opciones
+                </button>
+            </div>
         </main>
     </div>
 @endsection
