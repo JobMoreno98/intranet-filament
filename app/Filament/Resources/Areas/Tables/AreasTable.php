@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class AreasTable
@@ -16,6 +17,7 @@ class AreasTable
             ->columns([
                 TextColumn::make('nombre')->searchable()->sortable(),
                 TextColumn::make('ubicacion')->searchable()->sortable(),
+                ToggleColumn::make('fijado')->label('Fijado')
             ])
             ->filters([
                 //

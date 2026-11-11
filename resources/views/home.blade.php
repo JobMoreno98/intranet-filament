@@ -92,9 +92,18 @@
     </section>
 
     <section class="py-10 px-4 sm:px-7 bg-[#ffffff] dark:bg-neutral-800 max-w-7xl mx-auto ">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-guinda dark:text-white leading-tight">
+            <div class="w-full py-2 my-2 rounded-md ">
+                <div class="uppercase max-full mx-auto flex flex-col text-center">
+                    Contenido destacado
+                </div>
+            </div>
+        </h2>
         <!-- Se cambió de flex a grid con grid-flow-col y grid-rows-2 para forzar las dos filas en móvil -->
-        <x-scroll-hint
-            class="mx-2 grid grid-rows-2 grid-flow-col auto-cols-[85vw] overflow-x-auto gap-4 snap-x snap-mandatory pb-4 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:auto-cols-auto sm:grid-rows-none sm:grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:pb-0 sm:overflow-visible">
+        <x-scroll-hint :gradient="false"
+            class="mx-2 grid grid-rows-2 grid-flow-col auto-cols-[85vw] overflow-x-auto gap-4 
+            snap-x snap-mandatory pb-4 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:auto-cols-auto sm:grid-rows-none 
+            sm:grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:pb-0 sm:overflow-visible">
             @foreach ($novedades as $index => $item)
                 <!-- La tarjeta ya no necesita w-[85vw], el ancho lo dicta la clase auto-cols-[85vw] del contenedor padre -->
                 <div data-aos="fade-up" data-aos-duration="400" data-aos-delay="{{ ($index % 10) * 40 }}"
@@ -130,6 +139,14 @@
     <section>
         <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10">
             @if ($areas->count())
+                <h2
+                    class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-guinda dark:text-white leading-tight">
+                    <div class="w-full py-2 my-2 rounded-md ">
+                        <div class="uppercase max-full mx-auto flex flex-col text-center">
+                            Algunas de nuestras Áreas 
+                        </div>
+                    </div>
+                </h2>
                 <x-scroll-hint :gradient="false" :step="1"
                     class="flex overflow-x-auto gap-4 snap-x snap-mandatory pb-6 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-8 sm:pb-0 sm:overflow-visible hide-scrollbar">
                     @foreach ($areas as $index => $item)
