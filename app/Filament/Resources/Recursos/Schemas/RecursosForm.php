@@ -26,9 +26,9 @@ class RecursosForm
     {
         return $schema->components([
             Wizard::make([
-                Wizard\Step::make('acervo')->label('Tipo Acervo')->schema([
+                Wizard\Step::make('acervo')->label('Tipo Documental')->schema([
                     Radio::make('acervo_id')
-                        ->label('Tipo Acervo')
+                        ->label('Tipo Documental')
                         ->options(
                             TipoAcervo::pluck('nombre', 'id')->toArray()
                         )
@@ -74,7 +74,7 @@ class RecursosForm
                             'audio' => 'Grabación de Audio',
                             'imagen' => 'Imagen',
                         ])->required(),
-                    Section::make('Metadatos Específicos del Tipo de Acervo')
+                    Section::make('Metadatos Específicos del Tipo Documental')
                         ->description('Campos definidos en el diseño del acervo.')
                         ->schema([
                             Group::make()->schema(function ($get) {

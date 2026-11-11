@@ -53,7 +53,7 @@ class RecursosTable
                     }),
 
                 TextColumn::make('coleccion.nombre')->label('Fondo')->sortable()->searchable(),
-                TextColumn::make('acervo.nombre')->label('Tipo Acervo')->sortable()->searchable(),
+                TextColumn::make('acervo.nombre')->label('Tipo Documental')->sortable()->searchable(),
                 ToggleColumn::make('visible')->label('Público'),
                 ToggleColumn::make('fijado')->label('Fijado'),
                 IconColumn::make('tiene_reportes_pendientes')
@@ -79,7 +79,7 @@ class RecursosTable
                 //TrashedFilter::make(),
                 SelectFilter::make('acervo_id')
                     ->relationship('acervo', 'nombre') // 'acervo' es el nombre de tu función en el modelo Recursos
-                    ->label('Tipo de Acervo')
+                    ->label('Tipo Documental')
                     ->searchable()
                     ->preload(),
 

@@ -30,16 +30,16 @@
         @endif
     </div>
 
-    {{-- PASO 2: Tipo de acervo (solo después de elegir fondo) --}}
+    {{-- PASO 2: Tipo Documental (solo después de elegir fondo) --}}
     @if ($fondoSeleccionado !== '')
         <div class="mt-6 flex flex-col border-t border-gray-100 pt-6">
             <label class="text-xs font-bold text-gray-600 uppercase mb-3 tracking-wide dark:text-white">
-                2. Tipo de acervo
+                2. Tipo Documental
             </label>
             <select wire:model.live="acervoSeleccionado"
                 class="dark:bg-neutral-600 dark:text-white w-full max-w-2xl border rounded-md px-3 py-2 text-base md:text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all {{ $acervoSeleccionado === '' ? 'border-red-300 text-gray-400' : 'border-gray-300 text-gray-700' }}">
-                <option value="">--- Selecciona un tipo de acervo ---</option>
-                <option value="todos">Todos los tipos de acervo</option>
+                <option value="">--- Selecciona un tipo documental ---</option>
+                <option value="todos">Todos los tipos de documental</option>
                 @foreach ($acervosDisponibles as $acervo)
                     <option value="{{ $acervo['id'] }}">{{ $acervo['nombre'] }}</option>
                 @endforeach
@@ -50,7 +50,7 @@
                 </p>
             @elseif ($acervoSeleccionado === '')
                 <p class="text-xs text-red-500 italic mt-2">
-                    Selecciona un tipo de acervo (o "Todos") para mostrar los campos de búsqueda.
+                    Selecciona un tipo documental (o "Todos") para mostrar los campos de búsqueda.
                 </p>
             @endif
         </div>
@@ -135,7 +135,7 @@
         @endif
 
         <button type="button" wire:click="aplicarFiltrado" @disabled($fondoSeleccionado === '' || $acervoSeleccionado === '')
-            title="{{ $fondoSeleccionado === '' ? 'Selecciona un fondo primero' : ($acervoSeleccionado === '' ? 'Selecciona un tipo de acervo primero' : '') }}"
+            title="{{ $fondoSeleccionado === '' ? 'Selecciona un fondo primero' : ($acervoSeleccionado === '' ? 'Selecciona un tipo documental primero' : '') }}"
             class="w-full sm:w-auto justify-center text-xs font-bold uppercase tracking-widest bg-[#86212b] hover:bg-[#6d1b23] text-white px-8 py-2.5 rounded-md transition duration-200 shadow-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#86212b]">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -41,7 +41,7 @@
                         <thead class="bg-gray-900 text-white text-sm font-medium">
                             <tr>
                                 <th class="p-4 pl-6">Tipo</th>
-                                <th>Tipo de Acervo</th>
+                                <th>Tipo Documental</th>
                                 <th>Fondo</th>
                                 <th class="p-4">Extracto de Coincidencia</th>
                                 <th class="p-4 text-center w-40">Acción</th>

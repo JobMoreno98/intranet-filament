@@ -94,7 +94,7 @@ new class extends VoltComponent {
         }
  
         if ($this->acervoSeleccionado === '') {
-            $this->addError('busqueda_vacia', 'Debes seleccionar un tipo de acervo (o "Todos") antes de buscar.');
+            $this->addError('busqueda_vacia', 'Debes seleccionar un tipo documental (o "Todos") antes de buscar.');
             return;
         }
  

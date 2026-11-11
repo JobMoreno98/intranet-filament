@@ -53,7 +53,7 @@ class RecursoImporter extends Importer
 
         $esquema = self::esquema($acervoId)
             ?? throw ValidationException::withMessages([
-                'acervo_id' => 'Tipo de acervo no encontrado.',
+                'acervo_id' => 'Tipo Documental no encontrado.',
             ]);
 
         if (! self::coleccionExiste($coleccionId)) {
