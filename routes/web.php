@@ -36,31 +36,33 @@ use App\Models\RecursosArchivos;
 Route::get('/', [ColeccionesConsultaController::class, 'index'])->name('home');
 
 Route::get('/nuestra-historia', function () {
-    return view('acerca.historia', ['title' => 'Nuestra Historia']);
+    return view('acerca.historia', ['title' => 'Historia']);
 })->name('nuestra.historia');
 
-Route::get('/fondos-historicos', function () {
+
+/*Route::get('/fondos-historicos', function () {
     return view('acerca.fondos-historicos', ['title' => 'NUESTROS FONDOS HISTÓRICOS']);
 })->name('fondos.historicos');
+*/
 
 Route::get('/arreola-historica', function () {
-    return view('acerca.arreola-historica', ['title' => 'ARREOLA HISTÓRICA']);
+    return view('acerca.arreola-historica', ['title' => 'Arreola Histórica']);
 })->name('arreola.historica');
 
 Route::get('/contacto', function () {
-    return view('acerca.contacto', ['title' => 'CONTACTO']);
+    return view('acerca.contacto', ['title' => 'Contacto']);
 })->name('arreola.contacto');
 
 Route::get('/como-usar', function () {
-    return view('acerca.como-usar', ['title' => 'COMO USAR']);
+    return view('acerca.como-usar', ['title' => 'Cómo usar']);
 })->name('arreola.uso');
 
 Route::get('/solicitud-reproduccion', function () {
-    return view('acerca.solicitud', ['title' => 'SOLICITUD DE REPRODUCCIONES']);
+    return view('acerca.solicitud', ['title' => 'Solicitud de Reproducciones']);
 })->name('arreola.solicitud');
 
 Route::get('/creditos', function () {
-    return view('acerca.creditos', ['title' => 'CRÉDITOS']);
+    return view('acerca.creditos', ['title' => 'Créditos']);
 })->name('arreola.creditos');
 
 Route::view('/memoria-udg', 'acerca.memoria', [
@@ -98,7 +100,7 @@ Route::get('/blog', function () {
         'tagsDisponibles' => $tagsDisponibles,
         'recientes' => Blog::latest()->take(4)->get(),
         'archivos' => $archivos,
-    ]);
+    ])->with(['title' => 'Sala Arreola (Blog)']);
 })->name('blog.index');
 
 Route::get('/blog/{blog:slug}', function (Blog $blog) {

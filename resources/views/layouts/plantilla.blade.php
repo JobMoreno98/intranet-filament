@@ -71,10 +71,10 @@
         $enlaces = [
             ['INICIO', 'home'],
             ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
-            ['ÁREAS Y FONDOS', 'areas.index'],
+            ['Áreas y Fondos', 'areas.index'],
 
             //['FONDOS', 'fondos.index'],
-            ['ARREOLA HISTÓRICA', 'arreola.historica'],
+            ['Arreola Histórica', 'arreola.historica'],
 
             //['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
 
@@ -168,7 +168,7 @@
                     @foreach ($enlaces as [$etiqueta, $ruta])
                         <li>
                             <a href="{{ route($ruta) }}"
-                                class="block rounded-md px-3 py-2.5 transition-colors duration-200 hover:bg-guinda hover:text-white
+                                class="uppercase block rounded-md px-3 py-2.5 transition-colors duration-200 hover:bg-guinda hover:text-white
                     {{ request()->routeIs($ruta) ? 'bg-guinda text-white' : 'text-zinc-700 dark:text-zinc-200' }}">
                                 {{ $etiqueta }}
                             </a>

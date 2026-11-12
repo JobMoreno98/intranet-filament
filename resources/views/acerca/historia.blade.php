@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="my-8 flex justify-center">
-                        <img class="h-80 rounded-lg shadow-sm" src="{{ asset('img/Imagen1.png') }}" alt="Imagen 1">
+                        <img style="max-height:600px;" class="rounded-lg shadow-sm" src="{{ asset('img/Imagen1.png') }}" alt="Imagen 1">
                     </div>
 
                     <p>
@@ -96,7 +96,7 @@
                     </p>
 
                     <div class="my-8 flex justify-center">
-                        <img class="h-80 rounded-lg shadow-sm" src="{{ asset('img/Imagen2.png') }}" alt="Imagen 2">
+                        <img style="max-height:400px;" class=" rounded-lg shadow-sm" src="{{ asset('img/Imagen2.png') }}" alt="Imagen 2">
                     </div>
 
                     <p>

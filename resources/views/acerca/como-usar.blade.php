@@ -16,25 +16,15 @@
                     <section
                         class="mx-auto my-10 max-w-5xl rounded-xl bg-white p-6 shadow-sm md:p-10 border dark:border-[#9b6959] dark:bg-zinc-800 dark:text-white">
 
-                        <!-- Introducción -->
-                        <div class="mb-8">
-                            <h2 class="mb-5 text-2xl font-bold text-[#713d32] md:text-3xl dark:text-white">
-                                Explora nuestro acervo histórico
-                            </h2>
+                        {{--  
+                         Introducción
+                            <div class="mb-8">
+                                <h2 class="mb-5 text-2xl font-bold text-[#713d32] md:text-3xl dark:text-white">
+                                    Explora nuestro acervo histórico
+                                </h2>
 
-                            <p class="mb-4 text-base leading-7 text-gray-600 dark:text-white">
-                                En nuestro <strong class="font-semibold text-[#713d32] ">buscador general</strong>
-                                tienes la opción de filtrar por tipo documental. De manera predeterminada
-                                se incluyen todos los tipos documentales, pero puedes seleccionar aquellos
-                                que sean de tu interés.
-                            </p>
-
-                            <p class="text-base leading-7 text-gray-600  dark:text-white">
-                                Además, puedes elegir que la búsqueda incluya únicamente material
-                                digitalizado y disponible para consulta en línea.
-                            </p>
-                        </div>
-
+                            </div>
+--}}
                         <!-- Información adicional -->
                         <div class="space-y-4 ">
 
@@ -47,13 +37,43 @@
                                 </div>
 
                                 <div>
+                                    {{-- 
                                     <h3 class="dark:text-white mb-2 text-lg font-bold text-[#713d32]">
                                         Búsqueda avanzada
                                     </h3>
+                                     --}}
                                     <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
-                                        En nuestro buscador avanzado puedes realizar búsquedas más
-                                        específicas mediante filtros por tipo documental e incluir
-                                        criterios como área, fondo y metadato.
+                                        En nuestro <strong class="font-semibold text-[#713d32] ">buscador general</strong>
+                                        tienes la opción de filtrar por tipo documental. De
+                                        manera predeterminada se incluyen todos los tipos documentales, pero también puedes
+                                        seleccionar en específico los que sean de tu interés. Además, puedes seleccionar la
+                                        opción de que sólo busque material que ya esté digitalizado y que sea visible
+                                        online.
+
+                                    </p>
+                                </div>
+                            </article>
+
+
+                            <!-- Búsqueda avanzada -->
+                            <article
+                                class="border  dark:bg-zinc-800 flex gap-4 rounded-lg border-l-4 border-[#9b6959] bg-[#f8f6f4] p-5">
+                                <div
+                                    class="dark:text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#713d32] text-sm font-bold text-white">
+                                    02
+                                </div>
+
+                                <div>
+                                    {{-- 
+                                    <h3 class="dark:text-white mb-2 text-lg font-bold text-[#713d32]">
+                                        Búsqueda avanzada
+                                    </h3>
+                                     --}}
+                                    <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
+                                        En nuestro <strong class="font-semibold text-[#713d32] ">buscador avanzado</strong>
+                                        puedes hacer búsquedas más específicas. Puedes filtrar por tipo documental y puedes
+                                        incluir en tu búsqueda los criterios de fondo y metadato. También puedes consultar
+                                        los registros completos por fondo.o.
                                     </p>
                                 </div>
                             </article>
@@ -63,17 +83,21 @@
                                 class=" border  dark:bg-zinc-800 flex gap-4 rounded-lg border-l-4 border-[#9b6959] bg-[#f8f6f4] p-5">
                                 <div
                                     class="dark:text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#713d32] text-sm font-bold text-white">
-                                    02
+                                    03
                                 </div>
 
                                 <div>
+                                    {{--  
                                     <h3 class="dark:text-white mb-2 text-lg font-bold text-[#713d32]">
                                         Consulta digital
                                     </h3>
+                                    --}}
                                     <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
-                                        Sólo un porcentaje de los registros disponibles en nuestro
-                                        buscador puede consultarse digitalmente. Debes iniciar sesión
-                                        para acceder a nuestro visor digital.
+                                        Sólo un porcentaje de los registros disponibles en nuestro buscador ya pueden ser
+                                        consultados de manera digital. Debes <strong
+                                            class="font-semibold text-[#713d32] ">iniciar sesión</strong> para acceder a
+                                        nuestro visor
+                                        digital.
                                     </p>
                                 </div>
                             </article>
@@ -83,17 +107,20 @@
                                 class=" border dark:bg-zinc-800 flex gap-4 rounded-lg border-l-4 border-[#9b6959] bg-[#f8f6f4] p-5">
                                 <div
                                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#713d32] text-sm font-bold text-white">
-                                    03
+                                    04
                                 </div>
 
                                 <div>
+                                    {{-- 
                                     <h3 class="dark:text-white mb-2 text-lg font-bold text-[#713d32]">
                                         Regístrate en Arreola Histórica
                                     </h3>
+                                     --}}
                                     <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
-                                        Para iniciar sesión debes registrarte como usuario de
-                                        Arreola Histórica, llenando por única ocasión nuestro
-                                        formulario de registro.
+                                        Para iniciar sesión debes <strong class="font-semibold text-[#713d32] ">registrarte
+                                            como usuario</strong> de Arreola Histórica llenando por
+                                        única ocasión nuestro <strong class="font-semibold text-[#713d32] ">formulario de
+                                            registro.</strong>
                                     </p>
                                 </div>
                             </article>

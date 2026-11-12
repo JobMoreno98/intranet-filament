@@ -9,6 +9,6 @@ class AreaController extends Controller
 {
     public function index(){
         $areas = Area::all();
-        return view("areas.index",compact("areas"));
+        return view("areas.index",compact("areas"))->with(['title' => 'Áreas y Fondos']);
     }
 }

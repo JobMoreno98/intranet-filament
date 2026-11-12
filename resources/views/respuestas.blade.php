@@ -14,7 +14,7 @@
 @endsection
 @section('content')
     <section class="bg-gray-50 min-h-screen dark:bg-zinc-700 dark:text-white">
-        <div class="mx-auto sm:px-7 px-3 max-w-screen-xl py-6">
+        <div class="mx-auto sm:px-7 px-3 max-w-screen-3xl py-6">
 
             <div class="mb-4">
                 <!-- Título dinámico enviado desde el controlador -->
@@ -40,7 +40,6 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-900 text-white text-sm font-medium">
                             <tr>
-                                <th class="p-4 pl-6">Tipo</th>
                                 <th>Tipo Documental</th>
                                 <th>Fondo</th>
                                 <th class="p-4">Extracto de Coincidencia</th>
@@ -50,12 +49,6 @@
                         <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
                             @foreach ($resultados as $res)
                                 <tr>
-                                    <!-- Tipo -->
-                                    <td class="p-4 pl-6">
-                                        <span
-                                            class="font-bold text-gray-900 block dark:text-white">{{ ucfirst($res['tipo']) }}</span>
-                                    </td>
-
                                     <!-- Acervo o Nombre de Colección -->
                                     <td class="p-4 dark:text-white">
                                         @if ($res['tipo'] === 'documento')
