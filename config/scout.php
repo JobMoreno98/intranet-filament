@@ -164,7 +164,7 @@ return [
 
             // Configuramos el índice del catálogo general (Recursos)
             Recursos::class => [
-                'filterableAttributes' => function () {
+                'filterableAttributes' => (function () {
                     $camposFijos = [
                         'acervo_id',
                         'coleccion_id',
@@ -186,7 +186,6 @@ return [
                                     $campos = is_string($esquema) ? json_decode($esquema, true) : $esquema;
                                     if (is_array($campos)) {
                                         foreach ($campos as $campo) {
-                                            // VALIDACIÓN AÑADIDA: Solo agregamos si tiene variable y es Recuperable
                                             if (!empty($campo['variable'])) {
                                                 $visible = trim(strtolower($campo['visible'] ?? ''));
 
@@ -197,7 +196,8 @@ return [
                                         }
                                     }
                                 }
-                                return array_unique($fields);
+
+                                return array_values(array_unique($fields));
                             });
                         }
                     } catch (\Throwable $e) {
@@ -205,7 +205,7 @@ return [
                     }
 
                     return array_merge($camposFijos, $camposDinamicos);
-                }(),
+                })(),
             ],
 
             // Blog ya funciona bien, pero es buena práctica declararlo
