@@ -205,7 +205,7 @@ return [
                     }
 
                     return array_merge($camposFijos, $camposDinamicos);
-                },
+                }(),
             ],
 
             // Blog ya funciona bien, pero es buena práctica declararlo
