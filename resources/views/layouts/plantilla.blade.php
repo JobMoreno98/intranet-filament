@@ -307,41 +307,42 @@
         @yield('content')
     </div>
 
-    <footer class="dark:bg-neutral-600">
-        <div class="px-2 pt-10 mx-auto max-w-7xl ">
-            <div class="pt-6 border-t border-gray-300 flex flex-col md:flex-row gap-10 items-center ">
+    <footer class="dark:bg-neutral-600 pb-8">
+        <div class="px-4 pt-10 mx-auto max-w-7xl">
+            <!-- 1. CAMBIO AQUÍ: Añadimos "justify-between" y "items-start md:items-center" para separar izquierda y derecha -->
+            <div
+                class="pt-6 border-t border-gray-300 dark:border-neutral-500 flex flex-col md:flex-row justify-between gap-8 items-center md:items-start">
 
-                <div class="text-black flex flex-col ">
+                <!-- BLOQUE IZQUIERDO: Logos y Dirección -->
+                <div class="text-black flex flex-col items-center md:items-start text-center md:text-left">
                     <div class="w-full">
-                        <div class="max-w-7xl mx-auto  flex flex-col md:flex-row items-center justify-between gap-6">
-
-                            <!-- Contenedor de los logos -->
-                            <a href="{{ route('home') }}"
-                                class="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6">
-                                <!-- 1. Logo UdeG -->
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6">
+                            <!-- 1. Logo UdeG -->
+                            <a href="https://udg.mx/" target="_blank" rel="noopener noreferrer">
                                 <img src="{{ asset('img/udeg_negro.svg') }}" alt="Universidad de Guadalajara"
-                                    class="block dark:hidden h-13 sm:h-13 w-auto object-contain">
+                                    class="block dark:hidden h-13 w-auto object-contain">
                                 <img src="{{ asset('img/udeg_blanco.svg') }}" alt="Universidad de Guadalajara"
-                                    class="hidden dark:block h-13 sm:h-13 w-auto object-contain">
+                                    class="hidden dark:block h-13 w-auto object-contain">
+                            </a>
 
-                                <!-- Divisor vertical (se oculta en móviles pequeños para evitar amontonamiento) -->
-                                <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
-                                    aria-hidden="true"></span>
+                            <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-500"
+                                aria-hidden="true"></span>
 
-                                <!-- 3. Logo SIUBIUDG -->
+                            <!-- 2. Logo SIUBIUDG -->
+                            <a href="https://bibliotecas.udg.mx/" target="_blank" rel="noopener noreferrer">
                                 <img src="{{ asset('img/siubi_negro.svg') }}"
                                     alt="Sistema Universitario de Bibliotecas"
-                                    class="block dark:hidden h-13 sm:h-12 w-auto object-contain">
-
+                                    class="block dark:hidden h-12 w-auto object-contain">
                                 <img src="{{ asset('img/siubi_blanco.svg') }}"
                                     alt="Sistema Universitario de Bibliotecas"
-                                    class="hidden dark:block h-13 sm:h-12 w-auto object-contain">
+                                    class="hidden dark:block h-12 w-auto object-contain">
+                            </a>
 
-                                <!-- Divisor vertical -->
-                                <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-700"
-                                    aria-hidden="true"></span>
+                            <span class="hidden sm:block h-8 w-px bg-gray-300 dark:bg-gray-500"
+                                aria-hidden="true"></span>
 
-                                <!-- 2. Logo BPEJ -->
+                            <!-- 3. Logo BPEJ -->
+                            <a href="https://bpej.udg.mx/" target="_blank" rel="noopener noreferrer">
                                 <img src="{{ asset('img/bpej.svg') }}" alt="Biblioteca Pública del Estado de Jalisco"
                                     class="block dark:hidden h-8 sm:h-10 w-auto object-contain">
                                 <img src="{{ asset('img/bpej-oscuro.svg') }}"
@@ -351,30 +352,80 @@
                         </div>
                     </div>
 
-                    <p class="mt-2 text-sm text-gray-500 lg:w-4/5 dark:text-white">
+                    <p class="mt-4 text-sm text-gray-500 dark:text-zinc-200 leading-relaxed">
                         Biblioteca Pública del Estado de Jalisco "Juan José Arreola" <br>
                         Periférico Norte Manuel Gómez Morín no. 1695, Colonia Belenes C.P. 45150 <br>
                         Zapopan, Jalisco, México. <br>
                         Teléfono 33 3836 4530
                     </p>
                 </div>
+
+                <!-- 2. BLOQUE DERECHO: Redes Sociales -->
+                <div class="flex flex-col items-center md:items-end justify-center shrink-0">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-300 mb-3">
+                        Síguenos en redes
+                    </span>
+
+                    <div class="flex items-center gap-3">
+                        <!-- Facebook -->
+                        <a href="https://es-la.facebook.com/bibliojalisco/" target="_blank" rel="noopener noreferrer"
+                            aria-label="Facebook"
+                            class="p-2.5 rounded-xl border border-zinc-200 dark:border-neutral-500 bg-white dark:bg-neutral-700 text-zinc-600 dark:text-zinc-200 hover:bg-[#86212b] hover:border-[#86212b] hover:text-white transition-all duration-300 shadow-sm">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path
+                                    d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                            </svg>
+                        </a>
+
+                        <!-- X (Twitter) -->
+                        <a href="https://twitter.com/BiblioJalisco" target="_blank" rel="noopener noreferrer"
+                            aria-label="X"
+                            class="p-2.5 rounded-xl border border-zinc-200 dark:border-neutral-500 bg-white dark:bg-neutral-700 text-zinc-600 dark:text-zinc-200 hover:bg-[#86212b] hover:border-[#86212b] hover:text-white transition-all duration-300 shadow-sm">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path
+                                    d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                            </svg>
+                        </a>
+
+                        <!-- Instagram -->
+                        <a href="https://www.instagram.com/biblio_jalisco" target="_blank" rel="noopener noreferrer"
+                            aria-label="Instagram"
+                            class="p-2.5 rounded-xl border border-zinc-200 dark:border-neutral-500 bg-white dark:bg-neutral-700 text-zinc-600 dark:text-zinc-200 hover:bg-[#86212b] hover:border-[#86212b] hover:text-white transition-all duration-300 shadow-sm">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                        </a>
+
+                        <!-- YouTube -->
+                        <a href="https://www.youtube.com/channel/UCh_wEI5dQ6WEBo7h_BJ1emw" target="_blank" rel="noopener noreferrer"
+                            aria-label="YouTube"
+                            class="p-2.5 rounded-xl border border-zinc-200 dark:border-neutral-500 bg-white dark:bg-neutral-700 text-zinc-600 dark:text-zinc-200 hover:bg-[#86212b] hover:border-[#86212b] hover:text-white transition-all duration-300 shadow-sm">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path
+                                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="flex flex-col pt-12 ">
+            <!-- Copyright y Aviso de Privacidad -->
+            <div class="flex flex-col pt-10">
                 <p class="text-center">
-                    <span class="mx-auto mt-2 text-sm md:text-base text-gray-500 lg:mx-0 dark:text-white">
-                        Derechos reservados ©1997 - 2025. Universidad de Guadalajara |
+                    <span class="mx-auto text-sm md:text-base text-gray-500 dark:text-white">
+                        Derechos reservados ©1997 - {{ date('Y') }}. Universidad de Guadalajara |
                         <a href="https://transparencia.udg.mx/aviso-confidencialidad-integral" target="_blank"
-                            rel="noopener noreferrer" class="  hover:text-red-800">
-                            Aviso de privacidad</a>
-
+                            rel="noopener noreferrer"
+                            class="hover:text-[#86212b] dark:hover:text-amber-400 underline-offset-4 hover:underline transition-colors">
+                            Aviso de privacidad
+                        </a>
                     </span>
                 </p>
             </div>
-
         </div>
     </footer>
-
     @fluxScripts
 
     @livewireScripts

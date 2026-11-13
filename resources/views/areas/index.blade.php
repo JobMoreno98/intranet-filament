@@ -22,20 +22,26 @@
 
 @section('content')
     <section>
-        <div class="sm:px-7 px-2 w-full  py-20 flex flex-col gap-6">
+        <div class="sm:px-7 px-2 w-full max-w-7xl mx-auto py-20 flex flex-col gap-6">
+            <div class="shadow-lg rounded-lg overflow-hidden">
+                <div class="bg-[#86212b] p-4 flex flex-col items-center gap-3">
 
-            <div class="shadow-lg bg-white rounded-lg overflow-hidden">
-                <div class="bg-[#86212b] p-4 flex items-center gap-3">
-                    <svg class="w-8 h-8 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 21V7a2 2 0 012-2h4l2-2h6a2 2 0 012 2v16M3 21h18M9 21V9h6v12" />
-                    </svg>
-                    <h3 class="text-2xl font-bold text-white uppercase tracking-wider">
-                        {{ $title ?? 'Áreas' }}
-                    </h3>
+                    <div class="flex items-center w-full">
+                        <svg class="w-8 h-8 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 21V7a2 2 0 012-2h4l2-2h6a2 2 0 012 2v16M3 21h18M9 21V9h6v12" />
+                        </svg>
+                        <h3 class="text-2xl font-bold text-white uppercase tracking-wider">
+                            {{ $title ?? 'Áreas' }}
+                        </h3>
+
+                    </div>
+                    <p class="text-md text-white tracking-wider px-2">
+                        Nuestros acervos se encuentran organizados en siete áreas, que a su vez resguardan fondos
+                        archivísticos, audiovisuales, bibliográficos, hemerográficos, fotográficos y sonoros
+                    </p>
                 </div>
             </div>
-
             <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full ">
                     @forelse ($areas as $index => $item)
@@ -48,8 +54,6 @@
                         </div>
                     @endforelse
                 </div>
-
-
                 @if (isset($areas) && $areas instanceof \Illuminate\Contracts\Pagination\Paginator)
                     <div class="mx-auto w-full py-2">
                         <div class="flex flex-wrap justify-center items-center gap-2">
