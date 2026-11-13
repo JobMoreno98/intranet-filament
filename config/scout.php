@@ -143,6 +143,7 @@ return [
     'meilisearch' => [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
+ 
         'index-settings' => [
 
             // Configuramos el índice de las páginas (RecursosArchivos)
@@ -163,22 +164,52 @@ return [
 
             // Configuramos el índice del catálogo general (Recursos)
             Recursos::class => [
-                'filterableAttributes' => [
-                    'acervo_id',
-                    'coleccion_id',
-                    'status',
-                    'metada_text',
-                    'archivos',
-                    'fondo',
-                    'metadata',        // incluye todos los subcampos: metadata.titulo, etc.
-                    'status',
-                ],
+                'filterableAttributes' => function () {
+                    $camposFijos = [
+                        'acervo_id',
+                        'coleccion_id',
+                        'status',
+                        'tipo_media',
+                        'archivos',
+                        'fondo',
+                        'metadata',
+                    ];
+                    $camposDinamicos = [];
+                    
+                    try {
+                        // Leemos todos los esquemas de la BD (con caché para no alentar el sistema)
+                        if (\Illuminate\Support\Facades\Schema::hasTable('tipo_acervos')) {
+                            $camposDinamicos = \Illuminate\Support\Facades\Cache::remember('meilisearch_dynamic_fields', 3600, function () {
+                                $esquemas = \App\Models\TipoAcervo::whereNotNull('esquema')->pluck('esquema');
+                                $fields = [];
+                                
+                                foreach ($esquemas as $esquema) {
+                                    $campos = is_string($esquema) ? json_decode($esquema, true) : $esquema;
+                                    if (is_array($campos)) {
+                                        foreach ($campos as $campo) {
+                                            if (!empty($campo['variable'])) {
+                                                // Agregamos el prefijo metadata. automáticamente
+                                                $fields[] = 'metadata.' . trim($campo['variable']);
+                                            }
+                                        }
+                                    }
+                                }
+                                return array_unique($fields);
+                            });
+                        }
+                    } catch (\Throwable $e) {
+                        // Si no hay BD conectada (ej. durante un deploy), ignoramos
+                    }
+
+                    return array_merge($camposFijos, $camposDinamicos);
+                },
             ],
 
             // Blog ya funciona bien, pero es buena práctica declararlo
             Blog::class => [
                 'filterableAttributes' => ['tags'],
             ],
+
         ],
     ],
 

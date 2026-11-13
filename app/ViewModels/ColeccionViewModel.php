@@ -207,25 +207,33 @@ class ColeccionViewModel extends ViewModel
     {
         $term = $this->request->input('q', '');
 
-        // 1. Filtros base (Estos SÍ son fijos en la BD, por lo que no darán error)
+        // Filtro base obligatorio
         $filtros = ["coleccion_id = {$this->coleccion->id}"];
-
         if ($acervoId) {
             $filtros[] = "acervo_id = {$acervoId}";
 
-            // 2. Campos dinámicos: En lugar de usar filtros restrictivos que requieren scout.php,
             foreach ($this->request->only($this->columnasPrimarias) as $campo => $valor) {
                 if (is_string($valor) && trim($valor) !== '') {
-                    $term .= ' ' . trim($valor);
+                    $valorEscapado = $this->escaparFiltroMeili(trim($valor));
+
+                    // Buscamos si el administrador configuró este campo como número o texto
+                    $tipoCampo = collect($this->esquema)->firstWhere('variable', $campo)['type'] ?? 'text';
+
+                    if ($tipoCampo === 'number' && is_numeric($valorEscapado)) {
+                        // Para años o números, exigimos coincidencia exacta (=) sin comillas
+                        $filtros[] = "metadata.{$campo} = {$valorEscapado}";
+                    } else {
+                        // Para texto (ej. títulos o autores), buscamos partes de la palabra
+                        $filtros[] = "metadata.{$campo} CONTAINS \"{$valorEscapado}\"";
+                    }
                 }
             }
         }
 
-        $term = trim($term);
         $resultados = [];
 
         try {
-            if ($term === '') {
+            if (trim($term) === '') {
                 // Navegar por filtros: sin límite de 1000 y con total exacto
                 $docs = $this->meili->index('recursos')->getDocuments(
                     (new DocumentsQuery())
@@ -253,7 +261,6 @@ class ColeccionViewModel extends ViewModel
                 $this->totalHits = $indexResult['estimatedTotalHits'] ?? count($hits);
             }
 
-            // ... (el resto del bucle foreach ($hits as $hit) se queda exactamente igual) ...
             foreach ($hits as $hit) {
                 $resultados[] = (object) [
                     'id' => $hit['id'],
