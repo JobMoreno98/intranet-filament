@@ -207,23 +207,25 @@ class ColeccionViewModel extends ViewModel
     {
         $term = $this->request->input('q', '');
 
-        // Filtro base obligatorio
+        // 1. Filtros base (Estos SÍ son fijos en la BD, por lo que no darán error)
         $filtros = ["coleccion_id = {$this->coleccion->id}"];
 
         if ($acervoId) {
             $filtros[] = "acervo_id = {$acervoId}";
 
+            // 2. Campos dinámicos: En lugar de usar filtros restrictivos que requieren scout.php,
             foreach ($this->request->only($this->columnasPrimarias) as $campo => $valor) {
-                if (is_string($valor) && $valor !== '') {
-                    $filtros[] = "metadata.{$campo} CONTAINS \"" . $this->escaparFiltroMeili($valor) . '"';
+                if (is_string($valor) && trim($valor) !== '') {
+                    $term .= ' ' . trim($valor);
                 }
             }
         }
 
+        $term = trim($term);
         $resultados = [];
 
         try {
-            if (trim($term) === '') {
+            if ($term === '') {
                 // Navegar por filtros: sin límite de 1000 y con total exacto
                 $docs = $this->meili->index('recursos')->getDocuments(
                     (new DocumentsQuery())
@@ -251,6 +253,7 @@ class ColeccionViewModel extends ViewModel
                 $this->totalHits = $indexResult['estimatedTotalHits'] ?? count($hits);
             }
 
+            // ... (el resto del bucle foreach ($hits as $hit) se queda exactamente igual) ...
             foreach ($hits as $hit) {
                 $resultados[] = (object) [
                     'id' => $hit['id'],

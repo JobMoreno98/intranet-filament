@@ -21,6 +21,7 @@
         "livewire/volt": "^1.10",
         "meilisearch/meilisearch-php": "^1.16",
         "predis/predis": "^3.4",
+        "spatie/laravel-backup": "^10.4",
         "spatie/laravel-permission": "^7.4",
         "spatie/laravel-view-models": "^1.6"
     },

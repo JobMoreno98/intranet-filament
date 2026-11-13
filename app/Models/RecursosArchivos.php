@@ -43,8 +43,6 @@ class RecursosArchivos extends Model
             'orden' => (int) $this->orden, // Número de página
             'ocr' => $this->ocr,
             'status' => $this->status,
-            
-            // HERENCIA: Traemos datos vitales del libro para que Meilisearch pueda buscarlos
             'libro_coleccion_id' => (int) $recurso->coleccion_id,
             'libro_acervo_id' => (int) $recurso->acervo_id,
             'libro_status' => $recurso->status,
