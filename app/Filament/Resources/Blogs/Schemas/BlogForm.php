@@ -22,9 +22,12 @@ class BlogForm
                     ->schema([
                         FileUpload::make('portada')
                             ->required()->image()->disk('public')
-                            ->directory('blogs')->acceptedFileTypes(['image/*'])
-                            ->imageEditor()->imageAspectRatio('2:1')
-                            ->automaticallyOpenImageEditorForAspectRatio(),
+                            ->directory('blogs')->acceptedFileTypes(['image/*'])->imageEditor()
+                            ->imageAspectRatio('2:1')
+                            ->automaticallyOpenImageEditorForAspectRatio()
+                            ->imageResizeMode('cover')
+                            ->imageResizeTargetWidth('1200')
+                            ->imageResizeTargetHeight('600'),
                         TextInput::make('nombre')->required(),
                         TagsInput::make('tags'),
                         RichEditor::make('contenido')

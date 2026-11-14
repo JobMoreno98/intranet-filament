@@ -43,7 +43,7 @@ class RecursosTable
                     }),
 
                 TextColumn::make('metadata_titulo') // Nombre inventado para la columna
-                    ->label('Título')
+                    ->label('Título')->limit(200)->wrap()
                     ->getStateUsing(fn($record) => $record->metadata['titulo'] ?? 'Sin título')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where('metadata->titulo', 'like', "%{$search}%");
