@@ -79,7 +79,7 @@
 
 @section('content')
     <article>
-        <header class="w-full max-w-3xl mx-auto px-4 pt-5 pb-8 flex flex-col gap-4 text-center">
+        <header class="w-full max-w-5xl mx-auto px-4 pt-5 pb-8 flex flex-col gap-4 text-center">
             <h1 class="text-3xl md:text-[2.75rem] leading-tight font-bold text-zinc-900 dark:text-white">
                 {{ $post->nombre }}
             </h1>
@@ -107,13 +107,13 @@
         </div>
 
         {{-- Cuerpo del artículo: columna angosta para lectura --}}
-        <div class="w-full max-w-2xl mx-auto px-4 py-12">
+        <div class="w-full max-w-4xl mx-auto px-4 py-12">
 
             <div class="post-contenido text-zinc-700 dark:text-zinc-200">
                 {!! $post->contenido !!}
             </div>
 
-            {{-- Caja de contenido relacionado, estilo "descubre más" --}}
+            {{-- Caja de contenido relacionado, estilo "descubre más" 
             @if (isset($relacionados) && $relacionados->isNotEmpty())
                 <div class="bg-zinc-50 border border-zinc-200 rounded-md p-5 my-10 dark:bg-zinc-800 dark:border-zinc-700">
                     <h4 class="text-xs uppercase tracking-wide font-bold text-custom-wine mb-3">
@@ -131,10 +131,10 @@
                     </ul>
                 </div>
             @endif
-
+--}}
             {{-- Compartir --}}
             <div
-                class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3  ">
+                class="mx-auto w-full max-w-6xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3  ">
                 <span class="text-xs font-bold text-zinc-500 dark:text-white uppercase tracking-wide">Compartir:</span>
                 <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
                     class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-neutral-600 dark:text-white dark:hover:bg-zinc-700">
@@ -164,18 +164,18 @@
 
         {{-- Artículos relacionados en grid, al final --}}
         @if (isset($relacionados) && $relacionados->isNotEmpty())
-            <div class="w-full bg-zinc-50 dark:bg-zinc-800 py-12 mt-4">
+            <div class="w-full bg-zinc-50 dark:bg-zinc-800 py-6 mt-4">
                 <div class="max-w-5xl mx-auto px-4 flex flex-col gap-6">
                     <h3 class="text-sm font-bold text-zinc-800 uppercase tracking-wide text-center dark:text-white">
                         Más publicaciones
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-6">
                         @foreach ($relacionados as $rel)
                             <a href="{{ route('blog.show', $rel->slug) }}" class="group flex flex-col gap-3">
                                 <img src="{{ asset('storage/' . $rel->portada) }}" alt="{{ $rel->nombre }}"
-                                    class="w-full aspect-square object-cover rounded-md">
+                                    class="w-full roubded-xl object-cover rounded-md">
                                 <span
-                                    class="text-sm font-semibold text-zinc-800 line-clamp-2 group-hover:text-custom-wine transition-colors dark:text-white">
+                                    class="text-center text-sm font-semibold text-zinc-800 line-clamp-2 group-hover:text-custom-wine transition-colors dark:text-white">
                                     {{ $rel->nombre }}
                                 </span>
                             </a>
