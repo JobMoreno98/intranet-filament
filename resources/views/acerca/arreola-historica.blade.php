@@ -18,46 +18,55 @@
 
             <!-- Introducción -->
             <section class="mb-14">
-
+ {{-- 
                 <div class="mb-8 max-w-3xl">
-                    {{--  
+                    
                     <span
                         class="mb-4 block text-sm font-semibold uppercase tracking-widest text-[#86212b] dark:text-[#d98b91]">
                         Arreola Histórica
                     </span>
---}}
+
                     <h2
                         class="text-3xl font-semibold leading-tight tracking-tight text-zinc-800 dark:text-zinc-100 md:text-4xl">
                         Te damos la bienvenida al futuro de nuestro pasado.
                     </h2>
+                    
 
                     <div class="mt-5 h-1 w-16 bg-guinda dark:bg-[#d98b91]"></div>
                 </div>
+                --}}
 
                 <div class="space-y-5 text-justify text-base leading-8 text-zinc-600 dark:text-zinc-300">
                     <p
                         class="first-letter:float-left first-letter:mr-3 first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.85] first-letter:text-[#86212b] dark:first-letter:text-[#d98b91]">
                         Arreola Histórica es el buscador y repositorio digital de los fondos históricos de la Biblioteca
-                        Pública del Estado de Jalisco de la Universidad de Guadalajara. Nuestro portal permite el acceso a
-                        500 años de libros, periódicos, revistas, fotografías, películas, audios, manuscritos, mapas y
-                        piezas de arte. Además de ser un portal de consulta virtual, Arreola Histórica se presenta como
+                        Pública del Estado de Jalisco. Nuestro portal permite el acceso a 500 años de libros, periódicos,
+                        revistas, fotografías, películas, audios, archivos y mapas. Arreola Histórica se presenta como
                         centro de producción de conocimiento sobre el patrimonio que resguarda la Universidad de
-                        Guadalajara, así como una herramienta para la consulta, la conservación y el rescate de la memoria
-                        de la sociedad jalisciense.
+                        Guadalajara. Asimismo, es una herramienta para la conservación y el rescate de la memoria de la
+                        sociedad jalisciense.
 
                     </p>
 
                     <p>
-                        Arreola Histórica es un repositorio en construcción. En esta primera etapa, ponemos a tu disposición
-                        un buscador que permite la exploración de una buena parte de los materiales antiguos que se
-                        resguardan en nuestra Biblioteca. Sólo un porcentaje de estos registros ya puede ser consultado en
-                        línea. Todos los días trabajamos para seguir alimentando nuestro repositorio.
+                        Arreola Histórica es un repositorio en construcción. En esta primera etapa, ponemos a tu
+                        disposición un buscador que permite la exploración de buena parte de los materiales antiguos que
+                        se resguardan en nuestra Biblioteca. Sólo un porcentaje de estos registros puede ser consultado
+                        en línea. Todos los días trabajamos para seguir alimentando nuestro repositorio.
+                    </p>
 
+                    <p>
+                        A través de Arreola Histórica, la Biblioteca Pública del Estado de Jalisco, una de las más grandes e
+                        importantes de México, ofrece un servicio abierto al mundo las 24 horas, los 7 días de la semana.
+                    </p>
+                    <p>
+                        Te damos la bienvenida al futuro de nuestro pasado.
                     </p>
                 </div>
 
             </section>
 
+            {{--  
             <!-- Patrimonio documental -->
             <section class="mb-14 border-y border-zinc-200 py-10 dark:border-zinc-700">
 
@@ -111,7 +120,7 @@
 
             </section>
 
-
+--}}
             <div
                 class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3 dark:bg-neutral-600">
                 <span class="text-xs font-bold text-zinc-500 dark:text-white uppercase tracking-wide">Compartir:</span>

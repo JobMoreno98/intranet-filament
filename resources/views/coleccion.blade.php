@@ -138,7 +138,7 @@
                                     <td class="px-3 py-2 text-center">
                                         @if ($fila['urlVer'])
                                             <a href="{{ $fila['urlVer'] }}"
-                                                class="text-guinda border-2 border-custom-wine rounded-sm px-2 py-1  block
+                                                class="text-white bg-guinda border-2 border-custom-wine rounded-sm px-2 py-1  block
                                         font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white transition-all hover:bg-guinda
                                         dark:bg-guinda dark:text-white w-full my-1">
                                                 Ver

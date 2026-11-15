@@ -43,12 +43,14 @@
                                     </h3>
                                      --}}
                                     <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
-                                        En nuestro <strong class="font-semibold text-[#713d32] ">buscador general</strong>
-                                        tienes la opción de filtrar por tipo documental. De
-                                        manera predeterminada se incluyen todos los tipos documentales, pero también puedes
-                                        seleccionar en específico los que sean de tu interés. Además, puedes seleccionar la
-                                        opción de que sólo busque material que ya esté digitalizado y que sea visible
-                                        online.
+                                        En nuestro <strong class="font-semibold text-[#713d32] uppercase">BUSCADOR
+                                            GENERAL</strong>
+                                        tienes la opción de filtrar por tipo documental. De manera
+                                        predeterminada se incluyen todos los tipos documentales, pero también puedes
+                                        seleccionar
+                                        en específico los que sean de tu interés. Además, puedes seleccionar la opción de
+                                        que sólo
+                                        busque material que ya esté digitalizado y que sea visible online.
 
                                     </p>
                                 </div>
@@ -70,10 +72,10 @@
                                     </h3>
                                      --}}
                                     <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
-                                        En nuestro <strong class="font-semibold text-[#713d32] ">buscador avanzado</strong>
-                                        puedes hacer búsquedas más específicas. Puedes filtrar por tipo documental y puedes
-                                        incluir en tu búsqueda los criterios de fondo y metadato. También puedes consultar
-                                        los registros completos por fondo.o.
+                                        En nuestro <strong class="font-semibold text-[#713d32] uppercase ">buscador
+                                            avanzado</strong>
+                                        puedes hacer búsquedas más específicas. Tienes un
+                                        filtro por tipo documental, fondo y metadato.
                                     </p>
                                 </div>
                             </article>
@@ -93,11 +95,9 @@
                                     </h3>
                                     --}}
                                     <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
-                                        Sólo un porcentaje de los registros disponibles en nuestro buscador ya pueden ser
-                                        consultados de manera digital. Debes <strong
-                                            class="font-semibold text-[#713d32] ">iniciar sesión</strong> para acceder a
-                                        nuestro visor
-                                        digital.
+                                        En nuestra sección de <strong class="font-semibold text-[#713d32] uppercase">ÁREAS Y
+                                            FONDOS</strong> puedes explorar los registros por cada una de
+                                        nuestras colecciones.
                                     </p>
                                 </div>
                             </article>
@@ -107,7 +107,7 @@
                                 class=" border dark:bg-zinc-800 flex gap-4 rounded-lg border-l-4 border-[#9b6959] bg-[#f8f6f4] p-5">
                                 <div
                                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#713d32] text-sm font-bold text-white">
-                                    04
+                                    03
                                 </div>
 
                                 <div>
@@ -117,10 +117,65 @@
                                     </h3>
                                      --}}
                                     <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
-                                        Para iniciar sesión debes <strong class="font-semibold text-[#713d32] ">registrarte
-                                            como usuario</strong> de Arreola Histórica llenando por
-                                        única ocasión nuestro <strong class="font-semibold text-[#713d32] ">formulario de
+                                        Sólo un porcentaje de los registros disponibles en nuestro buscador ya pueden ser
+                                        consultados de manera digital. Debes <strong
+                                            class="font-semibold text-[#713d32] uppercase">INICIAR SESIÓN</strong> para
+                                        acceder a nuestro visor digital.
+                                    </p>
+                                </div>
+                            </article>
+
+                            <!-- Registro -->
+                            <article
+                                class=" border dark:bg-zinc-800 flex gap-4 rounded-lg border-l-4 border-[#9b6959] bg-[#f8f6f4] p-5">
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#713d32] text-sm font-bold text-white">
+                                    05
+                                </div>
+
+                                <div>
+                                    {{-- 
+                                    <h3 class="dark:text-white mb-2 text-lg font-bold text-[#713d32]">
+                                        Regístrate en Arreola Histórica
+                                    </h3>
+                                     --}}
+                                    <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
+                                        Para iniciar sesión debes registrarte como persona usuaria de Arreola Histórica
+                                        llenando por
+                                        única ocasión nuestro <strong
+                                            class="font-semibold text-[#713d32] uppercase">formulario de
                                             registro.</strong>
+                                    </p>
+                                </div>
+                            </article>
+
+                            <!-- Registro -->
+                            <article
+                                class=" border dark:bg-zinc-800 flex gap-4 rounded-lg border-l-4 border-[#9b6959] bg-[#f8f6f4] p-5">
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#713d32] text-sm font-bold text-white">
+                                    06
+                                </div>
+
+                                <div>
+                                    {{-- 
+                                    <h3 class="dark:text-white mb-2 text-lg font-bold text-[#713d32]">
+                                        Regístrate en Arreola Histórica
+                                    </h3>
+                                     --}}
+                                    <p class="dark:text-white text-sm leading-7 text-gray-600 md:text-base">
+                                        Se generará un PDF con la información que llenaste en el formulario de registro. Con
+                                        el
+                                        formulario impreso y una identificación oficial puedes <strong
+                                            class="font-semibold text-[#713d32] uppercase"> SOLICITAR TU CREDENCIAL</strong>
+                                        para
+                                        consultar de manera presencial los fondos de la Biblioteca Histórica. Sólo tienes
+                                        que acudir
+                                        con estos documentos al módulo de información ubicado en la Planta Baja de la
+                                        Biblioteca
+                                        Contemporánea de la BPEJ (Periférico Norte Manuel Gómez Morín no. 1695, Col.
+                                        Belenes,
+                                        C.P. 45150, Zapopan, Jalisco, México), de lunes a viernes de 9 a 16 horas.
                                     </p>
                                 </div>
                             </article>

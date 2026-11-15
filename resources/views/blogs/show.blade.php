@@ -87,17 +87,6 @@
             <div class="flex items-center justify-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                 <span>{{ $post->created_at->translatedFormat('d \d\e F, Y') }}</span>
             </div>
-
-            @if (!empty($post->tags))
-                <div class="flex flex-wrap justify-center gap-2 pt-1">
-                    @foreach ($post->tags as $tagItem)
-                        <a href="{{ route('blog.index', ['tag' => $tagItem]) }}"
-                            class="text-[11px] uppercase tracking-wide font-semibold bg-zinc-100 text-zinc-600 rounded-full px-3 py-1 hover:bg-red-50 hover:text-custom-wine transition-colors dark:bg-zinc-800 dark:text-zinc-300">
-                            {{ $tagItem }}
-                        </a>
-                    @endforeach
-                </div>
-            @endif
         </header>
 
         {{-- Imagen de portada a todo lo ancho --}}
@@ -133,6 +122,21 @@
             @endif
 --}}
             {{-- Compartir --}}
+
+
+            @if (!empty($post->tags))
+                <div class="flex flex-wrap justify-center gap-2 pt-1">
+                    @foreach ($post->tags as $tagItem)
+                        <a href="{{ route('blog.index', ['tag' => $tagItem]) }}"
+                            class="text-[11px] tracking-wide 
+                            font-semibold bg-zinc-100 text-zinc-600 rounded-full 
+                            px-3 py-1 hover:bg-red-50 hover:text-red-950 transition-colors dark:bg-red-900 dark:text-zinc-300">
+                            {{ $tagItem }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+
             <div
                 class="mx-auto w-full max-w-6xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3  ">
                 <span class="text-xs font-bold text-zinc-500 dark:text-white uppercase tracking-wide">Compartir:</span>
@@ -167,7 +171,7 @@
             <div class="w-full bg-zinc-50 dark:bg-zinc-800 py-6 mt-4">
                 <div class="max-w-5xl mx-auto px-4 flex flex-col gap-6">
                     <h3 class="text-sm font-bold text-zinc-800 uppercase tracking-wide text-center dark:text-white">
-                        Más publicaciones
+                        Publicaciones similares 
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-5 gap-6">
                         @foreach ($relacionados as $rel)

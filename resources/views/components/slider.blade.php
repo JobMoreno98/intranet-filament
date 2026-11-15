@@ -65,11 +65,8 @@
             @php
                 $url = route('blog.show', $post->slug);
                 $imagen = !empty($post->portada) ? asset('storage/' . $post->portada) : null;
-
                 $texto = $post->extracto ?? ($post->descripcion ?? $post->contenido);
                 $texto = \Illuminate\Support\Str::limit(trim(html_entity_decode(strip_tags((string) $texto))), $limit);
-
-                $tag = is_array($post->tags ?? null) ? $post->tags[0] ?? null : null;
             @endphp
 
             <article
@@ -94,9 +91,6 @@
                 <div class="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-12 pb-14 sm:pb-16">
                     <div class="max-w-2xl flex flex-col gap-2 sm:gap-3 text-left">
                         <div class="flex items-center gap-2 text-[11px] uppercase tracking-wide font-semibold">
-                            @if ($tag)
-                                <span class="bg-[#86212b] text-white rounded-full px-2.5 py-1">{{ $tag }}</span>
-                            @endif
                             <time datetime="{{ $post->created_at->toDateString() }}" class="text-zinc-200">
                                 {{ $post->created_at->translatedFormat('d \d\e F, Y') }}
                             </time>

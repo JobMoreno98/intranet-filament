@@ -78,7 +78,7 @@
 
             //['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
 
-            ['CÓMO USAR', 'arreola.uso'],
+            ['INSTRUCCIONES DE USO', 'arreola.uso'],
             ['SOLICITUD DE REPRODUCCIONES', 'arreola.solicitud'],
             ['SALA ARREOLA (BLOG)', 'blog.index'],
             ['MEMORIA UDG', 'arreola.memoria'],

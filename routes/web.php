@@ -54,7 +54,7 @@ Route::get('/contacto', function () {
 })->name('arreola.contacto');
 
 Route::get('/como-usar', function () {
-    return view('acerca.como-usar', ['title' => 'Cómo usar']);
+    return view('acerca.como-usar', ['title' => 'Instrucciones de Uso']);
 })->name('arreola.uso');
 
 Route::get('/solicitud-reproduccion', function () {

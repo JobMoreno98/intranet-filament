@@ -1,5 +1,10 @@
 @extends('layouts.plantilla')
 
+@section('css')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.1/dist/css/glightbox.min.css">
+@endsection
+
+
 @section('content')
     <div>
         <div class="w-full bg-[#86212b] py-8 px-4">
@@ -95,8 +100,75 @@
                             <span aria-hidden="true">↗</span>
                         </a>
                     </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl mx-auto mt-4">
+                        <!-- Imagen 1 -->
+                        <a href="{{ asset('img/laboratorio/1.jpg') }}"
+                            class="glightbox aspect-[4/3] w-full rounded-2xl overflow-hidden relative group block border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shadow-sm hover:shadow-md transition-all duration-300"
+                            data-gallery="galeria-laboratorio" data-title="Laboratorio 1">
 
+                            <img src="{{ asset('img/laboratorio/1.jpg') }}" alt="Laboratorio 1" loading="lazy"
+                                class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
+
+                            <!-- Degradado oscuro en hover -->
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+
+                            <!-- Botón lupa central + etiqueta inferior -->
+                            <div
+                                class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div
+                                    class="w-11 h-11 rounded-full bg-white/95 dark:bg-zinc-900/95 text-[#86212b] dark:text-amber-400 flex items-center justify-center shadow-md transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 8v5m-2.5-2.5h5" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <span
+                                class="absolute bottom-3 left-4 text-sm font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                Laboratorio 1
+                            </span>
+                        </a>
+
+                        <!-- Imagen 2 -->
+                        <a href="{{ asset('img/laboratorio/2.jpg') }}"
+                            class="glightbox aspect-[4/3] w-full rounded-2xl overflow-hidden relative group block border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shadow-sm hover:shadow-md transition-all duration-300"
+                            data-gallery="galeria-laboratorio" data-title="Laboratorio 2">
+
+                            <img src="{{ asset('img/laboratorio/2.jpg') }}" alt="Laboratorio 2" loading="lazy"
+                                class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
+
+                            <!-- Degradado oscuro en hover -->
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+
+                            <!-- Botón lupa central + etiqueta inferior -->
+                            <div
+                                class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div
+                                    class="w-11 h-11 rounded-full bg-white/95 dark:bg-zinc-900/95 text-[#86212b] dark:text-amber-400 flex items-center justify-center shadow-md transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 8v5m-2.5-2.5h5" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <span
+                                class="absolute bottom-3 left-4 text-sm font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                Laboratorio 2
+                            </span>
+                        </a>
+                    </div>
                 </section>
+
 
             </div>
 
@@ -116,4 +188,21 @@
         </article>
 
     </div>
+@endsection
+
+@section('js')
+    <script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.1/dist/js/glightbox.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            GLightbox({
+                selector: '.glightbox',
+                touchNavigation: true,
+                loop: true,
+                zoomable: true,
+                draggable: true,
+                descPosition: 'bottom',
+            });
+        });
+    </script>
 @endsection

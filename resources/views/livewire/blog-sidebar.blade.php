@@ -26,6 +26,7 @@
             class="text-xs rounded-full px-3 py-1 transition-colors {{ !request('tag') ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
             Todas
         </a>
+        
         @foreach ($tagsDisponibles as $tagItem)
             <a href="{{ route('blog.index', ['tag' => $tagItem]) }}"
                 class="text-xs rounded-full px-3 py-1 transition-colors {{ request('tag') == $tagItem ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
