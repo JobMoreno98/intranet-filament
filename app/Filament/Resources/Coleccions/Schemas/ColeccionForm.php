@@ -79,9 +79,8 @@ class ColeccionForm
                     }
 
                     return $options;
-                })
-                ->columnSpanFull(),
-
+                }),
+            FileUpload::make('foto')->disk('colecciones')->acceptedFileTypes(['image/*']),
 
             RichEditor::make('descripcion')
                 ->required()->label('Descripción')
@@ -171,7 +170,7 @@ class ColeccionForm
                 ])
                 ->fileAttachmentsDisk('public')
                 ->fileAttachmentsDirectory('editor-uploads'),
-            FileUpload::make('foto')->disk('colecciones')->acceptedFileTypes(['image/*'])
+
         ]);
     }
 }

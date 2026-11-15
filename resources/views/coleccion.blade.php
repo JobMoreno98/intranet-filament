@@ -59,7 +59,7 @@
                             class="text-xs font-bold uppercase tracking-wider  dark:text-white flex items-center gap-2 mb-2">
                             Acerca de este fondo
                         </h4>
-                        <p class="max-w-4xl text-sm leading-relaxed text-gray-700 dark:text-white whitespace-pre-line"
+                        <p class="w-full text-md leading-relaxed text-gray-700 dark:text-white whitespace-pre-line"
                             :class="abierto ? '' : 'line-clamp-3'">{{ $descripcionFondo }}</p>
                         @if (mb_strlen($descripcionFondo) > 280)
                             <button type="button" @click="abierto = !abierto"
