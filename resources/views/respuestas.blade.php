@@ -73,9 +73,7 @@
                                         @if ($res['tipo'] === 'documento')
                                             {{ $res['acervo'] ?? '---' }}
                                         @elseif ($res['tipo'] === 'coleccion')
-                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Colección</span>
-                                        @elseif ($res['tipo'] === 'pagina')
-                                            Página {{ $res['orden_pagina'] ?? '' }}
+                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Fondo</span>
                                         @endif
                                     </td>
 
