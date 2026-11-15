@@ -176,7 +176,7 @@ class ColeccionesConsultaController extends Controller
 
                     if (!empty($formatted)) {
                         foreach ($formatted as $campo => $valorFormateado) {
-                            if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden','indicador'])) {
+                            if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden'])) {
                                 continue;
                             }
 
