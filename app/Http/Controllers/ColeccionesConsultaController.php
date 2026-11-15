@@ -6,7 +6,6 @@ use App\Models\Area;
 use App\Models\Coleccion;
 use App\Models\Blog;
 use App\Models\Recursos;
-use App\Models\TipoAcervo;
 use App\ViewModels\RegistroViewModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -239,7 +238,7 @@ class ColeccionesConsultaController extends Controller
                     if ($indexUid === 'coleccions') {
                         $resultados[] = [
                             'index' => $indexUid,
-                            'tipo' => $hit['tipo'] ?? 'coleccion',
+                            'tipo' => $hit['tipo'] ?? 'Fondo',
                             'titulo_resultado' => $hit['nombre'] ?? 'Colección sin nombre',
                             'indicador' => $hit['indicador'] ?? ($hit['codigo'] ?? null),
                             'coincidencia' => $snippet,
