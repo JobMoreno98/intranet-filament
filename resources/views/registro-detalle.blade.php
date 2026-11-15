@@ -166,11 +166,11 @@
             </aside>
         </div>
         <div
-            class="dark:bg- mx-auto w-full max-w-4xl my-5 dark:border-zinc-700 pt-6 flex flex-wrap
-             items-center justify-center gap-3 dark:bg-neutral-600">
+            class="mx-auto w-full max-w-4xl my-5 dark:border-zinc-700 py-4 flex flex-wrap
+             items-center justify-center gap-3">
             <span class="text-xs font-bold text-zinc-500 dark:text-white uppercase tracking-wide">Compartir:</span>
             <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
-                class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-neutral-600 dark:text-white dark:hover:bg-zinc-700">
+                class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-neutral-600 dark:text-white dark:hover:bg-zinc-700">
                 WhatsApp
             </a>
             <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank"
@@ -189,7 +189,8 @@
 
             <button type="button" x-data="{ soportado: !!navigator.share }" x-show="soportado" x-cloak
                 x-on:click="navigator.share({ title: document.title, url: '{{ url()->current() }}' })"
-                class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-neutral-600 dark:text-white dark:hover:bg-zinc-700">
+                class="dark:border dark:border-zinc-800 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full 
+                py-1.5 px-3 transition-colors dark:bg-neutral-600 dark:text-white dark:hover:bg-zinc-700">
                 Más opciones
             </button>
         </div>
