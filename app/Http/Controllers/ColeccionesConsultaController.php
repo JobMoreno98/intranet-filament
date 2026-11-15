@@ -122,6 +122,29 @@ class ColeccionesConsultaController extends Controller
         ?string $terminoMostrar = null,
         array $indices = ['coleccions', 'recursos']
     ) {
+        $etiquetasMetadata = Cache::remember('meilisearch_metadata_labels', 3600, function () {
+            $mapa = [];
+
+            $esquemas = \App\Models\TipoAcervo::whereNotNull('esquema')->pluck('esquema');
+
+            foreach ($esquemas as $esquema) {
+                $campos = is_string($esquema) ? json_decode($esquema, true) : $esquema;
+                if (is_array($campos)) {
+                    foreach ($campos as $campo) {
+                        $variable = trim($campo['variable'] ?? '');
+                        // Ajusta 'label' si en tu JSON la llave se llama 'etiqueta' o 'nombre'
+                        $label = trim($campo['label'] ?? ($campo['etiqueta'] ?? ($campo['nombre'] ?? '')));
+
+                        if ($variable !== '' && $label !== '') {
+                            $mapa[$variable] = $label;
+                        }
+                    }
+                }
+            }
+
+            return $mapa;
+        });
+
         $resultados = [];
 
         // Si no hay texto libre (búsqueda puramente por campo/metadata), no tiene
@@ -195,16 +218,18 @@ class ColeccionesConsultaController extends Controller
                                 break;
                             }
                         }
-
                         if (isset($formatted['metadata']) && is_array($formatted['metadata'])) {
-                            // Primero revisamos los campos que el usuario eligió explícitamente
-                            // en la búsqueda avanzada (ej. "titulo"), antes de aceptar cualquier
-                            // otro campo de metadata que también haya resultado resaltado.
-                            $ordenCampos = !empty($camposPrioritarios) ? array_intersect_key($formatted['metadata'], array_flip($camposPrioritarios)) + $formatted['metadata'] : $formatted['metadata'];
+                            $ordenCampos = !empty($camposPrioritarios)
+                                ? array_intersect_key($formatted['metadata'], array_flip($camposPrioritarios)) + $formatted['metadata']
+                                : $formatted['metadata'];
 
                             foreach ($ordenCampos as $clave => $valorFormateado) {
                                 if (is_string($valorFormateado) && str_contains($valorFormateado, '<em>')) {
-                                    $snippet = 'Valor encontrado en: <br/> ' . ucfirst($clave) . ': ' . $this->resaltarCoincidencia($valorFormateado);
+                                    // Buscamos el label en el esquema; si no existe, limpiamos guiones bajos como respaldo
+                                    $nombreLegible = $etiquetasMetadata[$clave]
+                                        ?? ucfirst(str_replace('_', ' ', $clave));
+
+                                    $snippet = 'Valor encontrado en: <br/> ' . e($nombreLegible) . ': ' . $this->resaltarCoincidencia($valorFormateado);
                                     break;
                                 }
                             }
