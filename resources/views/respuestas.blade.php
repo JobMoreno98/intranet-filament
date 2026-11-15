@@ -38,7 +38,7 @@
 
                 <!-- VISTA ESCRITORIO -->
                 <div
-                    class="hidden md:block max-w-6xl overflow-x-auto bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-600">
+                    class="hidden md:block overflow-x-auto bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-600">
                     <table class="w-full  text-left border-collapse">
                         <thead class="bg-gray-900 dark:bg-red-900 text-white text-sm font-medium">
                             <tr>
@@ -157,7 +157,7 @@
 
                                     @if (!empty($res['acervo']) || !empty($res['fondo']))
                                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                            
+
                                             @if (!empty($res['acervo']) && !empty($res['fondo']))
                                                 •
                                             @endif
