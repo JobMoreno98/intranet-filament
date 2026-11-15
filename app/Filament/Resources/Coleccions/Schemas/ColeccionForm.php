@@ -6,6 +6,8 @@ use App\Models\Coleccion;
 use App\Models\SubColeccion;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -28,7 +30,7 @@ class ColeccionForm
                     $set('slug', Str::slug($state));
                 }),
 
-            Select::make('areas_id')->relationship('area','nombre')->required()->label('Área')->preload()->searchable(),
+            Select::make('areas_id')->relationship('area', 'nombre')->required()->label('Área')->preload()->searchable(),
 
             // Relación de Pertenencia Jerárquica
             Select::make('parent_id')
@@ -80,9 +82,95 @@ class ColeccionForm
                 })
                 ->columnSpanFull(),
 
-            
-                Textarea::make('descripcion')
-                ->autosize()->label('Descripción'),
+
+            RichEditor::make('descripcion')
+                ->required()->label('Descripción')
+                ->columnSpanFull()
+                ->toolbarButtons([
+                    // 1. Formato de Texto
+                    ToolbarButtonGroup::make('Formato de texto', [
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'subscript',
+                        'superscript',
+                        'textColor',
+                        'highlight',
+                        'clearFormatting',
+                    ]),
+
+                    // 2. Encabezados y Párrafos
+                    ToolbarButtonGroup::make('Encabezados y Estilos', [
+                        'paragraph',
+                        'lead',
+                        'small',
+                        'h1',
+                        'h2',
+                        'h3',
+                        'h4',
+                        'h5',
+                        'h6',
+                    ]),
+
+                    // 3. Alineación
+                    ToolbarButtonGroup::make('Alineación', [
+                        'alignStart',
+                        'alignCenter',
+                        'alignEnd',
+                        'alignJustify',
+                    ]),
+
+                    // 4. Listas y Bloques de Estructura
+                    ToolbarButtonGroup::make('Listas y Bloques', [
+                        'bulletList',
+                        'orderedList',
+                        'blockquote',
+                        'horizontalRule',
+                        'details',
+                    ]),
+
+                    // 5. Gestión de Tablas
+                    ToolbarButtonGroup::make('Tablas', [
+                        'table',
+                        'tableAddColumnBefore',
+                        'tableAddColumnAfter',
+                        'tableDeleteColumn',
+                        'tableAddRowBefore',
+                        'tableAddRowAfter',
+                        'tableDeleteRow',
+                        'tableMergeCells',
+                        'tableSplitCell',
+                        'tableToggleHeaderRow',
+                        'tableToggleHeaderCell',
+                        'tableDelete',
+                    ]),
+
+                    // 6. Cuadrículas / Columnas (Grids)
+                    ToolbarButtonGroup::make('Cuadrículas', [
+                        'grid',
+                        'gridAddColumnBefore',
+                        'gridAddColumnAfter',
+                        'gridDeleteColumn',
+                        'gridDelete',
+                    ]),
+
+                    // 7. Enlaces y Archivos
+                    ToolbarButtonGroup::make('Insertar', [
+                        'link',
+                        'attachFiles',
+                        'customBlocks',
+                        'mergeTags',
+                    ]),
+
+                    // 8. Historial
+                    ToolbarButtonGroup::make('Historial', [
+                        'undo',
+                        'redo',
+                    ]),
+                ])
+                ->fileAttachmentsDisk('public')
+                ->fileAttachmentsDirectory('editor-uploads'),
             FileUpload::make('foto')->disk('colecciones')->acceptedFileTypes(['image/*'])
         ]);
     }
