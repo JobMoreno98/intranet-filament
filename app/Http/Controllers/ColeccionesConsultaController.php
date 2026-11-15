@@ -176,7 +176,7 @@ class ColeccionesConsultaController extends Controller
 
                     if (!empty($formatted)) {
                         foreach ($formatted as $campo => $valorFormateado) {
-                            if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden'])) {
+                            if (in_array($campo, ['id', 'IdElemento', 'parent_id', 'parent_ids', 'recursos_id', 'orden','indicador'])) {
                                 continue;
                             }
 
@@ -216,33 +216,34 @@ class ColeccionesConsultaController extends Controller
                             'index' => $indexUid,
                             'tipo' => $hit['tipo'] ?? 'coleccion',
                             'titulo_resultado' => $hit['nombre'] ?? 'Colección sin nombre',
+                            'indicador' => $hit['indicador'] ?? ($hit['codigo'] ?? null),
                             'coincidencia' => $snippet,
                             'registro_id' => $hit['id'] ?? null,
                             'slug' => $hit['slug'] ?? null,
                             'descripcion' => $hit['descripcion'] ?? null,
                         ];
                     } elseif ($indexUid === 'recursos') {
+                        $meta = $hit['metadata'] ?? [];
+
+                        // Buscamos el título en el nivel raíz o dentro de metadata (dejamos null si no tiene)
+                        $titulo = $hit['titulo']
+                            ?? ($meta['titulo'] ?? ($meta['Titulo'] ?? ($hit['nombre'] ?? null)));
+
+                        // Buscamos el indicador en el hit o en metadata
+                        $indicador = $hit['indicador']
+                            ?? ($meta['indicador'] ?? ($meta['identificador'] ?? null));
+
                         $resultados[] = [
                             'index' => $indexUid,
                             'acervo' => $hit['acervo'] ?? null,
                             'fondo' => $hit['fondo'] ?? null,
                             'tipo' => 'documento',
-                            'titulo_resultado' => $hit['titulo'] ?? ($hit['nombre'] ?? 'Registro sin título'),
+                            'titulo_resultado' => $titulo,
+                            'indicador' => $indicador,
                             'coincidencia' => $snippet,
                             'registro_id' => $hit['id'] ?? null,
                             'slug' => $hit['slug'] ?? null,
-                            'metadata' => $hit['metadata'] ?? [],
-                        ];
-                    } elseif ($indexUid === 'paginas_index') {
-                        $resultados[] = [
-                            'index' => $indexUid,
-                            // BUG CORREGIDO: antes era 'página' (con tilde) y el Blade compara con
-                            // 'pagina', por eso el botón "Ir a Pág." nunca se mostraba.
-                            'tipo' => 'pagina',
-                            'titulo_resultado' => 'Coincidencia en el texto del documento',
-                            'coincidencia' => $snippet,
-                            'registro_id' => $hit['recursos_id'] ?? null,
-                            'orden_pagina' => $hit['orden'] ?? null,
+                            'metadata' => $meta,
                         ];
                     }
                 }
@@ -267,12 +268,15 @@ class ColeccionesConsultaController extends Controller
             ->filter()
             ->unique();
 
-        $uuids = $idsRecursos->isNotEmpty() ? Recursos::whereIn('id', $idsRecursos)->pluck('uuid', 'id') : collect();
+        $recursosInfo = $idsRecursos->isNotEmpty()
+            ? Recursos::whereIn('id', $idsRecursos)->get(['id', 'uuid', 'indicador'])->keyBy('id')
+            : collect();
 
-
-        $currentItems = array_map(function ($res) use ($uuids) {
-            if ($res['tipo'] === 'documento') {
-                $res['registro_uuid'] = $uuids[$res['registro_id']] ?? null;
+        $currentItems = array_map(function ($res) use ($recursosInfo) {
+            if (in_array($res['tipo'], ['documento']) && isset($recursosInfo[$res['registro_id']])) {
+                $info = $recursosInfo[$res['registro_id']];
+                $res['registro_uuid'] = $info->uuid;
+                $res['indicador'] = $res['indicador'] ?? $info->indicador;
             }
 
             return $res;

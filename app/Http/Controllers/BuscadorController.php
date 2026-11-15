@@ -12,6 +12,7 @@ class BuscadorController extends Controller
 {
 
     public function __construct(protected MeilisearchClient $meili) {}
+    
     public function buscarEnRecurso(Request $request, Recursos $recurso)
     {
         abort_unless($recurso->visible, 404);
