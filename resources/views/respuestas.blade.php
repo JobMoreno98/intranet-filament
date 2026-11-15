@@ -18,14 +18,16 @@
         <div class="mx-auto sm:px-7 px-3 max-w-screen-3xl py-6">
 
             <div class="mb-4">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 dark:text-white">{{ $title ?? 'Resultados de Búsqueda' }}</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-2 dark:text-white">{{ $title ?? 'Resultados de Búsqueda' }}
+                </h2>
 
                 <p class="text-sm text-gray-500 dark:text-white">
                     Se encontraron <span class="font-bold text-gray-800 dark:text-white">{{ $resultados->total() }}</span>
                     registros
 
                     @if (!empty(trim($term)))
-                        coincidentes para "<span class="font-semibold text-red-800 dark:text-white">{{ $term }}</span>".
+                        coincidentes para "<span
+                            class="font-semibold text-red-800 dark:text-white">{{ $term }}</span>".
                     @else
                         coincidentes con los filtros seleccionados.
                     @endif
@@ -35,7 +37,8 @@
             <div class="overflow-hidden">
 
                 <!-- VISTA ESCRITORIO -->
-                <div class="hidden md:block overflow-x-auto bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-600">
+                <div
+                    class="hidden md:block overflow-x-auto bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-600">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-900 text-white text-sm font-medium">
                             <tr>
@@ -49,20 +52,23 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-zinc-700 text-sm text-gray-700">
                             @foreach ($resultados as $res)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition">
-                                    
+
                                     <!-- Referencia: Título (si existe) + Indicador -->
                                     <td class="p-4 dark:text-white max-w-xs">
                                         @if (!empty($res['titulo_resultado']))
-                                            <div class="font-semibold text-gray-900 dark:text-white line-clamp-2" title="{{ $res['titulo_resultado'] }}">
+                                            <div class="font-semibold text-gray-900 dark:text-white line-clamp-2"
+                                                title="{{ $res['titulo_resultado'] }}">
                                                 {{ $res['titulo_resultado'] }}
                                             </div>
                                             @if (!empty($res['indicador']))
-                                                <span class="text-xs font-mono text-gray-500 dark:text-gray-400 block mt-0.5">
+                                                <span
+                                                    class="text-xs font-mono text-gray-500 dark:text-gray-400 block mt-0.5">
                                                     {{ $res['indicador'] }}
                                                 </span>
                                             @endif
                                         @else
-                                            <span class="font-mono text-xs font-semibold bg-gray-100 dark:bg-zinc-600 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
+                                            <span
+                                                class="font-mono text-xs font-semibold bg-gray-100 dark:bg-zinc-600 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
                                                 {{ $res['indicador'] ?? '---' }}
                                             </span>
                                         @endif
@@ -73,7 +79,8 @@
                                         @if ($res['tipo'] === 'documento')
                                             {{ $res['acervo'] ?? '---' }}
                                         @elseif ($res['tipo'] === 'coleccion')
-                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Fondo</span>
+                                            <span
+                                                class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Fondo</span>
                                         @endif
                                     </td>
 
@@ -119,14 +126,21 @@
                 <!-- VISTA MÓVIL -->
                 <div class="block md:hidden flex flex-col gap-4">
                     @foreach ($resultados as $res)
-                        <div class="p-5 shadow-md border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 rounded-lg">
+                        <div
+                            class="p-5 shadow-md border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 rounded-lg">
                             <div class="flex flex-col gap-3">
-                                
+
                                 <!-- Encabezado de la Card -->
                                 <div>
                                     <div class="flex items-center justify-between gap-2 mb-1.5">
-                                        <span class="text-[10px] bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded uppercase tracking-wider font-semibold">
-                                            {{ $res['tipo'] }}
+                                        <span
+                                            class="text-[10px] bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded uppercase tracking-wider font-semibold">
+                                            @if ($res['tipo'] === 'documento')
+                                                {{ $res['acervo'] ?? '---' }}
+                                            @elseif ($res['tipo'] === 'coleccion')
+                                                <span
+                                                    class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Fondo</span>
+                                            @endif
                                         </span>
                                         @if (!empty($res['indicador']))
                                             <span class="text-xs font-mono text-gray-500 dark:text-gray-400">
@@ -136,21 +150,25 @@
                                     </div>
 
                                     <h3 class="font-bold text-gray-900 dark:text-white text-sm leading-snug">
-                                        {{ $res['titulo_resultado'] ?? $res['indicador'] ?? 'Sin referencia' }}
+                                        {{ $res['titulo_resultado'] ?? ($res['indicador'] ?? 'Sin referencia') }}
                                     </h3>
 
                                     @if (!empty($res['acervo']) || !empty($res['fondo']))
                                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                             {{ $res['acervo'] ?? '' }}
-                                            @if (!empty($res['acervo']) && !empty($res['fondo'])) • @endif
+                                            @if (!empty($res['acervo']) && !empty($res['fondo']))
+                                                •
+                                            @endif
                                             {{ $res['fondo'] ?? '' }}
                                         </p>
                                     @endif
                                 </div>
 
                                 <!-- Contenido / Extracto -->
-                                <div class="text-gray-600 text-sm bg-gray-50 dark:bg-zinc-700/50 p-3 rounded-lg border border-gray-100 dark:border-zinc-600">
-                                    <span class="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Coincidencia:</span>
+                                <div
+                                    class="text-gray-600 text-sm bg-gray-50 dark:bg-zinc-700/50 p-3 rounded-lg border border-gray-100 dark:border-zinc-600">
+                                    <span
+                                        class="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Coincidencia:</span>
                                     <div class="line-clamp-3 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
                                         {!! $res['coincidencia'] !!}
                                     </div>
@@ -176,7 +194,8 @@
 
                     @if ($resultados->isEmpty())
                         <div class="p-12 text-center text-gray-400 font-medium">
-                            <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
