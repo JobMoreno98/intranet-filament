@@ -269,14 +269,13 @@ class ColeccionesConsultaController extends Controller
             ->unique();
 
         $recursosInfo = $idsRecursos->isNotEmpty()
-            ? Recursos::whereIn('id', $idsRecursos)->get(['id', 'uuid', 'indicador'])->keyBy('id')
+            ? Recursos::whereIn('id', $idsRecursos)->get(['id', 'uuid'])->keyBy('id')
             : collect();
 
         $currentItems = array_map(function ($res) use ($recursosInfo) {
             if (in_array($res['tipo'], ['documento']) && isset($recursosInfo[$res['registro_id']])) {
                 $info = $recursosInfo[$res['registro_id']];
                 $res['registro_uuid'] = $info->uuid;
-                $res['indicador'] = $res['indicador'] ?? $info->indicador;
             }
 
             return $res;
