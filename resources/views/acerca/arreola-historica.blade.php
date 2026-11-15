@@ -14,11 +14,11 @@
 
 
         <!-- Contenedor principal -->
-        <main class="mx-auto max-w-5xl px-5 py-12 md:px-8 md:py-16">
+        <main class="h-full mx-auto max-w-5xl px-5 py-12 md:px-8 md:py-16">
 
             <!-- Introducción -->
             <section class="mb-14">
- {{-- 
+                 {{-- 
                 <div class="mb-8 max-w-3xl">
                     
                     <span
@@ -122,7 +122,7 @@
 
 --}}
             <div
-                class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3 dark:bg-neutral-600">
+                class="mx-auto w-full max-w-4xl mt-auto border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3 dark:bg-neutral-600">
                 <span class="text-xs font-bold text-zinc-500 dark:text-white uppercase tracking-wide">Compartir:</span>
                 <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
                     class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-neutral-600 dark:text-white dark:hover:bg-zinc-700">

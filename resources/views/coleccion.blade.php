@@ -24,7 +24,7 @@
     <section class="">
         <div class="sm:px-7 px-2 w-full py-20 flex flex-col gap-6">
 
-            <div class="shadow-lg bg-white rounded-lg overflow-hidden">
+            <div class="shadow-lg rounded-lg overflow-hidden">
                 <div class="bg-[#86212b] p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <h3 class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
                         <svg class="w-8 h-8 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@
                                             <a href="{{ $fila['urlVer'] }}"
                                                 class="text-white bg-guinda border-2 border-custom-wine rounded-sm px-2 py-1  block
                                         font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white transition-all hover:bg-guinda
-                                        dark:bg-guinda dark:text-white w-full my-1">
+                                        dark:bg-custom-wine dark:text-white w-full my-1">
                                                 Ver
                                             </a>
                                         @endif
