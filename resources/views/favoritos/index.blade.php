@@ -34,14 +34,14 @@
                     </div>
                 @empty
                     <!-- Estado vacío -->
-                    <div class="col-span-full text-center py-16 bg-white rounded-lg shadow-sm border">
-                        <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24"
+                    <div class="col-span-full text-center py-16 bg-white dark:bg-neutral-600 rounded-lg shadow-sm border">
+                        <svg class="mx-auto h-12 w-12 text-gray-300 mb-4 dark:text-red-200" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
-                        <h3 class="text-lg font-medium text-gray-900">Aún no tienes favoritos</h3>
-                        <p class="mt-1 text-sm text-gray-500">Explora nuestro catálogo de recursos y guárdalos para
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Aún no tienes favoritos</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-white">Explora nuestro catálogo de recursos y guárdalos para
                             verlos más tarde.</p>
                     </div>
                 @endforelse
