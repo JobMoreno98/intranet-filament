@@ -108,7 +108,7 @@
 
                 <div
                     class="relative overflow-x-auto shadow-2xl rounded-md  bg-white dark:bg-neutral-600">
-                    <table class="min-w-full divide-y divide-gray-200 text-left">
+                    <table class="min-w-full  text-left">
                         <thead class="bg-custom-wine text-white">
                             <tr>
                                 <th class="px-4 py-3 text-xs font-bold uppercase tracking-widest">Acervo</th>
