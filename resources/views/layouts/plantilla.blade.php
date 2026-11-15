@@ -67,25 +67,6 @@
 
 <body class="antialiased font-titillium">
 
-    @php
-        $enlaces = [
-            ['INICIO', 'home'],
-            ['NUESTRA BIBLIOTECA', 'nuestra.historia'],
-            ['Áreas y Fondos', 'areas.index'],
-
-            //['FONDOS', 'fondos.index'],
-            ['Arreola Histórica', 'arreola.historica'],
-
-            //['NUESTROS FONDOS HISTÓRICOS', 'fondos.historicos'],
-
-            ['INSTRUCCIONES DE USO', 'arreola.uso'],
-            ['SOLICITUD DE REPRODUCCIONES', 'arreola.solicitud'],
-            ['SALA ARREOLA (BLOG)', 'blog.index'],
-            ['MEMORIA UDG', 'arreola.memoria'],
-            ['CONTACTO', 'arreola.contacto'],
-            ['CRÉDITOS', 'arreola.creditos'],
-        ];
-    @endphp
     <nav x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false"
         x-effect="document.body.classList.toggle('overflow-hidden', menuOpen)" class="bg-white dark:bg-neutral-600">
 
@@ -164,17 +145,7 @@
                     </button>
                 </div>
 
-                <ul class="flex flex-col space-y-1 px-4 pt-4 font-medium">
-                    @foreach ($enlaces as [$etiqueta, $ruta])
-                        <li>
-                            <a href="{{ route($ruta) }}"
-                                class="uppercase block rounded-md px-3 py-2.5 transition-colors duration-200 hover:bg-guinda hover:text-white
-                    {{ request()->routeIs($ruta) ? 'bg-guinda text-white' : 'text-zinc-700 dark:text-zinc-200' }}">
-                                {{ $etiqueta }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+                <x-nav-links class="px-4 pt-4" />
 
                 {{-- Sesión: debajo de lg (en lg ya está en la barra). mt-auto la empuja al fondo del cajón --}}
                 <div class="mt-auto border-t border-gray-200 p-4 dark:border-neutral-700 ">

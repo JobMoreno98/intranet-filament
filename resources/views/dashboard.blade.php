@@ -1,6 +1,6 @@
 <x-layouts::app :title="__('Dashboard')">
-    <div class="m-auto flex h-full max-w-4xl flex-1 flex-col gap-4 rounded-xl">
-        
+    <div class="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6">
+
         <livewire:widget-favoritos-recientes />
 
     </div>
