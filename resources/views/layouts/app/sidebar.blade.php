@@ -26,13 +26,14 @@
         class="!w-72 lg:![grid-area:sidebar] border-s border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-600 px-4 py-4">
         {{-- Logo institucional grande --}}
         <flux:sidebar.header
-            class="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-neutral-700">
+            class="hidden lg:flex items-center justify-between pb-3 border-b border-gray-200 dark:border-neutral-700">
             <a href="{{ route('home') }}" class="flex items-center shrink-0" wire:navigate>
                 <img src="{{ asset('img/arreola-blanco.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="block dark:hidden h-16 w-auto">
                 <img src="{{ asset('img/arreola-oscuro.svg') }}" alt="{{ config('app.name', 'Laravel') }} Logo"
                     class="hidden dark:block h-16 w-auto">
             </a>
+
             <div x-data>
                 <button x-on:click="$flux.dark = ! $flux.dark" type="button"
                     class="flex  items-center justify-between px-3 py-2.5 rounded-xl border 
@@ -55,26 +56,33 @@
 
         {{-- Enlaces estilo cajón de plantilla.blade.php --}}
         {{-- Navegación Principal --}}
+        {{-- Navegación Principal (Arriba) --}}
         <nav class="mt-4">
-            <x-nav-links :with-icons="true" :wire-navigate="true" item-class="text-sm leading-snug" />
+            <x-nav-links :with-icons="true" :wire-navigate="true" :show-auth="false" item-class="text-sm leading-snug" />
         </nav>
-        
+
         <flux:spacer />
 
-        {{-- Pie del Sidebar: Selector de Tema y Usuario --}}
-        <div class="mt-6 pt-4 border-t border-gray-200 dark:border-neutral-700 space-y-3">
+        {{-- Enlaces de Usuario Autenticado (Justo encima del pie del Sidebar) --}}
+        @auth
+            <nav class="pt-4 border-t border-gray-200 dark:border-neutral-700">
+                <x-nav-links :with-icons="true" :wire-navigate="true" :only-auth="true" item-class="text-sm leading-snug" />
+                {{-- Pie del Sidebar: Selector de Tema y Usuario --}}
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-neutral-700 space-y-3">
+                    @auth
+                        <x-desktop-user-menu :name="auth()->user()->name" />
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="block w-full rounded-md bg-red-800 px-4 py-2.5 text-center text-sm font-medium text-white shadow-sm transition hover:bg-red-900">
+                            {{ __('Log In') }}
+                        </a>
+                    @endauth
+                </div>
+            </nav>
 
-            <div class="hidden lg:block">
-                @auth
-                    <x-desktop-user-menu :name="auth()->user()->name" />
-                @else
-                    <a href="{{ route('login') }}"
-                        class="block w-full rounded-md bg-red-800 px-4 py-2.5 text-center text-sm font-medium text-white shadow-sm transition hover:bg-red-900">
-                        {{ __('Log In') }}
-                    </a>
-                @endauth
-            </div>
-        </div>
+        @endauth
+
+
     </flux:sidebar>
 
     {{-- Header Móvil --}}
@@ -102,17 +110,10 @@
             </button>
         </div>
 
-        @auth
-            {{-- ... tu flux:dropdown de perfil ... --}}
-        @else
-            <a href="{{ route('login') }}"
-                class="rounded-md bg-red-800 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-900 me-2">
-                {{ __('Log In') }}
-            </a>
-        @endauth
+        <flux:sidebar.toggle class="lg:hidden text-zinc-700 dark:text-zinc-200" icon="bars-2" inset="right" />
 
         {{-- Botón hamburguesa ahora al extremo derecho --}}
-        <flux:sidebar.toggle class="lg:hidden text-zinc-700 dark:text-zinc-200" icon="bars-2" inset="right" />
+
     </flux:header>
 
     {{-- Contenido Principal --}}

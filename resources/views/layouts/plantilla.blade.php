@@ -158,7 +158,9 @@
                         </a>
                     @endif
                 </div>
+
             </aside>
+        </div>
     </nav>
 
     <section class="relative flex flex-col dark:bg-gray-200">
@@ -369,8 +371,8 @@
                         </a>
 
                         <!-- YouTube -->
-                        <a href="https://www.youtube.com/channel/UCh_wEI5dQ6WEBo7h_BJ1emw" target="_blank" rel="noopener noreferrer"
-                            aria-label="YouTube"
+                        <a href="https://www.youtube.com/channel/UCh_wEI5dQ6WEBo7h_BJ1emw" target="_blank"
+                            rel="noopener noreferrer" aria-label="YouTube"
                             class="p-2.5 rounded-xl border border-zinc-200 dark:border-neutral-500 bg-white dark:bg-neutral-700 text-zinc-600 dark:text-zinc-200 hover:bg-[#86212b] hover:border-[#86212b] hover:text-white transition-all duration-300 shadow-sm">
                             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                                 <path

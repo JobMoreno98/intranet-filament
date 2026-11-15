@@ -8,14 +8,14 @@
 
                 @forelse ($favoritos as $favorito)
                     <div
-                        class="bg-white border rounded-lg p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+                        class="bg-white dark:bg-neutral-600 border rounded-lg p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
                         <div>
                             <!-- Título extraído de la relación JSON -->
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2 dark:text-white">
                                 {{ $favorito->recurso->metadata['titulo'] ?? 'Sin título' }}
                             </h3>
 
-                            <p class="text-sm text-gray-500 mb-4">
+                            <p class="text-sm text-gray-500 mb-4 dark:text-white">
                                 Guardado el: {{ $favorito->created_at->format('d/m/Y') }}
                             </p>
                             <p class="text-end">
