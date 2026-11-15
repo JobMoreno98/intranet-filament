@@ -89,7 +89,8 @@
                     <div>
                         <h4 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
                             Difusión y diseño gráfico</h4>
-                        <p class="leading-7 text-zinc-700 dark:text-zinc-300">Josué Nolasco, Iván Sánchez y Dante Macías.</p>
+                        <p class="leading-7 text-zinc-700 dark:text-zinc-300">Josué Nolasco, Iván Sánchez y Dante Macías.
+                        </p>
                     </div>
                 </div>
 
@@ -98,7 +99,8 @@
                     <h4 class="mb-3 text-sm font-semibold uppercase tracking-wide text-[#86212b] dark:text-[#d98b91]">
                         Asesoría y control intelectual</h4>
                     <p class="leading-8 text-zinc-700 dark:text-zinc-300">
-                        Guadalupe Martínez Corona, Ángeles Domínguez, Indira Palomino, María Eugenia Barrios †, Miguel Tamayo,
+                        Guadalupe Martínez Corona, Ángeles Domínguez, Indira Palomino, María Eugenia Barrios †, Miguel
+                        Tamayo,
                         Óscar Espinoza, Hugo Salas, Cristina Meza, Mario Bernache, Fernando Gutiérrez, Mónica Jiménez,
                         Joselyn Alvarado, Blanca García, Virginia Márquez, Miriam Goiz, Alicia Delgadillo, Laura Benítez,
                         Alejandro Solís, Carolina Bueno e Irma Rivas.
@@ -116,7 +118,8 @@
                         A la familia Arreola: Sara Sánchez †; Claudia Berenice Arreola Sánchez, Fuensanta Arreola Sánchez,
                         Orso Arreola Sánchez †, José María Arreola Velasco, Alonso Arreola Velasco, Mireya Hernández
                         Arreola,
-                        Berenice Hernández Arreola, Sara Arreola Cuenca y Juan José Arreola Cuenca; Dabi Xavier; Miriam Káiser; 
+                        Berenice Hernández Arreola, Sara Arreola Cuenca y Juan José Arreola Cuenca; Dabi Xavier; Miriam
+                        Káiser;
                     </p>
                     <p>
                         Rosa Beltrán y Socorro Venegas (Universidad Nacional Autónoma de México); Juan Nepote (Museo de
@@ -155,7 +158,7 @@
             </section>
 
             <div
-                class="mx-auto w-full max-w-4xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3 dark:bg-neutral-600">
+                class="mx-auto w-full max-w-6xl mt-10 border-t border-zinc-200 dark:border-zinc-700 pt-6 flex flex-wrap items-center justify-center gap-3  ">
                 <span class="text-xs font-bold text-zinc-500 dark:text-white uppercase tracking-wide">Compartir:</span>
                 <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
                     class="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-full py-1.5 px-3 transition-colors dark:bg-neutral-600 dark:text-white dark:hover:bg-zinc-700">

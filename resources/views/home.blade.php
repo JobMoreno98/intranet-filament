@@ -91,11 +91,40 @@
 
     </section>
 
+    <section>
+        <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10">
+            @if ($areas->count())
+                <h2
+                    class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-guinda dark:text-white leading-tight">
+                    <div class="w-full py-2 my-2 rounded-md ">
+                        <div class="uppercase max-full mx-auto flex flex-col text-center">
+                            ÁREAS Y FONDOS
+                        </div>
+                    </div>
+                </h2>
+                <x-scroll-hint :gradient="false" :step="1"
+                    class="flex overflow-x-auto gap-4 snap-x snap-mandatory pb-6 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-8 sm:pb-0 sm:overflow-visible hide-scrollbar">
+                    @foreach ($areas as $index => $item)
+                        <div class="flex-none w-full sm:w-auto snap-center h-full" data-aos="fade-up"
+                            data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
+                            <livewire:area :area="$item" :key="$item->id" />
+                        </div>
+                    @endforeach
+                </x-scroll-hint>
+            @else
+                <div class="w-full text-center py-12">
+                    <h4 class="text-lg font-medium text-zinc-500">No hay datos aun</h4>
+                </div>
+            @endif
+        </div>
+    </section>
+
     <section class="py-10 px-4 sm:px-7 bg-[#ffffff] dark:bg-neutral-800 max-w-7xl mx-auto ">
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-guinda dark:text-white leading-tight">
+        <h2
+            class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-guinda dark:text-white leading-tight">
             <div class="w-full py-2 my-2 rounded-md ">
                 <div class="uppercase max-full mx-auto flex flex-col text-center">
-                    Contenido destacado
+                    INCORPORACIONES RECIENTES
                 </div>
             </div>
         </h2>
@@ -136,33 +165,6 @@
     </section>
 
 
-    <section>
-        <div class="mx-auto w-full max-w-7xl px-4 sm:px-7 py-10">
-            @if ($areas->count())
-                <h2
-                    class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-guinda dark:text-white leading-tight">
-                    <div class="w-full py-2 my-2 rounded-md ">
-                        <div class="uppercase max-full mx-auto flex flex-col text-center">
-                            Algunas de nuestras Áreas 
-                        </div>
-                    </div>
-                </h2>
-                <x-scroll-hint :gradient="false" :step="1"
-                    class="flex overflow-x-auto gap-4 snap-x snap-mandatory pb-6 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-8 sm:pb-0 sm:overflow-visible hide-scrollbar">
-                    @foreach ($areas as $index => $item)
-                        <div class="flex-none w-full sm:w-auto snap-center h-full" data-aos="fade-up"
-                            data-aos-duration="500" data-aos-delay="{{ $index * 50 }}">
-                            <livewire:area :area="$item" :key="$item->id" />
-                        </div>
-                    @endforeach
-                </x-scroll-hint>
-            @else
-                <div class="w-full text-center py-12">
-                    <h4 class="text-lg font-medium text-zinc-500">No hay datos aun</h4>
-                </div>
-            @endif
-        </div>
-    </section>
 
 @endsection
 

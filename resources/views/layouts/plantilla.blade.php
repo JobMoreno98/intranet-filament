@@ -209,7 +209,7 @@
                     {{ config('app.name', 'Laravel') }}
                 </h1>
             </div>
- --}}
+            --}}
             {{-- Buscador Integrado --}}
             <form action="{{ route('buscador') }}" method="GET"
                 class="relative z-20 mx-auto w-full max-w-5xl sm:px-7">

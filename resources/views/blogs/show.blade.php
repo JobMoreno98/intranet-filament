@@ -171,7 +171,7 @@
             <div class="w-full bg-zinc-50 dark:bg-zinc-800 py-6 mt-4">
                 <div class="max-w-5xl mx-auto px-4 flex flex-col gap-6">
                     <h3 class="text-sm font-bold text-zinc-800 uppercase tracking-wide text-center dark:text-white">
-                        Publicaciones similares 
+                        Publicaciones similares
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-5 gap-6">
                         @foreach ($relacionados as $rel)
