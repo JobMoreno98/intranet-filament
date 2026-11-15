@@ -38,12 +38,12 @@
 
                 <!-- VISTA ESCRITORIO -->
                 <div
-                    class="hidden md:block overflow-x-auto bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-600">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-gray-900 text-white text-sm font-medium">
+                    class="hidden md:block max-w-6xl overflow-x-auto bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-600">
+                    <table class="w-full  text-left border-collapse">
+                        <thead class="bg-gray-900 dark:bg-red-900 text-white text-sm font-medium">
                             <tr>
                                 <th class="p-4">Referencia / Título</th>
-                                <th class="p-4">Tipo Documental</th>
+                                <th class="p-4">Tipo</th>
                                 <th class="p-4">Fondo</th>
                                 <th class="p-4">Extracto de Coincidencia</th>
                                 <th class="p-4 text-center w-40">Acción</th>
@@ -98,12 +98,14 @@
                                     <td class="p-4 text-center">
                                         @if (in_array($res['tipo'], ['documento', 'pagina']) && !empty($res['registro_uuid']))
                                             <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $res['registro_uuid']]) }}"
-                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-guinda hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
+                                                class="inline-flex items-center justify-center px-4 py-1.5 
+                                                text-xs font-bold text-white bg-guinda hover:bg-red-900 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver información
                                             </a>
                                         @elseif ($res['tipo'] === 'coleccion' && !empty($res['slug']))
                                             <a href="{{ route('coleccion.show', $res['slug']) }}" target="_blank"
-                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white bg-guinda hover:bg-blue-700 rounded-lg transition shadow-sm whitespace-nowrap">
+                                                class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-bold text-white 
+                                                bg-guinda hover:bg-red-900 rounded-lg transition shadow-sm whitespace-nowrap">
                                                 Ver colección
                                             </a>
                                         @endif
@@ -155,7 +157,7 @@
 
                                     @if (!empty($res['acervo']) || !empty($res['fondo']))
                                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                            {{ $res['acervo'] ?? '' }}
+                                            
                                             @if (!empty($res['acervo']) && !empty($res['fondo']))
                                                 •
                                             @endif
@@ -205,7 +207,7 @@
                 </div>
 
             </div>
-            <div class="mt-6">
+            <div class="mt-6 dark:text-white">
                 {{ $resultados->links() }}
             </div>
         </div>

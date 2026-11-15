@@ -122,7 +122,7 @@
                                     style="width: 15px">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 dark:divide-zinc-700 text-sm text-gray-700">
 
                             @forelse ($filas as $fila)
                                 <tr class="hover:bg-red-50/30 transition-colors">
