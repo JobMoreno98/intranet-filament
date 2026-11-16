@@ -26,6 +26,17 @@ func init() {
 	}
 }
 
+// heavySem limita a 1 el trabajo de video/audio (ffmpeg) a la vez, para que
+// dos transcodificaciones largas no acaparen los 2 lugares del worker y dejen
+// sin atender a imágenes y PDFs.
+var heavySem = make(chan struct{}, 1)
+
+func withHeavy(fn func()) {
+	heavySem <- struct{}{}
+	defer func() { <-heavySem }()
+	fn()
+}
+
 func processTask(task ProcessingTask) {
 	path := strings.TrimSpace(task.Path)
 	ext := strings.ToLower(filepath.Ext(path))
@@ -43,10 +54,10 @@ func processTask(task ProcessingTask) {
 		processImage(task)
 	case ".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v":
 		log.Printf(">>> RUTINA: VIDEO DETECTADO <<<")
-		processVideo(task)
+		withHeavy(func() { processVideo(task) })
 	case ".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac":
 		log.Printf(">>> RUTINA: AUDIO DETECTADO <<<")
-		processAudio(task)
+		withHeavy(func() { processAudio(task) })
 	default:
 		log.Printf("ERROR: Extensión '%s' no soportada para ID %d", ext, task.ArchivoID)
 	}
@@ -421,6 +432,12 @@ func processAudio(task ProcessingTask) {
 // 'label' es solo para identificar la fuente en los logs (ID de imagen, o
 // "PDF X pág Y").
 func runOcr(label string, sourceImagePath, outputDir string) (string, error) {
+	return runOcrWithLangs(label, sourceImagePath, outputDir, defaultOcrLangs)
+}
+
+// runOcrWithLangs es runOcr con idiomas configurables (lo usa también el
+// reproceso de OCR, que puede pedir otros idiomas).
+func runOcrWithLangs(label string, sourceImagePath, outputDir string, langs []string) (string, error) {
 	ocrSourcePath, ocrScale, tempOcrFile, err := prepareImageForOcr(sourceImagePath, outputDir)
 	if err != nil {
 		log.Printf("ADVERTENCIA OCR %s: no se pudo preprocesar (%v), se usa la imagen original", label, err)
@@ -433,8 +450,14 @@ func runOcr(label string, sourceImagePath, outputDir string) (string, error) {
 	client := gosseract.NewClient()
 	defer client.Close()
 
-	client.SetImage(ocrSourcePath)
-	client.SetLanguage("spa", "eng")
+	// Estos errores antes se ignoraban: aquí es donde aparece el fallo real
+	// cuando faltan los .traineddata (idiomas) de Tesseract.
+	if err := client.SetImage(ocrSourcePath); err != nil {
+		return "", fmt.Errorf("no se pudo cargar la imagen en Tesseract: %v", err)
+	}
+	if err := client.SetLanguage(langs...); err != nil {
+		return "", fmt.Errorf("no se pudieron cargar los idiomas %v: %v", langs, err)
+	}
 	client.SetPageSegMode(gosseract.PSM_AUTO)
 	client.SetVariable("preserve_interword_spaces", "1")
 

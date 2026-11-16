@@ -9,8 +9,11 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/redis/go-redis/v9"
+	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 )
 
 func updateDatabase(itemID int, mainRaw string, thumbRaw string, ocrTexto string) {
@@ -52,7 +55,6 @@ func updateDatabase(itemID int, mainRaw string, thumbRaw string, ocrTexto string
 		log.Printf("Error conectando: %v", err)
 		return
 	}
-	defer db.Close()
 
 	// Usamos el nombre de tabla que mencionaste antes: recursos_archvios (con el typo de la 'v')
 	// Si ya lo corregiste en la migración, cámbialo a recursos_archivos
@@ -97,7 +99,6 @@ func insertPageInDatabase(recursoID int, mainRaw string, thumbRaw string, orden 
 		log.Printf("Error conectando: %v", err)
 		return
 	}
-	defer db.Close()
 
 	// 4. Inserción de la nueva página
 	// Nota: 'nombre_archivo_original' lo seteamos como la página para que sea descriptivo
@@ -134,7 +135,6 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 		log.Printf("Error conectando: %v", err)
 		return 0, err
 	}
-	defer db.Close()
 
 	// Ajustamos la consulta para incluir ÚNICAMENTE path_original
 	// que es el que MySQL te está reclamando.
@@ -168,10 +168,25 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 
 	return nuevoID, nil
 }
+// Pool compartido: antes cada llamada abría y cerraba una conexión nueva a
+// MySQL (una por página de PDF, por ejemplo). Ahora hay un solo *sql.DB para
+// todo el proceso; por eso ya NO se debe hacer db.Close() en quien lo usa.
+var (
+	dbPool *sql.DB
+	dbOnce sync.Once
+	dbErr  error
+)
+
 func getDB() (*sql.DB, error) {
-	// Centraliza aquí tus credenciales y nombre de DB
-	dsn := "sige:50p0rt3@tcp(127.0.0.1:3306)/intranet-bpej?parseTime=true"
-	return sql.Open("mysql", dsn)
+	dbOnce.Do(func() {
+		dbPool, dbErr = sql.Open("mysql", cfg.MySQLDSN())
+		if dbErr == nil {
+			dbPool.SetMaxOpenConns(4)
+			dbPool.SetMaxIdleConns(2)
+			dbPool.SetConnMaxLifetime(5 * time.Minute)
+		}
+	})
+	return dbPool, dbErr
 }
 
 // updateArchivoStatus actualiza únicamente el status de un registro en
@@ -183,7 +198,6 @@ func updateArchivoStatus(archivoID int, status string) {
 		log.Printf("Error conectando: %v", err)
 		return
 	}
-	defer db.Close()
 
 	query := "UPDATE recursos_archivos SET status = ? WHERE id = ?"
 	_, err = db.Exec(query, status, archivoID)
@@ -223,7 +237,6 @@ func saveHlsAssets(archivoID int, key string, m3u8Raw string, thumbRaw string) {
 		log.Printf("Error conectando: %v", err)
 		return
 	}
-	defer db.Close()
 
 	query := "UPDATE recursos_archivos SET assets_procesados = ?, status = 'listo' WHERE id = ?"
 	_, err = db.Exec(query, string(assetsJSON), archivoID)
@@ -245,11 +258,24 @@ func updateAudioAssets(archivoID int, m3u8Raw string, thumbRaw string) {
 
 // getRedis centraliza la conexión a Redis, igual que getDB() para MySQL.
 // Debe apuntar a la misma instancia de Redis que ya usa Laravel.
+var (
+	redisClient *redis.Client
+	redisOnce   sync.Once
+)
+
 func getRedis() *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-		DB:   0,
+	redisOnce.Do(func() {
+		pass := cfg.RedisPassword.Value()
+		if pass == "null" { // Laravel suele poner REDIS_PASSWORD=null en .env
+			pass = ""
+		}
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     cfg.RedisAddr(),
+			Password: pass,
+			DB:       cfg.RedisDB,
+		})
 	})
+	return redisClient
 }
 
 // pushOcrReindexQueue avisa a Laravel (vía la cola "ocr_reindex_queue") que el
@@ -258,7 +284,6 @@ func getRedis() *redis.Client {
 // el procesamiento de la página.
 func pushOcrReindexQueue(recursoID int) {
 	rdb := getRedis()
-	defer rdb.Close()
 
 	ctx := context.Background()
 	if err := rdb.RPush(ctx, "bpej_ocr_reindex_queue", recursoID).Err(); err != nil {
