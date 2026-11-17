@@ -172,6 +172,7 @@ return [
                         'tipo_media',
                         'archivos',
                         'fondo',
+                        'fondo_nombre',
                         'metadata',
                     ];
                     $camposDinamicos = [];
