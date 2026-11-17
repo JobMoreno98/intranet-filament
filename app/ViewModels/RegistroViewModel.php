@@ -1,4 +1,5 @@
 <?php
+
 namespace App\ViewModels;
 
 use Spatie\ViewModels\ViewModel;
@@ -68,7 +69,7 @@ class RegistroViewModel extends ViewModel
             $this->view('registro-info');
         } else {
             $this->view('registro-detalle');
-            
+
             $this->paginasProcesadas = $this->recurso->archivos->map(function ($archivo) {
                 $token = encrypt(json_encode([
                     'a' => $archivo['id'],
@@ -91,9 +92,22 @@ class RegistroViewModel extends ViewModel
     private function procesarDatos(): void
     {
         $omitir = [
-            'tipo_media', 'IdElemento', 'id', 'uuid', 'created_at', 'updated_at', 
-            'usuario_id', 'carpetaContenido', 'archivos', 'deleted_at', 'vistas_count', 
-            'hash_archivo', 'assets_procesados', 'status', 'fijado', 'visible'
+            'tipo_media',
+            'IdElemento',
+            'id',
+            'uuid',
+            'created_at',
+            'updated_at',
+            'usuario_id',
+            'carpetaContenido',
+            'archivos',
+            'deleted_at',
+            'vistas_count',
+            'hash_archivo',
+            'assets_procesados',
+            'status',
+            'fijado',
+            'visible'
         ];
 
         // 1. Obtener Esquema y Labels
@@ -106,7 +120,7 @@ class RegistroViewModel extends ViewModel
         // 2. Extraer Metadata permitida
         $recursoData = $this->recurso->toArray();
         $metadataArray = collect($recursoData['metadata'] ?? [])->only($camposPermitidos)->toArray();
-        
+
         // Actualizamos la propiedad metadata del modelo para que la vista tenga solo lo permitido (por si se llama directo a $recurso->metadata)
         $this->recurso->metadata = $metadataArray;
 
@@ -122,8 +136,16 @@ class RegistroViewModel extends ViewModel
         };
 
         $aTexto = fn($v) => is_scalar($v) ? trim(strip_tags((string) $v)) : json_encode($v, JSON_UNESCAPED_UNICODE);
-        $etiqueta = fn($k) => $labels[$k] ?? ucwords(str_replace(['_id', '_', '-'], ['', ' ', ' '], $k));
 
+        $renombres = [
+            'coleccion_id' => 'Fondo',
+            'coleccion'    => 'Fondo',
+        ];
+
+        $etiqueta = fn($k) => $labels[$k]
+            ?? $renombres[$k]
+            ?? ucwords(str_replace(['_id', '_', '-'], ['', ' ', ' '], $k));
+        
         // 4. Filtrar Datos Principales (array_diff_key es O(1) contra O(N) de array_filter)
         $datosFiltrados = array_diff_key($this->recurso->getAttributes(), array_flip($omitir));
 
@@ -146,11 +168,11 @@ class RegistroViewModel extends ViewModel
         $metaTemp = [];
         foreach ($metadataArray as $k => $v) {
             if ($k === $claveTituloMeta || is_null($v) || $v === '') continue;
-            
+
             $textoMeta = $aTexto($v);
             $metaTemp[] = [
-                'label' => $etiqueta($k), 
-                'valor' => $textoMeta, 
+                'label' => $etiqueta($k),
+                'valor' => $textoMeta,
                 'largo' => $esLargo($k, $textoMeta)
             ];
         }
@@ -161,7 +183,7 @@ class RegistroViewModel extends ViewModel
             if ($columna === $campoTitulo || $columna === 'metadata' || is_null($valor) || $valor === '') continue;
 
             $valorFinal = $valor;
-            
+
             // Resolver Relaciones si fueron cargadas previamente
             if (str_ends_with($columna, '_id')) {
                 $relacion = str_replace('_id', '', $columna);
@@ -171,7 +193,7 @@ class RegistroViewModel extends ViewModel
             }
 
             $texto = $aTexto($valorFinal);
-            
+
             if ($esLargo($columna, $texto)) {
                 $this->largosProcesados[] = ['label' => $etiqueta($columna), 'valor' => $texto];
             } else {

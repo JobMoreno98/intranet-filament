@@ -233,6 +233,30 @@ class ColeccionesConsultaController extends Controller
                         }
                     }
 
+                    // Si no hubo resaltado (búsqueda solo por filtro de campo), mostramos el valor del campo buscado
+                    if (!str_contains($snippet, '<em>') && !empty($camposPrioritarios) && $indexUid === 'recursos') {
+                        $partes = [];
+
+                        foreach ($camposPrioritarios as $clave) {
+                            $valor = $hit['metadata'][$clave] ?? null;
+
+                            if (is_array($valor)) {
+                                $valor = implode(', ', array_filter($valor, 'is_scalar'));
+                            }
+
+                            if (!is_scalar($valor) || trim((string) $valor) === '') {
+                                continue;
+                            }
+
+                            $nombreLegible = $etiquetasMetadata[$clave] ?? ucfirst(str_replace('_', ' ', $clave));
+                            $partes[] = e($nombreLegible) . ': ' . e(Str::limit((string) $valor, 120));
+                        }
+
+                        if ($partes) {
+                            $snippet = 'Valor encontrado en: <br/> ' . implode('<br/>', $partes);
+                        }
+                    }
+
                     if ($indexUid === 'coleccions') {
                         $resultados[] = [
                             'index' => $indexUid,
