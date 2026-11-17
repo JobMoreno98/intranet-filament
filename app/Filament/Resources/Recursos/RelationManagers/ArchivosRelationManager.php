@@ -35,7 +35,7 @@ class ArchivosRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->select([
+            ->modifyQueryUsing(fn(Builder $query) => $query->select([
                 'id',
                 'recursos_id',
                 'nombre_archivo_original',
@@ -43,12 +43,12 @@ class ArchivosRelationManager extends RelationManager
                 'orden',
             ]))
             ->reorderable('orden')
-            ->defaultSort('orden')
-            ->defaultPaginationPageOption(12)
+            ->defaultSort('orden')->paginationPageOptions([10, 15, 25, 50])
+            ->defaultPaginationPageOption(8)
             ->contentGrid([
                 'sm' => 2,
                 'md' => 3,
-                'xl' => 4,
+                'xl' => 5,
             ])
             ->columns([
                 Stack::make([
@@ -62,7 +62,7 @@ class ArchivosRelationManager extends RelationManager
                     TextColumn::make('status')
                         ->badge()
                         ->alignCenter()
-                        ->color(fn (string $state): string => match ($state) {
+                        ->color(fn(string $state): string => match ($state) {
                             'listo', 'completado' => 'success',
                             'procesando', 'pendiente' => 'warning',
                             'error' => 'danger',
