@@ -21,9 +21,11 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\Toggle;
 use Filament\Actions\BulkAction;
 use Filament\Notifications\Notification;
-use Ramsey\Collection\Collection;
+use Illuminate\Database\Eloquent\Collection;
 
 class RecursosTable
 {
@@ -105,46 +107,46 @@ class RecursosTable
                     ),
             ])
             ->recordActions([
-                Action::make('reocr')
-                    ->label('Reescanear OCR')
-                    ->icon('heroicon-o-arrow-path')
+                // Todo lo de procesamiento va en un solo menú para no llenar la tabla de botones.
+                // El menú se oculta solo si ninguna de sus acciones aplica (p. ej. recursos PDF).
+                ActionGroup::make([
+                    Action::make('reocr')
+                        ->label('Reescanear OCR')
+                        ->icon('heroicon-o-arrow-path')
+                        // Solo aparece en recursos de tipo imagen (sin consultas extra por fila).
+                        ->visible(fn(Recursos $record) => $record->tipo_media === OcrReproceso::TIPO_PERMITIDO)
+                        ->modalHeading('Volver a escanear con OCR')
+                        ->modalDescription('Se volverá a ejecutar el OCR de las imágenes de este recurso. El texto actual solo se reemplaza si el nuevo escaneo detecta texto.')
+                        ->modalSubmitActionLabel('Escanear')
+                        ->schema([
+                            Toggle::make('solo_sin_ocr')
+                                ->label('Solo las imágenes que no tienen texto OCR')
+                                ->default(false),
+                        ])
+                        ->action(fn(Recursos $record, array $data) => static::notificarReocr(
+                            OcrReproceso::encolar([$record->id], soloSinOcr: (bool) ($data['solo_sin_ocr'] ?? false))
+                        )),
+
+                    Action::make('reprocesarErrores')
+                        ->label('Reprocesar con error o atascados')
+                        ->icon('heroicon-o-arrow-uturn-left')
+                        ->color('danger')
+                        // PDF queda fuera: reprocesarlo duplicaría páginas (ver ReprocesoArchivos).
+                        ->visible(fn(Recursos $record) => in_array($record->tipo_media, ReprocesoArchivos::TIPOS_PERMITIDOS, true))
+                        ->requiresConfirmation()
+                        ->modalHeading('Reprocesar con error o atascados')
+                        ->modalDescription('Se vuelven a mandar al worker (conversión completa y OCR) los archivos con status "error" y, en imágenes, los que llevan más de 2 horas en cola.')
+                        ->action(fn(Recursos $record) => static::notificarReproceso(
+                            ReprocesoArchivos::reprocesarErrores([$record->id])
+                        )),
+                ])
+                    ->label('Procesamiento')
+                    ->icon('heroicon-m-cog-6-tooth')
                     ->color('gray')
-                    // Solo aparece en recursos de tipo imagen (sin consultas extra por fila).
-                    ->visible(fn(Recursos $record) => $record->tipo_media === OcrReproceso::TIPO_PERMITIDO)
-                    ->requiresConfirmation()
-                    ->modalHeading('Volver a escanear con OCR')
-                    ->modalDescription('Se volverá a ejecutar el OCR de las imágenes de este recurso. El texto actual solo se reemplaza si el nuevo escaneo detecta texto.')
-                    ->action(fn(Recursos $record) => static::notificarReocr(
-                        OcrReproceso::encolar([$record->id])
-                    )),
+                    ->tooltip('Procesamiento de archivos'),
 
-                Action::make('reocrFallidos')
-                    ->label('Reescanear solo sin OCR')
-                    ->icon('heroicon-o-exclamation-triangle')
-                    ->color('warning')
-                    ->visible(fn(Recursos $record) => $record->tipo_media === OcrReproceso::TIPO_PERMITIDO)
-                    ->requiresConfirmation()
-                    ->modalHeading('Reescanear las imágenes sin OCR')
-                    ->modalDescription('Solo se reprocesan las imágenes de este recurso cuyo texto OCR está vacío.')
-                    ->action(fn(Recursos $record) => static::notificarReocr(
-                        OcrReproceso::encolar([$record->id], soloSinOcr: true)
-                    )),
-
-                Action::make('reprocesarErrores')
-                    ->label('Reprocesar con error o atascados')
-                    ->icon('heroicon-o-arrow-uturn-left')
-                    ->color('danger')
-                    // PDF queda fuera: reprocesarlo duplicaría páginas (ver ReprocesoArchivos).
-                    ->visible(fn(Recursos $record) => in_array($record->tipo_media, ReprocesoArchivos::TIPOS_PERMITIDOS, true))
-                    ->requiresConfirmation()
-                    ->modalHeading('Reprocesar con error o atascados')
-                    ->modalDescription('Se vuelven a mandar al worker (conversión completa y OCR) los archivos con status "error" y, en imágenes, los que llevan más de 2 horas en cola.')
-                    ->action(fn(Recursos $record) => static::notificarReproceso(
-                        ReprocesoArchivos::reprocesarErrores([$record->id])
-                    )),
-
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()->iconButton(),
+                EditAction::make()->iconButton(),
             ])->headerActions([
                 ImportAction::make()
                     ->importer(RecursoImporter::class)->chunkSize(50)
@@ -157,23 +159,20 @@ class RecursosTable
                     BulkAction::make('reocr')
                         ->label('Reescanear OCR')
                         ->icon('heroicon-o-arrow-path')
-                        ->requiresConfirmation()
                         ->modalHeading('Volver a escanear con OCR')
                         ->modalDescription('Solo se reprocesan los recursos de tipo imagen; los demás se omiten.')
+                        ->modalSubmitActionLabel('Escanear')
+                        ->schema([
+                            Toggle::make('solo_sin_ocr')
+                                ->label('Solo las imágenes que no tienen texto OCR')
+                                ->default(false),
+                        ])
                         ->deselectRecordsAfterCompletion()
-                        ->action(fn(Collection $records) => static::notificarReocr(
-                            OcrReproceso::encolar($records->pluck('id')->all())
-                        )),
-
-                    BulkAction::make('reocrFallidos')
-                        ->label('Reescanear solo sin OCR')
-                        ->icon('heroicon-o-exclamation-triangle')
-                        ->requiresConfirmation()
-                        ->modalHeading('Reescanear las imágenes sin OCR')
-                        ->modalDescription('Solo se reprocesan las imágenes de tipo imagen cuyo texto OCR está vacío.')
-                        ->deselectRecordsAfterCompletion()
-                        ->action(fn(Collection $records) => static::notificarReocr(
-                            OcrReproceso::encolar($records->pluck('id')->all(), soloSinOcr: true)
+                        ->action(fn(Collection $records, array $data) => static::notificarReocr(
+                            OcrReproceso::encolar(
+                                $records->pluck('id')->all(),
+                                soloSinOcr: (bool) ($data['solo_sin_ocr'] ?? false)
+                            )
                         )),
 
                     BulkAction::make('reprocesarErrores')
