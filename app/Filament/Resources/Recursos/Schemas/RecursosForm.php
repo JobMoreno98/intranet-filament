@@ -120,26 +120,6 @@ class RecursosForm
                         ->columnSpanFull(),
                     Section::make('Archivos del Recurso')
                         ->schema([
-                            // 1. REPEATER para gestionar lo existente
-                            Repeater::make('archivos')
-                                ->visible(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\EditRecord)
-                                ->relationship('archivos') // Este SÍ usa la relación para MOSTRAR
-                                ->schema([
-                                    ViewField::make('id') // Pasamos el ID para generar la ruta firmada
-                                        ->label('Vista Previa')
-                                        ->view('filament.forms.components.preview')
-                                        ->columnSpanFull(),
-                                    TextInput::make('status')
-                                        ->hiddenLabel()
-                                        ->extraAttributes(['class' => 'text-center font-bold'])
-                                        ->readOnly(),
-                                ])
-                                ->grid(4)
-                                ->orderable('orden')
-                                ->collapsible() // Permite colapsar para ahorrar espacio
-                                ->collapsed()->addable(false)
-                                ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? 'Sin nombre'),
-
                             ChunkFileUpload::make('archivos_bulk')
                                 ->multiple()
                                 ->chunkSize(8)          // MB

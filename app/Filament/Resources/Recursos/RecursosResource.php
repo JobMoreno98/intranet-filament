@@ -6,6 +6,7 @@ use App\Filament\Resources\Recursos\Pages\CreateRecursos;
 use App\Filament\Resources\Recursos\Pages\EditRecursos;
 use App\Filament\Resources\Recursos\Pages\ListRecursos;
 use App\Filament\Resources\Recursos\Pages\ViewRecursos;
+use App\Filament\Resources\Recursos\RelationManagers\ArchivosRelationManager;
 use App\Filament\Resources\Recursos\Schemas\RecursosForm;
 use App\Filament\Resources\Recursos\Schemas\RecursosInfolist;
 use App\Filament\Resources\Recursos\Tables\RecursosTable;
@@ -19,10 +20,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\Pages\Page;
-
-use Filament\Pages\Enums\SubNavigationPosition;
-
 
 class RecursosResource extends Resource
 {
@@ -62,7 +59,7 @@ class RecursosResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ArchivosRelationManager::class
         ];
     }
 
