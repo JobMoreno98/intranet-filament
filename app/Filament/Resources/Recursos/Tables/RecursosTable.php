@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Recursos\Tables;
 use App\Filament\Imports\RecursoImporter;
 use App\Models\Recursos;
 use App\Services\OcrReproceso;
+use App\Services\ReprocesoArchivos;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -104,8 +105,6 @@ class RecursosTable
                     ),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
                 Action::make('reocr')
                     ->label('Reescanear OCR')
                     ->icon('heroicon-o-arrow-path')
@@ -118,6 +117,34 @@ class RecursosTable
                     ->action(fn(Recursos $record) => static::notificarReocr(
                         OcrReproceso::encolar([$record->id])
                     )),
+
+                Action::make('reocrFallidos')
+                    ->label('Reescanear solo sin OCR')
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->color('warning')
+                    ->visible(fn(Recursos $record) => $record->tipo_media === OcrReproceso::TIPO_PERMITIDO)
+                    ->requiresConfirmation()
+                    ->modalHeading('Reescanear las imágenes sin OCR')
+                    ->modalDescription('Solo se reprocesan las imágenes de este recurso cuyo texto OCR está vacío.')
+                    ->action(fn(Recursos $record) => static::notificarReocr(
+                        OcrReproceso::encolar([$record->id], soloSinOcr: true)
+                    )),
+
+                Action::make('reprocesarErrores')
+                    ->label('Reprocesar con error o atascados')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('danger')
+                    // PDF queda fuera: reprocesarlo duplicaría páginas (ver ReprocesoArchivos).
+                    ->visible(fn(Recursos $record) => in_array($record->tipo_media, ReprocesoArchivos::TIPOS_PERMITIDOS, true))
+                    ->requiresConfirmation()
+                    ->modalHeading('Reprocesar con error o atascados')
+                    ->modalDescription('Se vuelven a mandar al worker (conversión completa y OCR) los archivos con status "error" y, en imágenes, los que llevan más de 2 horas en cola.')
+                    ->action(fn(Recursos $record) => static::notificarReproceso(
+                        ReprocesoArchivos::reprocesarErrores([$record->id])
+                    )),
+
+                ViewAction::make(),
+                EditAction::make(),
             ])->headerActions([
                 ImportAction::make()
                     ->importer(RecursoImporter::class)->chunkSize(50)
@@ -137,6 +164,28 @@ class RecursosTable
                         ->action(fn(Collection $records) => static::notificarReocr(
                             OcrReproceso::encolar($records->pluck('id')->all())
                         )),
+
+                    BulkAction::make('reocrFallidos')
+                        ->label('Reescanear solo sin OCR')
+                        ->icon('heroicon-o-exclamation-triangle')
+                        ->requiresConfirmation()
+                        ->modalHeading('Reescanear las imágenes sin OCR')
+                        ->modalDescription('Solo se reprocesan las imágenes de tipo imagen cuyo texto OCR está vacío.')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(fn(Collection $records) => static::notificarReocr(
+                            OcrReproceso::encolar($records->pluck('id')->all(), soloSinOcr: true)
+                        )),
+
+                    BulkAction::make('reprocesarErrores')
+                        ->label('Reprocesar con error o atascados')
+                        ->icon('heroicon-o-arrow-uturn-left')
+                        ->requiresConfirmation()
+                        ->modalHeading('Reprocesar con error o atascados')
+                        ->modalDescription('Archivos con error (imagen, video, audio) e imágenes con más de 2 horas en cola. Los recursos PDF se omiten.')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(fn(Collection $records) => static::notificarReproceso(
+                            ReprocesoArchivos::reprocesarErrores($records->pluck('id')->all())
+                        )),
                 ]),
             ])
             ->deferLoading()
@@ -150,7 +199,7 @@ class RecursosTable
                 ->title('No se envió nada a OCR')
                 ->body($r['omitidos'] > 0
                     ? 'Esas imágenes ya estaban en la cola.'
-                    : 'Ninguno de los recursos es de tipo imagen con archivos procesados.')
+                    : 'No hay imágenes procesadas que cumplan (tipo imagen y, si elegiste "solo sin OCR", con OCR vacío).')
                 ->warning()
                 ->send();
 
@@ -164,6 +213,32 @@ class RecursosTable
 
         Notification::make()
             ->title("{$r['encolados']} imagen(es) enviadas a OCR")
+            ->body($detalle ? implode(' ', $detalle) : null)
+            ->success()
+            ->send();
+    }
+
+    protected static function notificarReproceso(array $r): void
+    {
+        $detalle = array_filter([
+            $r['atascadas'] ? "{$r['atascadas']} llevaban mucho tiempo en cola." : null,
+            $r['duplicados'] ? "{$r['duplicados']} ya estaban en la cola." : null,
+            $r['sin_original'] ? "{$r['sin_original']} no tienen el archivo original en disco." : null,
+            $r['recursos_omitidos'] ? "{$r['recursos_omitidos']} recurso(s) omitidos por tipo (PDF)." : null,
+        ]);
+
+        if ($r['encolados'] === 0) {
+            Notification::make()
+                ->title('No se reprocesó nada')
+                ->body($detalle ? implode(' ', $detalle) : 'No hay archivos con error ni imágenes atascadas en los recursos seleccionados.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->title("{$r['encolados']} archivo(s) enviados a reprocesar")
             ->body($detalle ? implode(' ', $detalle) : null)
             ->success()
             ->send();

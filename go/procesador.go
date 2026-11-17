@@ -84,6 +84,7 @@ func processImage(task ProcessingTask) {
 	if !exists {
 		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", cleanPath)
 		registrarError("IMAGEN", task.ArchivoID, task.RecursoID, cleanPath, "Archivo no encontrado tras 20 intentos")
+		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
 
@@ -134,6 +135,7 @@ func processImage(task ProcessingTask) {
 	if out, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("ERROR REAL DE MAGICK en ID %d: %s", task.ArchivoID, string(out))
 		updateArchivoStatus(task.ArchivoID, "error")
+		return
 	}
 
 	// Generar Miniatura (Se genera desde la fuente original para que el thumbnail quede limpio)

@@ -62,6 +62,8 @@ func updateDatabase(itemID int, mainRaw string, thumbRaw string, ocrTexto string
 
 	if err != nil {
 		log.Printf("Error actualizando ID %d: %v", itemID, err)
+		registrarError("DB_UPDATE", itemID, 0, main, err.Error())
+		updateArchivoStatus(itemID, "error")
 	} else {
 		log.Printf("Registro %d actualizado (Ruta: %s)", itemID, thumb)
 	}
@@ -167,6 +169,7 @@ func createNewPageRecord(task ProcessingTask, pageNum int, mainRaw string, thumb
 
 	return nuevoID, nil
 }
+
 // Pool compartido: antes cada llamada abría y cerraba una conexión nueva a
 // MySQL (una por página de PDF, por ejemplo). Ahora hay un solo *sql.DB para
 // todo el proceso; por eso ya NO se debe hacer db.Close() en quien lo usa.

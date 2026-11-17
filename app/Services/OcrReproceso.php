@@ -16,7 +16,11 @@ use Illuminate\Support\Facades\Redis;
  */
 class OcrReproceso
 {
-    public const COLA = 'bpej_cola_ocr';
+    /**
+     * Llave SIN prefijo: igual que 'cola_procesamiento' en ProcesamientoGo, Laravel le
+     * antepone el prefijo de Redis y en Redis queda como bpej_cola_ocr (lo que lee Go).
+     */
+    public const COLA = 'cola_ocr';
 
     /** Valor de recursos.tipo_media que permite el reproceso. */
     public const TIPO_PERMITIDO = 'imagen';
@@ -26,9 +30,10 @@ class OcrReproceso
 
     /**
      * @param  array<int,int>  $recursoIds
+     * @param  bool  $soloSinOcr  true = solo archivos cuyo OCR quedó vacío (por ejemplo, cuando falló Tesseract)
      * @return array{encolados:int, omitidos:int, recursos_no_imagen:int}
      */
-    public static function encolar(array $recursoIds, string $langs = 'spa+eng'): array
+    public static function encolar(array $recursoIds, string $langs = 'spa+eng', bool $soloSinOcr = false): array
     {
         $recursoIds = array_values(array_unique(array_filter($recursoIds)));
 
@@ -49,6 +54,7 @@ class OcrReproceso
         $archivoIds = $imagenIds === [] ? [] : RecursosArchivos::query()
             ->whereIn('recursos_id', $imagenIds)
             ->where('status', 'listo')
+            ->when($soloSinOcr, fn ($q) => $q->where(fn ($q) => $q->whereNull('ocr')->orWhere('ocr', '')))
             ->pluck('id')
             ->all();
 
@@ -80,9 +86,7 @@ class OcrReproceso
     }
 
     /**
-     * IMPORTANTE: la llave debe llegar a Redis EXACTAMENTE como "bpej_cola_ocr",
-     * porque el worker Go no conoce el prefijo de Laravel. Usa aquí la misma
-     * conexión/forma con la que ya empujas a "bpej_cola_procesamiento".
+     * Misma conexión que usa ProcesamientoGo (Redis::lpush('cola_procesamiento')).
      */
     private static function redis()
     {
