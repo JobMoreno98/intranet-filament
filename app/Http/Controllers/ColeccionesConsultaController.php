@@ -165,10 +165,8 @@ class ColeccionesConsultaController extends Controller
             $filtrosLocales = $meta === 'recursos' ? $filtrosBase : [];
 
             // Inyectar el filtro de acervo si existe (dependiendo del índice)
-            if (!empty($acervoId)) {
-                if ($meta === 'recursos') {
-                    $filtrosLocales[] = 'acervo_id = ' . $this->escaparFiltroMeili((string) $acervoId);
-                }
+            if (!empty($acervoId) && $acervoId !== 'todos' && $meta === 'recursos') {
+                $filtrosLocales[] = 'acervo_id = ' . $this->escaparFiltroMeili((string) $acervoId);
             }
 
 

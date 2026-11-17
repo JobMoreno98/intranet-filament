@@ -51,7 +51,6 @@ class FiltroAvanzado
 
             $condicion = 'metadata.' . $campo . ' CONTAINS "' . self::escapar($termino) . '"';
 
-            $terminos[] = $termino;
             $campos[] = $campo;
             $descripcion[] = ucfirst($campo) . ': ' . $termino;
 
