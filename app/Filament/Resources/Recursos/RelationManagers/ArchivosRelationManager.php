@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Recursos\RelationManagers;
 
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -62,11 +64,21 @@ class ArchivosRelationManager extends RelationManager
                         ->alignCenter()
                         ->color(fn (string $state): string => match ($state) {
                             'listo', 'completado' => 'success',
-                            'en_cola', 'pendiente' => 'warning',
+                            'procesando', 'pendiente' => 'warning',
                             'error' => 'danger',
                             default => 'gray',
                         }),
                 ])->space(2),
+            ])
+            ->recordActions([
+                DeleteAction::make()
+                    ->label('Eliminar')
+                    ->modalHeading('Eliminar archivo')
+                    ->modalDescription('¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.'),
+            ])
+            ->toolbarActions([
+                DeleteBulkAction::make()
+                    ->label('Eliminar seleccionados'),
             ]);
     }
 }
