@@ -148,9 +148,10 @@ class RecursosForm
                                     'style' => '--file-upload-grid-column-width: 180px;',
                                 ])
                                 ->directory(fn($get) => 'colection_' . $get('colection_id'))
-                                 // Mantiene el estado vivo en Livewire
+                                // Mantiene el estado vivo en Livewire
+                                ->previewable(false)
                                 ->dehydrated(false)
-                                ->panelLayout('grid')
+                                ->panelLayout('compact')
                                 ->reorderable()
                                 ->helperText('Usa este campo solo para añadir nuevos archivos.'),
 
@@ -197,7 +198,7 @@ class RecursosForm
                         ->columnSpanFull(),
 
                 ]),
-            ])->columnSpanFull()->startOnStep(fn (string $operation): int => $operation === 'edit' ? 3 : 1),
+            ])->columnSpanFull()->startOnStep(fn(string $operation): int => $operation === 'edit' ? 3 : 1),
 
         ]);
     }
