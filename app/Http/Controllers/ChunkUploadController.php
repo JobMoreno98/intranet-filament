@@ -163,8 +163,8 @@ class ChunkUploadController extends Controller
         $finalPath       = 'uploads/' . uniqid() . '_' . $filename;
         $localTempFolder = Storage::disk('local')->path($tempFolder);
 
-        Storage::disk('public')->makeDirectory('uploads');
-        $absoluteFinalPath = Storage::disk('public')->path($finalPath);
+        Storage::disk('private')->makeDirectory('uploads');
+        $absoluteFinalPath = Storage::disk('private')->path($finalPath);
 
         $destination = fopen($absoluteFinalPath, 'ab');
 
