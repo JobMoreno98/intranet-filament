@@ -60,6 +60,7 @@ func processTask(task ProcessingTask) {
 		withHeavy(func() { processAudio(task) })
 	default:
 		log.Printf("ERROR: Extensión '%s' no soportada para ID %d", ext, task.ArchivoID)
+		registrarError("SOPORTE", task.ArchivoID, task.RecursoID, task.Path, fmt.Sprintf("Extensión '%s' no soportada", ext))
 	}
 	log.Printf("------------------------------------------------")
 }
@@ -82,6 +83,7 @@ func processImage(task ProcessingTask) {
 
 	if !exists {
 		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", cleanPath)
+		registrarError("IMAGEN", task.ArchivoID, task.RecursoID, cleanPath, "Archivo no encontrado tras 20 intentos")
 		return
 	}
 
@@ -131,6 +133,7 @@ func processImage(task ProcessingTask) {
 
 	if out, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("ERROR REAL DE MAGICK en ID %d: %s", task.ArchivoID, string(out))
+		updateArchivoStatus(task.ArchivoID, "error")
 	}
 
 	// Generar Miniatura (Se genera desde la fuente original para que el thumbnail quede limpio)
@@ -142,6 +145,7 @@ func processImage(task ProcessingTask) {
 		thumbPath).Run()
 
 	updateDatabase(task.ArchivoID, mainPath, thumbPath, textoOcr)
+	registrarListo("IMAGEN", task.ArchivoID, task.RecursoID, mainPath)
 
 	if textoOcr != "" {
 		pushOcrReindexQueue(task.RecursoID)
@@ -163,6 +167,7 @@ func processVideo(task ProcessingTask) {
 	}
 	if !exists {
 		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", task.Path)
+		registrarError("VIDEO", task.ArchivoID, task.RecursoID, task.Path, "Archivo no encontrado tras 20 intentos")
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
@@ -172,11 +177,13 @@ func processVideo(task ProcessingTask) {
 	// ruta al .keyinfo que PHP ya dejó escrito en disco.
 	if task.KeyInfoPath == "" {
 		log.Printf("ERROR CRÍTICO: KeyInfoPath vacío para ID %d", task.ArchivoID)
+		registrarError("VIDEO", task.ArchivoID, task.RecursoID, task.Path, "KeyInfoPath vacío para ID %d")
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
 	if _, err := os.Stat(task.KeyInfoPath); err != nil {
 		log.Printf("ERROR CRÍTICO: .keyinfo no existe en %s", task.KeyInfoPath)
+		registrarError("VIDEO", task.ArchivoID, task.RecursoID, task.Path, "keyinfo no existe %d")
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
@@ -184,6 +191,7 @@ func processVideo(task ProcessingTask) {
 	outputDir := filepath.Join(basePath, "encrypted", task.OutputName)
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		log.Printf("ERROR CRÍTICO: no se pudo crear %s: %v", outputDir, err)
+		registrarError("VIDEO", task.ArchivoID, task.RecursoID, task.Path, "no se pudo crear %d")
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
@@ -258,7 +266,9 @@ func processVideo(task ProcessingTask) {
 
 	cmd := exec.Command("ffmpeg", args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
-		log.Printf("ERROR ffmpeg ID %d: %v | output: %s", task.ArchivoID, err, string(out))
+		msg := strings.TrimSpace(string(out))
+		log.Printf("ERROR ffmpeg ID %d: %v | output: %s", task.ArchivoID, err, msg)
+		registrarError("VIDEO", task.ArchivoID, task.RecursoID, task.Path, fmt.Sprintf("ffmpeg (%v): %s", err, msg))
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
@@ -308,6 +318,7 @@ func processAudio(task ProcessingTask) {
 	}
 	if !exists {
 		log.Printf("ERROR CRÍTICO: El archivo nunca apareció en %s", task.Path)
+		registrarError("AUDIO", task.ArchivoID, task.RecursoID, task.Path, "El archivo nunca apareció en %s")
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
@@ -320,6 +331,7 @@ func processAudio(task ProcessingTask) {
 	}
 	if _, err := os.Stat(task.KeyInfoPath); err != nil {
 		log.Printf("ERROR CRÍTICO: .keyinfo no existe en %s", task.KeyInfoPath)
+		registrarError("AUDIO", task.ArchivoID, task.RecursoID, task.KeyInfoPath, "ERROR CRÍTICO: .keyinfo no existe en %s")
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}
@@ -327,6 +339,7 @@ func processAudio(task ProcessingTask) {
 	outputDir := filepath.Join(basePath, "encrypted", task.OutputName)
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		log.Printf("ERROR CRÍTICO: no se pudo crear %s: %v", outputDir, err)
+		registrarError("AUDIO", task.ArchivoID, task.RecursoID, outputDir, "ERROR CRÍTICO: no se pudo crear %d")
 		updateArchivoStatus(task.ArchivoID, "error")
 		return
 	}

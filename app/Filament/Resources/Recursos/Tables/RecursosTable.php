@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Recursos\Tables;
 
 use App\Filament\Imports\RecursoImporter;
+use App\Models\Recursos;
+use App\Services\OcrReproceso;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -19,6 +21,9 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
+use Ramsey\Collection\Collection;
 
 class RecursosTable
 {
@@ -102,6 +107,18 @@ class RecursosTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('reocr')
+                    ->label('Reescanear OCR')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('gray')
+                    // Solo aparece en recursos de tipo imagen (sin consultas extra por fila).
+                    ->visible(fn(Recursos $record) => $record->tipo_media === OcrReproceso::TIPO_PERMITIDO)
+                    ->requiresConfirmation()
+                    ->modalHeading('Volver a escanear con OCR')
+                    ->modalDescription('Se volverá a ejecutar el OCR de las imágenes de este recurso. El texto actual solo se reemplaza si el nuevo escaneo detecta texto.')
+                    ->action(fn(Recursos $record) => static::notificarReocr(
+                        OcrReproceso::encolar([$record->id])
+                    )),
             ])->headerActions([
                 ImportAction::make()
                     ->importer(RecursoImporter::class)->chunkSize(50)
@@ -111,10 +128,45 @@ class RecursosTable
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
+                    BulkAction::make('reocr')
+                        ->label('Reescanear OCR')
+                        ->icon('heroicon-o-arrow-path')
+                        ->requiresConfirmation()
+                        ->modalHeading('Volver a escanear con OCR')
+                        ->modalDescription('Solo se reprocesan los recursos de tipo imagen; los demás se omiten.')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(fn(Collection $records) => static::notificarReocr(
+                            OcrReproceso::encolar($records->pluck('id')->all())
+                        )),
                 ]),
             ])
             ->deferLoading()
             ->emptyStateHeading('Sin recursos')
             ->emptyStateDescription('Aún no hay contenido.');
+    }
+    protected static function notificarReocr(array $r): void
+    {
+        if ($r['encolados'] === 0) {
+            Notification::make()
+                ->title('No se envió nada a OCR')
+                ->body($r['omitidos'] > 0
+                    ? 'Esas imágenes ya estaban en la cola.'
+                    : 'Ninguno de los recursos es de tipo imagen con archivos procesados.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $detalle = array_filter([
+            $r['omitidos'] ? "{$r['omitidos']} ya estaban en la cola." : null,
+            $r['recursos_no_imagen'] ? "{$r['recursos_no_imagen']} recurso(s) que no son imagen se omitieron." : null,
+        ]);
+
+        Notification::make()
+            ->title("{$r['encolados']} imagen(es) enviadas a OCR")
+            ->body($detalle ? implode(' ', $detalle) : null)
+            ->success()
+            ->send();
     }
 }

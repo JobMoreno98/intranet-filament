@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -18,6 +19,15 @@ func main() {
 	if err := loadConfig(); err != nil {
 		log.Fatalf("Error fatal iniciando worker: %v", err)
 	}
+
+	if err := loadConfig(); err != nil {
+		log.Fatalf("Error fatal iniciando worker: %v", err)
+	}
+
+	if err := initLoggers(cfg.LogDir); err != nil {
+		log.Fatalf("Error fatal inicializando archivos de log: %v", err)
+	}
+	defer closeLoggers()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -70,6 +80,7 @@ loop:
 				// Un panic en una tarea ya no tumba todo el worker.
 				if r := recover(); r != nil {
 					log.Printf("PANIC procesando tarea de %s: %v | payload: %s", cola, r, payload)
+					registrarError("PANIC", 0, 0, cola, fmt.Sprintf("%v | payload: %s", r, payload))
 				}
 			}()
 
@@ -77,6 +88,7 @@ loop:
 				var t OcrTask
 				if err := json.Unmarshal([]byte(payload), &t); err != nil {
 					log.Printf("Tarea OCR inválida: %v | payload: %s", err, payload)
+					registrarError("JSON_INVALIDO", 0, 0, cola, err.Error())
 					return
 				}
 				reprocessOcr(t)

@@ -45,6 +45,7 @@ type AppConfig struct {
 	ColaProcesamiento string `env:"COLA_PROCESAMIENTO" envDefault:"bpej_cola_procesamiento"`
 	ColaOcr           string `env:"COLA_OCR" envDefault:"bpej_cola_ocr"`
 	ColaReindex       string `env:"COLA_REINDEX" envDefault:"bpej_ocr_reindex_queue"`
+	LogDir            string `env:"WORKER_LOG_DIR" envDefault:"/var/log/worker-media"`
 }
 
 // MySQLDSN construye la cadena de conexión para go-sql-driver/mysql
