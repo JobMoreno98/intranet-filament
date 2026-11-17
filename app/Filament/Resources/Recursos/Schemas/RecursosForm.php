@@ -140,20 +140,12 @@ class RecursosForm
                                 ->collapsed()->addable(false)
                                 ->itemLabel(fn(array $state): ?string => $state['nombre_archivo_original'] ?? 'Sin nombre'),
 
-                            FileUpload::make('archivos_bulk')
-                                ->label('Subida de archivos')
-                                ->multiple()->visible(fn($get) => in_array($get('tipo_media'), ['imagen', 'pdf']))
-                                ->disk('private')
-                                ->extraAttributes([
-                                    'style' => '--file-upload-grid-column-width: 180px;',
-                                ])
-                                ->directory(fn($get) => 'colection_' . $get('colection_id'))
-                                // Mantiene el estado vivo en Livewire
-                                ->previewable(false)
-                                ->dehydrated(false)
-                                ->panelLayout('compact')
-                                ->reorderable()
-                                ->helperText('Usa este campo solo para añadir nuevos archivos.'),
+                            ChunkFileUpload::make('archivos_bulk')
+                                ->multiple()
+                                ->chunkSize(8)          // MB
+                                ->parallelUploads(4)
+                                ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                                ->dehydrated(false),
 
                             ChunkFileUpload::make('video_bulk')->nullable()
                                 ->label('Subir archivos')->acceptedFileTypes([
