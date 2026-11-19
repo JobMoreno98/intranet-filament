@@ -5,42 +5,34 @@
     @include('partials.head')
 </head>
 
-<body
-    class="min-h-screen my-5 md:my-0 bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
-    <div
-        class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
+<body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
+    <div class="grid min-h-dvh lg:grid-cols-2">
 
-        <div
-            class="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-e dark:border-neutral-800 justify-center items-center">
-            <div class="absolute inset-0 bg-neutral-900"></div>
-            <a href="{{ route('home') }}" class="relative z-20 flex flex-col items-center text-lg font-medium"
-                wire:navigate>
-                <span class="flex  items-center justify-center rounded-lg">
-                    <x-app-logo-icon class="me-2 h-7 fill-current text-white" />
-                </span>
+        <!-- Panel izquierdo (branding): fijo mientras el formulario hace scroll -->
+        <aside class="relative hidden bg-[#7c2422] p-10 text-white lg:sticky lg:top-0 lg:flex lg:h-dvh lg:items-center lg:justify-center">
+            <a href="{{ route('home') }}" wire:navigate>
+                <x-app-logo-icon mono class="h-20 text-white" />
             </a>
+        </aside>
 
-        </div>
-        <div class="w-full lg:p-8">
-            <div class="mx-auto flex w-full flex-col justify-center p-4 rounded-md space-y-6 sm:w-[350px]"
-                style="border:#7c2422 solid 2px;">
-                <a href="{{ route('home') }}" class="z-20 flex flex-col items-center gap-2 font-medium lg:hidden"
-                    wire:navigate>
-
-                    <span class="flex  items-center justify-center rounded-md">
-                        <x-app-logo-icon class=" fill-current text-black dark:text-white" />
-                    </span>
-
-                    <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
+        <!-- Panel derecho (formulario): arriba en móvil, centrado en desktop si cabe -->
+        <main class="flex min-h-dvh items-start justify-center px-4 py-8 sm:px-8 lg:items-center lg:px-10 lg:py-12">
+            <div
+                {{ $attributes->class([
+                    'mx-auto flex w-full flex-col gap-6 @container',
+                    // ancho por defecto (login, etc.); si la vista pasa su propio max-w-*, se respeta
+                    'max-w-sm' => ! str_contains($attributes->get('class', ''), 'max-w-'),
+                ]) }}
+            >
+                <!-- Logo solo en móvil/tablet (en desktop está en el panel izquierdo) -->
+                <a href="{{ route('home') }}" class="flex flex-col items-center gap-2 font-medium lg:hidden" wire:navigate>
+                    <x-app-logo-icon class="h-12 text-neutral-900 dark:text-white" />
                 </a>
-                {{-- 
-                <span class="flex  items-center justify-center rounded-lg">
-                    <x-app-logo-icon class="me-2 h-7 fill-current text-white" />
-                </span>
-                 --}}
+
                 {{ $slot }}
             </div>
-        </div>
+        </main>
+
     </div>
     @fluxScripts
 </body>

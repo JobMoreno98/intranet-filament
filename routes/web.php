@@ -136,113 +136,6 @@ Route::get('/fondos', function () {
     ]);
 })->name('fondos.index');
 
-// ==========================================
-// 5. MEDIA, STREAMING Y VISORES PROTEGIDOS
-// ==========================================
-Route::get('/media/stream', function (Request $request) {
-    $archivo = RecursosArchivos::findOrFail($request->archivo_id);
-    $path = $archivo->assets_procesados['main'] ?? null;
-
-    if (!$path) {
-        abort(404, 'No hay versión procesada para este archivo');
-    }
-
-    $extension = pathinfo($path, PATHINFO_EXTENSION);
-    $mimeType = $extension === 'webp' ? 'image/webp' : 'image/jpeg';
-
-    return response('', 200)
-        ->header('X-Accel-Redirect', '/protegido/' . $path)
-        ->header('Content-Length', Storage::disk('private')->size($path))
-        ->header('Content-Type', $mimeType)
-        ->header('Content-Disposition', 'inline')
-        ->header('Cache-Control', 'private, max-age=86400')
-        ->header('X-Content-Type-Options', 'nosniff');
-})
-    ->name('media.stream')
-    ->middleware(['secure.media', 'throttle:media']);
-
-Route::get('/media/ocr', function (Request $request) {
-    $archivo = RecursosArchivos::findOrFail($request->archivo_id);
-    $pathImagen = $archivo->assets_procesados['main'] ?? null;
-
-    if (!$pathImagen) {
-        return response()->json([]);
-    }
-
-    $pathJson = str_replace(basename($pathImagen), 'ocr.json', $pathImagen);
-
-    if (!Storage::disk('private')->exists($pathJson)) {
-        return response()->json([]);
-    }
-
-    return response('', 200)
-        ->header('X-Accel-Redirect', '/protegido/' . ltrim($pathJson, '/'))
-        ->header('Content-Type', 'application/json')
-        ->header('Cache-Control', 'private, max-age=86400')
-        ->header('X-Content-Type-Options', 'nosniff');
-})
-    ->name('visor.ocr')
-    ->middleware(['secure.media', 'throttle:media']);
-
-Route::get('/videos/{recursoId}/{filename}', function ($recursoId, $filename) {
-    $video = RecursosArchivos::where('recursos_id', $recursoId)->first();
-
-    if (!$video) {
-        abort(404);
-    }
-
-    $realFilename = str_ends_with($filename, '.m3u8') ? "{$video->id}.m3u8" : $filename;
-    $internalPath = "{$video->id}/{$realFilename}";
-
-    $headers = [
-        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
-        'Pragma' => 'no-cache',
-        'Expires' => '0',
-    ];
-
-    if (str_ends_with($filename, '.m3u8')) {
-        $headers['Content-Type'] = 'application/vnd.apple.mpegurl';
-    } elseif (str_ends_with($filename, '.ts')) {
-        $headers['Content-Type'] = 'video/mp2t';
-    } elseif (str_ends_with($filename, '.webp')) {
-        $headers['Content-Type'] = 'image/webp';
-        unset($headers['Pragma'], $headers['Expires']);
-        $headers['Cache-Control'] = 'public, max-age=86400';
-    }
-
-    return response(
-        '',
-        200,
-        array_merge($headers, [
-            'X-Accel-Redirect' => "/hls/{$internalPath}",
-        ]),
-    );
-})->where('filename', '.*');
-
-Route::get('/video/key/{key}', function ($key) {
-    abort_unless(request()->hasValidSignature(), 403);
-
-    $fullPath = storage_path("app/keys/{$key}");
-
-    if (!file_exists($fullPath)) {
-        return response()->json(
-            [
-                'error' => 'Archivo no encontrado físicamente',
-                'debug_path' => $fullPath,
-                'user' => posix_getpwuid(posix_geteuid())['name'],
-            ],
-            404,
-        );
-    }
-
-    return response(file_get_contents($fullPath), 200, [
-        'Content-Type' => 'application/octet-stream',
-        'Access-Control-Allow-Origin' => config('app.url'),
-        'Access-Control-Allow-Credentials' => 'true',
-    ]);
-})
-    ->name('video.key')
-    ->where('key', '.*');
 
 // ==========================================
 // 6. RUTAS AUTENTICADAS Y DE ADMINISTRACIÓN
@@ -251,7 +144,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/visor/{id}', [RecursosController::class, 'view']);
     Route::get('/media/url/{id}', [RecursosController::class, 'signedUrl']);
 
@@ -263,6 +156,117 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/recursos/{recurso}/buscar-ocr', [BuscadorController::class, 'buscarEnRecurso'])
         ->middleware('throttle:60,1')
         ->name('recursos.buscar-ocr');
+
+    Route::post('/registros/{registro}/reporte', [ReportesController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('reporte.recurso');
+    // ==========================================
+    // 5. MEDIA, STREAMING Y VISORES PROTEGIDOS
+    // ==========================================
+    Route::get('/media/stream', function (Request $request) {
+        $archivo = RecursosArchivos::findOrFail($request->archivo_id);
+        $path = $archivo->assets_procesados['main'] ?? null;
+
+        if (!$path) {
+            abort(404, 'No hay versión procesada para este archivo');
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $mimeType = $extension === 'webp' ? 'image/webp' : 'image/jpeg';
+
+        return response('', 200)
+            ->header('X-Accel-Redirect', '/protegido/' . $path)
+            ->header('Content-Length', Storage::disk('private')->size($path))
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline')
+            ->header('Cache-Control', 'private, max-age=86400')
+            ->header('X-Content-Type-Options', 'nosniff');
+    })
+        ->name('media.stream')
+        ->middleware(['secure.media', 'throttle:media']);
+
+    Route::get('/media/ocr', function (Request $request) {
+        $archivo = RecursosArchivos::findOrFail($request->archivo_id);
+        $pathImagen = $archivo->assets_procesados['main'] ?? null;
+
+        if (!$pathImagen) {
+            return response()->json([]);
+        }
+
+        $pathJson = str_replace(basename($pathImagen), 'ocr.json', $pathImagen);
+
+        if (!Storage::disk('private')->exists($pathJson)) {
+            return response()->json([]);
+        }
+
+        return response('', 200)
+            ->header('X-Accel-Redirect', '/protegido/' . ltrim($pathJson, '/'))
+            ->header('Content-Type', 'application/json')
+            ->header('Cache-Control', 'private, max-age=86400')
+            ->header('X-Content-Type-Options', 'nosniff');
+    })
+        ->name('visor.ocr')
+        ->middleware(['secure.media', 'throttle:media']);
+
+    Route::get('/videos/{recursoId}/{filename}', function ($recursoId, $filename) {
+        $video = RecursosArchivos::where('recursos_id', $recursoId)->first();
+
+        if (!$video) {
+            abort(404);
+        }
+
+        $realFilename = str_ends_with($filename, '.m3u8') ? "{$video->id}.m3u8" : $filename;
+        $internalPath = "{$video->id}/{$realFilename}";
+
+        $headers = [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ];
+
+        if (str_ends_with($filename, '.m3u8')) {
+            $headers['Content-Type'] = 'application/vnd.apple.mpegurl';
+        } elseif (str_ends_with($filename, '.ts')) {
+            $headers['Content-Type'] = 'video/mp2t';
+        } elseif (str_ends_with($filename, '.webp')) {
+            $headers['Content-Type'] = 'image/webp';
+            unset($headers['Pragma'], $headers['Expires']);
+            $headers['Cache-Control'] = 'public, max-age=86400';
+        }
+
+        return response(
+            '',
+            200,
+            array_merge($headers, [
+                'X-Accel-Redirect' => "/hls/{$internalPath}",
+            ]),
+        );
+    })->where('filename', '.*');
+
+    Route::get('/video/key/{key}', function ($key) {
+        abort_unless(request()->hasValidSignature(), 403);
+
+        $fullPath = storage_path("app/keys/{$key}");
+
+        if (!file_exists($fullPath)) {
+            return response()->json(
+                [
+                    'error' => 'Archivo no encontrado físicamente',
+                    'debug_path' => $fullPath,
+                    'user' => posix_getpwuid(posix_geteuid())['name'],
+                ],
+                404,
+            );
+        }
+
+        return response(file_get_contents($fullPath), 200, [
+            'Content-Type' => 'application/octet-stream',
+            'Access-Control-Allow-Origin' => config('app.url'),
+            'Access-Control-Allow-Credentials' => 'true',
+        ]);
+    })
+        ->name('video.key')
+        ->where('key', '.*');
 });
 
 // Visor Público Firmado
@@ -309,9 +313,8 @@ Route::middleware(['web', Authenticate::class])
             ->middleware(Authenticate::class);
     });
 
-Route::post('/registros/{registro}/reporte', [ReportesController::class, 'store'])
-    ->middleware('throttle:5,1')
-    ->name('reporte.recurso');
+
+
 
 // ==========================================
 // 8. ARCHIVOS EXTERNOS DE CONFIGURACIÓN
