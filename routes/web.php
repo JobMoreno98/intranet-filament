@@ -17,12 +17,15 @@ use App\Http\Controllers\ColeccionesConsultaController;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\RecursosController;
 use App\Http\Controllers\ReportesController;
-
+use App\Mail\InstruccionesBienvenidaMail;
 // Models
 use App\Models\Area;
 use App\Models\Blog;
 use App\Models\ColeccionesConsulta;
 use App\Models\RecursosArchivos;
+use App\Models\User;
+use App\Models\UserProfile;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 /*
 |--------------------------------------------------------------------------
@@ -312,9 +315,6 @@ Route::middleware(['web', Authenticate::class])
             ->name('api.chunks.upload')
             ->middleware(Authenticate::class);
     });
-
-
-
 
 // ==========================================
 // 8. ARCHIVOS EXTERNOS DE CONFIGURACIÓN

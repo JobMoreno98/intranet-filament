@@ -18,7 +18,7 @@
                 </div>
             </div>
         @empty
-            <div class="col-span-full text-sm text-gray-500 bg-gray-50 p-6 rounded-lg border border-dashed text-center">
+            <div class="col-span-full text-sm text-gray-500 bg-gray-50  dark:bg-zinc-600 dark:text-white p-6 rounded-lg border border-dashed text-center">
                 Aún no tienes recursos guardados en tus favoritos.
             </div>
         @endforelse
