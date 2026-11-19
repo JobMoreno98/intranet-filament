@@ -16,8 +16,11 @@ class InstruccionesBienvenidaMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public User $user) {}
-
+public function __construct(public User $user)
+    {
+        $this->user->loadMissing('profile');
+    }
+    
     public function envelope(): Envelope
     {
         return new Envelope(
