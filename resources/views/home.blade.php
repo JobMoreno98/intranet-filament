@@ -151,9 +151,15 @@
                                 class="truncate dark:text-white hover:text-guinda">{{ $item->acervo->nombre ?? 'General' }}</span>
                         </span>
                     </div>
+                    @php
+                        $titulo = filled($item->metadata['titulo'] ?? null)
+                            ? $item->metadata['titulo']
+                            : $item->metadata['identificador'];
+                    @endphp
+
                     <h3 class="dark:text-white hover:text-guinda text-sm font-semibold text-[#131f30] line-clamp-2 leading-snug transition-colors duration-150"
-                        title="{{ $item->metadata['titulo'] ?? 'Sin título' }}">
-                        {{ $item->metadata['titulo'] ?? 'Sin título' }}
+                        title="{{ $titulo }}">
+                        {{ $titulo }}
                     </h3>
                     <a href="{{ route('buscador.registro', ['tipo' => 'documento', 'recurso' => $item]) }}"
                         class="dark:text-white text-right mt-1 w-fit items-center gap-1 text-xs font-bold uppercase tracking-wide text-guinda border-b-2 border-[#86212b] pb-0.5">
