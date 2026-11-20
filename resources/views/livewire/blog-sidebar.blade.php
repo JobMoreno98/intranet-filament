@@ -23,13 +23,13 @@
     </h4>
     <div class="flex flex-wrap gap-2">
         <a href="{{ route('blog.index') }}"
-            class="text-xs rounded-full px-3 py-1 transition-colors {{ !request('tag') ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
+            class="text-xs rounded-full px-3 py-1 transition-colors {{ !request('tag') ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50  hover:text-custom-wine dark:bg-zinc-800 dark:text-white hover:dark:text-red-900' }}">
             Todas
         </a>
         
         @foreach ($tagsDisponibles as $tagItem)
             <a href="{{ route('blog.index', ['tag' => $tagItem]) }}"
-                class="text-xs rounded-full px-3 py-1 transition-colors {{ request('tag') == $tagItem ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
+                class="text-xs rounded-full px-3 py-1 transition-colors {{ request('tag') == $tagItem ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-white hover:dark:text-red-900' }}">
                 #{{ $tagItem }}
             </a>
         @endforeach
@@ -69,7 +69,7 @@
     
     <div class="flex flex-wrap gap-2">
         <a href="{{ route('blog.index') }}"
-            class="text-xs rounded-full px-3 py-1 transition-colors {{ !request('mes') ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
+            class="text-xs rounded-full px-3 py-1 transition-colors {{ !request('mes') ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50  hover:text-custom-wine dark:bg-zinc-800 dark:text-white hover:dark:text-red-900' }}">
             Todos
         </a>
 
@@ -79,7 +79,7 @@
             @endphp
             
             <a href="{{ route('blog.index', ['mes' => $archivo->mes, 'anio' => $archivo->anio]) }}"
-                class="text-xs rounded-full px-3 py-1 transition-colors flex items-center gap-1 {{ $isActive ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50 hover:text-custom-wine dark:bg-zinc-800 dark:text-zinc-300' }}">
+                class="text-xs rounded-full px-3 py-1 transition-colors flex items-center gap-1 {{ $isActive ? 'bg-[#86212b] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-red-50  hover:text-custom-wine dark:bg-zinc-800 dark:text-white hover:dark:text-red-900' }}">
                 
                 {{ ucfirst($archivo->nombre_mes) }} {{ $archivo->anio }}
                 

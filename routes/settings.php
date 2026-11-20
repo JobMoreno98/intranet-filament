@@ -6,7 +6,7 @@ use App\Livewire\Settings\Security;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Route::livewire('settings/profile', Profile::class)->name('profile.edit');

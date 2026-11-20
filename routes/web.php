@@ -144,7 +144,7 @@ Route::get('/fondos', function () {
 // 6. RUTAS AUTENTICADAS Y DE ADMINISTRACIÓN
 // ==========================================
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::view('panel', 'dashboard')->name('dashboard');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -130,14 +130,15 @@
         </h2>
         <!-- Se cambió de flex a grid con grid-flow-col y grid-rows-2 para forzar las dos filas en móvil -->
         <x-scroll-hint :gradient="false"
-            class="mx-2 grid grid-rows-2 grid-flow-col auto-cols-[85vw] overflow-x-auto gap-4 
-            snap-x snap-mandatory pb-4 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:auto-cols-auto sm:grid-rows-none 
-            sm:grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:pb-0 sm:overflow-visible">
+            class="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar
+    -mx-4 px-4 sm:mx-0 sm:px-0
+    auto-cols-[85vw]
+    sm:auto-cols-[calc((100%-1rem)/2)]
+    md:auto-cols-[calc((100%-2rem)/3)]
+    lg:auto-cols-[calc((100%-4rem)/5)]">
             @foreach ($novedades as $index => $item)
-                <!-- La tarjeta ya no necesita w-[85vw], el ancho lo dicta la clase auto-cols-[85vw] del contenedor padre -->
                 <div data-aos="fade-up" data-aos-duration="400" data-aos-delay="{{ ($index % 10) * 40 }}"
-                    class="snap-center dark:bg-zinc-700 group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
-
+                    class="snap-start dark:bg-zinc-700 group flex flex-col justify-between h-32 rounded-xl bg-[#ffffff] p-4 border border-[#131f30]/15 shadow-sm hover:shadow-md hover:border-[#1d1d1b] transition-all duration-200">
                     <div>
                         <span
                             class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold bg-[#1d1d1b]/10 text-[#1d1d1b] border border-[#1d1d1b]/20">

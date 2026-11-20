@@ -24,24 +24,28 @@
     @if ($gradient)
         {{-- Degradados --}}
         <div x-show="overflow && !atStart" x-cloak x-transition.opacity aria-hidden="true"
-            class="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r {{ $fade }} sm:hidden">
+            class="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r {{ $fade }}">
         </div>
         <div x-show="overflow && !atEnd" x-cloak x-transition.opacity aria-hidden="true"
-            class="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l {{ $fade }} sm:hidden">
+            class="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l {{ $fade }}">
         </div>
     @endif
     
-    {{-- Flechas --}}
+    {{-- Flechas (ahora visibles también en desktop cuando existe overflow) --}}
     <button type="button" x-show="overflow && !atStart" x-cloak x-transition.opacity @click="go(-1)"
         aria-label="Anterior"
-        class="absolute left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-md ring-1 ring-zinc-200 sm:hidden dark:bg-zinc-700/90 dark:text-white dark:ring-zinc-600">
+        class="absolute left-1 sm:-left-4 top-1/2 z-10 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center 
+        rounded-full bg-white/95 text-zinc-700 shadow-md ring-1 ring-zinc-200
+        hover:bg-guinda hover:text-white hover:ring-guinda transition-colors cursor-pointer dark:bg-zinc-700/95 dark:text-white dark:ring-zinc-600">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </button>
     <button type="button" x-show="overflow && !atEnd" x-cloak x-transition.opacity @click="go(1)"
         aria-label="Siguiente"
-        class="absolute right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-md ring-1 ring-zinc-200 sm:hidden dark:bg-zinc-700/90 dark:text-white dark:ring-zinc-600">
+        class="absolute right-1 sm:-right-4 top-1/2 z-10 inline-flex h-9 w-9
+         -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-zinc-700 shadow-md ring-1 ring-zinc-200 hover:bg-guinda 
+         hover:text-white hover:ring-guinda transition-colors cursor-pointer dark:bg-zinc-700/95 dark:text-white dark:ring-zinc-600">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>

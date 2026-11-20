@@ -1,54 +1,56 @@
 <?php
 
-use Livewire\Volt\Component;
 use function Livewire\Volt\{state, with, usesPagination};
-use Illuminate\Support\Str;
 use App\Models\Blog;
+
 usesPagination();
 
+// ->url() captura automáticamente ?tag=... de la URL, lo decodifica (espacios, acentos, símbolos)
+// y lo mantiene persistente al cambiar de página en Livewire
 state([
     'tag' => null,
-]);
+])->url();
 
 with(function () {
-    // 1. Capturamos todos los posibles filtros de la URL
-    $tag = request('tag') ?? $this->tag;
+    $tag = filled($this->tag) ? trim(urldecode((string) $this->tag)) : null;
     $mes = request('mes');
     $anio = request('anio');
     $q = request('q');
 
     if (!empty($q)) {
         $publicaciones = Blog::search($q)
-            ->when(!empty($tag), fn ($search) => $search->where('tags', $tag))
-            // 2. Usamos ->query() para inyectar condiciones de Eloquent en Laravel Scout
-            ->query(function ($builder) use ($mes, $anio) {
+            ->query(function ($builder) use ($tag, $mes, $anio) {
+                // Filtrar por tag directamente en MySQL evita errores de sintaxis en Meilisearch
+                // con espacios, comillas, acentos o caracteres especiales
+                $builder->when(!empty($tag), function ($query) use ($tag) {
+                    $query->whereJsonContains('tags', $tag);
+                });
+
                 $builder->when(!empty($mes) && !empty($anio), function ($query) use ($mes, $anio) {
                     $query->whereMonth('created_at', $mes)
                           ->whereYear('created_at', $anio);
                 });
             })
-            ->paginate(8);
+            ->paginate(5);
     } else {
-        $query = Blog::query()->orderBy('created_at', 'DESC');
+        $query = Blog::query()->orderByDesc('created_at');
 
         if (!empty($tag)) {
             $query->whereJsonContains('tags', $tag);
         }
 
-        // 3. Aplicamos el filtro de fechas en la consulta estándar
         if (!empty($mes) && !empty($anio)) {
             $query->whereMonth('created_at', $mes)
                   ->whereYear('created_at', $anio);
         }
 
-        $publicaciones = $query->paginate(6);
+        $publicaciones = $query->paginate(5);
     }
 
     return [
         'publicaciones' => $publicaciones,
     ];
 });
-
 ?>
 
 <div wire:loading.class="opacity-50" class="transition-opacity duration-300 flex flex-col gap-8">
@@ -59,7 +61,7 @@ with(function () {
 
             <a href="{{ route('blog.show', $post->slug) }}" class="sm:w-48 flex-shrink-0">
                 <img src="{{ asset('storage/' . $post->portada) }}" alt="{{ $post->nombre }}"
-                    class="w-full aspect-square object-cover">
+                    class="h-full w-full aspect-square object-cover">
             </a>
 
             <div class="p-5 flex flex-col gap-2 flex-1">

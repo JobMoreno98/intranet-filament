@@ -20,7 +20,7 @@
         ['CRÉDITOS', 'arreola.creditos', 'users'],
     ];
 
-    $enlacesAuth = [['DASHBOARD', 'dashboard', 'squares-2x2'], ['MIS FAVORITOS', 'favoritos.index', 'heart']];
+    $enlacesAuth = [['Panel', 'dashboard', 'squares-2x2'], ['MIS FAVORITOS', 'favoritos.index', 'heart']];
 @endphp
 
 <div {{ $attributes->merge(['class' => 'flex flex-col space-y-4 font-medium']) }}>

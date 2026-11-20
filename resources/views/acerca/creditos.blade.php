@@ -115,11 +115,10 @@
                 </div>
                 <div class="space-y-5 text-justify text-base leading-8 text-zinc-600 dark:text-zinc-300">
                     <p>
-                        A la familia Arreola: Sara Sánchez †; Claudia Berenice Arreola Sánchez, Fuensanta Arreola Sánchez,
-                        Orso Arreola Sánchez †, José María Arreola Velasco, Alonso Arreola Velasco, Mireya Hernández
-                        Arreola,
-                        Berenice Hernández Arreola, Sara Arreola Cuenca y Juan José Arreola Cuenca; Dabi Xavier; Miriam
-                        Káiser;
+                        A las familias Arreola y Xavier: Sara Sánchez †; Claudia Berenice Arreola Sánchez, Fuensanta Arreola
+                        Sánchez, Orso Arreola Sánchez †, José María Arreola Velasco, Alonso Arreola Velasco, Mireya
+                        Hernández Arreola, Berenice Hernández Arreola, Sara Arreola Cuenca y Juan José Arreola Cuenca; Dabi
+                        Xavier y Miriam Kaiser.
                     </p>
                     <p>
                         Rosa Beltrán y Socorro Venegas (Universidad Nacional Autónoma de México); Juan Nepote (Museo de
