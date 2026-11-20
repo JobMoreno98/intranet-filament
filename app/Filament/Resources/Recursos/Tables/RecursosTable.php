@@ -95,6 +95,7 @@ class RecursosTable
                     ->label('Fondo')
                     ->searchable()
                     ->preload(),
+
                 TernaryFilter::make('reportes_pendientes')
                     ->label('Reportes sin atender')
                     ->placeholder('Todos')
@@ -105,6 +106,17 @@ class RecursosTable
                         false: fn(Builder $query) => $query->sinReportesPendientes(),
                         blank: fn(Builder $query) => $query,
                     ),
+                TernaryFilter::make('visible')
+                    ->label('Visibilidad')
+                    ->placeholder('Todos')
+                    ->trueLabel('Solo públicos')
+                    ->falseLabel('Solo ocultos'),
+
+                TernaryFilter::make('fijado')
+                    ->label('Fijado')
+                    ->placeholder('Todos')
+                    ->trueLabel('Solo fijados')
+                    ->falseLabel('No fijados'),
             ])
             ->recordActions([
                 // Todo lo de procesamiento va en un solo menú para no llenar la tabla de botones.

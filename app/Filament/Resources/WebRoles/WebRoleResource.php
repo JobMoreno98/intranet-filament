@@ -19,7 +19,7 @@ class WebRoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::LockClosed;
 
     protected static ?string $recordTitleAttribute = 'Administradores';
     protected static ?string $title = 'Roles Usuarios';

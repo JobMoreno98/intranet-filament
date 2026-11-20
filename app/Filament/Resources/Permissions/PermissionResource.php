@@ -26,7 +26,7 @@ class PermissionResource extends Resource
     protected static ?string $title = 'Permisos Usuarios';
     protected static ?string $navigationLabel = 'Permisos Usuarios';
     protected static ?string $pluralModelLabel = 'Permisos Usuarios';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
     
     public static function getNavigationGroup(): ?string
     {
