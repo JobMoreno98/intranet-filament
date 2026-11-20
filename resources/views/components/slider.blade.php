@@ -89,7 +89,7 @@
 
                 {{-- Contenido --}}
                 <div class="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-12 pb-14 sm:pb-16">
-                    <div class="max-w-2xl flex flex-col gap-2 sm:gap-3 text-left">
+                    <div class="max-w-4xl flex flex-col gap-2 sm:gap-3 text-left">
                         <div class="flex items-center gap-2 text-[11px] uppercase tracking-wide font-semibold">
                             <time datetime="{{ $post->created_at->toDateString() }}" class="text-zinc-200">
                                 {{ $post->created_at->translatedFormat('d \d\e F, Y') }}
