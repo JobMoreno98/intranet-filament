@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+use Illuminate\Support\Str;
 
 class BlogForm
 {
@@ -32,6 +33,7 @@ class BlogForm
                         TagsInput::make('tags'),
                         RichEditor::make('contenido')
                             ->required()
+                            ->json()
                             ->columnSpanFull()
                             ->toolbarButtons([
                                 // 1. Formato de Texto

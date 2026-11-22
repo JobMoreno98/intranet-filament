@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Casts\SanitizedHtml;
+use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Str;
@@ -15,7 +17,8 @@ class Blog extends Model
     {
         return [
             'tags' => 'array',
-            'fijado' =>'boolean'
+            'fijado' => 'boolean',
+            'contenido' => 'array',
         ];
     }
 
@@ -65,9 +68,8 @@ class Blog extends Model
     {
         return [
             'nombre' => $this->nombre,
-            'contenido' => strip_tags($this->contenido),
+            'contenido' => RichContentRenderer::make($this->contenido)->toText(),
             'tags' => $this->tags,
         ];
     }
-
 }

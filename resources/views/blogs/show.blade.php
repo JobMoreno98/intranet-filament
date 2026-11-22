@@ -99,7 +99,21 @@
         <div class="w-full max-w-4xl mx-auto px-4 py-12">
 
             <div class="post-contenido text-zinc-700 dark:text-zinc-200">
-                {!! $post->contenido !!}
+                @php
+                    $tieneContenido =
+                        filled($post->contenido) &&
+                        collect($post->contenido['content'] ?? [])->contains(
+                            fn($node) => filled($node['content'] ?? null) || ($node['type'] ?? '') !== 'paragraph',
+                        );
+                @endphp
+
+                @if ($tieneContenido)
+                    <div class="prose dark:prose-invert max-w-none [&_p:empty]:h-6 [&_p:empty]:block">
+                        {!! \Filament\Forms\Components\RichEditor\RichContentRenderer::make($post->contenido)
+                        ->fileAttachmentsDisk('public')
+                        ->fileAttachmentsVisibility('editor-uploads')->toHtml() !!}
+                    </div>
+                @endif
             </div>
 
             {{-- Caja de contenido relacionado, estilo "descubre más" 

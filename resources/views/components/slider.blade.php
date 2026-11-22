@@ -1,6 +1,6 @@
 @props([
     'posts' => [],
-    'max' => 5, // máximo de slides
+    'max' => 8, // máximo de slides
     'interval' => 6000, // ms entre slides
     'autoplay' => true,
     'limit' => 140, // caracteres del texto descriptivo
@@ -8,7 +8,7 @@
 ])
 
 @php
-    $lista = collect($posts)->take($max)->values();
+    $lista = collect($posts)->take($max)->map(fn($item) => is_array($item) ? (object) $item : $item)->values();
 @endphp
 
 @if ($lista->isNotEmpty())
@@ -48,12 +48,9 @@
             next() { this.go(this.active + 1); },
             prev() { this.go(this.active - 1); },
             destroy() { this.stop(); }
-        }"
-        x-on:mouseenter="stop()" x-on:mouseleave="start()"
-        x-on:focusin="stop()" x-on:focusout="start()"
-        x-on:visibilitychange.document="document.hidden ? stop() : start()"
-        x-on:keydown.arrow-left.prevent="prev(); start()"
-        x-on:keydown.arrow-right.prevent="next(); start()"
+        }" x-on:mouseenter="stop()" x-on:mouseleave="start()" x-on:focusin="stop()"
+        x-on:focusout="start()" x-on:visibilitychange.document="document.hidden ? stop() : start()"
+        x-on:keydown.arrow-left.prevent="prev(); start()" x-on:keydown.arrow-right.prevent="next(); start()"
         x-on:touchstart.passive="startX = $event.touches[0].clientX"
         x-on:touchend="
             const d = $event.changedTouches[0].clientX - startX;
@@ -61,27 +58,54 @@
         ">
 
         {{-- SLIDES --}}
+        {{-- SLIDES --}}
         @foreach ($lista as $i => $post)
             @php
-                $url = route('blog.show', $post->slug);
-                $imagen = !empty($post->portada) ? asset('storage/' . $post->portada) : null;
-                $texto = $post->extracto ?? ($post->descripcion ?? $post->contenido);
-                $texto = \Illuminate\Support\Str::limit(trim(html_entity_decode(strip_tags((string) $texto))), $limit);
+                $slug = data_get($post, 'slug');
+                $url = $slug ? route('blog.show', $slug) : '#';
+                $portada = data_get($post, 'portada');
+                $imagen = !empty($portada)
+                    ? asset('storage/' . (is_array($portada) ? $portada[0] ?? '' : $portada))
+                    : null;
+
+                // Obtenemos el texto y si viene como array (JSON/Filament), lo aplanamos a string
+                $rawTexto =
+                    data_get($post, 'extracto') ?? (data_get($post, 'descripcion') ?? data_get($post, 'contenido'));
+                if (is_array($rawTexto)) {
+                    $rawTexto = implode(' ', \Illuminate\Support\Arr::flatten($rawTexto));
+                }
+                $texto = \Illuminate\Support\Str::limit(
+                    trim(html_entity_decode(strip_tags((string) $rawTexto))),
+                    $limit,
+                );
+
+                // Hacemos lo mismo con el nombre/título por si acaso
+                $nombre = data_get($post, 'nombre');
+                if (is_array($nombre)) {
+                    $nombre = $nombre['es'] ?? (\Illuminate\Support\Arr::first($nombre) ?? '');
+                }
+
+                $fechaRaw = data_get($post, 'created_at');
+                $fecha = $fechaRaw ? \Illuminate\Support\Carbon::parse($fechaRaw) : null;
             @endphp
 
             <article
                 class="absolute inset-0 transition-opacity duration-700 ease-in-out {{ $loop->first ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none' }}"
-                x-bind:class="{ 'opacity-100 z-10': active === {{ $i }}, 'opacity-0 pointer-events-none': active !== {{ $i }} }"
-                x-bind:aria-hidden="active !== {{ $i }}"
-                aria-roledescription="diapositiva" aria-label="{{ $i + 1 }} de {{ $lista->count() }}">
+                x-bind:class="{
+                    'opacity-100 z-10': active === {{ $i }},
+                    'opacity-0 pointer-events-none': active !==
+                        {{ $i }}
+                }"
+                x-bind:aria-hidden="active !== {{ $i }}" aria-roledescription="diapositiva"
+                aria-label="{{ $i + 1 }} de {{ $lista->count() }}">
 
                 {{-- Imagen: la primera se carga con prioridad; las demás, bajo demanda --}}
                 @if ($imagen)
                     <img alt="" decoding="async"
                         class="absolute inset-0 h-full w-full object-cover object-center"
                         @if ($loop->first) src="{{ $imagen }}" fetchpriority="high"
-                        @else
-                            x-bind:src="seen.includes({{ $i }}) ? @js($imagen) : null" @endif>
+                @else
+                    x-bind:src="seen.includes({{ $i }}) ? @js($imagen) : null" @endif>
                 @endif
 
                 {{-- Degradado para legibilidad del texto --}}
@@ -90,23 +114,25 @@
                 {{-- Contenido --}}
                 <div class="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-12 pb-14 sm:pb-16">
                     <div class="max-w-4xl flex flex-col gap-2 sm:gap-3 text-left">
-                        <div class="flex items-center gap-2 text-[11px] uppercase tracking-wide font-semibold">
-                            <time datetime="{{ $post->created_at->toDateString() }}" class="text-zinc-200">
-                                {{ $post->created_at->translatedFormat('d \d\e F, Y') }}
-                            </time>
-                        </div>
+                        @if ($fecha)
+                            <div class="flex items-center gap-2 text-[11px] uppercase tracking-wide font-semibold">
+                                <time datetime="{{ $fecha->toDateString() }}" class="text-zinc-200">
+                                    {{ $fecha->translatedFormat('d \d\e F, Y') }}
+                                </time>
+                            </div>
+                        @endif
 
                         <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white line-clamp-3">
-                            {{-- Enlace "estirado": toda la diapositiva es clicable --}}
                             <a href="{{ $url }}"
                                 class="after:absolute after:inset-0 focus:outline-none focus-visible:after:ring-4 focus-visible:after:ring-white/70"
                                 x-bind:tabindex="active === {{ $i }} ? 0 : -1">
-                                {{ $post->nombre }}
+                                {{ $nombre }}
                             </a>
                         </h2>
 
                         @if ($texto !== '')
-                            <p class="text-sm sm:text-base text-zinc-100/90 leading-relaxed line-clamp-2 sm:line-clamp-3">
+                            <p
+                                class="text-sm sm:text-base text-zinc-100/90 leading-relaxed line-clamp-2 sm:line-clamp-3">
                                 {{ $texto }}
                             </p>
                         @endif
@@ -119,7 +145,6 @@
                 </div>
             </article>
         @endforeach
-
         @if ($lista->count() > 1)
             {{-- FLECHAS (ocultas en móvil: ahí se desliza con el dedo) --}}
             <button type="button" aria-label="Publicación anterior" x-on:click="prev(); start()"
@@ -141,7 +166,12 @@
                     <button type="button" aria-label="Ir a la publicación {{ $i + 1 }}"
                         x-on:click="go({{ $i }}); start()"
                         class="h-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white {{ $loop->first ? 'w-6 bg-white' : 'w-2.5 bg-white/50' }}"
-                        x-bind:class="{ 'w-6 bg-white': active === {{ $i }}, 'w-2.5 bg-white/50 hover:bg-white/80': active !== {{ $i }} }"
+                        x-bind:class="{
+                            'w-6 bg-white': active ===
+                                {{ $i }},
+                            'w-2.5 bg-white/50 hover:bg-white/80': active !==
+                                {{ $i }}
+                        }"
                         x-bind:aria-current="active === {{ $i }}"></button>
                 @endforeach
             </div>

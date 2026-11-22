@@ -83,7 +83,7 @@ class ColeccionForm
             FileUpload::make('foto')->disk('colecciones')->acceptedFileTypes(['image/*']),
 
             RichEditor::make('descripcion')
-                ->required()->label('Descripción')
+                ->label('Descripción')
                 ->columnSpanFull()
                 ->toolbarButtons([
                     // 1. Formato de Texto

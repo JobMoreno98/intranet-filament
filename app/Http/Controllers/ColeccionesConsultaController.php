@@ -30,7 +30,7 @@ class ColeccionesConsultaController extends Controller
     public function index(Request $request)
     {
         $areas = Area::all();
-        $blogs = Blog::where('fijado', true)->latest()->limit(10)->get();
+        $blogs = Blog::where('fijado', true)->latest()->limit(8)->get();
         $novedades = Recursos::with('acervo')->where('fijado', true)->latest()->limit(20)->get();
         return view('home', compact('areas', 'novedades', 'blogs'))->with(['title' => 'Inicio']);
     }

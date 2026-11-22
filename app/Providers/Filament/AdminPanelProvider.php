@@ -38,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('admin')->homeUrl('/admin')
             ->globalSearch(false)->profile(isSimple: false)
             ->authPasswordBroker('admins')
-            ->login()
+            ->login()->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::hex('#7c2422'),
             ])->navigationGroups([

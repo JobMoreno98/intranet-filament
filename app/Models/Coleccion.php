@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\SanitizedHtml;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,13 @@ class Coleccion extends Model
 {
 
     use Searchable;
+    protected function casts(): array
+    {
+        return [
+            'descripcion' => SanitizedHtml::class,
+        ];
+    }
+
 
     protected $guarded = [];
 
@@ -138,7 +146,7 @@ class Coleccion extends Model
         $partes = [];
         $visitados = [];
         $id = $this->id;
-        
+
         while ($id && isset($mapa[$id]) && !isset($visitados[$id])) {
             $visitados[$id] = true;
             array_unshift($partes, $mapa[$id]['nombre']);

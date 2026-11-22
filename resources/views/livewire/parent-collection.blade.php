@@ -43,13 +43,13 @@ with(function () {
 {{-- Alpine en la raíz. h-full para que la tarjeta iguale la altura de las demás en el grid --}}
 <div class="h-full w-full" x-data="{
     abrir() {
-        this.$refs.modal.showModal();
-        document.body.classList.add('overflow-hidden');
-        if (!this.$wire.cargado) this.$wire.cargar();
-    },
-    cerrar() {
-        this.$refs.modal.close();
-    },
+            this.$refs.modal.showModal();
+            document.body.classList.add('overflow-hidden');
+            if (!this.$wire.cargado) this.$wire.cargar();
+        },
+        cerrar() {
+            this.$refs.modal.close();
+        },
 }">
 
     {{-- Tarjeta del fondo --}}
@@ -92,7 +92,9 @@ with(function () {
                     'line-clamp-3' => !$compacto,
                     'line-clamp-2' => $compacto,
                 ])>
-                    {{ $collection->descripcion }}
+                    @if (filled(trim(strip_tags($collection->descripcion ?? ''))))
+                        {!! str($collection->descripcion)->sanitizeHtml() !!}
+                    @endif
                 </p>
             </div>
 
@@ -149,8 +151,7 @@ with(function () {
                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
                             @foreach ($children as $child)
                                 {{-- Cada hijo es otra tarjeta: si tiene internos, trae su propio botón y modal --}}
-                                <livewire:parent-collection :collection="$child" :compacto="true"
-                                    :key="'hijo-' . $collection->id . '-' . $child->id" />
+                                <livewire:parent-collection :collection="$child" :compacto="true" :key="'hijo-' . $collection->id . '-' . $child->id" />
                             @endforeach
                         </div>
                     @else
