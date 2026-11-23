@@ -27,8 +27,7 @@ with(function () {
                 });
 
                 $builder->when(!empty($mes) && !empty($anio), function ($query) use ($mes, $anio) {
-                    $query->whereMonth('created_at', $mes)
-                          ->whereYear('created_at', $anio);
+                    $query->whereMonth('created_at', $mes)->whereYear('created_at', $anio);
                 });
             })
             ->paginate(5);
@@ -40,8 +39,7 @@ with(function () {
         }
 
         if (!empty($mes) && !empty($anio)) {
-            $query->whereMonth('created_at', $mes)
-                  ->whereYear('created_at', $anio);
+            $query->whereMonth('created_at', $mes)->whereYear('created_at', $anio);
         }
 
         $publicaciones = $query->paginate(5);
@@ -78,7 +76,7 @@ with(function () {
                 </h2>
 
                 <p class="text-sm text-zinc-600 line-clamp-3 dark:text-zinc-300">
-                    {{ Str::limit(strip_tags($post->contenido), 160) }}
+                    {{ Str::limit(\Filament\Forms\Components\RichEditor\RichContentRenderer::make($post->contenido)->toText(), 160) }}
                 </p>
 
                 @if (!empty($post->tags))

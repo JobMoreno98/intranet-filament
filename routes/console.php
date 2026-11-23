@@ -20,3 +20,5 @@ Schedule::call(function () {
     ->hourly()
     ->name('reindexar-recursos-recientes')
     ->withoutOverlapping();
+
+Schedule::command('backup:run --only-db')->daily()->at('01:30');
