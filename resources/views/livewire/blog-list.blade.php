@@ -76,7 +76,7 @@ with(function () {
                 </h2>
 
                 <p class="text-sm text-zinc-600 line-clamp-3 dark:text-zinc-300">
-                    {{ Str::limit(\Filament\Forms\Components\RichEditor\RichContentRenderer::make($post->contenido)->toText(), 160) }}
+                   {{ Str::limit($post->extracto, 160) }}
                 </p>
 
                 @if (!empty($post->tags))

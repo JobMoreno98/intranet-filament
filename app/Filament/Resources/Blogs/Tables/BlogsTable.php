@@ -15,12 +15,30 @@ class BlogsTable
     {
         return $table
             ->columns([
-                TextColumn::make("nombre")->searchable()->sortable(),
+                TextColumn::make('nombre')
+                    ->label('Título')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('semibold')
+                    ->wrap()
+                    ->lineClamp(2)
+                    ->tooltip(fn($record): ?string => strlen($record->nombre) > 60 ? $record->nombre : null),
+
                 TextColumn::make('tags')
+                    ->label('Etiquetas')
                     ->badge()
-                    ->separator(','),
-                ToggleColumn::make('fijado')->label('Fijado')
+                    ->color('info')
+                    ->getStateUsing(fn($record): array => is_array($record->tags) ? array_values($record->tags) : [])
+                    ->wrap()
+                    ->limitList(3)
+                    ->expandableLimitedList()
+                    ->searchable(),
+                    
+                ToggleColumn::make('fijado')
+                    ->label('Fijado')
+                    ->alignCenter(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

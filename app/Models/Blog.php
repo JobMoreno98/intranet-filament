@@ -72,4 +72,35 @@ class Blog extends Model
             'tags' => $this->tags,
         ];
     }
+
+    public function getExtractoAttribute(): string
+    {
+        if (blank($this->contenido)) {
+            return '';
+        }
+
+        if (is_string($this->contenido)) {
+            return strip_tags($this->contenido);
+        }
+
+        return isset($this->contenido['type'])
+            ? RichContentRenderer::make($this->contenido)->toText()
+            : '';
+    }
+
+    // Para la vista de detalle (HTML renderizado)
+    public function getContenidoHtmlAttribute(): string
+    {
+        if (blank($this->contenido)) {
+            return '';
+        }
+
+        if (is_string($this->contenido)) {
+            return $this->contenido;
+        }
+
+        return isset($this->contenido['type'])
+            ? RichContentRenderer::make($this->contenido)->toHtml()
+            : '';
+    }
 }
