@@ -77,7 +77,7 @@ new class extends VoltComponent {
     }
 }; ?>
 
-<div class="dark:text-white p-6 rounded-b-lg shadow-sm border-t border-gray-100">
+<div class="dark:text-white p-6 rounded-b-lg shadow-sm border-t border-gray-100 dark:border-0">
     @if ($acervoId)
         @if (count($configuracion) > 0)
             <h4 class="dark:text-white text-sm font-bold mb-4 text-gray-700 uppercase tracking-wider flex items-center gap-2">

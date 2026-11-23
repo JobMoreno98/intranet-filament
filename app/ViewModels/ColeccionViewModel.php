@@ -331,6 +331,7 @@ class ColeccionViewModel extends ViewModel
             }
 
             $this->filasProcesadas[] = [
+                'id'      => $registro->id,
                 'index' => $index,
                 'acervo' => $registro->acervo->nombre,
                 'urlVer' => (!empty($registro->archivos) && $registro->uuid)

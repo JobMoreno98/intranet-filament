@@ -106,8 +106,7 @@
                     </form>
                 </div>
 
-                <div
-                    class="relative overflow-x-auto shadow-2xl rounded-md  bg-white dark:bg-neutral-600">
+                <div class="relative overflow-x-auto shadow-2xl rounded-md  bg-white dark:bg-neutral-600">
                     <table class="min-w-full  text-left">
                         <thead class="bg-custom-wine text-white">
                             <tr>
@@ -138,15 +137,15 @@
                                     <td class="px-3 py-2 text-center">
                                         @if ($fila['urlVer'])
                                             <a href="{{ $fila['urlVer'] }}"
-                                                class="text-white bg-guinda border-2 border-custom-wine rounded-sm px-2 py-1  block
-                                        font-black text-xs uppercase tracking-widest hover:bg-custom-wine hover:text-white transition-all hover:bg-guinda
-                                        dark:bg-custom-wine dark:text-white w-full my-1">
+                                                class="text-white bg-red-900  rounded-sm px-2 py-1 block
+                                        font-black text-xs uppercase tracking-widest hover:bg-custom-wine  transition-all hover:bg-red-950
+                                        dark:text-white w-full my-1">
                                                 Ver
                                             </a>
                                         @endif
 
                                         <button type="button" onclick="toggleModal('modal-{{ $fila['index'] }}', true)"
-                                            class="text-guinda border-2 rounded-sm px-2 py-1  w-full my-1
+                                            class="text-guinda  rounded-sm px-2 py-1  w-full my-1
                                         font-black text-xs uppercase tracking-widest hover:text-white hover:bg-guinda transition-all
                                         dark:bg-guinda dark:text-white">
                                             Detalle
@@ -202,18 +201,14 @@
                                             <div
                                                 class="bg-white dark:bg-zinc-800 p-4 rounded-lg border-l-4 border-[#86212b] shadow-sm">
 
-                                                <!-- Etiqueta (Label) -->
                                                 <dt
                                                     class="text-[10px] font-black text-custom-wine dark:text-red-400 uppercase tracking-widest mb-1">
                                                     {{ $campo['label'] }}
                                                 </dt>
-
-                                                <!-- Valor (Se ajusta a gris claro en modo oscuro para contraste) -->
                                                 <dd
                                                     class="text-sm text-gray-800 dark:text-gray-200 font-semibold leading-relaxed">
                                                     {{ $campo['valor'] }}
                                                 </dd>
-
                                             </div>
                                         @endforeach
                                     </div>
@@ -221,9 +216,17 @@
 
                                 <!-- Footer -->
                                 <div
-                                    class="px-8 py-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-neutral-600 text-right">
-                                    <button onclick="toggleModal('modal-{{ $fila['index'] }}', false)"
-                                        class="bg-custom-wine hover:bg-opacity-90 transition-colors text-white px-6 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest shadow-sm">
+                                    class="px-6 sm:px-8 py-4 border-t border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-neutral-700 flex items-center justify-between gap-4">
+                                    <div>
+                                        @auth
+                                            @if (!empty($fila['id']))
+                                                <livewire:boton-favorito :recursoId="$fila['id']" :key="'fav-' . $fila['id']" />
+                                            @endif
+                                        @endauth
+                                    </div>
+
+                                    <button type="button" onclick="toggleModal('modal-{{ $fila['index'] }}', false)"
+                                        class="bg-custom-wine hover:bg-[#6d1b23] transition-colors text-white px-6 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest shadow-sm">
                                         Cerrar
                                     </button>
                                 </div>
